@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Intelligence Terminal - {report_metadata[report_id]}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #000000;
+            color: #00ff00;
+            line-height: 1.2;
+            overflow-x: auto;
+        }
+        
+        .terminal-container {
+            background: #000000;
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .terminal-header {
+            background: #1a1a1a;
+            border-bottom: 2px solid #00ff00;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .terminal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .terminal-meta {
+            font-size: 12px;
+            color: #888888;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .terminal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 2px;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .terminal-panel {
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            padding: 15px;
+            overflow: auto;
+        }
+        
+        .panel-header {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 8px 12px;
+            margin: -15px -15px 15px -15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .kpi-tile {
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .kpi-tile:hover {
+            border-color: #00ff00;
+            background: #0a1a0a;
+        }
+        
+        .kpi-title {
+            font-size: 10px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ff00;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .kpi-change {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+        
+        .kpi-change.positive {
+            color: #00ff00;
+        }
+        
+        .kpi-change.negative {
+            color: #ff0000;
+        }
+        
+        .kpi-change.neutral {
+            color: #ffff00;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        .data-table th {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .data-table td {
+            padding: 6px;
+            border-bottom: 1px solid #222222;
+            color: #cccccc;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #0a1a0a;
+            color: #00ff00;
+        }
+        
+        .data-table tbody tr:nth-child(even) {
+            background: #0a0a0a;
+        }
+        
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .scenario-card {
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 15px;
+        }
+        
+        .scenario-card:hover {
+            border-color: #00ff00;
+            background: #0a1a0a;
+        }
+        
+        .scenario-title {
+            color: #00ff00;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 5px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid #222222;
+        }
+        
+        .metric-label {
+            color: #888888;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            color: #00ff00;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .highlight-metric {
+            background: #0a1a0a;
+            border: 1px solid #00ff00;
+            padding: 5px 8px;
+            border-radius: 2px;
+        }
+        
+        .chart-container {
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            color: #888888;
+            font-size: 12px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-indicator.green {
+            background: #00ff00;
+        }
+        
+        .status-indicator.yellow {
+            background: #ffff00;
+        }
+        
+        .status-indicator.red {
+            background: #ff0000;
+        }
+        
+        .terminal-footer {
+            background: #1a1a1a;
+            border-top: 2px solid #00ff00;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #888888;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .cursor {
+            background: #00ff00;
+            color: #000000;
+            padding: 0 2px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .terminal-command {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .terminal-output {
+            color: #cccccc;
+        }
+        
+        .terminal-error {
+            color: #ff0000;
+        }
+        
+        .terminal-success {
+            color: #00ff00;
+        }
+        
+        @media print {
+            body {
+                background: #000000;
+                color: #00ff00;
+            }
+            
+            .terminal-container {
+                background: #000000;
+            }
+            
+            .kpi-tile:hover,
+            .scenario-card:hover,
+            .data-table tbody tr:hover {
+                background: #0a0a0a;
+                border-color: #333333;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <div class="terminal-title">CRANE INTELLIGENCE TERMINAL</div>
+            <div class="terminal-meta">
+                <span>Report ID: {report_metadata[report_id]}</span>
+                <span>Generated: {report_metadata[generated_at]}</span>
+                <span class="status-indicator green"></span>
+                <span>LIVE</span>
+            </div>
+        </div>
+
+        <!-- Terminal Grid -->
+        <div class="terminal-grid">
+            <!-- KPI Dashboard -->
+            <div class="terminal-panel">
+                <div class="panel-header">KEY PERFORMANCE INDICATORS</div>
+                <div class="kpi-grid">
+                    {kpi_metrics_html}
+                </div>
+            </div>
+
+            <!-- Equipment Summary -->
+            <div class="terminal-panel">
+                <div class="panel-header">EQUIPMENT SUMMARY</div>
+                <div class="terminal-command">> EQUIPMENT_DETAILS</div>
+                <div class="terminal-output">
+                    <div class="metric-row">
+                        <span class="metric-label">Manufacturer</span>
+                        <span class="metric-value">{valuation_summary[manufacturer]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Model</span>
+                        <span class="metric-value">{valuation_summary[model]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Year</span>
+                        <span class="metric-value">{valuation_summary[year]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Capacity</span>
+                        <span class="metric-value">{valuation_summary[capacity_tons]} Tons</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Hours</span>
+                        <span class="metric-value">{valuation_summary[hours]:,}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Region</span>
+                        <span class="metric-value">{valuation_summary[region]}</span>
+                    </div>
+                    <div class="metric-row highlight-metric">
+                        <span class="metric-label">Estimated Value</span>
+                        <span class="metric-value">${valuation_summary[estimated_value]:,.0f}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Confidence Score</span>
+                        <span class="metric-value">{valuation_summary[confidence_score]:.1%}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparable Sales -->
+            <div class="terminal-panel full-width">
+                <div class="panel-header">COMPARABLE SALES ANALYSIS</div>
+                <div class="terminal-command">> COMPARABLE_SALES --limit=10 --sort=date</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Year</th>
+                            <th>Cap (T)</th>
+                            <th>Hours</th>
+                            <th>Price</th>
+                            <th>$/Ton</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Condition</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {comparable_sales_html}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Finance Scenarios -->
+            <div class="terminal-panel">
+                <div class="panel-header">FINANCE SCENARIOS</div>
+                <div class="terminal-command">> FINANCE_ANALYSIS --scenarios=3</div>
+                <div class="scenario-grid">
+                    {finance_scenarios_html}
+                </div>
+            </div>
+
+            <!-- Profit Scenarios -->
+            <div class="terminal-panel">
+                <div class="panel-header">PROFIT SCENARIOS</div>
+                <div class="terminal-command">> PROFIT_ANALYSIS --scenarios=3</div>
+                <div class="scenario-grid">
+                    {profit_scenarios_html}
+                </div>
+            </div>
+
+            <!-- Rental Analysis -->
+            <div class="terminal-panel">
+                <div class="panel-header">RENTAL ANALYSIS</div>
+                {rental_analysis_html}
+            </div>
+
+            <!-- Fleet Optimization -->
+            <div class="terminal-panel">
+                <div class="panel-header">FLEET OPTIMIZATION</div>
+                {fleet_optimization_html}
+            </div>
+
+            <!-- Market Analysis -->
+            <div class="terminal-panel">
+                <div class="panel-header">MARKET ANALYSIS</div>
+                <div class="terminal-command">> MARKET_DATA --region={valuation_summary[region]}</div>
+                <div class="terminal-output">
+                    <div class="metric-row">
+                        <span class="metric-label">Demand Level</span>
+                        <span class="metric-value">{market_analysis[market_trends][demand_level]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Supply Level</span>
+                        <span class="metric-value">{market_analysis[market_trends][supply_level]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Price Trend</span>
+                        <span class="metric-value">{market_analysis[market_trends][price_trend]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">YoY Growth</span>
+                        <span class="metric-value">{market_analysis[market_trends][yoy_growth]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Market Size</span>
+                        <span class="metric-value">{market_analysis[regional_analysis][market_size]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Growth Rate</span>
+                        <span class="metric-value">{market_analysis[regional_analysis][growth_rate]}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Competition</span>
+                        <span class="metric-value">{market_analysis[regional_analysis][competition_level]}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="terminal-panel full-width">
+                <div class="panel-header">RISK ASSESSMENT & RECOMMENDATIONS</div>
+                <div class="terminal-command">> RISK_ANALYSIS --equipment={valuation_summary[manufacturer]} {valuation_summary[model]}</div>
+                <div class="terminal-output">
+                    <div class="metric-row highlight-metric">
+                        <span class="metric-label">Overall Risk Level</span>
+                        <span class="metric-value">{risk_assessment[overall_risk]}</span>
+                    </div>
+                    <div class="terminal-command">> RISK_FACTORS</div>
+                    <div class="terminal-output">
+                        {risk_factors_html}
+                    </div>
+                    <div class="terminal-command">> RECOMMENDATIONS</div>
+                    <div class="terminal-output">
+                        {recommendations_html}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Footer -->
+        <div class="terminal-footer">
+            <span class="terminal-command">CRANE INTELLIGENCE PLATFORM</span> | 
+            <span class="terminal-output">Professional Equipment Valuation & Market Analysis</span> | 
+            <span class="blink cursor">_</span>
+        </div>
+    </div>
+</body>
+</html>

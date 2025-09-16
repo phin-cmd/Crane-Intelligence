@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Intelligence - Market Intelligence Report</title>
+    <style>
+        * {{{{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}}}
+        
+        body {{
+            font-family: 'Arial', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+        }}
+        
+        .report-container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        
+        .report-header {{
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }}
+        
+        .report-title {{
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ff85;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }}
+        
+        .report-subtitle {{
+            font-size: 20px;
+            color: #cccccc;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }}
+        
+        .crane-details {{
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }}
+        
+        .crane-details h3 {{
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #00ff85;
+            padding-bottom: 10px;
+        }}
+        
+        .details-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }}
+        
+        .detail-item {{
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }}
+        
+        .detail-item:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: #00ff85;
+        }}
+        
+        .detail-label {{
+            font-size: 12px;
+            font-weight: bold;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }}
+        
+        .detail-value {{
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }}
+        
+        .market-analysis {{
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }}
+        
+        .market-analysis h3 {{
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }}
+        
+        .analysis-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }}
+        
+        .analysis-card {{
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+        }}
+        
+        .analysis-card::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #007bff, #00ff85);
+            border-radius: 8px 8px 0 0;
+        }}
+        
+        .analysis-title {{
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }}
+        
+        .analysis-content {{
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.5;
+        }}
+        
+        .valuation-summary {{
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }}
+        
+        .valuation-summary h3 {{
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 10px;
+        }}
+        
+        .valuation-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }}
+        
+        .valuation-item {{
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }}
+        
+        .valuation-item.highlight {{
+            border-color: #28a745;
+            background: #f8fff9;
+        }}
+        
+        .valuation-label {{
+            font-size: 12px;
+            font-weight: bold;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }}
+        
+        .valuation-value {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }}
+        
+        .valuation-value.highlight {{
+            color: #28a745;
+        }}
+        
+        .recommendations {{
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }}
+        
+        .recommendations h3 {{
+            color: #856404;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #ffc107;
+            padding-bottom: 10px;
+        }}
+        
+        .recommendation-list {{
+            list-style: none;
+            padding: 0;
+        }}
+        
+        .recommendation-list li {{
+            background: #ffffff;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 40px;
+        }}
+        
+        .recommendation-list li::before {{
+            content: '✓';
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+        }}
+        
+        .footer {{
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }}
+        
+        .footer h4 {{
+            color: #00ff85;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }}
+        
+        .footer p {{
+            color: #cccccc;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }}
+        
+        .footer .contact-info {{
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333333;
+        }}
+        
+        .footer .contact-info p {{
+            font-size: 12px;
+            color: #999999;
+        }}
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1 class="report-title">Crane Intelligence</h1>
+            <h2 class="report-subtitle">Market Intelligence Report</h2>
+            <div class="report-meta">
+                <div>Report ID: {report_metadata[report_id]}</div>
+                <div>Generated: {report_metadata[generated_at]}</div>
+                <div>Confidence Score: {valuation_data[confidence_score]:.1%}</div>
+            </div>
+        </div>
+        
+        <div class="crane-details">
+            <h3>Equipment Specifications</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Manufacturer</div>
+                    <div class="detail-value">{valuation_data[manufacturer]}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Model</div>
+                    <div class="detail-value">{valuation_data[model]}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Year</div>
+                    <div class="detail-value">{valuation_data[year]}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Capacity (Tons)</div>
+                    <div class="detail-value">{valuation_data[capacity_tons]}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Operating Hours</div>
+                    <div class="detail-value">{valuation_data[hours]:,}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Region</div>
+                    <div class="detail-value">{valuation_data[region]}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="market-analysis">
+            <h3>Market Analysis</h3>
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="analysis-title">Market Position</div>
+                    <div class="analysis-content">
+                        Based on current market conditions and equipment specifications, 
+                        this crane represents a {valuation_data[market_demand]} demand position 
+                        in the {valuation_data[region]} market. The {valuation_data[year]} 
+                        model year places it in a competitive position for its age category.
+                    </div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-title">Condition Assessment</div>
+                    <div class="analysis-content">
+                        With {valuation_data[hours]:,} operating hours, this equipment 
+                        shows {valuation_data[condition_score]:.1%} condition score. 
+                        The wear pattern suggests {valuation_data[risk_score]} risk 
+                        for continued operation with proper maintenance.
+                    </div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-title">Age Factor Impact</div>
+                    <div class="analysis-content">
+                        The {valuation_data[age_factor]:.1%} age factor reflects 
+                        the depreciation curve for this equipment class. This represents 
+                        a typical depreciation pattern for {valuation_data[manufacturer]} 
+                        equipment of this vintage.
+                    </div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-title">Regional Market Trends</div>
+                    <div class="analysis-content">
+                        The {valuation_data[region]} market shows strong demand for 
+                        {valuation_data[capacity_tons]}-ton capacity cranes. Current 
+                        market conditions favor well-maintained equipment with 
+                        documented service history.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="valuation-summary">
+            <h3>Valuation Summary</h3>
+            <div class="valuation-grid">
+                <div class="valuation-item highlight">
+                    <div class="valuation-label">Estimated Value</div>
+                    <div class="valuation-value highlight">${valuation_data[estimated_value]:,.0f}</div>
+                </div>
+                <div class="valuation-item">
+                    <div class="valuation-label">Confidence Score</div>
+                    <div class="valuation-value">{valuation_data[confidence_score]:.1%}</div>
+                </div>
+                <div class="valuation-item">
+                    <div class="valuation-label">Condition Score</div>
+                    <div class="valuation-value">{valuation_data[condition_score]:.1%}</div>
+                </div>
+                <div class="valuation-item">
+                    <div class="valuation-label">Age Factor</div>
+                    <div class="valuation-value">{valuation_data[age_factor]:.1%}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendations">
+            <h3>Market Recommendations</h3>
+            <ul class="recommendation-list">
+                <li>This equipment represents a solid investment opportunity for {valuation_data[region]} operations</li>
+                <li>Recommended for immediate acquisition given current market conditions</li>
+                <li>Consider negotiating based on documented maintenance history</li>
+                <li>Verify compliance with regional safety and environmental standards</li>
+                <li>Assess transportation costs for relocation if needed</li>
+                <li>Review warranty and service support availability in target region</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <h4>Crane Intelligence Platform</h4>
+            <p>Professional Equipment Valuation & Market Analysis</p>
+            <p>This report was generated using advanced market intelligence algorithms</p>
+            <div class="contact-info">
+                <p>For questions about this report, contact our valuation team</p>
+                <p>© 2025 Crane Intelligence. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

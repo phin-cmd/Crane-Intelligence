@@ -1,0 +1,23 @@
+
+:root {
+  --ci-bg: #121212;
+  --ci-panel: #161616;
+  --ci-line: #2A2A2A;
+  --ci-text: #EAEAEA;
+  --ci-muted: #B0B0B0;
+  --ci-up: #00FF85;
+  --ci-down: #FF3B3B;
+  --ci-yellow: #FFD600;
+  --ci-amber: #FF9800;
+  --ci-radius: 4px;
+  --ci-pad: 16px;
+  --ci-gap: 12px;
+  --ci-font: 'Inter', 'Roboto Condensed', 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+}
+.ci-dark { background: var(--ci-bg); color: var(--ci-text); font-family: var(--ci-font); }
+.ci-panel { background: var(--ci-panel); border: 1px solid var(--ci-line); border-radius: var(--ci-radius); padding: var(--ci-pad); }
+.ci-up { color: var(--ci-up); } .ci-down { color: var(--ci-down); } .ci-hi { color: var(--ci-yellow); }
+.ci-table { border: 1px solid var(--ci-line); width: 100%; border-collapse: collapse; }
+.ci-table th, .ci-table td { padding: 8px 10px; border-top: 1px solid var(--ci-line); }
+.ci-table tr:nth-child(2n) { background: #181818; }
+.ci-logo-bar { width: 10px; height: 100%; background: var(--ci-yellow); display:inline-block; border-radius: 2px; }

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .txt { font-family: Inter, "Roboto Condensed", "IBM Plex Sans", Arial, sans-serif; font-weight: 800; }
+    </style>
+  </defs>
+  <!-- rounded container stroke to echo terminals/panels -->
+  <rect x="8" y="8" width="240" height="240" rx="28" ry="28" fill="none" stroke="#FFD600" stroke-width="10"/>
+  <!-- vertical accent bar -->
+  <rect x="40" y="48" width="12" height="160" rx="2" fill="#FFD600"/>
+  <!-- CI letters -->
+  <text x="76" y="150" font-size="108" class="txt" fill="#EAEAEA">C</text>
+  <text x="150" y="150" font-size="108" class="txt" fill="#EAEAEA">I</text>
+</svg>

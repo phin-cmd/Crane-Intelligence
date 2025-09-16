@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - CRANE INTELLIGENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=3">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script>
+        // Check authentication status
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (!token || !userData) {
+                window.location.href = 'homepage.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                updateUserInterface(user);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user_data');
+                window.location.href = 'homepage.html';
+            }
+        });
+        
+        function updateUserInterface(user) {
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (user) {
+                // Show user profile for logged-in users
+                if (userProfile) {
+                    userProfile.style.display = 'flex';
+                }
+                
+                // Hide navigation menu for logged-in users on non-homepage
+                if (navMenu) {
+                    navMenu.classList.remove('show');
+                }
+                
+                // Update user information
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                if (userRole) {
+                    userRole.textContent = user.user_role || 'Premium User';
+                }
+            } else {
+                // Hide user profile for guest users
+                if (userProfile) {
+                    userProfile.style.display = 'none';
+                }
+                
+                // Show navigation menu for guest users
+                if (navMenu) {
+                    navMenu.classList.add('show');
+                }
+            }
+        }
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'homepage.html';
+        }
+        
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('dropdownMenu');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+    </script>
+    <style>
+        /* ===== CRANE INTELLIGENCE - ACCOUNT SETTINGS DESIGN ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            --transition-slow: 0.35s ease;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== PAGE LAYOUT ===== */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-main {
+            flex: 1;
+            padding: var(--space-2xl) var(--space-xl);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow));
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            font-family: var(--font-condensed);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== SETTINGS LAYOUT ===== */
+        .settings-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: var(--space-2xl);
+        }
+
+        .settings-sidebar {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            height: fit-content;
+        }
+
+        .settings-nav {
+            list-style: none;
+        }
+
+        .settings-nav li {
+            margin-bottom: var(--space-sm);
+        }
+
+        .settings-nav a {
+            display: block;
+            padding: var(--space-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .settings-nav a:hover,
+        .settings-nav a.active {
+            background: var(--tertiary-black);
+            color: var(--accent-green);
+        }
+
+        .settings-content {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+        }
+
+        .settings-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            font-family: var(--font-condensed);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--tertiary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right var(--space-md) center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+
+        .btn {
+            padding: var(--space-md) var(--space-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--primary-black);
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--tertiary-black);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: var(--text-primary);
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        .avatar-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+
+        .avatar-info h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .avatar-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-xl) 0;
+        }
+
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-info h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .notification-info p {
+                font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-green);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            transition: var(--transition-fast);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .settings-container {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+            
+            .settings-sidebar {
+                order: 2;
+            }
+            
+            .settings-content {
+                order: 1;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-main {
+                padding: var(--space-lg);
+            }
+            
+            .page-header {
+                padding: var(--space-lg);
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .settings-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .settings-section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .settings-section:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        /* Header Styles */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            height: 80px !important;
+            position: relative !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            transition: none !important;
+        }
+
+        .logo:hover {
+            transform: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: none !important;
+            align-items: center !important;
+            gap: 40px !important;
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
+
+        .nav-menu.show {
+            display: flex !important;
+        }
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.2s !important;
+        }
+
+        .nav-link:hover {
+            color: #FFD600 !important;
+        }
+
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF !important;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0 !important;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0 !important;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1001;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #404040;
+            margin: 8px 0;
+        }
+
+        /* Market Ticker */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .newsletter button:hover {
+            background: #00E673;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo" onclick="window.location.href='homepage.html'" style="cursor: pointer;">
+                <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+            </div>
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">JD</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">John Doe</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">234.5</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">567.3</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-container">
+        <main class="page-main">
+            <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Account Settings</h1>
+                <p class="page-subtitle">Manage your account preferences and personal information.</p>
+        </div>
+
+            <!-- Settings Container -->
+        <div class="settings-container">
+                <!-- Settings Sidebar -->
+                <aside class="settings-sidebar">
+                    <nav class="settings-nav">
+                        <li><a href="#profile" class="active">Profile</a></li>
+                        <li><a href="#security">Security</a></li>
+                        <li><a href="#notifications">Notifications</a></li>
+                        <li><a href="#billing">Billing</a></li>
+                        <li><a href="#preferences">Preferences</a></li>
+                    </nav>
+                </aside>
+
+                <!-- Settings Content -->
+                <div class="settings-content">
+                    <!-- Profile Section -->
+                    <div class="settings-section" id="profile">
+                        <h2 class="section-title">Profile Information</h2>
+                        
+                        <div class="avatar-section">
+                            <div class="avatar">
+                                <span id="userInitials">JD</span>
+                        </div>
+                            <div class="avatar-info">
+                                <h3 id="userDisplayName">John Doe</h3>
+                                <p>Professional Plan Member</p>
+                        </div>
+                    </div>
+                    
+            <div class="form-row">
+                <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-input" value="John" placeholder="Enter first name">
+                </div>
+                <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-input" value="Doe" placeholder="Enter last name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" value="john.doe@example.com" placeholder="Enter email address">
+            </div>
+
+            <div class="form-group">
+                            <label class="form-label">Company</label>
+                            <input type="text" class="form-input" value="Crane Solutions Inc." placeholder="Enter company name">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-input" value="Fleet Manager" placeholder="Enter job title">
+            </div>
+
+            <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" value="+1 (555) 123-4567" placeholder="Enter phone number">
+            </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary">Save Changes</button>
+                            <button class="btn btn-secondary">Cancel</button>
+                        </div>
+        </div>
+
+                    <div class="divider"></div>
+
+            <!-- Security Section -->
+                    <div class="settings-section" id="security">
+                        <h2 class="section-title">Security Settings</h2>
+
+            <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-input" placeholder="Enter current password">
+            </div>
+
+            <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-input" placeholder="Enter new password">
+            </div>
+
+            <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-input" placeholder="Confirm new password">
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary">Update Password</button>
+                        </div>
+            </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Notifications Section -->
+                    <div class="settings-section" id="notifications">
+                        <h2 class="section-title">Notification Preferences</h2>
+
+                        <div class="notification-item">
+                            <div class="notification-info">
+                                <h4>Email Notifications</h4>
+                                <p>Receive important updates via email</p>
+                            </div>
+                            <div class="toggle-switch active"></div>
+        </div>
+
+                        <div class="notification-item">
+                            <div class="notification-info">
+                                <h4>Market Alerts</h4>
+                                <p>Get notified about market changes</p>
+                            </div>
+                            <div class="toggle-switch active"></div>
+            </div>
+
+                        <div class="notification-item">
+                            <div class="notification-info">
+                                <h4>Valuation Updates</h4>
+                                <p>Receive updates on your valuations</p>
+                            </div>
+                            <div class="toggle-switch"></div>
+                        </div>
+
+                        <div class="notification-item">
+                            <div class="notification-info">
+                                <h4>Newsletter</h4>
+                                <p>Weekly industry insights and updates</p>
+                </div>
+                            <div class="toggle-switch active"></div>
+            </div>
+        </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Billing Section -->
+                    <div class="settings-section" id="billing">
+                        <h2 class="section-title">Billing Information</h2>
+
+                        <div class="form-group">
+                            <label class="form-label">Current Plan</label>
+                            <input type="text" class="form-input" value="Professional Plan - $99/month" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Next Billing Date</label>
+                            <input type="text" class="form-input" value="December 15, 2024" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <input type="text" class="form-input" value="•••• •••• •••• 4242" readonly>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary">Update Payment Method</button>
+                            <button class="btn btn-secondary">View Billing History</button>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Danger Zone -->
+                    <div class="settings-section" id="danger">
+                        <h2 class="section-title">Danger Zone</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                            These actions are permanent and cannot be undone.
+                        </p>
+
+                        <div class="form-actions">
+                            <button class="btn btn-danger">Delete Account</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </main>
+            </div>
+            
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                </ul>
+            </div>
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                </ul>
+            </div>
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+            </div>
+        </div>
+            </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle switch functionality
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Settings navigation
+        document.querySelectorAll('.settings-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.settings-nav a').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Scroll to section
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
