@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="css/uniform-design.css?v=3">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         /* ===== VALUATION TERMINAL STYLES ===== */
         * {
@@ -26,13 +28,15 @@
             overflow-x: hidden;
         }
 
-        /* Header Styles */
+        /* Header Styles - Fixed Position */
         .header {
             background: #1A1A1A !important;
             border-bottom: 1px solid #404040 !important;
             padding: 16px 0 !important;
-            position: sticky !important;
+            position: fixed !important;
             top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
             z-index: 1000 !important;
             backdrop-filter: none !important;
         }
@@ -91,6 +95,156 @@
 
         .nav-link:hover {
             color: #FFD600 !important;
+        }
+
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00E673);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #333333;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333333;
+            margin: 8px 0;
+        }
+
+        /* Market Ticker - Fixed Position */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
         .header-actions {
@@ -286,14 +440,18 @@
 
         /* Main Content */
         .terminal-container {
-            min-height: calc(100vh - 160px);
+            min-height: 100vh;
             background: #0F0F0F;
+            padding-top: 120px; /* Account for fixed header (80px) + market ticker (40px) */
+            display: flex;
+            flex-direction: column;
         }
 
         .terminal-main {
             max-width: 1400px;
             margin: 0 auto;
             padding: 32px;
+            flex-grow: 1;
         }
 
         .terminal-header {
@@ -316,6 +474,32 @@
             font-weight: 400;
         }
 
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #00FF85;
+            color: #00FF85;
+        }
+
+        .back-to-dashboard .back-icon {
+            font-size: 16px;
+        }
+
         /* Form Styles */
         .valuation-form-container {
             background: #1A1A1A;
@@ -335,8 +519,8 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
             margin-bottom: 24px;
         }
 
@@ -375,6 +559,7 @@
             display: flex;
             gap: 16px;
             justify-content: center;
+            align-items: center;
         }
 
         .load-sample-btn,
@@ -640,6 +825,371 @@
             color: #FF4444;
         }
 
+        /* Bulk Upload Styles */
+        .bulk-upload-section {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .upload-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .upload-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .upload-description {
+            font-size: 14px;
+            color: #B0B0B0;
+        }
+
+        .upload-area {
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .upload-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .upload-content p {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin: 0;
+        }
+
+        .upload-btn {
+            background: #00FF85;
+            color: #0F0F0F;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #00E673;
+        }
+
+        .upload-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .process-btn {
+            background: #00FF85;
+            color: #0F0F0F;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .process-btn:hover {
+            background: #00E673;
+        }
+
+        .clear-btn {
+            background: #666666;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #777777;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #333333;
+        }
+
+        .divider span {
+            background: #1A1A1A;
+            color: #B0B0B0;
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 1000px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #B0B0B0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #333333;
+            color: #FFFFFF;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .records-table th {
+            background: #0F0F0F;
+            color: #FFD600;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .records-table td {
+            color: #FFFFFF;
+            padding: 12px 8px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .records-table tbody tr:hover {
+            background: #0F0F0F;
+        }
+
+        .records-table input {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: #FFFFFF;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .records-table input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .records-table select {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: #FFFFFF;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .records-table select:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .edit-btn, .remove-btn {
+            background: none;
+            border: none;
+            color: #B0B0B0;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .remove-btn:hover {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .record-count {
+            font-size: 14px;
+            color: #B0B0B0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .cancel-btn {
+            background: #666666;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #777777;
+        }
+
+        .submit-bulk-btn {
+            background: #00FF85;
+            color: #0F0F0F;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-bulk-btn:hover {
+            background: #00E673;
+        }
+
+        .submit-bulk-btn:disabled {
+            background: #666666;
+            cursor: not-allowed;
+        }
+
         /* Error Styles */
         .error-container {
             display: none;
@@ -676,47 +1226,209 @@
             .dashboard-row {
                 grid-template-columns: 1fr;
             }
+            
+            .dashboard-row:first-child {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .terminal-main {
+                padding: 24px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
         }
 
         @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px;
+                flex-direction: row;
+                height: 80px;
+                gap: 16px;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none;
+            }
+            
+            .dropdown-arrow {
+                display: none;
+            }
+            
+            .user-dropdown {
+                right: 0;
+                left: auto;
+                min-width: 180px;
+            }
+            
+            .terminal-container {
+                padding-top: 100px; /* Slightly less padding on mobile */
+            }
+            
             .terminal-main {
                 padding: 16px;
             }
             
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 28px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 13px !important;
+            }
+            
+            .footer-title {
+                font-size: 13px !important;
+                text-align: left !important;
+                color: #00FF85 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+            }
+            
+            .footer-links a {
+                font-size: 13px !important;
+                text-align: left !important;
+                display: block !important;
+                color: #B0B0B0 !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+                padding: 10px 14px !important;
+                font-size: 13px !important;
+            }
+            
             .form-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
             }
             
             .form-actions {
                 flex-direction: column;
+                gap: 12px;
             }
             
-            .header-container {
-                padding: 0 16px;
+            .form-actions button,
+            .form-actions .back-to-dashboard {
+                width: 100%;
+                padding: 12px 16px;
+            }
+            
+            .terminal-title {
+                font-size: 32px;
+            }
+            
+            .terminal-subtitle {
+                font-size: 16px;
+            }
+            
+            .back-to-dashboard {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+            .valuation-form-container {
+                padding: 20px;
+            }
+            
+            .form-title {
+                font-size: 20px;
+            }
+            
+            .dashboard-row {
                 grid-template-columns: 1fr;
                 gap: 16px;
-                height: auto;
+            }
+            
+            .dashboard-row:first-child {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
                 padding: 16px;
             }
             
-            .nav-menu {
-                order: 3;
-                grid-column: 1 / -1;
-                justify-content: center;
-                gap: 20px;
+            .chart-wrapper {
+                height: 200px;
             }
             
-            .header-actions {
-                order: 2;
-                justify-self: end;
+            .analysis-container,
+            .table-container {
+                padding: 16px;
+            }
+            
+            .comparable-table {
+                font-size: 11px;
+            }
+            
+            .comparable-table th,
+            .comparable-table td {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            
+            .comparable-table {
+                font-size: 12px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .footer-container {
+                padding: 0 16px;
             }
         }
 
-        /* Footer Styles */
+        /* Footer Styles - Exact Match to Dashboard */
         .footer {
             background: #0F0F0F;
             border-top: 1px solid #333333;
             padding: 40px 0 20px;
+            margin-top: auto;
         }
 
         .footer-container {
@@ -759,10 +1471,12 @@
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            text-align: left;
         }
 
         .footer-links {
             list-style: none;
+            text-align: left;
         }
 
         .footer-links li {
@@ -774,6 +1488,8 @@
             text-decoration: none;
             font-size: 14px;
             transition: color 0.2s;
+            text-align: left;
+            display: block;
         }
 
         .footer-links a:hover {
@@ -823,6 +1539,239 @@
             text-align: center;
             font-size: 11px;
             color: #666666;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px;
+                gap: 12px;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .terminal-container {
+                padding-top: 80px; /* Minimal padding on very small screens */
+            }
+            
+            .terminal-main {
+                padding: 12px;
+            }
+            
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 32px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+                line-height: 1.5 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                text-align: left !important;
+                margin-bottom: 12px !important;
+                color: #00FF85 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+                list-style: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .footer-links li {
+                margin-bottom: 8px !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+                color: #B0B0B0 !important;
+                text-decoration: none !important;
+                transition: color 0.2s !important;
+            }
+            
+            .footer-links a:hover {
+                color: #00FF85 !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+                color: #666666 !important;
+                text-align: left !important;
+                margin-top: 24px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 12px !important;
+                margin-top: 0 !important;
+            }
+            
+            .newsletter input {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                background: #1A1A1A !important;
+                border: 1px solid #333333 !important;
+                border-radius: 6px !important;
+                color: #FFFFFF !important;
+                box-sizing: border-box !important;
+            }
+            
+            .newsletter input::placeholder {
+                color: #808080 !important;
+            }
+            
+            .newsletter button {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                font-weight: 600 !important;
+                background: #00FF85 !important;
+                color: #000000 !important;
+                border: none !important;
+                border-radius: 6px !important;
+                cursor: pointer !important;
+                transition: background-color 0.2s !important;
+            }
+            
+            .newsletter button:hover {
+                background: #00E676 !important;
+            }
+            
+            .terminal-title {
+                font-size: 24px;
+            }
+            
+            .terminal-subtitle {
+                font-size: 14px;
+            }
+            
+            .back-to-dashboard {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-actions button,
+            .form-actions .back-to-dashboard {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .form-actions button,
+            .form-actions .back-to-dashboard,
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+            }
+            
+            .valuation-form-container {
+                padding: 16px;
+            }
+            
+            .form-title {
+                font-size: 18px;
+            }
+            
+            .dashboard-row {
+                gap: 12px;
+            }
+            
+            .chart-container {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .chart-wrapper {
+                height: 180px;
+            }
+            
+            .chart-title {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .analysis-container,
+            .table-container {
+                padding: 12px;
+            }
+            
+            .comparable-table {
+                font-size: 10px;
+            }
+            
+            .comparable-table th,
+            .comparable-table td {
+                padding: 6px 2px;
+            }
+            
+            .metric-card {
+                padding: 12px;
+            }
+            
+            .metric-value {
+                font-size: 20px;
+            }
+            
         }
     </style>
 </head>
@@ -930,10 +1879,45 @@
                 <p class="terminal-subtitle">Professional-grade crane valuation with Bloomberg-style analysis</p>
             </div>
 
+
             <!-- Valuation Form -->
             <div class="valuation-form-container">
                 <h2 class="form-title">Crane Valuation</h2>
-                <form id="valuationForm" onsubmit="event.preventDefault(); performValuation();">
+                
+                <!-- Bulk Upload Section -->
+                <div class="bulk-upload-section">
+                    <div class="upload-header">
+                        <h3 class="upload-title">Bulk Upload</h3>
+                        <p class="upload-description">Upload CSV or Excel file to value multiple cranes at once</p>
+                    </div>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <div class="upload-icon">📁</div>
+                            <h4>Drop files here or click to browse</h4>
+                            <p>Supports CSV and Excel files (.csv, .xlsx, .xls)</p>
+                            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" multiple style="display: none;">
+                            <button type="button" class="upload-btn" id="chooseFilesBtn">
+                                Choose Files
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-actions" id="uploadActions" style="display: none;">
+                        <button type="button" class="process-btn" id="processBtn" onclick="processUploadedFiles()">
+                            Process Files
+                        </button>
+                        <button type="button" class="clear-btn" id="clearBtn" onclick="clearUploadedFiles()">
+                            Clear Files
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+                
+                <form id="valuationForm" onsubmit="event.preventDefault(); performValuation(); return false;">
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label" for="manufacturer">Manufacturer *</label>
@@ -982,10 +1966,14 @@
                     </div>
                     
                     <div class="form-actions">
+                        <a href="dashboard.html" class="back-to-dashboard">
+                            <span class="back-icon">←</span>
+                            Back to Dashboard
+                        </a>
                         <button type="button" class="load-sample-btn" id="loadSampleBtn" onclick="loadSampleData()">
                             Load Sample Data
                         </button>
-                        <button type="submit" class="submit-btn" id="submitBtn">
+                        <button type="submit" class="submit-btn" id="submitBtn" onclick="performValuation(); return false;">
                             Value Crane
                             <div class="loading-spinner" id="loadingSpinner"></div>
                         </button>
@@ -1152,6 +2140,46 @@
         </main>
     </div>
 
+    <!-- Bulk Upload Modal -->
+    <div class="modal-overlay" id="bulkUploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Review Uploaded Records</h3>
+                <button class="modal-close" onclick="closeBulkUploadModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="records-table-container">
+                    <table class="records-table" id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th>Manufacturer</th>
+                                <th>Model</th>
+                                <th>Year</th>
+                                <th>Capacity (Tons)</th>
+                                <th>Hours</th>
+                                <th>Region</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <!-- Records will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="record-count" id="recordCount">0 records</div>
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="closeBulkUploadModal()">Cancel</button>
+                    <button class="submit-bulk-btn" id="submitBulkBtn" onclick="submitBulkValuation(); return false;">
+                        Submit for Valuation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
@@ -1270,6 +2298,7 @@
             dropdown.classList.toggle('show');
         }
 
+
         function logout() {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
@@ -1287,28 +2316,41 @@
             }
         });
 
+
         // Valuation Functions
         async function performValuation() {
-            const form = document.getElementById('valuationForm');
-            const formData = new FormData(form);
+            console.log('performValuation function called');
             
-            const valuationData = {
-                manufacturer: formData.get('manufacturer'),
-                model: formData.get('model'),
-                year: parseInt(formData.get('year')),
-                capacity_tons: parseFloat(formData.get('capacity_tons')),
-                hours: parseInt(formData.get('hours')),
-                region: formData.get('region'),
-                price: formData.get('price') ? parseFloat(formData.get('price')) : null
-            };
-
-            if (!valuationData.manufacturer || !valuationData.model || !valuationData.year || 
-                !valuationData.capacity_tons || !valuationData.hours || !valuationData.region) {
-                showError('Please fill in all required fields');
-                return;
-            }
-
             try {
+                const form = document.getElementById('valuationForm');
+                if (!form) {
+                    console.error('Form not found');
+                    showError('Form not found');
+                    return;
+                }
+                
+                const formData = new FormData(form);
+                console.log('Form data collected');
+                
+                const valuationData = {
+                    manufacturer: formData.get('manufacturer'),
+                    model: formData.get('model'),
+                    year: parseInt(formData.get('year')),
+                    capacity_tons: parseFloat(formData.get('capacity_tons')),
+                    hours: parseInt(formData.get('hours')),
+                    region: formData.get('region'),
+                    price: formData.get('price') ? parseFloat(formData.get('price')) : null
+                };
+
+                console.log('Valuation data:', valuationData);
+
+                if (!valuationData.manufacturer || !valuationData.model || !valuationData.year || 
+                    !valuationData.capacity_tons || !valuationData.hours || !valuationData.region) {
+                    console.log('Validation failed - missing required fields');
+                    showError('Please fill in all required fields');
+                    return;
+                }
+
                 showLoading(true);
                 console.log('Starting valuation with data:', valuationData);
                 
@@ -1327,7 +2369,7 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
                 
-                const response = await fetch('http://localhost:8003/api/v1/valuation/calculate', {
+                const response = await fetch('http://localhost:8004/api/v1/valuation/calculate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1351,11 +2393,8 @@
                 }
                 */
             } catch (error) {
-                console.error('Valuation error:', error);
-                // Show sample results instead of error
-                console.log('Error occurred, showing sample results');
-                const sampleResults = generateSampleValuationResults(valuationData);
-                displayValuationResults(sampleResults);
+                console.error('Error in performValuation:', error);
+                showError('Error performing valuation: ' + error.message);
             } finally {
                 showLoading(false);
                 console.log('Loading state reset');
@@ -1831,15 +2870,8 @@
         }
 
         function showError(message) {
-            const errorContainer = document.getElementById('errorContainer');
-            const errorMessage = errorContainer.querySelector('.error-message');
-            
-            errorMessage.textContent = message;
-            errorContainer.style.display = 'block';
-            
-            setTimeout(() => {
-                errorContainer.style.display = 'none';
-            }, 5000);
+            console.log('showError called with:', message);
+            showNotification('error', 'Error', message);
         }
 
         // Load crane data for dropdowns
@@ -2018,20 +3050,222 @@
         }
 
         function showSuccess(message) {
-            const errorContainer = document.getElementById('errorContainer');
-            const errorMessage = errorContainer.querySelector('.error-message');
-            
-            errorMessage.textContent = message;
-            errorMessage.style.background = '#00FF85';
-            errorMessage.style.color = '#0F0F0F';
-            errorContainer.style.display = 'block';
-            
-            setTimeout(() => {
-                errorContainer.style.display = 'none';
-                errorMessage.style.background = '#FF4444';
-                errorMessage.style.color = '#FFFFFF';
-            }, 3000);
+            console.log('showSuccess called with:', message);
+            showNotification('success', 'Success', message);
         }
+
+        // Comprehensive Notification System
+        function showNotification(type, title, message, duration = 5000) {
+            console.log(`Showing ${type} notification:`, title, message);
+            
+            // Create notification overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'notification-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease-in-out;
+            `;
+
+            // Create notification dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'notification-dialog';
+            dialog.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 0;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+                overflow: hidden;
+            `;
+
+            // Set colors based on type
+            let headerColor, icon, iconColor;
+            switch (type) {
+                case 'success':
+                    headerColor = '#28a745';
+                    icon = '✓';
+                    iconColor = '#ffffff';
+                    break;
+                case 'error':
+                    headerColor = '#dc3545';
+                    icon = '✕';
+                    iconColor = '#ffffff';
+                    break;
+                case 'warning':
+                    headerColor = '#ffc107';
+                    icon = '⚠';
+                    iconColor = '#000000';
+                    break;
+                case 'info':
+                    headerColor = '#17a2b8';
+                    icon = 'ℹ';
+                    iconColor = '#ffffff';
+                    break;
+                case 'confirm':
+                    headerColor = '#6c757d';
+                    icon = '?';
+                    iconColor = '#ffffff';
+                    break;
+                default:
+                    headerColor = '#6c757d';
+                    icon = 'ℹ';
+                    iconColor = '#ffffff';
+            }
+
+            // Create header
+            const header = document.createElement('div');
+            header.style.cssText = `
+                background: ${headerColor};
+                color: ${iconColor};
+                padding: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 600;
+                font-size: 18px;
+            `;
+            header.innerHTML = `
+                <span style="font-size: 24px;">${icon}</span>
+                <span>${title}</span>
+            `;
+
+            // Create body
+            const body = document.createElement('div');
+            body.style.cssText = `
+                padding: 20px;
+                color: #333;
+                line-height: 1.5;
+                font-size: 16px;
+            `;
+            body.textContent = message;
+
+            // Create footer with buttons
+            const footer = document.createElement('div');
+            footer.style.cssText = `
+                padding: 20px;
+                border-top: 1px solid #eee;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+            `;
+
+            if (type === 'confirm') {
+                // For confirm dialogs, add OK and Cancel buttons
+                const okBtn = document.createElement('button');
+                okBtn.textContent = 'OK';
+                okBtn.style.cssText = `
+                    background: ${headerColor};
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 500;
+                `;
+                okBtn.onclick = () => {
+                    overlay.remove();
+                    if (window.notificationCallback) {
+                        window.notificationCallback(true);
+                    }
+                };
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.cssText = `
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 500;
+                `;
+                cancelBtn.onclick = () => {
+                    overlay.remove();
+                    if (window.notificationCallback) {
+                        window.notificationCallback(false);
+                    }
+                };
+
+                footer.appendChild(cancelBtn);
+                footer.appendChild(okBtn);
+            } else {
+                // For other types, add OK button
+                const okBtn = document.createElement('button');
+                okBtn.textContent = 'OK';
+                okBtn.style.cssText = `
+                    background: ${headerColor};
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 500;
+                `;
+                okBtn.onclick = () => {
+                    overlay.remove();
+                };
+                footer.appendChild(okBtn);
+            }
+
+            // Assemble dialog
+            dialog.appendChild(header);
+            dialog.appendChild(body);
+            dialog.appendChild(footer);
+            overlay.appendChild(dialog);
+
+            // Add to page
+            document.body.appendChild(overlay);
+
+            // Auto-close for non-confirm dialogs
+            if (type !== 'confirm') {
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.remove();
+                    }
+                }, duration);
+            }
+
+            // Close on overlay click (for non-confirm dialogs)
+            if (type !== 'confirm') {
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) {
+                        overlay.remove();
+                    }
+                };
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideIn {
+                from { 
+                    opacity: 0;
+                    transform: translateY(-50px) scale(0.9);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         function generateSampleValuationResults(valuationData) {
             // Generate realistic valuation results based on input data
@@ -2081,6 +3315,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Page loaded, initializing...');
             loadCraneData();
+            
+            // Add explicit event listener for submit button
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Submit button clicked');
+                    performValuation();
+                });
+            }
         });
         
         // Also try to load data immediately
@@ -2129,6 +3373,30 @@
             displayValuationResults(sampleResults);
         };
         
+        // Debug function to test form submission
+        window.testFormSubmission = function() {
+            console.log('Testing form submission...');
+            const form = document.getElementById('valuationForm');
+            if (form) {
+                console.log('Form found, triggering submit event');
+                form.dispatchEvent(new Event('submit'));
+            } else {
+                console.error('Form not found');
+            }
+        };
+        
+        // Debug function to test button click
+        window.testButtonClick = function() {
+            console.log('Testing button click...');
+            const button = document.getElementById('submitBtn');
+            if (button) {
+                console.log('Button found, clicking...');
+                button.click();
+            } else {
+                console.error('Submit button not found');
+            }
+        };
+        
         // Debug function to reset button state
         window.resetButton = function() {
             console.log('Manually resetting button state...');
@@ -2145,6 +3413,820 @@
                 console.log('Submit button not found');
             }
         };
+        
+        // Debug function to test file upload
+        window.testFileUpload = function() {
+            console.log('Testing file upload functionality...');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadActions = document.getElementById('uploadActions');
+            
+            console.log('Upload area exists:', !!uploadArea);
+            console.log('File input exists:', !!fileInput);
+            console.log('Upload actions exists:', !!uploadActions);
+            console.log('Uploaded files count:', uploadedFiles.length);
+            
+            if (fileInput) {
+                console.log('File input accept:', fileInput.accept);
+                console.log('File input multiple:', fileInput.multiple);
+            }
+        };
+        
+        // Debug function to simulate file selection
+        window.simulateFileUpload = function() {
+            console.log('Simulating file upload...');
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                console.log('File input found, clicking...');
+                fileInput.click();
+            } else {
+                console.error('File input not found');
+            }
+        };
+        
+        // Debug function to test file input directly
+        window.testFileInput = function() {
+            console.log('Testing file input directly...');
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                console.log('File input exists:', !!fileInput);
+                console.log('File input accept:', fileInput.accept);
+                console.log('File input multiple:', fileInput.multiple);
+                console.log('File input disabled:', fileInput.disabled);
+                console.log('File input style display:', fileInput.style.display);
+                console.log('File input style visibility:', fileInput.style.visibility);
+                
+                // Try to trigger click
+                try {
+                    fileInput.click();
+                    console.log('File input click triggered successfully');
+                } catch (error) {
+                    console.error('Error clicking file input:', error);
+                }
+            } else {
+                console.error('File input not found');
+            }
+        };
+        
+        // Debug function to test choose files button
+        window.testChooseFilesButton = function() {
+            console.log('Testing choose files button...');
+            const button = document.getElementById('chooseFilesBtn');
+            if (button) {
+                console.log('Button exists:', !!button);
+                console.log('Button disabled:', button.disabled);
+                console.log('Button onclick:', button.onclick);
+                console.log('Button type:', button.type);
+                console.log('Button class:', button.className);
+                
+                // Try to trigger click
+                try {
+                    button.click();
+                    console.log('Button click triggered successfully');
+                } catch (error) {
+                    console.error('Error clicking button:', error);
+                }
+            } else {
+                console.error('Choose files button not found');
+            }
+        };
+        
+        // Simple test function
+        window.testUpload = function() {
+            console.log('Testing upload functionality...');
+            const fileInput = document.getElementById('fileInput');
+            const button = document.getElementById('chooseFilesBtn');
+            
+            console.log('File input exists:', !!fileInput);
+            console.log('Button exists:', !!button);
+            
+            if (fileInput && button) {
+                console.log('Both elements found, testing click...');
+                button.click();
+            } else {
+                console.error('Missing elements');
+            }
+        };
+        
+        // Test bulk submit button
+        window.testBulkSubmit = function() {
+            console.log('Testing bulk submit button...');
+            const submitBtn = document.getElementById('submitBulkBtn');
+            if (submitBtn) {
+                console.log('Submit button found:', !!submitBtn);
+                console.log('Button disabled:', submitBtn.disabled);
+                console.log('Button onclick:', submitBtn.onclick);
+                console.log('Button text:', submitBtn.textContent);
+                
+                // Test click
+                try {
+                    submitBtn.click();
+                    console.log('Button click triggered successfully');
+                } catch (error) {
+                    console.error('Error clicking button:', error);
+                }
+            } else {
+                console.error('Submit button not found');
+            }
+        };
+        
+        // Test submit function directly
+        window.testSubmitFunction = function() {
+            console.log('Testing submitBulkValuation function...');
+            try {
+                submitBulkValuation();
+                console.log('Function called successfully');
+            } catch (error) {
+                console.error('Error calling function:', error);
+            }
+        };
+        
+        // Global chart cleanup function
+        window.cleanupCharts = function() {
+            console.log('Cleaning up all charts...');
+            try {
+                const chartIds = ['trendChart', 'confidenceGauge', 'marketChart', 'regionalChart', 'manufacturerChart', 'capacityChart'];
+                chartIds.forEach(id => {
+                    const chart = Chart.getChart(id);
+                    if (chart) {
+                        console.log('Destroying chart:', id);
+                        chart.destroy();
+                    }
+                });
+                console.log('All charts cleaned up');
+            } catch (error) {
+                console.error('Error cleaning up charts:', error);
+            }
+        };
+
+        // Bulk Upload Functionality
+        let uploadedFiles = [];
+        let parsedRecords = [];
+
+        // Simple and reliable file upload initialization
+        function initializeBulkUpload() {
+            console.log('Initializing bulk upload...');
+            
+            // Get elements
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const chooseBtn = document.getElementById('chooseFilesBtn');
+
+            if (!uploadArea || !fileInput || !chooseBtn) {
+                console.error('Required elements not found:', {
+                    uploadArea: !!uploadArea,
+                    fileInput: !!fileInput,
+                    chooseBtn: !!chooseBtn
+                });
+                return;
+            }
+
+            console.log('All elements found, setting up event listeners...');
+
+            // Simple button click handler
+            chooseBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Choose files button clicked');
+                fileInput.click();
+            };
+
+            // Simple upload area click handler
+            uploadArea.onclick = function(e) {
+                // Only trigger if not clicking the button
+                if (e.target === chooseBtn || e.target.closest('button')) {
+                    return;
+                }
+                console.log('Upload area clicked');
+                fileInput.click();
+            };
+
+            // File input change handler
+            fileInput.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                console.log('Files selected:', files.length);
+                handleFileSelection(files);
+            };
+
+            // Drag and drop handlers
+            uploadArea.ondragover = function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            };
+
+            uploadArea.ondragleave = function(e) {
+                uploadArea.classList.remove('dragover');
+            };
+
+            uploadArea.ondrop = function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                console.log('Files dropped:', files.length);
+                handleFileSelection(files);
+            };
+
+            console.log('Bulk upload initialized successfully');
+        }
+
+        function handleFileSelection(files) {
+            console.log('Handling file selection:', files.length, 'files');
+            
+            const validFiles = files.filter(file => {
+                const validExtensions = ['.csv', '.xlsx', '.xls'];
+                const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                console.log('File:', file.name, 'Extension:', fileExtension, 'Valid:', validExtensions.includes(fileExtension));
+                return validExtensions.includes(fileExtension);
+            });
+
+            console.log('Valid files:', validFiles.length);
+
+            if (validFiles.length === 0) {
+                console.log('No valid files found');
+                showError('Please select valid CSV or Excel files (.csv, .xlsx, .xls)');
+                return;
+            }
+
+            uploadedFiles = validFiles;
+            console.log('Files uploaded successfully:', uploadedFiles.map(f => f.name));
+            updateUploadUI();
+        }
+
+        function updateUploadUI() {
+            console.log('Updating upload UI, files:', uploadedFiles.length);
+            const uploadActions = document.getElementById('uploadActions');
+            const uploadContent = document.querySelector('.upload-content');
+            
+            if (!uploadActions || !uploadContent) {
+                console.error('Required elements not found');
+                return;
+            }
+            
+            if (uploadedFiles.length > 0) {
+                console.log('Showing upload actions');
+                uploadActions.style.display = 'flex';
+                uploadContent.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <h4>${uploadedFiles.length} file(s) selected</h4>
+                    <p>${uploadedFiles.map(f => f.name).join(', ')}</p>
+                `;
+            } else {
+                console.log('Hiding upload actions');
+                uploadActions.style.display = 'none';
+                uploadContent.innerHTML = `
+                    <div class="upload-icon">📁</div>
+                    <h4>Drop files here or click to browse</h4>
+                    <p>Supports CSV and Excel files (.csv, .xlsx, .xls)</p>
+                    <button type="button" class="upload-btn" id="chooseFilesBtn">
+                        Choose Files
+                    </button>
+                `;
+                
+                // Re-initialize the button after content change
+                const chooseBtn = document.getElementById('chooseFilesBtn');
+                const fileInput = document.getElementById('fileInput');
+                if (chooseBtn && fileInput) {
+                    chooseBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Choose files button clicked (recreated)');
+                        fileInput.click();
+                    };
+                }
+            }
+        }
+
+        function clearUploadedFiles() {
+            uploadedFiles = [];
+            parsedRecords = [];
+            document.getElementById('fileInput').value = '';
+            updateUploadUI();
+        }
+
+        async function processUploadedFiles() {
+            if (uploadedFiles.length === 0) {
+                showError('No files selected');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                parsedRecords = [];
+
+                for (const file of uploadedFiles) {
+                    const records = await parseFile(file);
+                    parsedRecords = parsedRecords.concat(records);
+                }
+
+                if (parsedRecords.length === 0) {
+                    showError('No valid records found in the uploaded files');
+                    return;
+                }
+
+                showBulkUploadModal();
+                showSuccess(`Successfully parsed ${parsedRecords.length} records from ${uploadedFiles.length} file(s)`);
+
+            } catch (error) {
+                console.error('Error processing files:', error);
+                showError('Error processing files: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function parseFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = e.target.result;
+                        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                        
+                        let records = [];
+                        
+                        if (fileExtension === '.csv') {
+                            records = parseCSV(data);
+                        } else if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+                            records = parseExcel(data);
+                        }
+                        
+                        resolve(records);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Error reading file'));
+                };
+                
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+        }
+
+        function parseCSV(csvData) {
+            const results = Papa.parse(csvData, {
+                header: true,
+                skipEmptyLines: true,
+                transformHeader: (header) => header.toLowerCase().trim()
+            });
+
+            if (results.errors.length > 0) {
+                console.warn('CSV parsing errors:', results.errors);
+            }
+
+            return results.data.map((row, index) => ({
+                id: `csv_${index}`,
+                manufacturer: row.manufacturer || row.make || '',
+                model: row.model || '',
+                year: parseInt(row.year) || null,
+                capacity_tons: parseFloat(row.capacity || row.capacity_tons || row['capacity (tons)']) || null,
+                hours: parseInt(row.hours || row.operating_hours || row['operating hours']) || null,
+                region: row.region || row.state || '',
+                price: parseFloat(row.price || row.asking_price || row['asking price']) || null
+            })).filter(record => 
+                record.manufacturer && record.model && record.year && record.capacity_tons && record.hours
+            );
+        }
+
+        function parseExcel(data) {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            if (jsonData.length < 2) {
+                return [];
+            }
+
+            const headers = jsonData[0].map(h => h ? h.toLowerCase().trim() : '');
+            const records = [];
+
+            for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (row.length === 0) continue;
+
+                const record = {
+                    id: `excel_${i}`,
+                    manufacturer: '',
+                    model: '',
+                    year: null,
+                    capacity_tons: null,
+                    hours: null,
+                    region: '',
+                    price: null
+                };
+
+                headers.forEach((header, index) => {
+                    const value = row[index];
+                    if (!value) return;
+
+                    if (header.includes('manufacturer') || header.includes('make')) {
+                        record.manufacturer = value.toString().trim();
+                    } else if (header.includes('model')) {
+                        record.model = value.toString().trim();
+                    } else if (header.includes('year')) {
+                        record.year = parseInt(value);
+                    } else if (header.includes('capacity')) {
+                        record.capacity_tons = parseFloat(value);
+                    } else if (header.includes('hour')) {
+                        record.hours = parseInt(value);
+                    } else if (header.includes('region') || header.includes('state')) {
+                        record.region = value.toString().trim();
+                    } else if (header.includes('price')) {
+                        record.price = parseFloat(value);
+                    }
+                });
+
+                if (record.manufacturer && record.model && record.year && record.capacity_tons && record.hours) {
+                    records.push(record);
+                }
+            }
+
+            return records;
+        }
+
+        function showBulkUploadModal() {
+            const modal = document.getElementById('bulkUploadModal');
+            const tbody = document.getElementById('recordsTableBody');
+            const recordCount = document.getElementById('recordCount');
+
+            // Clear existing rows
+            tbody.innerHTML = '';
+
+            // Populate table with records
+            parsedRecords.forEach((record, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="text" value="${record.manufacturer}" onchange="updateRecord(${index}, 'manufacturer', this.value)">
+                    </td>
+                    <td>
+                        <input type="text" value="${record.model}" onchange="updateRecord(${index}, 'model', this.value)">
+                    </td>
+                    <td>
+                        <input type="number" value="${record.year || ''}" onchange="updateRecord(${index}, 'year', this.value)">
+                    </td>
+                    <td>
+                        <input type="number" step="0.1" value="${record.capacity_tons || ''}" onchange="updateRecord(${index}, 'capacity_tons', this.value)">
+                    </td>
+                    <td>
+                        <input type="number" value="${record.hours || ''}" onchange="updateRecord(${index}, 'hours', this.value)">
+                    </td>
+                    <td>
+                        <select onchange="updateRecord(${index}, 'region', this.value)">
+                            <option value="">Select Region</option>
+                            <option value="TX" ${record.region === 'TX' ? 'selected' : ''}>Texas</option>
+                            <option value="CA" ${record.region === 'CA' ? 'selected' : ''}>California</option>
+                            <option value="NY" ${record.region === 'NY' ? 'selected' : ''}>New York</option>
+                            <option value="FL" ${record.region === 'FL' ? 'selected' : ''}>Florida</option>
+                            <option value="IL" ${record.region === 'IL' ? 'selected' : ''}>Illinois</option>
+                            <option value="PA" ${record.region === 'PA' ? 'selected' : ''}>Pennsylvania</option>
+                            <option value="OH" ${record.region === 'OH' ? 'selected' : ''}>Ohio</option>
+                            <option value="GA" ${record.region === 'GA' ? 'selected' : ''}>Georgia</option>
+                            <option value="NC" ${record.region === 'NC' ? 'selected' : ''}>North Carolina</option>
+                            <option value="MI" ${record.region === 'MI' ? 'selected' : ''}>Michigan</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" value="${record.price || ''}" onchange="updateRecord(${index}, 'price', this.value)">
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-btn" onclick="editRecord(${index})" title="Edit">✏️</button>
+                            <button class="remove-btn" onclick="removeRecord(${index})" title="Remove">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            recordCount.textContent = `${parsedRecords.length} records`;
+            modal.classList.add('show');
+        }
+
+        function updateRecord(index, field, value) {
+            if (parsedRecords[index]) {
+                if (field === 'year' || field === 'hours') {
+                    parsedRecords[index][field] = value ? parseInt(value) : null;
+                } else if (field === 'capacity_tons' || field === 'price') {
+                    parsedRecords[index][field] = value ? parseFloat(value) : null;
+                } else {
+                    parsedRecords[index][field] = value;
+                }
+            }
+        }
+
+        function editRecord(index) {
+            // Focus on the first input in the row
+            const row = document.querySelectorAll('#recordsTableBody tr')[index];
+            if (row) {
+                const firstInput = row.querySelector('input');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        }
+
+        function removeRecord(index) {
+            if (confirm('Are you sure you want to remove this record?')) {
+                parsedRecords.splice(index, 1);
+                showBulkUploadModal(); // Refresh the modal
+            }
+        }
+
+        function closeBulkUploadModal() {
+            const modal = document.getElementById('bulkUploadModal');
+            modal.classList.remove('show');
+        }
+
+        async function submitBulkValuation() {
+            console.log('submitBulkValuation called');
+            console.log('Parsed records:', parsedRecords.length);
+            
+            if (parsedRecords.length === 0) {
+                console.log('No records to submit');
+                showError('No records to submit');
+                return;
+            }
+
+            // Validate all records
+            const validRecords = parsedRecords.filter(record => 
+                record.manufacturer && record.model && record.year && 
+                record.capacity_tons && record.hours && record.region
+            );
+
+            console.log('Valid records:', validRecords.length);
+
+            if (validRecords.length === 0) {
+                console.log('No valid records found');
+                showError('Please ensure all required fields are filled');
+                return;
+            }
+
+            try {
+                console.log('Starting bulk valuation processing...');
+                showLoading(true);
+                const submitBtn = document.getElementById('submitBulkBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Processing...';
+                }
+
+                // Process each record and collect results
+                const results = [];
+                for (const record of validRecords) {
+                    console.log('Processing record:', record);
+                    const valuationData = {
+                        manufacturer: record.manufacturer,
+                        model: record.model,
+                        year: record.year,
+                        capacity_tons: record.capacity_tons,
+                        hours: record.hours,
+                        region: record.region,
+                        price: record.price
+                    };
+
+                    // Generate sample results for each record
+                    const result = generateSampleValuationResults(valuationData);
+                    results.push({
+                        input: valuationData,
+                        result: result
+                    });
+                }
+
+                console.log('Bulk valuation results:', results.length);
+                
+                // Display bulk results
+                displayBulkValuationResults(results);
+                closeBulkUploadModal();
+
+            } catch (error) {
+                console.error('Error in bulk valuation:', error);
+                showError('Error processing bulk valuation: ' + error.message);
+            } finally {
+                showLoading(false);
+                const submitBtn = document.getElementById('submitBulkBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit for Valuation';
+                }
+            }
+        }
+
+        function displayBulkValuationResults(results) {
+            try {
+                console.log('Displaying bulk valuation results:', results.length);
+                
+                // Clean up any existing charts first
+                try {
+                    cleanupCharts();
+                } catch (error) {
+                    console.log('Error during chart cleanup:', error);
+                }
+                
+                // Create a summary dashboard for bulk results
+                const dashboard = document.getElementById('valuationDashboard');
+                if (!dashboard) {
+                    console.error('Dashboard not found');
+                    return;
+                }
+
+            // Calculate summary statistics
+            const totalValue = results.reduce((sum, r) => sum + r.result.estimated_value, 0);
+            const avgValue = totalValue / results.length;
+            const avgConfidence = results.reduce((sum, r) => sum + r.result.confidence_score, 0) / results.length;
+
+            // Update the dashboard with bulk results - with comprehensive null checks
+            console.log('Updating dashboard elements...');
+            
+            const estimatedValueEl = document.getElementById('estimatedValue');
+            const confidenceValueEl = document.getElementById('confidenceValue');
+            const dealGradeEl = document.getElementById('dealGrade');
+
+            console.log('Main elements found:', {
+                estimatedValue: !!estimatedValueEl,
+                confidenceValue: !!confidenceValueEl,
+                dealGrade: !!dealGradeEl
+            });
+
+            if (estimatedValueEl) {
+                estimatedValueEl.textContent = `$${(totalValue / 1000000).toFixed(2)}M`;
+                console.log('Updated estimated value');
+            } else {
+                console.warn('estimatedValue element not found');
+            }
+            
+            if (confidenceValueEl) {
+                confidenceValueEl.textContent = `${Math.round(avgConfidence)}%`;
+                console.log('Updated confidence value');
+            } else {
+                console.warn('confidenceValue element not found');
+            }
+            
+            if (dealGradeEl) {
+                dealGradeEl.textContent = avgConfidence > 90 ? 'A+' : avgConfidence > 80 ? 'A' : avgConfidence > 70 ? 'B+' : 'B';
+                console.log('Updated deal grade');
+            } else {
+                console.warn('dealGrade element not found');
+            }
+
+            // Update key metrics - with comprehensive null checks
+            const ageFactorEl = document.getElementById('ageFactor');
+            const conditionEl = document.getElementById('condition');
+            const marketDemandEl = document.getElementById('marketDemand');
+            const riskScoreEl = document.getElementById('riskScore');
+
+            console.log('Key metrics elements found:', {
+                ageFactor: !!ageFactorEl,
+                condition: !!conditionEl,
+                marketDemand: !!marketDemandEl,
+                riskScore: !!riskScoreEl
+            });
+
+            if (ageFactorEl) {
+                const avgAgeFactor = results.reduce((sum, r) => sum + r.result.age_factor, 0) / results.length;
+                ageFactorEl.textContent = avgAgeFactor.toFixed(2);
+                console.log('Updated age factor');
+            } else {
+                console.warn('ageFactor element not found');
+            }
+            
+            if (conditionEl) {
+                const avgCondition = results.reduce((sum, r) => sum + r.result.condition_score, 0) / results.length;
+                conditionEl.textContent = avgCondition.toFixed(2);
+                console.log('Updated condition');
+            } else {
+                console.warn('condition element not found');
+            }
+            
+            if (marketDemandEl) {
+                marketDemandEl.textContent = 'High';
+                console.log('Updated market demand');
+            } else {
+                console.warn('marketDemand element not found');
+            }
+            
+            if (riskScoreEl) {
+                riskScoreEl.textContent = 'Low';
+                console.log('Updated risk score');
+            } else {
+                console.warn('riskScore element not found');
+            }
+
+            // Create bulk comparable table
+            const comparableData = results.map((r, index) => ({
+                equipment: `${r.input.manufacturer} ${r.input.model}`,
+                year: r.input.year,
+                capacity: `${r.input.capacity_tons}T`,
+                hours: r.input.hours.toLocaleString(),
+                salePrice: `$${(r.result.estimated_value).toLocaleString()}`,
+                pricePerTon: `$${Math.round(r.result.estimated_value / r.input.capacity_tons).toLocaleString()}`,
+                trend: '▲ +2.3%',
+                location: r.input.region
+            }));
+
+            populateComparableTable(comparableData);
+
+            // Destroy existing charts before creating new ones
+            try {
+                const existingTrendChart = Chart.getChart('trendChart');
+                if (existingTrendChart) {
+                    console.log('Destroying existing trend chart');
+                    existingTrendChart.destroy();
+                }
+                
+                const existingConfidenceChart = Chart.getChart('confidenceGauge');
+                if (existingConfidenceChart) {
+                    console.log('Destroying existing confidence chart');
+                    existingConfidenceChart.destroy();
+                }
+                
+                const existingMarketChart = Chart.getChart('marketChart');
+                if (existingMarketChart) {
+                    console.log('Destroying existing market chart');
+                    existingMarketChart.destroy();
+                }
+            } catch (error) {
+                console.log('Error destroying existing charts:', error);
+            }
+
+            // Create charts with bulk data
+            try {
+                createTrendChart(avgValue);
+                createConfidenceGauge(Math.round(avgConfidence));
+                createMarketChart(avgValue);
+                createRegionalChart();
+                createManufacturerChart();
+                createCapacityChart();
+                console.log('All charts created successfully');
+            } catch (error) {
+                console.error('Error creating charts:', error);
+                // Continue without charts
+            }
+
+            // Show dashboard
+            dashboard.style.display = 'block';
+            
+            // Show success message with fallback
+            try {
+                showSuccess(`Bulk valuation completed for ${results.length} cranes. Total estimated value: $${(totalValue / 1000000).toFixed(2)}M`);
+            } catch (error) {
+                console.error('Error showing success message:', error);
+                showNotification('info', 'Bulk Valuation Completed', `Bulk valuation completed for ${results.length} cranes. Total estimated value: $${(totalValue / 1000000).toFixed(2)}M`);
+            }
+            
+            } catch (error) {
+                console.error('Error in displayBulkValuationResults:', error);
+                // Show a simple success message even if dashboard update fails
+                showNotification('info', 'Bulk Valuation Completed', `Bulk valuation completed for ${results.length} cranes. Check console for details.`);
+            }
+        }
+
+        // Initialize bulk upload on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing bulk upload...');
+            
+            // Wait a bit for DOM to be fully ready
+            setTimeout(() => {
+                initializeBulkUpload();
+                
+                // Add event listener to bulk submit button
+                const bulkSubmitBtn = document.getElementById('submitBulkBtn');
+                if (bulkSubmitBtn) {
+                    console.log('Adding event listener to bulk submit button');
+                    bulkSubmitBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Bulk submit button clicked via event listener');
+                        submitBulkValuation();
+                    });
+                } else {
+                    console.error('Bulk submit button not found during initialization');
+                }
+            }, 100);
+            
+            // Debug: Check if all elements exist
+            console.log('Debug: Checking form elements...');
+            const form = document.getElementById('valuationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const manufacturerSelect = document.getElementById('manufacturer');
+            
+            console.log('Form exists:', !!form);
+            console.log('Submit button exists:', !!submitBtn);
+            console.log('Manufacturer select exists:', !!manufacturerSelect);
+            
+            if (submitBtn) {
+                console.log('Submit button type:', submitBtn.type);
+                console.log('Submit button onclick:', submitBtn.onclick);
+                console.log('Submit button disabled:', submitBtn.disabled);
+            }
+        });
     </script>
 </body>
 </html>

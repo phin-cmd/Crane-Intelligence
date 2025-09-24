@@ -10,7 +10,7 @@ from .config import settings
 # Create database engine
 # Use SQLite for development and demo
 engine = create_engine(
-    "sqlite:///./crane_intelligence.db",
+    settings.database_url,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
     echo=settings.database_echo
@@ -34,12 +34,16 @@ def init_db():
     """Initialize database tables"""
     # Import all models to ensure they are registered with Base
     from ..models.base import Base
-    from ..models.user import User, PasswordResetToken, UserSession, UsageLog
+    from ..models.user import User, PasswordResetToken, UserSession, UsageLog, SubscriptionPlan
     from ..models.crane import Crane
     from ..models.subscription import EmailSubscription
     from ..models.enhanced_crane import (
         CraneListing, MarketTrend, BrokerNetwork, PerformanceMetrics,
         CraneValuationAnalysis, MarketIntelligence, RentalRates, DataRefreshLog
+    )
+    from ..models.admin import (
+        AdminUser, ContentItem, MediaFile, SystemSetting, SystemLog, AuditLog,
+        Notification, DataSource, BackgroundJob, EmailTemplate, SecurityEvent
     )
     
     # Create all tables

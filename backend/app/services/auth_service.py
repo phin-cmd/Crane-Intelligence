@@ -72,9 +72,11 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
     
-    def create_session_tokens(self, user_id: int, email: str, subscription_tier: str) -> Dict[str, str]:
+    def create_session_tokens(self, user_id: int, email: str, subscription_tier: str, user_role: str = None) -> Dict[str, str]:
         """Create both access and refresh tokens for a user session"""
         data = {"sub": str(user_id), "email": email, "subscription_tier": subscription_tier}
+        if user_role:
+            data["role"] = user_role
         
         access_token = self.create_access_token(data)
         refresh_token = self.create_refresh_token(data)

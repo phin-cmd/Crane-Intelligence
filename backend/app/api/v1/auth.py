@@ -275,7 +275,8 @@ async def login_user(request: UserLoginRequest, db: Session = Depends(get_db)):
         tokens = auth_service.create_session_tokens(
             user_id=user.id,
             email=user.email,
-            subscription_tier=user.subscription_tier.value
+            subscription_tier=user.subscription_tier.value,
+            user_role=user.user_role.value
         )
         
         # Update last login

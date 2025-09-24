@@ -7,8 +7,6 @@
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/brand-framework.css?v=19">
-    <link rel="stylesheet" href="css/uniform-design.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -23,6 +21,143 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 20px 16px !important;
+            }
+            
+            .page-title {
+                font-size: 2rem !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem !important;
+            }
+            
+            .content-section {
+                margin-bottom: 40px !important;
+            }
+            
+            .section-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .section-content {
+                font-size: 0.9rem !important;
+                line-height: 1.5 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .security-badges {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+            
+            .security-badge {
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px 12px !important;
+            }
+            
+            .page-title {
+                font-size: 1.5rem !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem !important;
+            }
+            
+            .content-section {
+                margin-bottom: 32px !important;
+            }
+            
+            .section-title {
+                font-size: 1.25rem !important;
+            }
+            
+            .section-content {
+                font-size: 0.85rem !important;
+                line-height: 1.4 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                hyphens: auto !important;
+            }
+            
+            .security-badges {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            
+            .security-badge {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 16px !important;
+            }
+            
+            /* Footer Mobile Responsive Styles */
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                text-align: left !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+            }
         }
         
         .page-header {
@@ -290,111 +425,199 @@
         }
 
         /* Header Styles */
-        .header {
+        /* Override External CSS with Maximum Specificity */
+        html body .header {
             background: #1A1A1A !important;
             border-bottom: 1px solid #404040 !important;
-            padding: 16px 0 !important;
+            padding: var(--space-md) 0 !important;
             position: sticky !important;
             top: 0 !important;
             z-index: 1000 !important;
             backdrop-filter: none !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            width: 100% !important;
+            margin: 0 !important;
+            left: 0 !important;
         }
 
-        .header-container {
+        html body .header-container {
             max-width: 1400px !important;
             margin: 0 auto !important;
-            padding: 0 32px !important;
-            display: flex !important;
-            justify-content: space-between !important;
+            padding: 0 var(--space-xl) !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
             align-items: center !important;
             height: 80px !important;
+            width: 100% !important;
             position: relative !important;
+            box-sizing: border-box !important;
         }
 
-        .logo {
+        html body .logo {
+            justify-self: start !important;
+            grid-column: 1 !important;
+        }
+        
+        html body .nav-menu {
             display: flex !important;
             align-items: center !important;
+            gap: 24px !important;
+            justify-self: center !important;
+            grid-column: 2 !important;
+        }
+        
+        html body .header-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 20px !important;
+            justify-self: end !important;
+            grid-column: 3 !important;
+        }
+        
+        html body .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: color 0.2s ease !important;
+        }
+        
+        html body .nav-link:hover {
+            color: #00FF85 !important;
+        }
+        
+        html body .auth-buttons {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+        }
+        
+        html body .auth-btn {
+            padding: 12px 24px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
             cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        html body .auth-btn.login {
+            background: transparent !important;
+            color: #FFFFFF !important;
+            border: 1px solid #404040 !important;
+        }
+        
+        html body .auth-btn.signup {
+            background: linear-gradient(135deg, #00FF85, #00CC6A) !important;
+            color: #000 !important;
         }
 
         .logo-svg {
-            height: 60px !important;
-            width: auto !important;
-            filter: brightness(1.2) contrast(1.2) !important;
+            height: 40px;
+            width: auto;
         }
 
-        .nav-menu {
-            display: flex !important;
-            align-items: center !important;
-            gap: 40px !important;
-            position: absolute !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) !important;
-        }
-
-        .nav-link {
-            color: #FFFFFF !important;
-            text-decoration: none !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            transition: color 0.2s !important;
-        }
-
-        .nav-link:hover {
-            color: #FFD600 !important;
-        }
-
-        .auth-buttons {
-            display: none !important;
-            align-items: center !important;
-            gap: 12px !important;
-            position: absolute !important;
-            right: 32px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-        }
-
-        .auth-buttons.show {
-            display: flex !important;
-        }
-
-        .auth-btn {
-            padding: 8px 16px !important;
-            border-radius: 4px !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            text-decoration: none !important;
-            transition: all 0.2s !important;
-            cursor: pointer;
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
             border: none;
+            color: #FFFFFF;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
         }
 
-        .auth-btn.login {
-            color: #FFFFFF !important;
-            border: 1px solid #404040 !important;
-            background: transparent !important;
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1A1A1A;
+            border-top: 1px solid #404040;
+            padding: 20px;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .auth-btn.login:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-color: #FFFFFF !important;
+        .mobile-menu.active {
+            display: flex;
         }
 
-        .auth-btn.signup {
-            color: #000000 !important;
-            background: #FFD600 !important;
-            border: 1px solid #FFD600 !important;
+        .mobile-auth-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
         }
 
-        .auth-btn.signup:hover {
-            background: #FFE066 !important;
-            border-color: #FFE066 !important;
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            html body .header-container {
+                padding: 0 24px !important;
+            }
+            
+            html body .nav-menu {
+                gap: 20px !important;
+            }
         }
+
+        @media (max-width: 768px) {
+            html body .header-container {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            html body .nav-menu {
+                display: none !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: block !important;
+                margin-left: auto !important;
+            }
+            
+            html body .auth-buttons {
+                display: flex !important;
+                gap: 12px !important;
+                margin-left: auto !important;
+            }
+            
+            html body .auth-btn {
+                padding: 10px 16px !important;
+                font-size: 14px !important;
+            }
+            
+            .mobile-menu {
+                display: none !important;
+            }
+            
+            .mobile-menu.active {
+                display: flex !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            html body .header-container {
+                padding: 0 16px !important;
+            }
+            
+            .logo-svg {
+                height: 32px !important;
+            }
+            
+            html body .auth-btn {
+                padding: 8px 16px !important;
+                font-size: 12px !important;
+            }
+        }
+
 
         .user-profile {
             display: none !important;
@@ -668,7 +891,33 @@
             color: #666666;
         }
     </style>
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <script>
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (mobileMenu && mobileMenuToggle) {
+                mobileMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (mobileMenu && mobileMenuToggle && 
+                !mobileMenu.contains(e.target) && 
+                !mobileMenuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+            }
+        });
+
         // Authentication and User Management
         window.addEventListener('load', () => {
             const token = localStorage.getItem('access_token');
@@ -761,25 +1010,29 @@
                     <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
                 </a>
             </div>
+            
             <nav class="nav-menu">
                 <a href="homepage.html#features" class="nav-link">FEATURES</a>
                 <a href="homepage.html#pricing" class="nav-link">PRICING</a>
                 <a href="homepage.html#about" class="nav-link">ABOUT</a>
                 <a href="homepage.html#contact" class="nav-link">CONTACT</a>
             </nav>
+            
+            <div class="header-right">
             <div class="auth-buttons" id="authButtons">
                 <button class="auth-btn login" onclick="openLoginModal()">Login</button>
                 <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
             </div>
-            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
-                <div class="user-avatar" id="userAvatar">
-                    <span id="userInitials">JD</span>
+            
+            <div class="user-profile" id="userProfile" style="display: none;">
+                <div class="user-avatar" onclick="toggleDropdown()">
+                    <span id="userInitials">U</span>
                 </div>
-                <div class="user-info">
-                    <div class="user-name" id="userDisplayName">John Doe</div>
+                <div class="user-info" onclick="toggleDropdown()">
+                    <div class="user-name" id="userDisplayName">User</div>
                     <div class="user-role" id="userRole">Premium User</div>
                 </div>
-                <span class="dropdown-arrow">▼</span>
+                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
                 <div class="user-dropdown" id="userDropdown">
                     <a href="dashboard.html" class="dropdown-item">
                         <span class="dropdown-icon">📊</span>
@@ -793,13 +1046,32 @@
                         <span class="dropdown-icon">⚙️</span>
                         Account Settings
                     </a>
-                    <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item" onclick="logout()">
                         <span class="dropdown-icon">🚪</span>
                         Logout
                     </a>
                 </div>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <nav class="mobile-menu" id="mobileMenu">
+                    <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                    <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                    <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                    <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+                    <div class="mobile-auth-buttons">
+                        <button class="auth-btn login" onclick="openLoginModal()">Login</button>
+                        <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
+                    </div>
+                </nav>
             </div>
+            
         </div>
     </header>
 

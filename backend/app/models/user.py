@@ -54,6 +54,9 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     last_login = Column(DateTime)
     
+    # Company relationship
+    company_id = Column(Integer, nullable=True)
+    
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', tier='{self.subscription_tier.value}')>"
     

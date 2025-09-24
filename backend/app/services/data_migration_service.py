@@ -7,10 +7,10 @@ import pandas as pd
 import numpy as np
 from sqlalchemy.orm import Session
 from ..core.database import get_db
-from ..models.enhanced_crane import (
-    CraneListing, MarketTrend, BrokerNetwork, PerformanceMetrics,
-    CraneValuationAnalysis, MarketIntelligence, RentalRates, DataRefreshLog
-)
+# from ..models.enhanced_crane import (
+#     CraneListing, MarketTrend, BrokerNetwork, PerformanceMetrics,
+#     CraneValuationAnalysis, MarketIntelligence, RentalRates, DataRefreshLog
+# )  # Tables don't exist yet
 from ..models.spec_catalog import SpecCatalog, ScrapingJob, ScrapingCache, SpecCompleteness
 from typing import Dict, Any, List, Optional
 import logging
@@ -454,29 +454,29 @@ class DataMigrationService:
             return 'low'
     
     def log_data_refresh(self, db: Session, refresh_type: str, status: str, 
-                        metrics: Dict[str, Any] = None, error_message: str = None) -> DataRefreshLog:
+                        metrics: Dict[str, Any] = None, error_message: str = None) -> Dict[str, Any]:
         """Log data refresh operation"""
         try:
-            log_entry = DataRefreshLog(
-                refresh_type=refresh_type,
-                data_source='csv_migration',
-                status=status,
-                config={'migration_service': 'DataMigrationService'},
-                error_message=error_message,
-                created_at=datetime.utcnow()
-            )
+            # Create a simple log entry since DataRefreshLog table doesn't exist yet
+            log_entry = {
+                'refresh_type': refresh_type,
+                'data_source': 'csv_migration',
+                'status': status,
+                'config': {'migration_service': 'DataMigrationService'},
+                'error_message': error_message,
+                'created_at': datetime.utcnow()
+            }
             
             if status == 'completed':
-                log_entry.completed_at = datetime.utcnow()
+                log_entry['completed_at'] = datetime.utcnow()
             
             if metrics:
-                log_entry.records_processed = metrics.get('records_processed', 0)
-                log_entry.records_added = metrics.get('records_added', 0)
-                log_entry.records_updated = metrics.get('records_updated', 0)
+                log_entry['records_processed'] = metrics.get('records_processed', 0)
+                log_entry['records_added'] = metrics.get('records_added', 0)
+                log_entry['records_updated'] = metrics.get('records_updated', 0)
             
-            db.add(log_entry)
-            db.commit()
-            db.refresh(log_entry)
+            # For now, just return the log entry as a dictionary
+            # In the future, this could be saved to a database table
             return log_entry
             
         except Exception as e:

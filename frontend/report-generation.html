@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
         
@@ -79,6 +81,7 @@
             top: 0 !important;
             z-index: 1000 !important;
             backdrop-filter: none !important;
+            overflow: visible !important;
         }
 
         .header-container {
@@ -89,6 +92,7 @@
             grid-template-columns: 1fr auto 1fr !important;
             align-items: center !important;
             height: 80px !important;
+            overflow: visible !important;
         }
 
         .logo {
@@ -111,6 +115,7 @@
             justify-self: center !important;
             grid-column: 2;
         }
+
 
         .nav-link {
             color: #FFFFFF !important;
@@ -149,7 +154,8 @@
             grid-column: 3;
             padding-right: 0;
             margin-right: 0;
-            z-index: 100;
+            position: relative;
+            z-index: 1000;
         }
 
         .user-profile.visible {
@@ -191,26 +197,42 @@
         .dropdown-arrow {
             color: #B0B0B0;
             font-size: 12px;
-            transition: transform 0.2s;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
         }
 
         .user-dropdown {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 8px);
             right: 0;
             background: #2A2A2A;
             border: 1px solid #404040;
             border-radius: 8px;
             padding: 8px 0;
             min-width: 200px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
             display: none;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         .user-dropdown.show {
             display: block;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .dropdown-item {
@@ -220,11 +242,23 @@
             padding: 12px 16px;
             color: #FFFFFF;
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .dropdown-item:hover {
             background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
 
         /* ===== MARKET TICKER - EXACT MATCH TO HOMEPAGE ===== */
@@ -734,7 +768,58 @@
         }
 
         /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .header-container {
+                padding: 0 24px !important;
+            }
+            
+            .container {
+                padding: 0 24px;
+            }
+        }
+        
         @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 16px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            
             .container {
                 padding: 0 16px;
             }
@@ -776,6 +861,90 @@
 
             .ticker-change {
                 font-size: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 12px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .form-grid {
+                gap: 16px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+            
+            .action-buttons {
+                gap: 8px;
             }
         }
 
@@ -829,37 +998,43 @@
     <!-- Header -->
     <header class="header">
         <div class="header-container">
-                <div class="logo">
-                    <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                        <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                    </a>
-                </div>
-            <nav class="nav-menu">
-                <!-- Navigation removed for report generation page -->
-            </nav>
-            <div class="auth-buttons" id="authButtons">
-                <button class="btn btn-secondary" onclick="window.location.href='login.html'">Login</button>
-                <button class="btn btn-primary" onclick="window.location.href='signup.html'">Sign Up</button>
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
             </div>
-            
-            <div class="user-profile" id="userProfile">
-                <div class="user-avatar" onclick="toggleDropdown()">
-                    <span id="userInitials">U</span>
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">JD</span>
                 </div>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-name" id="userDisplayName">User</div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">John Doe</div>
                     <div class="user-role" id="userRole">Premium User</div>
                 </div>
-                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
+                <span class="dropdown-arrow">▼</span>
                 <div class="user-dropdown" id="userDropdown">
                     <a href="dashboard.html" class="dropdown-item">
-                        <span>📊</span> Dashboard
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
                     </a>
                     <a href="account-settings.html" class="dropdown-item">
-                        <span>⚙️</span> Settings
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
                     </a>
+                    <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item" onclick="logout()">
-                        <span>🚪</span> Logout
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
                     </a>
                 </div>
             </div>
@@ -954,17 +1129,17 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Capacity (Tons)</label>
-                                <input type="number" class="form-input" id="capacity" placeholder="250" min="1" max="2000" required>
+                                <input type="number" class="form-input" id="capacity" placeholder="250" value="250" min="1" max="2000" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Operating Hours</label>
-                                <input type="number" class="form-input" id="operatingHours" placeholder="5000" min="0">
+                                <input type="number" class="form-input" id="operatingHours" placeholder="5000" value="5000" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Region</label>
                                 <select class="form-select" id="region">
                                     <option value="">Select Region</option>
-                                    <option value="North America">North America</option>
+                                    <option value="North America" selected>North America</option>
                                     <option value="Europe">Europe</option>
                                     <option value="Asia Pacific">Asia Pacific</option>
                                     <option value="Middle East">Middle East</option>
@@ -980,7 +1155,7 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Estimated Value ($)</label>
-                                <input type="number" class="form-input" id="estimatedValue" placeholder="750000" min="0">
+                                <input type="number" class="form-input" id="estimatedValue" placeholder="750000" value="2100000" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Age Factor</label>
@@ -1050,7 +1225,7 @@
                     <h3 class="preview-title">Report Preview</h3>
                     <div class="preview-actions">
                         <button class="btn btn-primary btn-small" onclick="downloadReport()">
-                            <span>📥</span> Download PDF
+                            <span>📄</span> Download PDF
                         </button>
                         <button class="btn btn-secondary btn-small" onclick="shareReport()">
                             <span>📤</span> Share
@@ -1167,6 +1342,17 @@
             }
         }
 
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
         function logout() {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
@@ -1254,24 +1440,16 @@
             });
 
             const reportData = {
-                template: 'bloomberg_terminal',
-                valuation_data: {
-                    manufacturer: document.getElementById('manufacturer').value,
-                    model: document.getElementById('model').value,
-                    year: parseInt(document.getElementById('year').value),
-                    capacity_tons: parseFloat(document.getElementById('capacity').value),
-                    hours: parseInt(document.getElementById('operatingHours').value) || 0,
-                    region: document.getElementById('region').value,
-                    estimated_value: parseFloat(document.getElementById('estimatedValue').value) || 0,
-                    confidence_score: 85, // Default value
-                    age_factor: parseFloat(document.getElementById('ageFactor').value),
-                    condition_score: parseFloat(document.getElementById('conditionScore').value)
-                },
-                include_charts: document.getElementById('includeCharts').checked,
-                include_comps: document.getElementById('includeComparables').checked,
-                include_finance_scenarios: document.getElementById('includeFinance').checked,
-                include_market_analysis: document.getElementById('includeMarket').checked,
-                include_risk_assessment: document.getElementById('includeRisk').checked
+                capacity: parseFloat(document.getElementById('capacity').value) || 0,
+                operating_hours: parseInt(document.getElementById('operatingHours').value) || 0,
+                region: document.getElementById('region').value,
+                estimated_value: parseFloat(document.getElementById('estimatedValue').value) || 0,
+                condition_score: parseFloat(document.getElementById('conditionScore').value) || 0,
+                sections: sections,
+                manufacturer: document.getElementById('manufacturer').value,
+                model: document.getElementById('model').value,
+                year: parseInt(document.getElementById('year').value) || new Date().getFullYear(),
+                age_factor: parseFloat(document.getElementById('ageFactor').value) || 1.0
             };
 
             // Show loading
@@ -1300,7 +1478,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:8003/api/v1/reports/generate', {
+                const response = await fetch('http://localhost:8004/api/v1/reports/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1336,17 +1514,17 @@
                 
                 if (result.success) {
                     // Display preview
-                    document.getElementById('previewContent').textContent = JSON.stringify(result, null, 2);
+                    document.getElementById('previewContent').textContent = JSON.stringify(result.data, null, 2);
                     document.getElementById('reportPreview').style.display = 'block';
                     
                     // Show success dialog
                     showDialog(
                         'Report Generated Successfully!', 
-                        `Your Bloomberg-style report has been generated with ID: ${result.report_id}`,
+                        `Your Bloomberg-style report has been generated with ID: ${result.data.report_id}`,
                         'success'
                     );
                 } else {
-                    throw new Error(result.message || 'Failed to generate report');
+                    throw new Error(result.error || 'Failed to generate report');
                 }
                 
             } catch (error) {
@@ -1363,81 +1541,20 @@
 
         function downloadReport() {
             const reportId = document.getElementById('previewContent').textContent;
-            if (reportId && reportId.includes('report_')) {
+            if (reportId && reportId.includes('report_id')) {
                 try {
                     const reportData = JSON.parse(reportId);
-                    if (reportData.pdf_url) {
-                        // Download the HTML report
-                        const accessToken = localStorage.getItem('access_token');
-                        const downloadUrl = `http://localhost:8003${reportData.pdf_url}`;
-                        
-                        // Open the report in a new window for PDF conversion
-                        const newWindow = window.open('', '_blank');
-                        
-                        fetch(downloadUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${accessToken}`
-                            }
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                return response.text();
-                            } else if (response.status === 401) {
-                                showDialog(
-                                    'Authentication Required', 
-                                    'Please log in again to download the report.',
-                                    'error'
-                                );
-                                // Redirect to login
-                                setTimeout(() => {
-                                    window.location.href = 'homepage.html';
-                                }, 2000);
-                                throw new Error('Authentication required');
-                            } else if (response.status === 404) {
-                                showDialog(
-                                    'Report Not Found', 
-                                    'The requested report could not be found. Please generate a new report.',
-                                    'error'
-                                );
-                                throw new Error('Report not found');
-                            } else {
-                                throw new Error(`Failed to download report: ${response.status}`);
-                            }
-                        })
-                        .then(html => {
-                            newWindow.document.write(html);
-                            newWindow.document.close();
-                            
-                            showDialog(
-                                'Report Download', 
-                                'Report opened in new window. Use Ctrl+P (Cmd+P on Mac) to print and save as PDF.',
-                                'success'
-                            );
-                        })
-                        .catch(error => {
-                            console.error('Report download error:', error);
-                            if (newWindow) {
-                                newWindow.close();
-                            }
-                            
-                            // Only show generic error if it's not already handled
-                            if (!error.message.includes('Authentication required') && 
-                                !error.message.includes('Report not found')) {
-                                showDialog(
-                                    'Report Download Error', 
-                                    'Failed to download report. Please try again.',
-                                    'error'
-                                );
-                            }
-                        });
-                    } else {
-                        showDialog(
-                            'Report Download', 
-                            'Report is not available for download.',
-                            'info'
-                        );
-                    }
+                    
+                    // Show loading dialog
+                    showDialog(
+                        'Generating PDF', 
+                        'Please wait while we generate your PDF report...',
+                        'info'
+                    );
+                    
+                    // Generate PDF from report data
+                    generatePDFReport(reportData);
+                    
                 } catch (error) {
                     console.error('Error parsing report data:', error);
                     showDialog(
@@ -1451,6 +1568,169 @@
                     'Report Download', 
                     'Please generate a report first.',
                     'info'
+                );
+            }
+        }
+
+        function generatePDFReport(reportData) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Set up colors
+                const primaryColor = '#00FF85';
+                const darkColor = '#1A1A1A';
+                const textColor = '#333333';
+                const lightGray = '#666666';
+                
+                let yPosition = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                
+                // Header
+                doc.setFillColor(26, 26, 26);
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('CRANE INTELLIGENCE', margin, 20);
+                
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Valuation Report', margin, 28);
+                
+                yPosition = 45;
+                
+                // Report ID and Date
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Report ID: ${reportData.report_id}`, margin, yPosition);
+                doc.text(`Generated: ${new Date(reportData.generated_at).toLocaleDateString()}`, pageWidth - margin - 50, yPosition);
+                yPosition += 15;
+                
+                // Line separator
+                doc.setDrawColor(0, 255, 133);
+                doc.setLineWidth(0.5);
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+                
+                // Crane Specifications Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Crane Specifications', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const specs = reportData.crane_specifications;
+                doc.text(`Capacity: ${specs.capacity_tons} tons`, margin, yPosition);
+                doc.text(`Operating Hours: ${specs.operating_hours.toLocaleString()} hours`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Region: ${specs.region}`, margin, yPosition);
+                doc.text(`Condition Score: ${specs.condition_score}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Valuation Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Valuation Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const valuation = reportData.valuation;
+                doc.text(`Estimated Value: $${valuation.estimated_value.toLocaleString()}`, margin, yPosition);
+                doc.text(`Market Value: $${valuation.market_value.toLocaleString()}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Depreciation Rate: ${(valuation.depreciation_rate * 100).toFixed(1)}%`, margin, yPosition);
+                doc.text(`Value per Hour: $${valuation.value_per_hour}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Risk Assessment Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Risk Assessment', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const risk = reportData.risk_assessment;
+                doc.text(`Risk Score: ${risk.risk_score}`, margin, yPosition);
+                doc.text(`Risk Level: ${risk.risk_level}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text('Recommendations:', margin, yPosition);
+                yPosition += 6;
+                risk.recommendations.forEach(rec => {
+                    doc.text(`• ${rec}`, margin + 5, yPosition);
+                    yPosition += 5;
+                });
+                yPosition += 5;
+                
+                // Market Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Market Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const market = reportData.market_analysis;
+                doc.text(`Regional Demand: ${market.regional_demand}%`, margin, yPosition);
+                doc.text(`Price Trend: ${market.price_trend}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Competition Level: ${market.competition_level}`, margin, yPosition);
+                yPosition += 15;
+                
+                // Footer
+                yPosition = doc.internal.pageSize.getHeight() - 20;
+                doc.setTextColor(lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('This report was generated by Crane Intelligence Platform', margin, yPosition);
+                doc.text('For questions or support: support@craneintelligence.com', margin, yPosition + 5);
+                
+                // Download the PDF
+                const fileName = `crane_report_${reportData.report_id}.pdf`;
+                doc.save(fileName);
+                
+                // Close loading dialog and show success
+                setTimeout(() => {
+                    showDialog(
+                        'Report Downloaded', 
+                        'Your PDF report has been downloaded successfully!',
+                        'success'
+                    );
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showDialog(
+                    'PDF Generation Error', 
+                    'Failed to generate PDF. Please try again.',
+                    'error'
                 );
             }
         }

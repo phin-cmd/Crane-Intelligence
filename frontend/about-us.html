@@ -25,6 +25,120 @@
             padding: 40px 20px;
         }
         
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 20px 16px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 16px;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-section {
+                margin-bottom: 40px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-content {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 12px;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .content-section {
+                margin-bottom: 32px;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .section-content {
+                font-size: 0.85rem;
+                line-height: 1.4;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+            
+            /* Footer Mobile Responsive Styles */
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                text-align: left !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+            }
+        }
+        
         .page-header {
             text-align: center;
             margin-bottom: 60px;
@@ -1002,7 +1116,7 @@
             loading.style.display = 'block';
             
             try {
-                const response = await fetch('http://localhost:8003/api/v1/auth/login', {
+                const response = await fetch('http://localhost:8004/api/v1/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

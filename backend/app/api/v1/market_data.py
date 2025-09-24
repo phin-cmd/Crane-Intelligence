@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from ...core.database import get_db
-from ...models.enhanced_crane import (
-    CraneListing, MarketTrend, RentalRates, PerformanceMetrics
-)
+# from ...models.enhanced_crane import (
+#     CraneListing, MarketTrend, RentalRates, PerformanceMetrics
+# )  # Tables don't exist yet
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import logging
@@ -22,74 +22,69 @@ router = APIRouter(prefix="/market-data", tags=["Market Data"])
 async def get_live_market_stats(db: Session = Depends(get_db)):
     """Get live market statistics for terminal display"""
     try:
+        # Use existing cranes table instead of non-existent crane_listings
+        from ...models.crane import Crane
+        
         # Get total listings count
-        total_listings = db.query(CraneListing).filter(CraneListing.is_active == True).count()
+        total_listings = db.query(Crane).count()
         
         # Get average price
-        avg_price_result = db.query(func.avg(CraneListing.price)).filter(
-            CraneListing.is_active == True,
-            CraneListing.price.isnot(None)
+        avg_price_result = db.query(func.avg(Crane.price)).filter(
+            Crane.price.isnot(None)
         ).scalar()
         avg_price = float(avg_price_result) if avg_price_result else 0
         
         # Get total market value (sum of all prices)
-        total_market_value = db.query(func.sum(CraneListing.price)).filter(
-            CraneListing.is_active == True,
-            CraneListing.price.isnot(None)
+        total_market_value = db.query(func.sum(Crane.price)).filter(
+            Crane.price.isnot(None)
         ).scalar()
         total_market_value = float(total_market_value) if total_market_value else 0
         
         # Get recent listings (last 24 hours)
         recent_cutoff = datetime.utcnow() - timedelta(hours=24)
-        recent_listings = db.query(CraneListing).filter(
-            CraneListing.is_active == True,
-            CraneListing.scraped_at >= recent_cutoff
+        recent_listings = db.query(Crane).filter(
+            Crane.created_at >= recent_cutoff
         ).count()
         
         # Get price range
-        min_price = db.query(func.min(CraneListing.price)).filter(
-            CraneListing.is_active == True,
-            CraneListing.price.isnot(None)
+        min_price = db.query(func.min(Crane.price)).filter(
+            Crane.price.isnot(None)
         ).scalar()
-        max_price = db.query(func.max(CraneListing.price)).filter(
-            CraneListing.is_active == True,
-            CraneListing.price.isnot(None)
+        max_price = db.query(func.max(Crane.price)).filter(
+            Crane.price.isnot(None)
         ).scalar()
         
         # Get manufacturer distribution
         manufacturer_stats = db.query(
-            CraneListing.manufacturer,
-            func.count(CraneListing.id).label('count'),
-            func.avg(CraneListing.price).label('avg_price')
+            Crane.manufacturer,
+            func.count(Crane.id).label('count'),
+            func.avg(Crane.price).label('avg_price')
         ).filter(
-            CraneListing.is_active == True,
-            CraneListing.manufacturer.isnot(None)
-        ).group_by(CraneListing.manufacturer).order_by(desc('count')).limit(10).all()
+            Crane.manufacturer.isnot(None)
+        ).group_by(Crane.manufacturer).order_by(desc('count')).limit(10).all()
         
         # Get regional distribution
         regional_stats = db.query(
-            CraneListing.region,
-            func.count(CraneListing.id).label('count'),
-            func.avg(CraneListing.price).label('avg_price')
+            Crane.location,
+            func.count(Crane.id).label('count'),
+            func.avg(Crane.price).label('avg_price')
         ).filter(
-            CraneListing.is_active == True,
-            CraneListing.region.isnot(None)
-        ).group_by(CraneListing.region).order_by(desc('count')).limit(10).all()
+            Crane.location.isnot(None)
+        ).group_by(Crane.location).order_by(desc('count')).limit(10).all()
         
         # Get capacity distribution
         capacity_stats = db.query(
             func.case(
-                (CraneListing.capacity_tons < 100, '<100T'),
-                (CraneListing.capacity_tons < 200, '100-200T'),
-                (CraneListing.capacity_tons < 300, '200-300T'),
-                (CraneListing.capacity_tons < 400, '300-400T'),
-                (CraneListing.capacity_tons < 500, '400-500T'),
+                (Crane.capacity_tons < 100, '<100T'),
+                (Crane.capacity_tons < 200, '100-200T'),
+                (Crane.capacity_tons < 300, '200-300T'),
+                (Crane.capacity_tons < 400, '300-400T'),
+                (Crane.capacity_tons < 500, '400-500T'),
                 else_='>500T'
             ).label('capacity_range'),
-            func.count(CraneListing.id).label('count')
+            func.count(Crane.id).label('count')
         ).filter(
-            CraneListing.is_active == True,
-            CraneListing.capacity_tons.isnot(None)
+            Crane.capacity_tons.isnot(None)
         ).group_by('capacity_range').all()
         
         return {

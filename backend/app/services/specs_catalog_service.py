@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from ..models.enhanced_crane import CraneListing
+# from ..models.enhanced_crane import CraneListing  # Table doesn't exist yet
 from ..core.database import get_db
 
 logger = logging.getLogger(__name__)

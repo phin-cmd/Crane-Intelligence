@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/live-data-framework.js"></script>
+    <script src="js/notification-system.js"></script>
     <style>
         /* ===== PROFESSIONAL DASHBOARD STYLES ===== */
         * {
@@ -90,6 +92,7 @@
         .nav-link:hover {
             color: #FFD600 !important;
         }
+
 
 
         .user-profile {
@@ -851,10 +854,25 @@
             
             .header-container {
                 padding: 0 16px;
-                grid-template-columns: 1fr;
+                flex-direction: row;
+                height: 80px;
                 gap: 16px;
-                height: auto;
-                padding: 16px;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none;
+            }
+            
+            .dropdown-arrow {
+                display: none;
             }
             
             .nav-menu {
@@ -867,6 +885,142 @@
             .auth-buttons {
                 order: 2;
                 justify-self: end;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .time-filters {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .time-filter {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .chart-container {
+                padding: 16px;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            .activity-feed,
+            .valuations-table {
+                padding: 16px;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 4px;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .footer-container {
+                padding: 0 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px;
+                gap: 12px;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .main-content {
+                padding: 12px;
+            }
+            
+            .dashboard-title {
+                font-size: 24px;
+            }
+            
+            .kpi-card {
+                padding: 16px;
+            }
+            
+            .kpi-value {
+                font-size: 24px;
+            }
+            
+            .chart-container {
+                padding: 12px;
+            }
+            
+            .chart-wrapper {
+                height: 200px;
+            }
+            
+            .activity-feed,
+            .valuations-table {
+                padding: 12px;
+            }
+            
+            .table {
+                font-size: 10px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 6px 2px;
+            }
+            
+            .metric-card {
+                padding: 12px;
+            }
+            
+            .metric-value {
+                font-size: 16px;
+            }
+            
+            .action-btn {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+            
+            .footer-container {
+                padding: 0 12px;
+            }
+            
+            .footer-grid {
+                gap: 16px;
+            }
+            
+            .newsletter {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100%;
             }
         }
     </style>
@@ -1350,6 +1504,7 @@
             dropdown.classList.toggle('show');
         }
 
+
         function logout() {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
@@ -1375,10 +1530,53 @@
             }
         });
 
-        // Initialize Charts
+        // Global variables
+        let charts = {};
+        let liveDataFramework;
+        let tickerInterval;
+        let isTickerPaused = false;
+
+        // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            initializeLiveData();
             initializeCharts();
+            startTicker();
+            setupLiveDataSubscriptions();
         });
+
+        // Initialize live data framework
+        function initializeLiveData() {
+            liveDataFramework = window.liveDataFramework;
+            if (!liveDataFramework) {
+                console.warn('Live data framework not available, using mock data');
+                return;
+            }
+        }
+
+        // Setup live data subscriptions
+        function setupLiveDataSubscriptions() {
+            if (!liveDataFramework) return;
+
+            // Subscribe to dashboard data updates
+            liveDataFramework.subscribe('dashboard/data', (data) => {
+                updateKPIs(data);
+            });
+
+            // Subscribe to market trends
+            liveDataFramework.subscribe('market/trends', (data) => {
+                updateMarketChart(data);
+            });
+
+            // Subscribe to equipment data
+            liveDataFramework.subscribe('equipment/live', (data) => {
+                updateEquipmentData(data);
+            });
+
+            // Subscribe to connection status
+            liveDataFramework.subscribe('connection', (status) => {
+                updateConnectionStatus(status);
+            });
+        }
 
         function initializeCharts() {
             // Portfolio Performance Chart
@@ -1453,6 +1651,136 @@
                 }
             });
         }
+
+        // Live data update functions
+        function updateKPIs(data) {
+            if (!data) return;
+
+            // Update KPI values
+            const kpiElements = {
+                'avg-valuation': data.avg_valuation || data.total_revenue,
+                'confidence': data.confidence || data.system_health,
+                'total-cranes': data.total_cranes || data.total_users,
+                'market-growth': data.market_growth || data.monthly_revenue
+            };
+
+            Object.entries(kpiElements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = formatValue(id, value);
+                    // Add visual feedback for updates
+                    element.style.color = '#00FF85';
+                    setTimeout(() => {
+                        element.style.color = '#FFFFFF';
+                    }, 1000);
+                }
+            });
+        }
+
+        function updateMarketChart(data) {
+            if (!data || !charts.marketChart) return;
+
+            charts.marketChart.data.labels = data.labels || charts.marketChart.data.labels;
+            charts.marketChart.data.datasets[0].data = data.datasets?.[0]?.data || charts.marketChart.data.datasets[0].data;
+            charts.marketChart.update('none');
+        }
+
+        function updateEquipmentData(data) {
+            if (!data || !Array.isArray(data)) return;
+
+            // Update equipment table or list if it exists
+            const equipmentContainer = document.getElementById('equipmentList');
+            if (equipmentContainer) {
+                equipmentContainer.innerHTML = data.map(item => `
+                    <div class="equipment-item">
+                        <span class="equipment-id">${item.id}</span>
+                        <span class="equipment-type">${item.type}</span>
+                        <span class="equipment-value">$${(item.value / 1000000).toFixed(1)}M</span>
+                        <span class="equipment-status ${item.status.toLowerCase()}">${item.status}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            const indicator = document.querySelector('.live-indicator');
+            if (indicator) {
+                if (status.status === 'connected') {
+                    indicator.style.background = '#00FF85';
+                    indicator.style.animation = 'pulse 2s infinite';
+                } else if (status.status === 'disconnected') {
+                    indicator.style.background = '#FF4444';
+                    indicator.style.animation = 'none';
+                } else if (status.status === 'offline') {
+                    indicator.style.background = '#FFD600';
+                    indicator.style.animation = 'none';
+                }
+            }
+        }
+
+        function formatValue(type, value) {
+            switch(type) {
+                case 'avg-valuation':
+                    return `$${(value / 1000000).toFixed(2)}M`;
+                case 'confidence':
+                    return typeof value === 'string' ? value : `${value}%`;
+                case 'total-cranes':
+                    return value.toLocaleString();
+                case 'market-growth':
+                    return `$${(value / 1000).toFixed(0)}K`;
+                default:
+                    return value;
+            }
+        }
+
+        // Ticker functions
+        function startTicker() {
+            if (tickerInterval) clearInterval(tickerInterval);
+            
+            tickerInterval = setInterval(() => {
+                if (!isTickerPaused) {
+                    updateTicker();
+                }
+            }, 2000);
+        }
+
+        function updateTicker() {
+            const tickerContent = document.getElementById('tickerContent');
+            if (!tickerContent) return;
+
+            // Generate or update ticker data
+            const tickerData = liveDataFramework ? 
+                liveDataFramework.createLiveTickerData() : 
+                generateMockTickerData();
+
+            tickerContent.innerHTML = tickerData.map(item => `
+                <div class="ticker-item">
+                    <span class="ticker-symbol">${item.symbol}</span>
+                    <span class="ticker-price">${item.price}</span>
+                    <span class="ticker-change ${item.change > 0 ? 'up' : 'down'}">${item.change > 0 ? '+' : ''}${item.change}%</span>
+                </div>
+            `).join('');
+        }
+
+        function generateMockTickerData() {
+            const symbols = ['CRN', 'VAL', 'MKT', 'EQP', 'REG', 'PERF'];
+            return symbols.map(symbol => ({
+                symbol,
+                price: `$${(Math.random() * 1000 + 100).toFixed(2)}`,
+                change: (Math.random() - 0.5) * 10
+            }));
+        }
+
+        function toggleTicker() {
+            isTickerPaused = !isTickerPaused;
+            const button = event.target;
+            button.textContent = isTickerPaused ? 'Resume' : 'Pause';
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (tickerInterval) clearInterval(tickerInterval);
+        });
     </script>
 </body>
 </html>

@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 from .data_normalization import DataNormalizationService
 from .scraping_service import ScrapingService
-from ..models.enhanced_crane import CraneListing
+# from ..models.enhanced_crane import CraneListing  # Table doesn't exist yet
 from ..core.database import get_db
 
 logger = logging.getLogger(__name__)
