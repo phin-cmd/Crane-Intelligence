@@ -21,78 +21,12 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual Environment
+# Virtual environments
 venv/
 env/
 ENV/
 env.bak/
 venv.bak/
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-crane_intelligence.db
-database.db
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory
-coverage/
-*.lcov
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# Environment variables
-.env
-.env.test
-.env.local
-.env.production
-.env.development
-
-# Cache directories
-.cache/
-.parcel-cache/
-
-# Build outputs
-.next/
-.nuxt/
-.vuepress/dist/
-.serverless/
-.fusebox/
 
 # IDE
 .vscode/
@@ -110,122 +44,80 @@ jspm_packages/
 ehthumbs.db
 Thumbs.db
 
+# Logs
+*.log
+logs/
+log/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+*.cache
+
 # Temporary files
-temp/
-tmp/
 *.tmp
 *.temp
+temp/
+tmp/
 
-# Backup files
-backups/
-*.bak
-*.backup
+# Docker
+.dockerignore
 
-# Generated reports
-generated_reports/
-reports/
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
 
-# Test files
-test_*.py
-test_*.html
-test_*.js
-*_test.py
-*_test.html
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Development files
-dev_*.py
-debug_*.py
-fix_*.py
-comprehensive_*.py
-check_*.py
-create_*.py
+# Build outputs
+build/
+dist/
+out/
 
-# Data files (keep structure but ignore large files)
-data/raw/
-data/processed/
-data/cache/
-*.csv
-*.json
-*.jsonl
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
-# Jupyter Notebooks
+# Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath
-*.sage.py
-
-# Spyder
-.spyderproject
-.spyproject
-
-# Rope
-.ropeproject
-
-# mkdocs
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre
-.pyre/
-
-# Project specific
-*.db
-*.sqlite
-*.sqlite3
-crane_intelligence.db
-database.db
-logs/
+# Backup files
+*.bak
+*.backup
 backups/
-temp/
-tmp/
+
+# Generated files
 generated_reports/
-reports/
-test_*
-dev_*
-debug_*
-fix_*
-comprehensive_*
-check_*
-create_*
+*.generated.*
 
-# Documentation files (keep only essential)
-ADVANCED_ANALYTICS_COMPLETE.md
-BLOOMBERG_CHARTS_PDF_FIX_COMPLETE.md
-BLOOMBERG_TERMINAL_REPORT_UPDATE.md
-BLOOMBERG_VALUATION_COMPLETE.md
-BLOOMBERG_VALUATION_ENGINE_SUMMARY.md
-EMAIL_SETUP_GUIDE.md
-EMAIL_SETUP_STEPS.md
-EMAIL_SYSTEM_SUMMARY.md
-PROJECT_BASELINE_SUMMARY.md
-REAL_TIME_MARKET_DATA_COMPLETE.md
-REPORT_GENERATION_ERROR_FIXED.md
-REPORT_GENERATION_FINAL_FIX.md
-REPORT_GENERATION_FIX_COMPLETE.md
-VALUATION_TERMINAL_COMPLETE.md
+# Data files
+data/
+*.csv
+*.json
+*.jsonl
+*.xlsx
+*.xls
 
-# Email configuration
-email_config.env
-email_test_results.json
-
-# Sample data files
-sample_cranes.csv
-sample_cranes_alternative.csv
-sample_cranes.html
+# Images (keep logos and essential assets)
+images/cranes/
+images/team/
+!images/logos/
+!images/favicon.ico

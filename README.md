@@ -1,151 +1,148 @@
-# 🚀 Crane Intelligence Platform v2.0
+# Crane Intelligence Platform
 
-**Professional Crane Valuation and Market Analysis Platform**
+Professional Crane Valuation & Market Intelligence Platform built with FastAPI and modern web technologies.
 
-## 📁 **Project Structure**
+## Features
+
+- **Real-Time Market Data**: Live market data, pricing trends, and equipment valuations
+- **Advanced Analytics**: Comprehensive valuation models and predictive analytics
+- **Professional Tools**: Industry-standard tools for equipment inspection and compliance
+- **Bloomberg Terminal Design**: Professional black and green interface
+- **JWT Authentication**: Secure user authentication system
+- **Docker Support**: Containerized deployment with Docker Compose
+
+## Tech Stack
+
+### Backend
+- **FastAPI**: Modern Python web framework
+- **PostgreSQL**: Production database
+- **Redis**: Caching and session storage
+- **JWT**: Authentication tokens
+- **Docker**: Containerization
+
+### Frontend
+- **HTML5/CSS3**: Modern web standards
+- **JavaScript**: Interactive functionality
+- **Nginx**: Web server and reverse proxy
+- **Responsive Design**: Mobile-friendly interface
+
+## Quick Start
+
+### Prerequisites
+- Docker and Docker Compose
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd crane-intelligence
+   ```
+
+2. **Start the services**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Access the application**
+   - Frontend: http://localhost:3001
+   - Backend API: http://localhost:8004
+   - Database Admin: http://localhost:8082
+
+### Demo Credentials
+- **Email**: test@craneintelligence.com
+- **Password**: password123
+
+## Project Structure
 
 ```
-crane-intelligence-platform/
-├── backend/                    # FastAPI backend application
-│   ├── app/                   # Main application code
-│   │   ├── api/v1/           # API endpoints
-│   │   ├── core/             # Configuration and database
-│   │   ├── models/           # Database models
-│   │   ├── schemas/          # Pydantic schemas
-│   │   └── services/         # Business logic services
-│   ├── templates/            # HTML report templates
-│   │   └── reports/          # Market Intelligence & Cover Letter templates
-│   ├── generated_reports/    # Generated reports (gitignored)
-│   ├── requirements.txt      # Python dependencies
-│   └── crane_intelligence.db # SQLite database
-├── frontend/                 # Frontend web interface
-│   ├── css/                  # Stylesheets
-│   ├── images/               # Images and assets
-│   ├── homepage.html         # Marketing homepage
-│   ├── dashboard.html        # User dashboard
-│   ├── report-generation.html # Report generation interface
-│   ├── login.html            # User authentication
-│   └── valuation_terminal.html # Bloomberg-style terminal
-├── docs/                     # Documentation and requirements
-│   └── requirements/         # Project requirements and sample data
-├── data/                     # Data files (gitignored)
-├── run_backend.py           # Backend startup script
-├── start_platform.bat       # Windows startup script
-└── .gitignore              # Git ignore rules
+crane-intelligence/
+├── backend/                 # FastAPI backend
+│   ├── app/
+│   │   ├── main.py        # Main application
+│   │   ├── config.py      # Configuration
+│   │   └── requirements.txt
+│   └── Dockerfile
+├── frontend/              # Frontend application
+│   ├── homepage.html      # Main landing page
+│   ├── js/                # JavaScript files
+│   ├── css/               # Stylesheets
+│   ├── images/            # Assets
+│   ├── nginx.conf         # Nginx configuration
+│   └── Dockerfile
+├── docker-compose.yml     # Docker services
+└── README.md
 ```
 
-## 🚀 **Quick Start**
+## API Endpoints
 
-### **Option 1: Windows Batch Script (Recommended)**
-```bash
-# Double-click this file:
-start_platform.bat
-```
-
-### **Option 2: Manual Startup**
-```bash
-# Terminal 1: Start Backend
-python run_backend.py
-
-# Terminal 2: Start Frontend  
-python -m http.server 3000 --directory frontend
-```
-
-## 🌐 **Access Points**
-
-- **Marketing Homepage**: http://localhost:3000/homepage.html
-- **Platform Application**: http://localhost:3000
-- **Backend API**: http://localhost:8003
-- **API Documentation**: http://localhost:8003/docs
-- **Health Check**: http://localhost:8003/health
-
-## 🔐 **Demo Credentials**
-
-- **Email**: demo@craneintelligence.com
-- **Password**: DemoOnly123
-- **Subscription**: Pro Tier (access to all features)
-
-## 💰 **Subscription Plans**
-
-| Plan | Price | Features |
-|------|-------|----------|
-| **Basic** | $999/month | 50 valuations/month, Core valuation, Market comparables |
-| **Pro** | $2499/month | 200 valuations/month, Deal Score, Portfolio analysis, API access |
-| **Enterprise** | Custom | Unlimited access, Custom integrations, Dedicated support |
-
-## 🎯 **Target Customers**
-
-- **Crane Rental Companies** - Fleet valuation & optimization
-- **Equipment Dealers** - Inventory pricing & services
-- **Financial Institutions** - Collateral assessment
-
-## 🛠️ **Technology Stack**
-
-- **Backend**: FastAPI, Python 3.12
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Authentication**: JWT, bcrypt
-- **Database**: SQLAlchemy models (ready for PostgreSQL)
-- **Deployment**: Python HTTP server (production-ready for Nginx/Apache)
-
-## 📊 **Key Features**
-
-### **Dual Report Generation**
-- **Market Intelligence Report**: Comprehensive market analysis with equipment specifications, market analysis, valuation summary, and recommendations
-- **Cover Letter**: Professional business letter format with equipment summary and valuation highlights
-- Both reports generated simultaneously for each valuation request
-
-### **API Endpoints**
-
-#### **Authentication**
-- `POST /api/v1/auth/register` - User registration
+### Authentication
 - `POST /api/v1/auth/login` - User login
-- `GET /api/v1/auth/profile` - User profile
-- `GET /api/v1/auth/subscription/plans` - Available plans
+- `POST /api/v1/auth/register` - User registration
 
-#### **Valuation**
-- `POST /api/v1/valuation/value-crane` - Crane valuation
-- `POST /api/v1/valuation/market-analysis` - Market analysis
-- `POST /api/v1/valuation/fleet-optimization` - Portfolio analysis (Pro+)
-- `GET /api/v1/valuation/subscription/limits` - Usage limits
+### Health Check
+- `GET /api/v1/health` - API health status
 
-#### **Reports**
-- `POST /api/v1/reports/generate` - Generate dual reports
-- `GET /api/v1/reports/download/{report_id}/market_intelligence` - Download Market Intelligence Report
-- `GET /api/v1/reports/download/{report_id}/cover_letter` - Download Cover Letter
+## Development
 
-## 🔧 **Development**
-
-### **Install Dependencies**
+### Backend Development
 ```bash
 cd backend
 pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-### **Run Development Server**
+### Frontend Development
 ```bash
-cd backend
-python main.py
+cd frontend
+python -m http.server 8000
 ```
 
-### **Test API**
-```bash
-# Health check
-curl http://localhost:8000/health
+## Production Deployment
 
-# Authentication health
-curl http://localhost:8000/api/v1/auth/health
+### Digital Ocean Deployment
+1. **Connect to server**
+   ```bash
+   ssh root@your-server-ip
+   ```
+
+2. **Clone repository**
+   ```bash
+   git clone <repository-url>
+   cd crane-intelligence
+   ```
+
+3. **Start services**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Configure Nginx** (if needed)
+   ```bash
+   # Configure domain and SSL
+   ```
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+DATABASE_URL=postgresql://crane_user:crane_password@db:5432/crane_db
+SECRET_KEY=your-secret-key
 ```
 
-## 🎉 **Status: PRODUCTION READY**
+## Contributing
 
-The platform is fully functional with:
-- Professional-grade valuation engine
-- Secure authentication system
-- Subscription-based access control
-- Modern web interface
-- Comprehensive API documentation
-- Clean, organized project structure
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
----
+## License
 
-**Built with ❤️ for the Crane Industry**
+© 2024 Crane Intelligence. All rights reserved.
+
+## Support
+
+For support and questions, please contact the development team.
