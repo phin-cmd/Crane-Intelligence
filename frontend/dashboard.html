@@ -6,6 +6,7 @@
     <title>CRANE INTELLIGENCE - Professional Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/unified-header.css">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/live-data-framework.js"></script>
@@ -482,6 +483,26 @@
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-feed::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .activity-feed::-webkit-scrollbar-track {
+            background: #0F0F0F;
+            border-radius: 4px;
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 4px;
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb:hover {
+            background: #555555;
         }
 
         .activity-item {
@@ -537,6 +558,354 @@
             border: 1px solid #333333;
             border-radius: 12px;
             padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-scroll-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            background: #1A1A1A;
+            margin-bottom: 16px;
+        }
+
+        .table-scroll-container .table {
+            margin: 0;
+            border: none;
+        }
+
+        .table-scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: #0F0F0F;
+            border-radius: 4px;
+        }
+
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 4px;
+        }
+
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #555555;
+        }
+
+        .valuations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .valuations-count {
+            font-size: 12px;
+            color: #B0B0B0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 16px 0;
+            border-top: 1px solid #333333;
+            background: #1A1A1A;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .pagination-info-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .records-info {
+            font-size: 12px;
+            color: #B0B0B0;
+            font-family: 'JetBrains Mono', monospace;
+            background: #1A1A1A;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #333333;
+        }
+
+        .records-per-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .records-per-page select {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            min-width: 60px;
+        }
+
+        .records-per-page select:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        .pagination-btn.first-last {
+            font-weight: 600;
+        }
+
+        .pagination-btn.page-number {
+            min-width: 40px;
+        }
+
+        .pagination-btn.arrow {
+            font-weight: 600;
+        }
+
+        /* Enhanced pagination styles */
+        .jump-to-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .jump-to-page input {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            padding: 6px 10px;
+            font-size: 12px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .jump-to-page input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .jump-btn {
+            background: #00FF85;
+            border: 1px solid #00FF85;
+            border-radius: 6px;
+            color: #0F0F0F;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .jump-btn:hover {
+            background: #00E673;
+            border-color: #00E673;
+        }
+
+        .pagination-btn.ellipsis {
+            background: transparent;
+            border: none;
+            cursor: default;
+            color: #B0B0B0;
+        }
+
+        .pagination-btn.ellipsis:hover {
+            background: transparent;
+            border: none;
+        }
+
+        /* Responsive pagination */
+        @media (max-width: 1200px) {
+            .pagination-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+            }
+            
+            .pagination-info-section {
+                justify-content: center;
+                gap: 16px;
+            }
+            
+            .pagination-controls {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .pagination-info-section {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .records-info {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+            
+            .records-per-page {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+            
+            .records-per-page span {
+                display: none;
+            }
+            
+            .records-per-page select {
+                padding: 4px 6px;
+                font-size: 10px;
+                min-width: 50px;
+            }
+            
+            .jump-to-page {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+            
+            .jump-to-page span {
+                display: none;
+            }
+            
+            .jump-to-page input {
+                padding: 4px 6px;
+                font-size: 10px;
+                width: 40px;
+            }
+            
+            .jump-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .pagination-controls {
+                gap: 2px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .pagination-btn {
+                padding: 4px 6px;
+                font-size: 10px;
+                min-width: 28px;
+            }
+            
+            .pagination-btn.first-last,
+            .pagination-btn.arrow {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pagination-container {
+                padding: 8px 0;
+                gap: 6px;
+            }
+            
+            .pagination-info-section {
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            
+            .records-info {
+                font-size: 9px;
+                padding: 3px 6px;
+                text-align: center;
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .records-per-page select {
+                padding: 3px 4px;
+                font-size: 9px;
+                min-width: 40px;
+            }
+            
+            .jump-to-page input {
+                padding: 3px 4px;
+                font-size: 9px;
+                width: 35px;
+            }
+            
+            .jump-btn {
+                padding: 3px 6px;
+                font-size: 9px;
+            }
+            
+            .pagination-controls {
+                gap: 1px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .pagination-btn {
+                padding: 3px 4px;
+                font-size: 9px;
+                min-width: 24px;
+            }
+            
+            .pagination-btn.page-number {
+                min-width: 24px;
+            }
         }
 
         .table {
@@ -1217,6 +1586,56 @@
                     </div>
                 </div>
 
+            <!-- Recent Valuations Table -->
+            <div class="valuations-table">
+                <div class="valuations-header">
+                    <h3 class="chart-title">RECENT VALUATIONS</h3>
+                    <div class="valuations-count" id="valuationsCount">Total: 0 records</div>
+                </div>
+                <div class="table-scroll-container">
+                    <table class="table" id="valuationsTable">
+                        <thead>
+                            <tr>
+                                <th>EQUIPMENT</th>
+                                <th>YEAR</th>
+                                <th>CAPACITY</th>
+                                <th>VALUATION</th>
+                                <th>GRADE</th>
+                                <th>CONFIDENCE</th>
+                                <th>DATE</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="valuationsTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-info-section">
+                        <div class="records-info" id="recordsInfo">Showing 1 to 10 of 25 records</div>
+                        <div class="records-per-page">
+                            <span>Records per page:</span>
+                            <select id="recordsPerPageSelect" onchange="changeRecordsPerPage()">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <div class="jump-to-page">
+                            <span>Go to page:</span>
+                            <input type="number" id="jumpToPageInput" min="1" max="1" placeholder="1" onkeypress="handleJumpToPageKeypress(event)">
+                            <button class="jump-btn" onclick="jumpToPage()">Go</button>
+                        </div>
+                    </div>
+                    <div class="pagination-controls" id="paginationControls">
+                        <!-- Pagination buttons will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Activity Feed -->
             <div class="activity-feed">
                 <h3 class="chart-title">RECENT ACTIVITY (Last 30 Days)</h3>
@@ -1237,57 +1656,6 @@
                     <div class="activity-content">Market report generated: Q3 Analysis</div>
                     </div>
                 </div>
-
-            <!-- Recent Valuations Table -->
-            <div class="valuations-table">
-                <h3 class="chart-title">RECENT VALUATIONS</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>EQUIPMENT</th>
-                            <th>YEAR</th>
-                            <th>CAPACITY</th>
-                            <th>VALUATION</th>
-                            <th>GRADE</th>
-                            <th>CONFIDENCE</th>
-                            <th>DATE</th>
-                            <th>STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>LIEBHERR LTM1350-6.1</td>
-                            <td>2022</td>
-                            <td>350T</td>
-                            <td>$2,145,000</td>
-                            <td><span class="grade-badge a-plus">A+</span></td>
-                            <td>93.2%</td>
-                            <td>2024-09-10</td>
-                            <td><span class="status-badge completed">COMPLETED</span></td>
-                        </tr>
-                        <tr>
-                            <td>GROVE GMK5250L</td>
-                            <td>2021</td>
-                            <td>250T</td>
-                            <td>$1,890,000</td>
-                            <td><span class="grade-badge a">A</span></td>
-                            <td>89.7%</td>
-                            <td>2024-09-09</td>
-                            <td><span class="status-badge completed">COMPLETED</span></td>
-                        </tr>
-                        <tr>
-                            <td>TADANO ATF400G-6</td>
-                            <td>2020</td>
-                            <td>400T</td>
-                            <td>$2,650,000</td>
-                            <td><span class="grade-badge b-plus">B+</span></td>
-                            <td>76.4%</td>
-                            <td>2024-09-08</td>
-                            <td><span class="status-badge pending">PENDING</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-                        </div>
                         </div>
 
         <!-- Right Sidebar -->
@@ -1535,6 +1903,14 @@
         let liveDataFramework;
         let tickerInterval;
         let isTickerPaused = false;
+        
+        // Pagination variables
+        let currentPage = 1;
+        let recordsPerPage = 10;
+        let totalRecords = 0;
+        let totalPages = 0;
+        let allValuations = [];
+        let maxVisiblePages = 5; // Maximum number of page buttons to show
 
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -1542,6 +1918,7 @@
             initializeCharts();
             startTicker();
             setupLiveDataSubscriptions();
+            initializeValuations();
         });
 
         // Initialize live data framework
@@ -1777,9 +2154,285 @@
             button.textContent = isTickerPaused ? 'Resume' : 'Pause';
         }
 
+        // Initialize valuations data
+        function initializeValuations() {
+            // Sample valuation data (50 records for demonstration)
+            allValuations = [
+                { equipment: 'LIEBHERR LTM1350-6.1', year: 2022, capacity: '350T', valuation: 2145000, grade: 'A+', confidence: 93.2, date: '2024-09-10', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK5250L', year: 2021, capacity: '250T', valuation: 1890000, grade: 'A', confidence: 89.7, date: '2024-09-09', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF400G-6', year: 2020, capacity: '400T', valuation: 2650000, grade: 'B+', confidence: 76.4, date: '2024-09-08', status: 'PENDING' },
+                { equipment: 'MANITOWOC 2250', year: 2023, capacity: '225T', valuation: 1950000, grade: 'A+', confidence: 95.1, date: '2024-09-07', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 500-2', year: 2021, capacity: '500T', valuation: 3200000, grade: 'A', confidence: 88.3, date: '2024-09-06', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 1000', year: 2020, capacity: '1000T', valuation: 4500000, grade: 'A+', confidence: 92.7, date: '2024-09-05', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1500-8.1', year: 2023, capacity: '500T', valuation: 2800000, grade: 'A+', confidence: 94.5, date: '2024-09-04', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK6400', year: 2022, capacity: '400T', valuation: 2400000, grade: 'A', confidence: 87.2, date: '2024-09-03', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 220G-5', year: 2021, capacity: '220T', valuation: 1800000, grade: 'B+', confidence: 78.9, date: '2024-09-02', status: 'PENDING' },
+                { equipment: 'MANITOWOC 999', year: 2020, capacity: '999T', valuation: 5200000, grade: 'A+', confidence: 96.3, date: '2024-09-01', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 200-1', year: 2023, capacity: '200T', valuation: 1650000, grade: 'A', confidence: 85.4, date: '2024-08-31', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 350-6', year: 2022, capacity: '350T', valuation: 2100000, grade: 'A', confidence: 86.7, date: '2024-08-30', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1200-5.1', year: 2021, capacity: '200T', valuation: 1750000, grade: 'B+', confidence: 79.2, date: '2024-08-29', status: 'PENDING' },
+                { equipment: 'GROVE GMK4100L', year: 2020, capacity: '100T', valuation: 1200000, grade: 'B', confidence: 72.1, date: '2024-08-28', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 130G-5', year: 2023, capacity: '130T', valuation: 1450000, grade: 'A', confidence: 83.6, date: '2024-08-27', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 2250', year: 2022, capacity: '225T', valuation: 1950000, grade: 'A', confidence: 88.9, date: '2024-08-26', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 100-4', year: 2021, capacity: '100T', valuation: 1100000, grade: 'B+', confidence: 75.3, date: '2024-08-25', status: 'PENDING' },
+                { equipment: 'TEREX AC 200-1', year: 2020, capacity: '200T', valuation: 1600000, grade: 'B', confidence: 71.8, date: '2024-08-24', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1050-3.1', year: 2023, capacity: '50T', valuation: 850000, grade: 'A', confidence: 84.2, date: '2024-08-23', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK3055', year: 2022, capacity: '55T', valuation: 950000, grade: 'A', confidence: 87.5, date: '2024-08-22', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 90G-4', year: 2021, capacity: '90T', valuation: 750000, grade: 'B+', confidence: 77.4, date: '2024-08-21', status: 'PENDING' },
+                { equipment: 'MANITOWOC 2250', year: 2020, capacity: '225T', valuation: 1850000, grade: 'A', confidence: 89.1, date: '2024-08-20', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 500-2', year: 2023, capacity: '500T', valuation: 3100000, grade: 'A+', confidence: 93.8, date: '2024-08-19', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 1000', year: 2022, capacity: '1000T', valuation: 4400000, grade: 'A+', confidence: 91.6, date: '2024-08-18', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1500-8.1', year: 2021, capacity: '500T', valuation: 2750000, grade: 'A', confidence: 86.4, date: '2024-08-17', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK6300', year: 2020, capacity: '300T', valuation: 2200000, grade: 'A', confidence: 88.7, date: '2024-08-16', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 160G-5', year: 2023, capacity: '160T', valuation: 1350000, grade: 'A', confidence: 82.3, date: '2024-08-15', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 18000', year: 2022, capacity: '180T', valuation: 1700000, grade: 'A', confidence: 87.1, date: '2024-08-14', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 300-6', year: 2021, capacity: '300T', valuation: 2000000, grade: 'A', confidence: 85.9, date: '2024-08-13', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 500-2', year: 2020, capacity: '500T', valuation: 3000000, grade: 'A+', confidence: 90.2, date: '2024-08-12', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1800-6.1', year: 2023, capacity: '600T', valuation: 3500000, grade: 'A+', confidence: 94.1, date: '2024-08-11', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK7550', year: 2022, capacity: '550T', valuation: 3200000, grade: 'A+', confidence: 92.8, date: '2024-08-10', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 500G-6', year: 2021, capacity: '500T', valuation: 2900000, grade: 'A', confidence: 89.4, date: '2024-08-09', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 999', year: 2020, capacity: '999T', valuation: 5100000, grade: 'A+', confidence: 95.7, date: '2024-08-08', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 1000-9', year: 2023, capacity: '1000T', valuation: 4800000, grade: 'A+', confidence: 96.1, date: '2024-08-07', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 2000-1', year: 2022, capacity: '2000T', valuation: 8500000, grade: 'A+', confidence: 97.3, date: '2024-08-06', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1750-8.1', year: 2021, capacity: '750T', valuation: 4200000, grade: 'A+', confidence: 93.6, date: '2024-08-05', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK7450', year: 2020, capacity: '450T', valuation: 2800000, grade: 'A', confidence: 88.5, date: '2024-08-04', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 400G-6', year: 2023, capacity: '400T', valuation: 2600000, grade: 'A', confidence: 87.8, date: '2024-08-03', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 16000', year: 2022, capacity: '160T', valuation: 1550000, grade: 'A', confidence: 86.2, date: '2024-08-02', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 250-5', year: 2021, capacity: '250T', valuation: 1850000, grade: 'A', confidence: 84.7, date: '2024-08-01', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 300-6', year: 2020, capacity: '300T', valuation: 2100000, grade: 'A', confidence: 87.3, date: '2024-07-31', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1300-6.1', year: 2023, capacity: '300T', valuation: 1950000, grade: 'A', confidence: 85.6, date: '2024-07-30', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK5250L', year: 2022, capacity: '250T', valuation: 1800000, grade: 'A', confidence: 83.9, date: '2024-07-29', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 200G-5', year: 2021, capacity: '200T', valuation: 1650000, grade: 'A', confidence: 82.4, date: '2024-07-28', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 2250', year: 2020, capacity: '225T', valuation: 1750000, grade: 'A', confidence: 84.1, date: '2024-07-27', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 150-5', year: 2023, capacity: '150T', valuation: 1250000, grade: 'A', confidence: 81.7, date: '2024-07-26', status: 'COMPLETED' },
+                { equipment: 'TEREX AC 250-6', year: 2022, capacity: '250T', valuation: 1900000, grade: 'A', confidence: 86.8, date: '2024-07-25', status: 'COMPLETED' },
+                { equipment: 'LIEBHERR LTM 1100-5.1', year: 2021, capacity: '100T', valuation: 1150000, grade: 'A', confidence: 83.2, date: '2024-07-24', status: 'COMPLETED' },
+                { equipment: 'GROVE GMK3055', year: 2020, capacity: '55T', valuation: 900000, grade: 'A', confidence: 80.5, date: '2024-07-23', status: 'COMPLETED' },
+                { equipment: 'TADANO ATF 110G-5', year: 2023, capacity: '110T', valuation: 1050000, grade: 'A', confidence: 82.9, date: '2024-07-22', status: 'COMPLETED' },
+                { equipment: 'MANITOWOC 18000', year: 2022, capacity: '180T', valuation: 1600000, grade: 'A', confidence: 85.3, date: '2024-07-21', status: 'COMPLETED' },
+                { equipment: 'DEMAG AC 100-4', year: 2021, capacity: '100T', valuation: 1000000, grade: 'B+', confidence: 78.6, date: '2024-07-20', status: 'PENDING' },
+                { equipment: 'TEREX AC 200-1', year: 2020, capacity: '200T', valuation: 1500000, grade: 'A', confidence: 81.4, date: '2024-07-19', status: 'COMPLETED' }
+            ];
+            
+            totalRecords = allValuations.length;
+            totalPages = Math.ceil(totalRecords / recordsPerPage);
+            
+            updateValuationsDisplay();
+            updatePaginationControls();
+            updateJumpToPageInput();
+        }
+
+        // Update valuations display
+        function updateValuationsDisplay() {
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const currentPageData = allValuations.slice(startIndex, endIndex);
+            
+            const tbody = document.getElementById('valuationsTableBody');
+            tbody.innerHTML = '';
+            
+            currentPageData.forEach(valuation => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${valuation.equipment}</td>
+                    <td>${valuation.year}</td>
+                    <td>${valuation.capacity}</td>
+                    <td>$${valuation.valuation.toLocaleString()}</td>
+                    <td><span class="grade-badge ${valuation.grade.toLowerCase().replace('+', '-plus')}">${valuation.grade}</span></td>
+                    <td>${valuation.confidence}%</td>
+                    <td>${valuation.date}</td>
+                    <td><span class="status-badge ${valuation.status.toLowerCase()}">${valuation.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const paginationControls = document.getElementById('paginationControls');
+            const recordsInfo = document.getElementById('recordsInfo');
+            const valuationsCount = document.getElementById('valuationsCount');
+            
+            // Clear existing buttons
+            paginationControls.innerHTML = '';
+            
+            // Get screen width for responsive pagination
+            const screenWidth = window.innerWidth;
+            let maxVisiblePages = 5;
+            
+            // Adjust max visible pages based on screen size
+            if (screenWidth <= 480) {
+                maxVisiblePages = 2; // Very compact for small mobile
+            } else if (screenWidth <= 768) {
+                maxVisiblePages = 3; // Compact for mobile
+            }
+            
+            // Calculate visible page range
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start page if we're near the end
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // First page button (hidden on mobile)
+            if (screenWidth > 768) {
+                const firstBtn = createPaginationButton('<<', 'first-last', currentPage === 1, () => goToPage(1));
+                paginationControls.appendChild(firstBtn);
+            }
+            
+            // Previous page button (hidden on mobile)
+            if (screenWidth > 768) {
+                const prevBtn = createPaginationButton('<', 'arrow', currentPage === 1, () => goToPage(currentPage - 1));
+                paginationControls.appendChild(prevBtn);
+            }
+            
+            // Add ellipsis before page numbers if needed
+            if (startPage > 1) {
+                const firstPageBtn = createPaginationButton('1', 'page-number', false, () => goToPage(1), 1 === currentPage);
+                paginationControls.appendChild(firstPageBtn);
+                
+                if (startPage > 2) {
+                    const ellipsisBtn = createPaginationButton('...', 'ellipsis', false, null);
+                    paginationControls.appendChild(ellipsisBtn);
+                }
+            }
+            
+            // Page number buttons
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPaginationButton(
+                    i.toString(), 
+                    'page-number', 
+                    false, 
+                    () => goToPage(i),
+                    i === currentPage
+                );
+                paginationControls.appendChild(pageBtn);
+            }
+            
+            // Add ellipsis after page numbers if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsisBtn = createPaginationButton('...', 'ellipsis', false, null);
+                    paginationControls.appendChild(ellipsisBtn);
+                }
+                
+                const lastPageBtn = createPaginationButton(totalPages.toString(), 'page-number', false, () => goToPage(totalPages), totalPages === currentPage);
+                paginationControls.appendChild(lastPageBtn);
+            }
+            
+            // Next page button (hidden on mobile)
+            if (screenWidth > 768) {
+                const nextBtn = createPaginationButton('>', 'arrow', currentPage === totalPages, () => goToPage(currentPage + 1));
+                paginationControls.appendChild(nextBtn);
+            }
+            
+            // Last page button (hidden on mobile)
+            if (screenWidth > 768) {
+                const lastBtn = createPaginationButton('>>', 'first-last', currentPage === totalPages, () => goToPage(totalPages));
+                paginationControls.appendChild(lastBtn);
+            }
+            
+            // Update records info
+            const startRecord = (currentPage - 1) * recordsPerPage + 1;
+            const endRecord = Math.min(currentPage * recordsPerPage, totalRecords);
+            recordsInfo.textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records`;
+            
+            // Update valuations count
+            if (valuationsCount) {
+                valuationsCount.textContent = `Total: ${totalRecords} records`;
+            }
+        }
+
+        // Create pagination button
+        function createPaginationButton(text, className, disabled, onClick, active = false) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.className = `pagination-btn ${className}`;
+            button.disabled = disabled;
+            if (active) button.classList.add('active');
+            button.onclick = onClick;
+            return button;
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages && page !== currentPage) {
+                currentPage = page;
+                updateValuationsDisplay();
+                updatePaginationControls();
+                updateJumpToPageInput();
+                
+                // Scroll to top of valuations table
+                const valuationsTable = document.getElementById('valuationsTable');
+                valuationsTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Change records per page
+        function changeRecordsPerPage() {
+            const select = document.getElementById('recordsPerPageSelect');
+            const newRecordsPerPage = parseInt(select.value);
+            
+            if (newRecordsPerPage !== recordsPerPage) {
+                recordsPerPage = newRecordsPerPage;
+                currentPage = 1; // Reset to first page
+                totalPages = Math.ceil(totalRecords / recordsPerPage);
+                
+                updateValuationsDisplay();
+                updatePaginationControls();
+                updateJumpToPageInput();
+                
+                // Scroll to top of valuations table
+                const valuationsTable = document.getElementById('valuationsTable');
+                valuationsTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Jump to specific page
+        function jumpToPage() {
+            const input = document.getElementById('jumpToPageInput');
+            const page = parseInt(input.value);
+            
+            if (page >= 1 && page <= totalPages) {
+                goToPage(page);
+                input.value = '';
+            } else {
+                alert(`Please enter a page number between 1 and ${totalPages}`);
+                input.value = '';
+            }
+        }
+
+        // Handle Enter key press in jump to page input
+        function handleJumpToPageKeypress(event) {
+            if (event.key === 'Enter') {
+                jumpToPage();
+            }
+        }
+
+        // Update jump to page input max value
+        function updateJumpToPageInput() {
+            const input = document.getElementById('jumpToPageInput');
+            if (input) {
+                input.max = totalPages;
+                input.placeholder = `1-${totalPages}`;
+            }
+        }
+
+        // Handle window resize for responsive pagination
+        window.addEventListener('resize', function() {
+            // Debounce resize events
+            clearTimeout(window.resizeTimeout);
+            window.resizeTimeout = setTimeout(function() {
+                updatePaginationControls();
+            }, 250);
+        });
+
         // Cleanup on page unload
         window.addEventListener('beforeunload', function() {
             if (tickerInterval) clearInterval(tickerInterval);
+            if (window.resizeTimeout) clearTimeout(window.resizeTimeout);
         });
     </script>
 </body>

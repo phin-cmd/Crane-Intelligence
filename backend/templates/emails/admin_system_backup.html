@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Backup Notification - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #17a2b8; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .backup-details { background: #d1ecf1; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .system-info { background: #e8f4fd; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+        .storage-info { background: #f8f9fa; padding: 15px; border-left: 4px solid #6c757d; margin: 20px 0; }
+        .success { background: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>System Backup Notification</h1>
+        <p>Crane Intelligence Admin Portal</p>
+    </div>
+    
+    <div class="content">
+        <h2>Backup {{ backup_status }}</h2>
+        
+        <p><strong>Backup Type:</strong> {{ backup_type }}</p>
+        <p><strong>Status:</strong> <span style="color: {{ status_color }}; font-weight: bold;">{{ backup_status }}</span></p>
+        <p><strong>Timestamp:</strong> {{ backup_timestamp }}</p>
+        
+        <div class="backup-details">
+            <h3>Backup Details</h3>
+            <ul>
+                <li><strong>Backup ID:</strong> {{ backup_id }}</li>
+                <li><strong>Backup Name:</strong> {{ backup_name }}</li>
+                <li><strong>Duration:</strong> {{ backup_duration }}</li>
+                <li><strong>Size:</strong> {{ backup_size }}</li>
+                <li><strong>Compression:</strong> {{ compression_ratio }}</li>
+                <li><strong>Encryption:</strong> {{ encryption_status }}</li>
+            </ul>
+        </div>
+        
+        <div class="system-info">
+            <h3>System Information</h3>
+            <ul>
+                <li><strong>Server:</strong> {{ server_name }}</li>
+                <li><strong>Database:</strong> {{ database_name }}</li>
+                <li><strong>Tables Backed Up:</strong> {{ tables_count }}</li>
+                <li><strong>Records Backed Up:</strong> {{ records_count }}</li>
+                <li><strong>Backup Location:</strong> {{ backup_location }}</li>
+                <li><strong>Retention Period:</strong> {{ retention_period }}</li>
+            </ul>
+        </div>
+        
+        <div class="storage-info">
+            <h3>Storage Information</h3>
+            <ul>
+                <li><strong>Total Storage:</strong> {{ total_storage }}</li>
+                <li><strong>Used Storage:</strong> {{ used_storage }}</li>
+                <li><strong>Available Storage:</strong> {{ available_storage }}</li>
+                <li><strong>Storage Usage:</strong> {{ storage_usage }}%</li>
+                <li><strong>Oldest Backup:</strong> {{ oldest_backup }}</li>
+                <li><strong>Newest Backup:</strong> {{ newest_backup }}</li>
+            </ul>
+        </div>
+        
+        <div class="success">
+            <h3>Backup Summary</h3>
+            <p><strong>Status:</strong> {{ backup_status }}</p>
+            <p><strong>Message:</strong> {{ backup_message }}</p>
+            <p><strong>Next Backup:</strong> {{ next_backup }}</p>
+            <p><strong>Backup Frequency:</strong> {{ backup_frequency }}</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ backup_management_url }}" class="button">View Backup Management</a>
+        </div>
+        
+        <h3>Backup Verification</h3>
+        <ul>
+            <li><strong>Integrity Check:</strong> {{ integrity_check }}</li>
+            <li><strong>Restore Test:</strong> {{ restore_test }}</li>
+            <li><strong>File Count:</strong> {{ file_count }}</li>
+            <li><strong>Checksum:</strong> {{ checksum }}</li>
+        </ul>
+        
+        <h3>Monitoring & Alerts</h3>
+        <ul>
+            <li>Backup completion monitoring</li>
+            <li>Storage space monitoring</li>
+            <li>Backup integrity verification</li>
+            <li>Automated cleanup of old backups</li>
+        </ul>
+        
+        <h3>Recovery Information</h3>
+        <p>In case of data loss, you can restore from this backup:</p>
+        <ul>
+            <li><strong>Recovery Time:</strong> {{ recovery_time }}</li>
+            <li><strong>Recovery Process:</strong> {{ recovery_process }}</li>
+            <li><strong>Contact:</strong> {{ support_contact }}</li>
+        </ul>
+        
+        <p><strong>Backup completed successfully and is ready for use.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence System Administration Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This backup notification was sent to {{ admin_email }} on {{ backup_timestamp }}.</p>
+    </div>
+</body>
+</html>

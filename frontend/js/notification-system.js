@@ -677,7 +677,4 @@ if (document.readyState === 'loading') {
     initializeNotificationSystem();
 }
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NotificationSystem;
-}
+// Browser environment - no module exports needed

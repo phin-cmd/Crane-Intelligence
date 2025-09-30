@@ -624,6 +624,4 @@ class AdminAPI {
 window.adminAPI = new AdminAPI();
 
 // Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AdminAPI;
-}
+// Browser environment - no module exports needed

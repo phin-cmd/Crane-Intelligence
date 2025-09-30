@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Report - Crane Intelligence Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #6f42c1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .metric-card { background: #e8f4fd; padding: 15px; border-radius: 8px; text-align: center; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #6f42c1; }
+        .metric-label { font-size: 14px; color: #666; }
+        .trend-positive { color: #28a745; }
+        .trend-negative { color: #dc3545; }
+        .insights { background: #d1ecf1; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .recommendations { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Analytics Report</h1>
+        <p>Crane Intelligence Admin Portal</p>
+    </div>
+    
+    <div class="content">
+        <h2>Weekly Analytics Summary</h2>
+        
+        <p><strong>Report Period:</strong> {{ report_period }}</p>
+        <p><strong>Generated:</strong> {{ generation_date }}</p>
+        <p><strong>Report Type:</strong> {{ report_type }}</p>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_users }}</div>
+                <div class="metric-label">Total Users</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ new_users_week }}</div>
+                <div class="metric-label">New Users (Week)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ active_users }}</div>
+                <div class="metric-label">Active Users</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ total_valuations }}</div>
+                <div class="metric-label">Total Valuations</div>
+            </div>
+        </div>
+        
+        <h3>📈 Key Performance Indicators</h3>
+        <ul>
+            <li><strong>User Growth:</strong> <span class="trend-positive">{{ user_growth }}%</span> vs last week</li>
+            <li><strong>Valuation Requests:</strong> <span class="trend-positive">{{ valuation_requests }}</span> this week</li>
+            <li><strong>Average Session Duration:</strong> {{ avg_session_duration }}</li>
+            <li><strong>Platform Uptime:</strong> <span class="trend-positive">{{ uptime }}%</span></li>
+            <li><strong>User Satisfaction:</strong> {{ satisfaction_score }}/10</li>
+        </ul>
+        
+        <div class="insights">
+            <h3>🔍 Key Insights</h3>
+            <ul>
+                <li><strong>Peak Usage:</strong> {{ peak_usage_time }}</li>
+                <li><strong>Most Popular Feature:</strong> {{ popular_feature }}</li>
+                <li><strong>Geographic Distribution:</strong> {{ top_regions }}</li>
+                <li><strong>Device Usage:</strong> {{ device_breakdown }}</li>
+                <li><strong>Conversion Rate:</strong> {{ conversion_rate }}%</li>
+            </ul>
+        </div>
+        
+        <h3>📊 Feature Usage Analytics</h3>
+        <ul>
+            <li><strong>Equipment Valuation:</strong> {{ valuation_usage }}% of users</li>
+            <li><strong>Market Analysis:</strong> {{ market_analysis_usage }}% of users</li>
+            <li><strong>Report Generation:</strong> {{ report_generation_usage }}% of users</li>
+            <li><strong>Admin Portal:</strong> {{ admin_portal_usage }}% of users</li>
+        </ul>
+        
+        <div class="recommendations">
+            <h3>💡 Recommendations</h3>
+            <ul>
+                <li>{{ recommendation_1 }}</li>
+                <li>{{ recommendation_2 }}</li>
+                <li>{{ recommendation_3 }}</li>
+                <li>{{ recommendation_4 }}</li>
+            </ul>
+        </div>
+        
+        <h3>🚨 Areas of Concern</h3>
+        <ul>
+            <li><strong>High Bounce Rate:</strong> {{ bounce_rate }}% (Target: < 40%)</li>
+            <li><strong>Support Tickets:</strong> {{ support_tickets }} this week</li>
+            <li><strong>Error Rate:</strong> {{ error_rate }}% (Target: < 1%)</li>
+            <li><strong>Performance Issues:</strong> {{ performance_issues }}</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ analytics_dashboard_url }}" class="button">View Detailed Analytics</a>
+        </div>
+        
+        <h3>📋 Next Steps</h3>
+        <ol>
+            <li>Review detailed analytics in the admin dashboard</li>
+            <li>Address any performance issues identified</li>
+            <li>Implement recommended improvements</li>
+            <li>Monitor key metrics for the next reporting period</li>
+            <li>Schedule team review meeting</li>
+        </ol>
+        
+        <h3>📞 Support Information</h3>
+        <ul>
+            <li><strong>Technical Issues:</strong> {{ technical_issues_count }}</li>
+            <li><strong>User Support:</strong> {{ user_support_count }}</li>
+            <li><strong>Feature Requests:</strong> {{ feature_requests_count }}</li>
+            <li><strong>Average Response Time:</strong> {{ avg_response_time }}</li>
+        </ul>
+        
+        <p><strong>This report was automatically generated by the Crane Intelligence Analytics System.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Analytics Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This report was sent to {{ admin_email }} on {{ generation_date }}.</p>
+    </div>
+</body>
+</html>

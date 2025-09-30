@@ -2435,8 +2435,9 @@
         }
 
         async function exportDatabase() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Exporting database...');
+                loadingId = notificationSystem.showLoading('Exporting database...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/database/export', {
                     method: 'GET',

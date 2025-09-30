@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification - Crane Intelligence</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 10px;
+        }
+        .notification-type {
+            font-size: 18px;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .message-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2c5aa0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background-color: #1e3f73;
+        }
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏗️ Crane Intelligence</div>
+            <div class="notification-type">🔔 {{ notification_type }}</div>
+        </div>
+        
+        <div class="content">
+            <h2>Hello {{ user_name }}!</h2>
+            
+            <div class="message-box">
+                <h3>📢 Important Notification</h3>
+                <p>{{ message }}</p>
+            </div>
+            
+            {% if action_url %}
+            <p>Please take the following action:</p>
+            <div style="text-align: center;">
+                <a href="{{ action_url }}" class="cta-button">Take Action</a>
+            </div>
+            {% endif %}
+            
+            <p>If you have any questions about this notification, please contact our support team.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Best regards,<br>
+            <strong>The Crane Intelligence Team</strong></p>
+            <p>📧 support@craneintelligence.tech | 🌐 www.craneintelligence.tech</p>
+        </div>
+    </div>
+</body>
+</html>

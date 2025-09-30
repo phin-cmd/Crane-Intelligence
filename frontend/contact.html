@@ -9,6 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Cache bust: 2024-01-15 */
+        :root {
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
             background: #0F0F0F;
@@ -371,39 +381,7 @@
             }
         }
 
-        /* ===== HEADER STYLES - EXACT MATCH TO HOMEPAGE ===== */
-        .header {
-            background: #1A1A1A !important;
-            border-bottom: 1px solid #404040 !important;
-            padding: var(--spacing-md) 0 !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1000 !important;
-            backdrop-filter: none !important;
-        }
-
-        .header-container {
-            max-width: 1400px !important;
-            margin: 0 auto !important;
-            padding: 0 var(--spacing-xl) !important;
-            display: grid !important;
-            grid-template-columns: 1fr auto 1fr !important;
-            align-items: center !important;
-            height: 80px !important;
-        }
-
-        .logo {
-            display: flex !important;
-            align-items: center !important;
-            justify-self: start !important;
-            grid-column: 1;
-        }
-
-        .logo-svg {
-            height: 60px !important;
-            width: auto !important;
-            filter: brightness(1.2) contrast(1.2) !important;
-        }
+        /* Header styles are now handled by unified-header.css */
 
         .nav-menu {
             display: flex !important;
@@ -422,6 +400,9 @@
             text-transform: uppercase !important;
             letter-spacing: 0.5px !important;
             transition: color 0.3s ease !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .nav-link:hover {
@@ -450,21 +431,6 @@
             margin-right: 0;
         }
 
-        .user-profile {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            justify-self: end;
-            grid-column: 3;
-            padding-right: 0;
-            margin-right: 0;
-            z-index: 100;
-        }
-
-        .user-profile.visible {
-            display: flex !important;
-        }
 
         .user-avatar {
             width: 40px;
@@ -505,29 +471,6 @@
             line-height: 1.2;
         }
 
-        .dropdown-arrow {
-            color: #B0B0B0;
-            font-size: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: #1A1A1A;
-            border: 1px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            z-index: 1000;
-            display: none;
-            margin-top: 8px;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
 
         .dropdown-item {
             display: flex;
@@ -586,70 +529,20 @@
 
         .auth-btn.signup {
             color: #000000 !important;
-            background: #00FF85 !important;
-            border: 1px solid #00FF85 !important;
+            background: #FFD600 !important;
+            border: 1px solid #FFD600 !important;
         }
 
         .auth-btn.signup:hover {
-            background: #00CC6A !important;
-            border-color: #00CC6A !important;
+            background: #FFE066 !important;
+            border-color: #FFE066 !important;
         }
 
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #FFFFFF;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
+        /* Mobile menu styles removed */
+
+        /* Mobile menu styles removed */
         
-        .mobile-menu-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .mobile-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #1A1A1A;
-            border-top: 1px solid #404040;
-            padding: 20px;
-            flex-direction: column;
-            gap: 16px;
-            z-index: 999;
-        }
-
-        .mobile-menu.active {
-            display: flex;
-        }
-
-        .mobile-auth-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #FFFFFF;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .mobile-menu-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+        /* Mobile menu styles removed */
 
 
         .auth-buttons {
@@ -679,20 +572,6 @@
             color: #000;
         }
 
-        .user-profile {
-            display: none !important;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            position: absolute;
-            right: 32px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .user-profile.show {
-            display: flex !important;
-        }
 
         .user-avatar {
             width: 40px;
@@ -726,33 +605,6 @@
             line-height: 1.2;
         }
 
-        .dropdown-arrow {
-            color: #B0B0B0 !important;
-            font-size: 12px;
-            transition: transform 0.2s;
-        }
-
-        .user-profile:hover .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: #2A2A2A;
-            border: 1px solid #404040;
-            border-radius: 8px;
-            padding: 8px 0;
-            min-width: 200px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            display: none;
-            z-index: 1001;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
 
         .dropdown-item {
             display: flex;
@@ -1152,10 +1004,7 @@
                 display: none !important;
             }
             
-            .mobile-menu-toggle {
-                display: block !important;
-                margin-left: auto !important;
-            }
+            /* Mobile menu toggle removed */
             
             .auth-buttons {
                 display: flex !important;
@@ -1293,6 +1142,7 @@
     </style>
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
     <script>
         // Authentication and User Management
         window.addEventListener('load', () => {
@@ -1322,8 +1172,10 @@
             if (user) {
                 // Show user profile for logged-in users, hide auth buttons
                 if (authButtons && userProfile) {
-                    authButtons.classList.remove('show');
-                    userProfile.classList.add('show');
+                    authButtons.style.display = 'none';
+                    userProfile.style.display = 'flex';
+                    authButtons.classList.remove('visible');
+                    userProfile.classList.add('visible');
                 }
                 
                 // Update user information
@@ -1339,8 +1191,10 @@
             } else {
                 // Show auth buttons for guest users, hide user profile
                 if (authButtons && userProfile) {
-                    authButtons.classList.add('show');
-                    userProfile.classList.remove('show');
+                    authButtons.style.display = 'flex';
+                    userProfile.style.display = 'none';
+                    authButtons.classList.add('visible');
+                    userProfile.classList.remove('visible');
                 }
             }
         }
@@ -1348,9 +1202,29 @@
         function toggleDropdown() {
             const dropdown = document.getElementById('userDropdown');
             if (dropdown) {
-                dropdown.classList.toggle('show');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.classList.add('show');
+                    dropdown.style.display = 'block';
+                }
+                console.log('Dropdown toggled:', dropdown.classList.contains('show'));
+            } else {
+                console.log('Dropdown element not found');
             }
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+                dropdown.style.display = 'none';
+            }
+        });
         
         function logout() {
             localStorage.removeItem('access_token');
@@ -1424,7 +1298,7 @@
                     <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
                 </div>
                 
-                <div class="user-profile" id="userProfile" style="display: none;">
+                <div class="user-profile" id="userProfile">
                     <div class="user-avatar" onclick="toggleDropdown()">
                         <span id="userInitials">U</span>
                     </div>
@@ -1453,26 +1327,9 @@
                     </div>
                 </div>
                 
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()" aria-label="Toggle mobile menu">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
             </div>
         </div>
         
-        <nav class="mobile-menu" id="mobileMenu">
-            <a href="homepage.html#features" class="nav-link">FEATURES</a>
-            <a href="homepage.html#pricing" class="nav-link">PRICING</a>
-            <a href="homepage.html#about" class="nav-link">ABOUT</a>
-            <a href="contact.html" class="nav-link active">CONTACT</a>
-            <div class="mobile-auth-buttons">
-                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
-                <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
-            </div>
-        </nav>
     </header>
 
     <!-- Market Ticker -->

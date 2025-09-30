@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Intelligence - Valuation Terminal</title>
+    <link rel="stylesheet" href="css/valuation-terminal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.24.0/plotly.min.js"></script>
+</head>
+<body>
+    <!-- Terminal Header -->
+    <div class="terminal-header">
+        <div class="terminal-title">
+            <i class="fas fa-chart-line"></i>
+            <span>CRANE INTELLIGENCE VALUATION TERMINAL</span>
+        </div>
+        <div class="terminal-controls">
+            <div class="status-indicator online">
+                <i class="fas fa-circle"></i>
+                <span>LIVE</span>
+            </div>
+            <div class="time-display" id="current-time"></div>
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                <span id="user-name">Professional User</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Layout -->
+    <div class="terminal-layout">
+        <!-- Left Panel - Market Data & News -->
+        <div class="left-panel">
+            <!-- Market Overview -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-chart-bar"></i> Market Overview</h3>
+                    <div class="panel-controls">
+                        <button class="refresh-btn" onclick="refreshMarketData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="market-overview" id="market-overview">
+                    <div class="market-item">
+                        <span class="label">Crane Index</span>
+                        <span class="value positive">+2.4%</span>
+                    </div>
+                    <div class="market-item">
+                        <span class="label">Heavy Equipment</span>
+                        <span class="value positive">+1.8%</span>
+                    </div>
+                    <div class="market-item">
+                        <span class="label">Construction</span>
+                        <span class="value negative">-0.5%</span>
+                    </div>
+                    <div class="market-item">
+                        <span class="label">Oil & Gas</span>
+                        <span class="value positive">+3.2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time News -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-newspaper"></i> Market News</h3>
+                </div>
+                <div class="news-feed" id="news-feed">
+                    <div class="news-item">
+                        <div class="news-time">14:32</div>
+                        <div class="news-content">Caterpillar reports strong Q3 earnings, crane sales up 15%</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-time">13:45</div>
+                        <div class="news-content">New infrastructure bill boosts construction equipment demand</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-time">12:18</div>
+                        <div class="news-content">Liebherr announces new crane model with advanced technology</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watchlist -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-star"></i> Watchlist</h3>
+                    <div class="panel-controls">
+                        <button class="add-btn" onclick="addToWatchlist()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="watchlist" id="watchlist">
+                    <div class="watchlist-item">
+                        <span class="symbol">GROVE GMK5250L</span>
+                        <span class="price">$1,250,000</span>
+                        <span class="change positive">+2.1%</span>
+                    </div>
+                    <div class="watchlist-item">
+                        <span class="symbol">LIEBHERR LTM1120</span>
+                        <span class="price">$2,100,000</span>
+                        <span class="change negative">-1.2%</span>
+                    </div>
+                    <div class="watchlist-item">
+                        <span class="symbol">MANITOWOC 2250</span>
+                        <span class="price">$850,000</span>
+                        <span class="change positive">+0.8%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel - Main Workspace -->
+        <div class="center-panel">
+            <!-- Terminal Tabs -->
+            <div class="terminal-tabs">
+                <div class="tab active" data-tab="valuation">
+                    <i class="fas fa-calculator"></i>
+                    <span>Valuation</span>
+                </div>
+                <div class="tab" data-tab="market-data">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Market Data</span>
+                </div>
+                <div class="tab" data-tab="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="tab" data-tab="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Valuation Tab -->
+                <div class="tab-pane active" id="valuation-tab">
+                    <div class="valuation-workspace">
+                        <!-- Valuation Input Form -->
+                        <div class="valuation-form">
+                            <h3><i class="fas fa-calculator"></i> Crane Valuation Calculator</h3>
+                            <form id="valuation-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="manufacturer">Manufacturer</label>
+                                        <select id="manufacturer" name="manufacturer" required>
+                                            <option value="">Select Manufacturer</option>
+                                            <option value="Grove">Grove</option>
+                                            <option value="Liebherr">Liebherr</option>
+                                            <option value="Manitowoc">Manitowoc</option>
+                                            <option value="Terex">Terex</option>
+                                            <option value="Kato">Kato</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="model">Model</label>
+                                        <input type="text" id="model" name="model" placeholder="e.g., GMK5250L" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="year">Year</label>
+                                        <input type="number" id="year" name="year" min="1990" max="2025" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="hours">Hours</label>
+                                        <input type="number" id="hours" name="hours" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="capacity">Capacity (Tons)</label>
+                                        <input type="number" id="capacity" name="capacity" step="0.1" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="condition">Condition Score</label>
+                                        <select id="condition" name="condition" required>
+                                            <option value="">Select Condition</option>
+                                            <option value="0.9">Excellent (90%)</option>
+                                            <option value="0.8">Good (80%)</option>
+                                            <option value="0.7">Fair (70%)</option>
+                                            <option value="0.6">Poor (60%)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="location">Location</label>
+                                        <input type="text" id="location" name="location" placeholder="e.g., Texas, USA" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="boom-length">Boom Length (ft)</label>
+                                        <input type="number" id="boom-length" name="boom_length" step="0.1">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-calculator"></i>
+                                        Calculate Valuation
+                                    </button>
+                                    <button type="button" class="btn-secondary" onclick="clearForm()">
+                                        <i class="fas fa-eraser"></i>
+                                        Clear
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Valuation Results -->
+                        <div class="valuation-results" id="valuation-results" style="display: none;">
+                            <h3><i class="fas fa-chart-bar"></i> Valuation Results</h3>
+                            <div class="results-grid">
+                                <div class="result-card">
+                                    <div class="result-label">Fair Market Value</div>
+                                    <div class="result-value" id="fair-market-value">$0</div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="result-label">Wholesale Value</div>
+                                    <div class="result-value" id="wholesale-value">$0</div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="result-label">Retail Value</div>
+                                    <div class="result-value" id="retail-value">$0</div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="result-label">Confidence Score</div>
+                                    <div class="result-value" id="confidence-score">0%</div>
+                                </div>
+                            </div>
+                            <div class="valuation-details" id="valuation-details">
+                                <!-- Detailed results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Data Tab -->
+                <div class="tab-pane" id="market-data-tab">
+                    <div class="market-data-workspace">
+                        <h3><i class="fas fa-chart-line"></i> Real-Time Market Data</h3>
+                        <div class="market-charts">
+                            <div class="chart-container">
+                                <canvas id="price-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="volume-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="market-table">
+                            <table id="market-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Price</th>
+                                        <th>Change</th>
+                                        <th>Volume</th>
+                                        <th>Last Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="market-data-body">
+                                    <!-- Market data rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div class="tab-pane" id="analytics-tab">
+                    <div class="analytics-workspace">
+                        <h3><i class="fas fa-chart-pie"></i> Advanced Analytics</h3>
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <h4>Market Trends</h4>
+                                <div id="market-trends-chart"></div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Regional Analysis</h4>
+                                <div id="regional-analysis-chart"></div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Price Distribution</h4>
+                                <div id="price-distribution-chart"></div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Performance Metrics</h4>
+                                <div id="performance-metrics-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div class="tab-pane" id="reports-tab">
+                    <div class="reports-workspace">
+                        <h3><i class="fas fa-file-alt"></i> Valuation Reports</h3>
+                        <div class="reports-controls">
+                            <button class="btn-primary" onclick="generateReport('executive')">
+                                <i class="fas fa-file-alt"></i>
+                                Executive Summary
+                            </button>
+                            <button class="btn-primary" onclick="generateReport('detailed')">
+                                <i class="fas fa-file-pdf"></i>
+                                Detailed Report
+                            </button>
+                            <button class="btn-primary" onclick="generateReport('market')">
+                                <i class="fas fa-chart-line"></i>
+                                Market Analysis
+                            </button>
+                        </div>
+                        <div class="reports-list" id="reports-list">
+                            <!-- Generated reports will be listed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Alerts & Tools -->
+        <div class="right-panel">
+            <!-- Alerts -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-bell"></i> Alerts</h3>
+                    <div class="panel-controls">
+                        <button class="add-btn" onclick="createAlert()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="alerts-list" id="alerts-list">
+                    <div class="alert-item high">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Market Volatility Alert</div>
+                            <div class="alert-time">2 min ago</div>
+                        </div>
+                    </div>
+                    <div class="alert-item medium">
+                        <div class="alert-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">New Valuation Available</div>
+                            <div class="alert-time">5 min ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tools -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-tools"></i> Quick Tools</h3>
+                </div>
+                <div class="quick-tools">
+                    <button class="tool-btn" onclick="openCalculator()">
+                        <i class="fas fa-calculator"></i>
+                        <span>Calculator</span>
+                    </button>
+                    <button class="tool-btn" onclick="openConverter()">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Unit Converter</span>
+                    </button>
+                    <button class="tool-btn" onclick="openCalendar()">
+                        <i class="fas fa-calendar"></i>
+                        <span>Calendar</span>
+                    </button>
+                    <button class="tool-btn" onclick="openNotes()">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>Notes</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Valuations -->
+            <div class="panel-section">
+                <div class="panel-header">
+                    <h3><i class="fas fa-history"></i> Recent Valuations</h3>
+                </div>
+                <div class="recent-valuations" id="recent-valuations">
+                    <div class="valuation-item">
+                        <div class="valuation-info">
+                            <div class="valuation-title">Grove GMK5250L</div>
+                            <div class="valuation-time">2 hours ago</div>
+                        </div>
+                        <div class="valuation-price">$1,250,000</div>
+                    </div>
+                    <div class="valuation-item">
+                        <div class="valuation-info">
+                            <div class="valuation-title">Liebherr LTM1120</div>
+                            <div class="valuation-time">4 hours ago</div>
+                        </div>
+                        <div class="valuation-price">$2,100,000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Footer -->
+    <div class="terminal-footer">
+        <div class="footer-left">
+            <span>CRANE INTELLIGENCE TERMINAL v2.0</span>
+            <span>|</span>
+            <span>Real-time Market Data</span>
+            <span>|</span>
+            <span>Bloomberg-style Interface</span>
+        </div>
+        <div class="footer-right">
+            <span>Last Update: <span id="last-update">--:--:--</span></span>
+            <span>|</span>
+            <span>Connection: <span class="connection-status">LIVE</span></span>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="alert-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Alert</h3>
+                <button class="close-btn" onclick="closeModal('alert-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="alert-form">
+                    <div class="form-group">
+                        <label for="alert-type">Alert Type</label>
+                        <select id="alert-type" name="alert_type" required>
+                            <option value="price">Price Alert</option>
+                            <option value="volume">Volume Alert</option>
+                            <option value="news">News Alert</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="alert-condition">Condition</label>
+                        <select id="alert-condition" name="alert_condition" required>
+                            <option value="above">Above</option>
+                            <option value="below">Below</option>
+                            <option value="equals">Equals</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="alert-value">Value</label>
+                        <input type="number" id="alert-value" name="alert_value" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Create Alert</button>
+                        <button type="button" class="btn-secondary" onclick="closeModal('alert-modal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/valuation-terminal.js"></script>
+</body>
+</html>

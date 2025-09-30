@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Crane Intelligence</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .highlight { background: #e8f4fd; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Crane Intelligence!</h1>
+        <p>Your account has been successfully created</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ username }}!</h2>
+        
+        <p>Welcome to the Crane Intelligence Platform - your comprehensive solution for crane valuation, market analysis, and equipment management.</p>
+        
+        <div class="highlight">
+            <h3>🎉 Your Account Details:</h3>
+            <ul>
+                <li><strong>Email:</strong> {{ user_email }}</li>
+                <li><strong>Account Type:</strong> {{ account_type }}</li>
+                <li><strong>Registration Date:</strong> {{ registration_date }}</li>
+            </ul>
+        </div>
+        
+        <h3>What's Next?</h3>
+        <p>Get started with your crane intelligence journey:</p>
+        <ul>
+            <li>📊 <strong>Dashboard Access:</strong> View your personalized dashboard</li>
+            <li>🔍 <strong>Equipment Valuation:</strong> Get instant crane valuations</li>
+            <li>📈 <strong>Market Analysis:</strong> Access real-time market data</li>
+            <li>📋 <strong>Report Generation:</strong> Create detailed valuation reports</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ dashboard_url }}" class="button">Access Your Dashboard</a>
+        </div>
+        
+        <h3>Need Help?</h3>
+        <p>Our support team is here to help you get the most out of your Crane Intelligence experience:</p>
+        <ul>
+            <li>📧 Email: support@craneintelligence.tech</li>
+            <li>📞 Phone: +1 (555) 123-4567</li>
+            <li>💬 Live Chat: Available 24/7 on our website</li>
+        </ul>
+        
+        <p><strong>Thank you for choosing Crane Intelligence!</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This email was sent to {{ user_email }}. If you didn't create an account, please ignore this email.</p>
+    </div>
+</body>
+</html>

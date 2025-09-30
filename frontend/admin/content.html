@@ -406,9 +406,10 @@
         });
 
         async function loadContent() {
+            let loadingId;
             try {
                 console.log('Loading content from database...');
-                const loadingId = notificationSystem.showLoading('Loading content...');
+                loadingId = notificationSystem.showLoading('Loading content...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/content', {
                     method: 'GET',
@@ -759,8 +760,9 @@
 
         // Content CRUD Operations
         async function createNewContent() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Creating new content...');
+                loadingId = notificationSystem.showLoading('Creating new content...');
                 
                 const newContent = {
                     title: 'New Content Item',
@@ -812,7 +814,8 @@
                     return;
                 }
                 
-                const loadingId = notificationSystem.showLoading('Opening content editor...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Opening content editor...');
                 
                 // In a real app, this would open a content editor modal
                 setTimeout(() => {
@@ -834,7 +837,8 @@
                     return;
                 }
                 
-                const loadingId = notificationSystem.showLoading('Loading content viewer...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Loading content viewer...');
                 
                 // In a real app, this would open a content viewer
                 setTimeout(() => {
@@ -856,7 +860,8 @@
                     return;
                 }
                 
-                const loadingId = notificationSystem.showLoading('Duplicating content...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Duplicating content...');
                 
                 const duplicatedContent = {
                     ...originalContent,
@@ -908,7 +913,8 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Deleting content...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Deleting content...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/content/${contentId}`, {
                     method: 'DELETE',
@@ -953,8 +959,9 @@
             );
             
             if (!confirmed) return;
-            
-            const loadingId = notificationSystem.showLoading('Publishing content...');
+
+            let loadingId;
+            loadingId = notificationSystem.showLoading('Publishing content...');
             
             try {
                 const contentIds = Array.from(selectedContent);
@@ -1005,7 +1012,8 @@
             
             if (!confirmed) return;
             
-            const loadingId = notificationSystem.showLoading('Moving to draft...');
+            let loadingId;
+            loadingId = notificationSystem.showLoading('Moving to draft...');
             
             try {
                 const contentIds = Array.from(selectedContent);
@@ -1056,7 +1064,8 @@
             
             if (!confirmed) return;
             
-            const loadingId = notificationSystem.showLoading('Duplicating content...');
+            let loadingId;
+            loadingId = notificationSystem.showLoading('Duplicating content...');
             
             try {
                 const contentIds = Array.from(selectedContent);
@@ -1119,7 +1128,8 @@
             
             if (!confirmed) return;
             
-            const loadingId = notificationSystem.showLoading('Deleting content...');
+            let loadingId;
+            loadingId = notificationSystem.showLoading('Deleting content...');
             
             try {
                 const contentIds = Array.from(selectedContent);
@@ -1164,7 +1174,8 @@
                     const files = Array.from(e.target.files);
                     if (files.length === 0) return;
                     
-                    const loadingId = notificationSystem.showLoading(`Uploading ${files.length} file(s)...`);
+                    let loadingId;
+                    loadingId = notificationSystem.showLoading(`Uploading ${files.length} file(s)...`);
                     
                     try {
                         const formData = new FormData();

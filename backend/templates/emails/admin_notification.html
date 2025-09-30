@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Alert - Crane Intelligence</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #dc3545;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 10px;
+        }
+        .alert-message {
+            font-size: 18px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .alert-box {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .details-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background-color: #c82333;
+        }
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏗️ Crane Intelligence</div>
+            <div class="alert-message">🚨 Admin Alert: {{ notification_type }}</div>
+        </div>
+        
+        <div class="content">
+            <div class="alert-box">
+                <h3>⚠️ Administrative Alert</h3>
+                <p><strong>Alert Type:</strong> {{ notification_type }}</p>
+                <p><strong>Message:</strong> {{ message }}</p>
+            </div>
+            
+            {% if details %}
+            <div class="details-box">
+                <h3>📋 Additional Details</h3>
+                <ul>
+                    {% for key, value in details.items() %}
+                    <li><strong>{{ key }}:</strong> {{ value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <p>Please review this alert and take appropriate administrative action if required.</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ settings.allowed_origins[0] }}/admin/dashboard.html" class="cta-button">Access Admin Dashboard</a>
+            </div>
+            
+            <p>This is an automated alert from the Crane Intelligence system.</p>
+        </div>
+        
+        <div class="footer">
+            <p>System Alert<br>
+            <strong>Crane Intelligence Platform</strong></p>
+            <p>📧 admin@craneintelligence.tech | 🌐 www.craneintelligence.tech</p>
+        </div>
+    </div>
+</body>
+</html>

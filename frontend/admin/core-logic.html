@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Logic - Crane Intelligence Admin</title>
-    <link rel="stylesheet" href="css/admin-dashboard.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
-    <script src="../js/notification-system.js"></script>
-    <script src="js/admin-notifications.js"></script>
+    <title>Core Logic - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
     <style>
         .header-left {
             display: flex;
@@ -1773,9 +1773,10 @@
         }
 
         async function loadCoreLogicComponents() {
+            let loadingId;
             try {
                 console.log('Loading core logic components from database...');
-                const loadingId = notificationSystem.showLoading('Loading core logic components...');
+                loadingId = notificationSystem.showLoading('Loading core logic components...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/components', {
                     method: 'GET',
@@ -2071,7 +2072,8 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Starting component...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Starting component...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/start`, {
                     method: 'POST',
@@ -2113,7 +2115,8 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Stopping component...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Stopping component...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/stop`, {
                     method: 'POST',
@@ -2154,7 +2157,8 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Restarting component...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Restarting component...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/restart`, {
                     method: 'POST',
@@ -2188,8 +2192,9 @@
         }
 
         async function exportCoreLogic() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Exporting core logic data...');
+                loadingId = notificationSystem.showLoading('Exporting core logic data...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/export', {
                     method: 'GET',

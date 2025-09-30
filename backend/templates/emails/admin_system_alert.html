@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Alert - Crane Intelligence Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #fd7e14; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .alert-details { background: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .system-metrics { background: #d1ecf1; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+        .action-required { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; }
+        .critical { background: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 System Alert</h1>
+        <p>Crane Intelligence Admin Portal</p>
+    </div>
+    
+    <div class="content">
+        <h2>Admin Alert: {{ alert_type }}</h2>
+        
+        <p><strong>Alert Level:</strong> <span style="color: {{ alert_color }}; font-weight: bold;">{{ alert_level }}</span></p>
+        <p><strong>Timestamp:</strong> {{ alert_timestamp }}</p>
+        <p><strong>System Component:</strong> {{ system_component }}</p>
+        
+        <div class="alert-details">
+            <h3>📋 Alert Details</h3>
+            <ul>
+                <li><strong>Alert ID:</strong> {{ alert_id }}</li>
+                <li><strong>Severity:</strong> {{ severity }}</li>
+                <li><strong>Category:</strong> {{ category }}</li>
+                <li><strong>Source:</strong> {{ alert_source }}</li>
+                <li><strong>Description:</strong> {{ alert_description }}</li>
+            </ul>
+        </div>
+        
+        <div class="system-metrics">
+            <h3>📊 System Metrics</h3>
+            <ul>
+                <li><strong>CPU Usage:</strong> {{ cpu_usage }}%</li>
+                <li><strong>Memory Usage:</strong> {{ memory_usage }}%</li>
+                <li><strong>Disk Usage:</strong> {{ disk_usage }}%</li>
+                <li><strong>Database Connections:</strong> {{ db_connections }}</li>
+                <li><strong>Active Users:</strong> {{ active_users }}</li>
+                <li><strong>Response Time:</strong> {{ response_time }}ms</li>
+            </ul>
+        </div>
+        
+        <div class="action-required">
+            <h3>⚡ Immediate Actions Required</h3>
+            <p>{{ action_description }}</p>
+            <ul>
+                <li>{{ action_1 }}</li>
+                <li>{{ action_2 }}</li>
+                <li>{{ action_3 }}</li>
+            </ul>
+        </div>
+        
+        <div class="critical">
+            <h3>🔴 Critical Information</h3>
+            <p><strong>Impact:</strong> {{ impact_description }}</p>
+            <p><strong>Affected Users:</strong> {{ affected_users }}</p>
+            <p><strong>Estimated Resolution:</strong> {{ estimated_resolution }}</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ admin_dashboard_url }}" class="button">Access Admin Dashboard</a>
+        </div>
+        
+        <h3>📞 Escalation Contacts</h3>
+        <ul>
+            <li><strong>Primary Admin:</strong> {{ primary_admin }}</li>
+            <li><strong>Technical Lead:</strong> {{ technical_lead }}</li>
+            <li><strong>On-Call Engineer:</strong> {{ oncall_engineer }}</li>
+        </ul>
+        
+        <h3>🔧 Troubleshooting Steps</h3>
+        <ol>
+            <li>Check system logs for detailed error information</li>
+            <li>Verify all services are running properly</li>
+            <li>Monitor system resources and performance</li>
+            <li>Contact technical team if manual intervention is needed</li>
+            <li>Update incident status in admin portal</li>
+        </ol>
+        
+        <h3>📈 Historical Context</h3>
+        <ul>
+            <li><strong>Similar Alerts (24h):</strong> {{ similar_alerts_24h }}</li>
+            <li><strong>System Uptime:</strong> {{ system_uptime }}</li>
+            <li><strong>Last Maintenance:</strong> {{ last_maintenance }}</li>
+            <li><strong>Performance Trend:</strong> {{ performance_trend }}</li>
+        </ul>
+        
+        <p><strong>Please take immediate action to resolve this alert.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Monitoring System</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This alert was sent to {{ admin_email }} on {{ alert_timestamp }}.</p>
+    </div>
+</body>
+</html>

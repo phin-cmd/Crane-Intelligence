@@ -567,6 +567,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Export for use in other scripts
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AccessControl, ROLE_PERMISSIONS };
-}
+// Browser environment - no module exports needed

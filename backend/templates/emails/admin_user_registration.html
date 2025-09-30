@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration - Admin Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .user-details { background: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .admin-actions { background: #d1ecf1; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+        .security-alert { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>New User Registration Alert</h1>
+        <p>Crane Intelligence Admin Portal</p>
+    </div>
+    
+    <div class="content">
+        <h2>Admin Notification</h2>
+        
+        <p>A new user has registered on the Crane Intelligence Platform and requires your attention.</p>
+        
+        <div class="user-details">
+            <h3>👤 New User Details</h3>
+            <ul>
+                <li><strong>Name:</strong> {{ user_name }}</li>
+                <li><strong>Email:</strong> {{ user_email }}</li>
+                <li><strong>Company:</strong> {{ company_name }}</li>
+                <li><strong>Registration Date:</strong> {{ registration_date }}</li>
+                <li><strong>Account Type:</strong> {{ account_type }}</li>
+                <li><strong>IP Address:</strong> {{ ip_address }}</li>
+                <li><strong>User Agent:</strong> {{ user_agent }}</li>
+            </ul>
+        </div>
+        
+        <div class="security-alert">
+            <h3>🔒 Security Information</h3>
+            <ul>
+                <li><strong>Email Verified:</strong> {{ email_verified }}</li>
+                <li><strong>Phone Verified:</strong> {{ phone_verified }}</li>
+                <li><strong>Registration Source:</strong> {{ registration_source }}</li>
+                <li><strong>Risk Score:</strong> {{ risk_score }}/100</li>
+            </ul>
+        </div>
+        
+        <h3>📊 User Profile Summary</h3>
+        <ul>
+            <li><strong>Industry:</strong> {{ industry }}</li>
+            <li><strong>Company Size:</strong> {{ company_size }}</li>
+            <li><strong>Primary Use Case:</strong> {{ use_case }}</li>
+            <li><strong>Expected Usage:</strong> {{ expected_usage }}</li>
+        </ul>
+        
+        <div class="admin-actions">
+            <h3>⚡ Required Admin Actions</h3>
+            <p>Please review and take the following actions:</p>
+            <ul>
+                <li>✅ Verify user identity and company information</li>
+                <li>✅ Review account type and permissions</li>
+                <li>✅ Check for any security concerns</li>
+                <li>✅ Approve or flag the account if necessary</li>
+                <li>✅ Send welcome communication if approved</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ admin_user_management_url }}" class="button">Review User Account</a>
+        </div>
+        
+        <h3>📈 Platform Statistics</h3>
+        <ul>
+            <li><strong>Total Users:</strong> {{ total_users }}</li>
+            <li><strong>New Users This Week:</strong> {{ new_users_week }}</li>
+            <li><strong>Active Users:</strong> {{ active_users }}</li>
+            <li><strong>Pending Approvals:</strong> {{ pending_approvals }}</li>
+        </ul>
+        
+        <h3>🔔 Additional Notifications</h3>
+        <p>This user registration has triggered the following:</p>
+        <ul>
+            <li>📧 Welcome email sent to user</li>
+            <li>📊 Analytics updated</li>
+            <li>🔍 Security scan completed</li>
+            <li>📋 User profile created</li>
+        </ul>
+        
+        <p><strong>Action Required:</strong> Please review this user account within 24 hours.</p>
+        <p>Best regards,<br>The Crane Intelligence Admin System</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This notification was sent to {{ admin_email }} on {{ notification_date }}.</p>
+    </div>
+</body>
+</html>

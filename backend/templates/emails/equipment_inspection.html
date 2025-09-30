@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Inspection Scheduled - Crane Intelligence</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .inspection-details { background: #d1ecf1; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .preparation { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; }
+        .contact-info { background: #e8f4fd; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Equipment Inspection Scheduled</h1>
+        <p>Crane Intelligence Platform</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ username }}!</h2>
+        
+        <p>Your equipment inspection has been successfully scheduled. Our certified inspectors will assess your crane to provide the most accurate valuation.</p>
+        
+        <div class="inspection-details">
+            <h3>🔍 Inspection Details</h3>
+            <ul>
+                <li><strong>Equipment:</strong> {{ equipment_name }}</li>
+                <li><strong>Inspection Date:</strong> {{ inspection_date }}</li>
+                <li><strong>Time:</strong> {{ inspection_time }}</li>
+                <li><strong>Duration:</strong> {{ estimated_duration }}</li>
+                <li><strong>Inspector:</strong> {{ inspector_name }}</li>
+                <li><strong>Location:</strong> {{ inspection_location }}</li>
+            </ul>
+        </div>
+        
+        <div class="preparation">
+            <h3>📋 Preparation Checklist</h3>
+            <p>To ensure a smooth inspection, please prepare the following:</p>
+            <ul>
+                <li>✅ Equipment should be accessible and ready for inspection</li>
+                <li>✅ All safety documentation should be available</li>
+                <li>✅ Maintenance records should be prepared</li>
+                <li>✅ Equipment should be in operational condition</li>
+                <li>✅ Safety equipment should be available</li>
+            </ul>
+        </div>
+        
+        <h3>📞 Inspector Contact Information</h3>
+        <div class="contact-info">
+            <p><strong>Inspector:</strong> {{ inspector_name }}</p>
+            <p><strong>Phone:</strong> {{ inspector_phone }}</p>
+            <p><strong>Email:</strong> {{ inspector_email }}</p>
+            <p><strong>Certification:</strong> {{ inspector_certification }}</p>
+        </div>
+        
+        <h3>📋 What to Expect</h3>
+        <ul>
+            <li>Comprehensive visual inspection of all components</li>
+            <li>Functional testing of critical systems</li>
+            <li>Documentation review and verification</li>
+            <li>Safety compliance assessment</li>
+            <li>Detailed condition report generation</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ inspection_portal_link }}" class="button">View Inspection Details</a>
+        </div>
+        
+        <h3>📝 Important Notes</h3>
+        <ul>
+            <li>Please ensure someone is available to meet the inspector</li>
+            <li>Have all relevant documentation ready</li>
+            <li>Equipment should be accessible and safe to inspect</li>
+            <li>Contact us immediately if you need to reschedule</li>
+        </ul>
+        
+        <h3>Need to Reschedule?</h3>
+        <p>If you need to change the inspection date or time:</p>
+        <ul>
+            <li>📧 Email: inspections@craneintelligence.tech</li>
+            <li>📞 Phone: +1 (555) 123-4567</li>
+            <li>💬 Use our online portal</li>
+        </ul>
+        
+        <p><strong>Thank you for choosing Crane Intelligence for your equipment inspection!</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Inspection Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This inspection was scheduled for {{ user_email }} on {{ scheduling_date }}.</p>
+    </div>
+</body>
+</html>

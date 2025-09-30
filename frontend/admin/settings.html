@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Crane Intelligence Admin</title>
-    <link rel="stylesheet" href="css/admin-dashboard.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
-    <script src="../js/notification-system.js"></script>
-    <script src="js/admin-notifications.js"></script>
+    <title>Settings - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
     <style>
         .settings-container {
             max-width: 1000px;
@@ -1116,9 +1116,10 @@
         }
 
         async function loadSettings() {
+            let loadingId;
             try {
                 console.log('Loading settings from database...');
-                const loadingId = notificationSystem.showLoading('Loading settings...');
+                loadingId = notificationSystem.showLoading('Loading settings...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/settings', {
                     method: 'GET',

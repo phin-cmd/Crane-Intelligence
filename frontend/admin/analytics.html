@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics & Reporting - Crane Intelligence Admin</title>
-    <link rel="stylesheet" href="css/admin-dashboard.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
+    <title>Analytics & Reporting - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
     <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../js/notification-system.js"></script>
-    <script src="js/admin-notifications.js"></script>
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
     <style>
         /* Profile Dropdown Styles */
         .admin-profile {
@@ -608,7 +608,8 @@
         let currentChartType = 'line';
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Analytics page loaded, initializing...');
+            console.log('ANALYTICS PAGE LOADED - FIXES APPLIED [v2024]');
+            alert('Analytics page loaded with fixes!');
             
             // Mobile menu toggle event listener
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
@@ -694,26 +695,27 @@
             // Export Date Range Filter
             const exportDateRange = document.getElementById('exportDateRange');
             if (exportDateRange) {
-                exportDateRange.addEventListener('change', updateAnalytics);
+                exportDateRange.addEventListener('change', updateAnalyticsMetrics);
             }
 
             // Data Type Filter
             const dataTypeFilter = document.getElementById('exportDataType');
             if (dataTypeFilter) {
-                dataTypeFilter.addEventListener('change', updateAnalytics);
+                dataTypeFilter.addEventListener('change', updateAnalyticsMetrics);
             }
 
             // Format Filter
             const formatFilter = document.getElementById('exportFormat');
             if (formatFilter) {
-                formatFilter.addEventListener('change', updateAnalytics);
+                formatFilter.addEventListener('change', updateAnalyticsMetrics);
             }
         }
 
         async function loadAnalyticsData() {
+            let loadingId;
             try {
                 console.log('Loading analytics data from database...');
-                const loadingId = notificationSystem.showLoading('Loading analytics data...');
+                loadingId = notificationSystem.showLoading('Loading analytics data...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/analytics?timeRange=${currentTimeRange}`, {
                     method: 'GET',
@@ -1113,8 +1115,9 @@
         }
 
         async function refreshAnalyticsData() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Refreshing analytics data...');
+                loadingId = notificationSystem.showLoading('Refreshing analytics data...');
                 
                 // Force reload data
                 await loadAnalyticsData();
@@ -1129,8 +1132,9 @@
         }
 
         async function generateReport(reportType) {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading(`Generating ${reportType} report...`);
+                loadingId = notificationSystem.showLoading(`Generating ${reportType} report...`);
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/reports/generate', {
                     method: 'POST',
@@ -1166,8 +1170,9 @@
         }
 
         async function previewReport(reportType) {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading(`Loading ${reportType} report preview...`);
+                loadingId = notificationSystem.showLoading(`Loading ${reportType} report preview...`);
                 
                 // Simulate report preview
                 setTimeout(() => {
@@ -1182,8 +1187,9 @@
         }
 
         async function generateCustomReport() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Generating custom report...');
+                loadingId = notificationSystem.showLoading('Generating custom report...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/reports/custom', {
                     method: 'POST',
@@ -1224,7 +1230,8 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Scheduling report...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Scheduling report...');
                 
                 // Simulate scheduling
                 setTimeout(() => {
@@ -1266,7 +1273,8 @@
                 const format = document.getElementById('exportFormat')?.value || 'csv';
                 const dateRange = document.getElementById('exportDateRange')?.value || '30d';
 
-                const loadingId = notificationSystem.showLoading('Exporting analytics data...');
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Exporting analytics data...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/analytics/export', {
                     method: 'POST',

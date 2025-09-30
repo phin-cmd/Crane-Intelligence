@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -52,6 +53,51 @@
                 font-size: 0.9rem;
                 line-height: 1.5;
             }
+            
+            /* Tablet Layout - 2 columns side by side */
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 30px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .footer-links {
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 16px !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .footer-links a {
+                font-size: 14px !important;
+                padding: 8px 0 !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .newsletter input {
+                margin-bottom: 12px !important;
+            }
         }
         
         @media (max-width: 480px) {
@@ -84,40 +130,43 @@
                 hyphens: auto;
             }
             
-            /* Footer Mobile Responsive Styles */
-            .footer-grid {
-                grid-template-columns: 1fr !important;
-                gap: 24px !important;
-            }
-            
+            /* Mobile Layout - Single column stack */
             .footer-container {
                 padding: 0 12px !important;
             }
             
-            .footer-brand {
+            .footer-grid {
+                display: flex !important;
                 flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 8px !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
             }
             
             .footer-desc {
                 max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
                 font-size: 12px !important;
-            }
-            
-            .footer-title {
-                font-size: 12px !important;
-                text-align: left !important;
             }
             
             .footer-links {
-                text-align: left !important;
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 15px !important;
+                margin-bottom: 14px !important;
+                text-align: center !important;
             }
             
             .footer-links a {
-                font-size: 12px !important;
-                text-align: left !important;
-                display: block !important;
+                font-size: 13px !important;
+                padding: 6px 0 !important;
+                text-align: center !important;
             }
             
             .footer-bottom {
@@ -130,12 +179,63 @@
             
             .newsletter {
                 flex-direction: column !important;
+                align-items: stretch !important;
                 gap: 8px !important;
             }
             
-            .newsletter input,
+            .newsletter input {
+                margin-bottom: 12px !important;
+                width: 100% !important;
+            }
+            
             .newsletter button {
                 width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            /* Small Mobile Layout - Single column stack */
+            .footer-container {
+                padding: 0 8px !important;
+            }
+            
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            .footer-title {
+                font-size: 14px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                padding: 4px 0 !important;
+            }
+            
+            .footer-desc {
+                font-size: 11px !important;
+            }
+            
+            .footer-newsletter-desc {
+                font-size: 11px !important;
+            }
+            
+            .newsletter input {
+                font-size: 12px !important;
+                padding: 8px !important;
+            }
+            
+            .newsletter button {
+                font-size: 12px !important;
+                padding: 8px 12px !important;
             }
         }
         
@@ -202,276 +302,213 @@
             transform: translateY(-5px);
         }
 
-        /* ===== HEADER STYLES - EXACT MATCH TO HOMEPAGE ===== */
-        .header {
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* ===== MARKET TICKER - EXACT MATCH TO HOMEPAGE ===== */
+        .market-ticker {
             background: #1A1A1A !important;
+            padding: 8px 0 !important;
             border-bottom: 1px solid #404040 !important;
-            padding: var(--spacing-md) 0 !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1000 !important;
-            backdrop-filter: none !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
         }
 
-        .header-container {
+        .ticker-container {
             max-width: 1400px !important;
             margin: 0 auto !important;
             padding: 0 var(--spacing-xl) !important;
-            display: grid !important;
-            grid-template-columns: 1fr auto 1fr !important;
-            align-items: center !important;
-            height: 80px !important;
+            overflow: hidden !important;
         }
 
-        .logo {
-            display: flex !important;
-            align-items: center !important;
-            justify-self: start !important;
-            grid-column: 1;
-        }
-
-        .logo-svg {
-            height: 60px !important;
-            width: auto !important;
-            filter: brightness(1.2) contrast(1.2) !important;
-        }
-
-        .nav-menu {
+        .ticker-content {
             display: flex !important;
             align-items: center !important;
             gap: 40px !important;
-            justify-self: center !important;
-            grid-column: 2;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
         }
 
-        .nav-link {
-            color: #FFFFFF !important;
-            text-decoration: none !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            transition: color 0.3s ease !important;
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
-        .nav-link:hover {
-            color: #00FF85 !important;
-        }
-
-        .nav-link.active {
-            color: #00FF85 !important;
-        }
-
-        .auth-buttons {
+        .ticker-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            justify-self: end;
-            grid-column: 3;
-            padding-right: 0;
-            margin-right: 0;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
         }
 
-        .user-profile {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            justify-self: end;
-            grid-column: 3;
-            padding-right: 0;
-            margin-right: 0;
-            z-index: 100;
-        }
-
-        .user-profile.visible {
-            display: flex !important;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00FF85, #00CC6A);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #0F0F0F;
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
             font-weight: 700;
-            font-size: 16px;
-            border: 2px solid #00FF85;
-            transition: all 0.3s ease;
+            color: #FFD600;
+            text-transform: uppercase;
         }
 
-        .user-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: #FFFFFF;
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
             font-size: 14px;
-            line-height: 1.2;
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: #B0B0B0;
-            line-height: 1.2;
-        }
-
-        .dropdown-arrow {
-            color: #B0B0B0;
-            font-size: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: #1A1A1A;
-            border: 1px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            z-index: 1000;
-            display: none;
-            margin-top: 8px;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            font-weight: 700;
             color: #FFFFFF;
-            text-decoration: none;
-            transition: background-color 0.2s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-size: 14px;
         }
 
-        .dropdown-item:hover {
-            background: #2A2A2A;
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .ticker-change.up {
             color: #00FF85;
         }
 
-        .dropdown-icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
+        .ticker-change.down {
+            color: #FF4444;
         }
 
-        .dropdown-divider {
-            height: 1px;
-            background: #333;
-            margin: 8px 0;
-        }
-
-        .auth-btn {
-            padding: 8px 16px !important;
-            border-radius: 4px !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            text-decoration: none !important;
-            border: 1px solid transparent !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .auth-btn.login {
-            color: #FFFFFF !important;
-            background: transparent !important;
-            border: 1px solid #404040 !important;
-        }
-
-        .auth-btn.login:hover {
-            background: #404040 !important;
-            border-color: #404040 !important;
-        }
-
-        .auth-btn.signup {
-            color: #000000 !important;
-            background: #00FF85 !important;
-            border: 1px solid #00FF85 !important;
-        }
-
-        .auth-btn.signup:hover {
-            background: #00CC6A !important;
-            border-color: #00CC6A !important;
-        }
-
-        /* ===== FOOTER STYLES - EXACT MATCH TO HOMEPAGE ===== */
+        /* ===== FOOTER STYLES - RADICAL RESPONSIVE APPROACH ===== */
         .footer {
-            background: #0F0F0F !important;
+            background: #1A1A1A !important;
             color: #FFFFFF !important;
-            padding: 80px 0 30px !important;
+            padding: 60px 0 30px !important;
             margin-top: auto !important;
             border-top: 1px solid #404040 !important;
+            width: 100% !important;
+            display: block !important;
         }
 
         .footer-container {
             max-width: 1400px !important;
             margin: 0 auto !important;
-            padding: 0 var(--spacing-xl) !important;
+            padding: 0 20px !important;
+            width: 100% !important;
+            display: block !important;
         }
 
+        /* Default Mobile Layout - Single Column Stack */
         .footer-grid {
-            display: grid !important;
-            grid-template-columns: 2fr 1fr 1fr 1fr !important;
-            gap: 48px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 30px !important;
             margin-bottom: 32px !important;
+            width: 100% !important;
+        }
+        
+        .footer-grid > div {
+            display: block !important;
+            width: 100% !important;
+        }
+        
+        /* Large Desktop - 4 columns side by side */
+        @media (min-width: 1200px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 50px !important;
+            }
+        }
+        
+        /* Desktop - 4 columns side by side */
+        @media (min-width: 769px) and (max-width: 1199px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 40px !important;
+            }
+        }
+        
+        /* Tablet - 2 columns side by side */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 30px !important;
+            }
+        }
+        
+        /* Mobile - Single column stack (default) */
+        @media (max-width: 480px) {
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
+        }
+        
+        /* Force single column for all mobile devices */
+        @media (max-width: 768px) {
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
         }
 
         .footer-brand {
             display: flex !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             margin-bottom: 20px !important;
         }
 
         .footer-logo-svg {
-            height: 50px !important;
+            height: 60px !important;
             width: auto !important;
             filter: brightness(1.2) contrast(1.2) !important;
         }
 
         .footer-desc {
-            font-size: 14px !important;
-            color: #B0B0B0 !important;
-            line-height: 1.5 !important;
-            max-width: 320px !important;
+            font-size: 16px !important;
+            color: #FFFFFF !important;
+            line-height: 1.6 !important;
+            max-width: 100% !important;
+            margin-top: 16px !important;
         }
 
         .footer-title {
-            font-size: 16px !important;
-            font-weight: 600 !important;
+            font-size: 18px !important;
+            font-weight: 700 !important;
             color: #FFFFFF !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 16px !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
+            letter-spacing: 1px !important;
+            display: block !important;
+            visibility: visible !important;
+            width: 100% !important;
         }
 
         .footer-links {
             list-style: none !important;
             padding: 0 !important;
             margin: 0 !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .footer-links li {
@@ -479,10 +516,13 @@
         }
 
         .footer-links a {
-            color: #B0B0B0 !important;
+            color: #CCCCCC !important;
             text-decoration: none !important;
-            font-size: 14px !important;
+            font-size: 16px !important;
             transition: color 0.3s ease !important;
+            display: block !important;
+            margin-bottom: 8px !important;
+            width: 100% !important;
         }
 
         .footer-links a:hover {
@@ -490,52 +530,62 @@
         }
 
         .footer-newsletter-desc {
-            font-size: 14px !important;
-            color: #B0B0B0 !important;
+            font-size: 16px !important;
+            color: #FFFFFF !important;
             margin-bottom: 16px !important;
+            line-height: 1.5 !important;
         }
 
         .newsletter {
             display: flex !important;
-            gap: 8px !important;
+            flex-direction: column !important;
+            gap: 12px !important;
         }
 
         .newsletter input {
-            flex: 1 !important;
-            padding: 8px 12px !important;
-            background: #1A1A1A !important;
-            border: 1px solid #404040 !important;
-            border-radius: 4px !important;
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: #2A2A2A !important;
+            border: 1px solid #CCCCCC !important;
+            border-radius: 6px !important;
             color: #FFFFFF !important;
-            font-size: 14px !important;
+            font-size: 16px !important;
+            box-sizing: border-box !important;
+        }
+
+        .newsletter input::placeholder {
+            color: #CCCCCC !important;
         }
 
         .newsletter button {
-            padding: 8px 16px !important;
-            background: #00FF85 !important;
-            color: #000000 !important;
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: #00FF66 !important;
+            color: #1A1A1A !important;
             border: none !important;
-            border-radius: 4px !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
+            border-radius: 6px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
             cursor: pointer !important;
             transition: background 0.3s ease !important;
         }
 
         .newsletter button:hover {
-            background: #00CC6A !important;
+            background: #00CC55 !important;
         }
 
         .footer-bottom {
             border-top: 1px solid #404040 !important;
-            padding-top: 20px !important;
+            padding-top: 24px !important;
             text-align: center !important;
         }
 
         .footer-bottom p {
-            font-size: 12px !important;
-            color: #808080 !important;
+            font-size: 14px !important;
+            color: #FFFFFF !important;
             margin: 0 !important;
+            line-height: 1.5 !important;
         }
 
         /* ===== MODAL STYLES ===== */
@@ -821,7 +871,7 @@
                 <button class="auth-btn signup" onclick="window.location.href='signup.html'">Sign Up</button>
             </div>
             
-            <div class="user-profile" id="userProfile" style="display: none;">
+            <div class="user-profile" id="userProfile">
                 <div class="user-avatar" onclick="toggleDropdown()">
                     <span id="userInitials">U</span>
                 </div>
@@ -856,6 +906,64 @@
             </div>
         </div>
     </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">667.8</span>
+                    <span class="ticker-change down">-1.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">NA-CRANE</span>
+                    <span class="ticker-price">762.1</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">EU-CRANE</span>
+                    <span class="ticker-price">639.8</span>
+                    <span class="ticker-change up">+2.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AS-CRANE</span>
+                    <span class="ticker-price">749.2</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">523.4</span>
+                    <span class="ticker-change up">+0.8%</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="page-container">
@@ -1025,17 +1133,6 @@
         </div>
     </footer>
 
-    <!-- Live Market Data Ticker -->
-    <div class="market-ticker">
-        <div class="ticker-content">
-            <span class="ticker-label">LIVE MARKET DATA:</span>
-            <span class="ticker-item">Grove GMK5250L: $2.1M ↑2.3%</span>
-            <span class="ticker-item">Liebherr LTM 1200: $1.8M ↓1.2%</span>
-            <span class="ticker-item">Terex AC 500-2: $1.5M ↑0.8%</span>
-            <span class="ticker-item">Manitowoc 2250: $1.2M ↑3.1%</span>
-            <span class="ticker-item">Kato NK-500: $950K ↓0.5%</span>
-        </div>
-    </div>
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
@@ -1192,6 +1289,8 @@
                 if (authButtons && userProfile) {
                     authButtons.style.display = 'none';
                     userProfile.style.display = 'flex';
+                    authButtons.classList.remove('visible');
+                    userProfile.classList.add('visible');
                 }
                 
                 // Update user information
@@ -1209,20 +1308,16 @@
                 if (authButtons && userProfile) {
                     authButtons.style.display = 'flex';
                     userProfile.style.display = 'none';
+                    authButtons.classList.add('visible');
+                    userProfile.classList.remove('visible');
                 }
             }
         }
 
         function toggleDropdown() {
             const dropdown = document.getElementById('userDropdown');
-            const arrow = document.querySelector('.dropdown-arrow');
-            
-            if (dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-                if (arrow) arrow.style.transform = 'rotate(0deg)';
-            } else {
-                dropdown.classList.add('show');
-                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            if (dropdown) {
+                dropdown.classList.toggle('show');
             }
         }
 

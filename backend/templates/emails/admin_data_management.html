@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management Action - Admin Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .action-details { background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .data-info { background: #e8f4fd; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+        .statistics { background: #f8f9fa; padding: 15px; border-left: 4px solid #6c757d; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Data Management Action</h1>
+        <p>Crane Intelligence Admin Portal</p>
+    </div>
+    
+    <div class="content">
+        <h2>Data Management Notification</h2>
+        
+        <p>A data management action has been performed by an administrator.</p>
+        
+        <div class="action-details">
+            <h3>Action Details</h3>
+            <ul>
+                <li><strong>Action Type:</strong> {{ action_type }}</li>
+                <li><strong>Performed By:</strong> {{ admin_name }}</li>
+                <li><strong>Timestamp:</strong> {{ action_timestamp }}</li>
+                <li><strong>Data Type:</strong> {{ data_type }}</li>
+                <li><strong>Records Affected:</strong> {{ records_affected }}</li>
+            </ul>
+        </div>
+        
+        <div class="data-info">
+            <h3>Data Information</h3>
+            <ul>
+                <li><strong>Dataset:</strong> {{ dataset_name }}</li>
+                <li><strong>Data Source:</strong> {{ data_source }}</li>
+                <li><strong>File Size:</strong> {{ file_size }}</li>
+                <li><strong>Record Count:</strong> {{ record_count }}</li>
+                <li><strong>Data Quality Score:</strong> {{ data_quality_score }}/100</li>
+                <li><strong>Last Updated:</strong> {{ last_updated }}</li>
+            </ul>
+        </div>
+        
+        <div class="statistics">
+            <h3>System Statistics</h3>
+            <ul>
+                <li><strong>Total Records:</strong> {{ total_records }}</li>
+                <li><strong>Active Records:</strong> {{ active_records }}</li>
+                <li><strong>Archived Records:</strong> {{ archived_records }}</li>
+                <li><strong>Data Storage Used:</strong> {{ storage_used }}</li>
+                <li><strong>Backup Status:</strong> {{ backup_status }}</li>
+            </ul>
+        </div>
+        
+        <h3>Action Summary</h3>
+        <p><strong>Description:</strong> {{ action_description }}</p>
+        <p><strong>Impact:</strong> {{ action_impact }}</p>
+        <p><strong>Next Steps:</strong> {{ next_steps }}</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ data_management_url }}" class="button">View Data Management</a>
+        </div>
+        
+        <h3>Data Quality Metrics</h3>
+        <ul>
+            <li><strong>Completeness:</strong> {{ completeness }}%</li>
+            <li><strong>Accuracy:</strong> {{ accuracy }}%</li>
+            <li><strong>Consistency:</strong> {{ consistency }}%</li>
+            <li><strong>Validity:</strong> {{ validity }}%</li>
+            <li><strong>Timeliness:</strong> {{ timeliness }}%</li>
+        </ul>
+        
+        <h3>Recommendations</h3>
+        <ul>
+            <li>{{ recommendation_1 }}</li>
+            <li>{{ recommendation_2 }}</li>
+            <li>{{ recommendation_3 }}</li>
+        </ul>
+        
+        <h3>Monitoring</h3>
+        <p>This action has been logged and will be monitored for:</p>
+        <ul>
+            <li>Data integrity verification</li>
+            <li>Performance impact assessment</li>
+            <li>User access pattern changes</li>
+            <li>System resource utilization</li>
+        </ul>
+        
+        <p><strong>Action completed successfully.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Data Management Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This notification was sent to {{ admin_email }} on {{ notification_date }}.</p>
+    </div>
+</body>
+</html>

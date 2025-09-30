@@ -32,6 +32,19 @@ class Settings(BaseSettings):
     # External Services
     crane_data_api_url: Optional[str] = None
     
+    # Email Settings
+    mail_server: str = "smtp.gmail.com"
+    mail_port: int = 587
+    mail_username: str = "pgenerelly@craneintelligence.tech"
+    mail_password: str = ""  # Will be set via environment variable
+    mail_use_tls: bool = True
+    mail_use_ssl: bool = False
+    mail_from_name: str = "Crane Intelligence Platform"
+    mail_from_email: str = "pgenerelly@craneintelligence.tech"
+    
+    # Email Templates
+    email_templates_dir: str = "backend/templates/emails"
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

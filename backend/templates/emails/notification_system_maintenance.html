@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Maintenance Notification - Crane Intelligence</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #ffc107; color: #333; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .maintenance-details { background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .impact-info { background: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0; }
+        .preparation { background: #d1ecf1; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0; }
+        .timeline { background: #e8f4fd; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Scheduled Maintenance</h1>
+        <p>Crane Intelligence Platform</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ username }}!</h2>
+        
+        <p>We're writing to inform you about scheduled maintenance for the Crane Intelligence Platform.</p>
+        
+        <div class="maintenance-details">
+            <h3>📅 Maintenance Details</h3>
+            <ul>
+                <li><strong>Date:</strong> {{ maintenance_date }}</li>
+                <li><strong>Start Time:</strong> {{ start_time }}</li>
+                <li><strong>End Time:</strong> {{ end_time }}</li>
+                <li><strong>Duration:</strong> {{ estimated_duration }}</li>
+                <li><strong>Type:</strong> {{ maintenance_type }}</li>
+                <li><strong>Reason:</strong> {{ maintenance_reason }}</li>
+            </ul>
+        </div>
+        
+        <div class="impact-info">
+            <h3>⚠️ Service Impact</h3>
+            <p><strong>Services Affected:</strong></p>
+            <ul>
+                <li>{{ affected_service_1 }}</li>
+                <li>{{ affected_service_2 }}</li>
+                <li>{{ affected_service_3 }}</li>
+            </ul>
+            <p><strong>Expected Downtime:</strong> {{ expected_downtime }}</p>
+        </div>
+        
+        <div class="timeline">
+            <h3>⏰ Maintenance Timeline</h3>
+            <ul>
+                <li><strong>{{ start_time }}:</strong> Maintenance begins</li>
+                <li><strong>{{ mid_time }}:</strong> Core updates in progress</li>
+                <li><strong>{{ end_time }}:</strong> Maintenance completed</li>
+                <li><strong>{{ verification_time }}:</strong> System verification</li>
+            </ul>
+        </div>
+        
+        <div class="preparation">
+            <h3>📋 What You Should Do</h3>
+            <ul>
+                <li>✅ Save any work in progress before maintenance begins</li>
+                <li>✅ Download any reports you need before {{ start_time }}</li>
+                <li>✅ Plan your work around the maintenance window</li>
+                <li>✅ Check for updates after maintenance is complete</li>
+            </ul>
+        </div>
+        
+        <h3>🔄 What We're Updating</h3>
+        <ul>
+            <li><strong>System Updates:</strong> {{ system_updates }}</li>
+            <li><strong>Security Patches:</strong> {{ security_patches }}</li>
+            <li><strong>Performance Improvements:</strong> {{ performance_improvements }}</li>
+            <li><strong>New Features:</strong> {{ new_features }}</li>
+        </ul>
+        
+        <h3>📞 Support During Maintenance</h3>
+        <p>If you experience any issues during or after maintenance:</p>
+        <ul>
+            <li>📧 Email: support@craneintelligence.tech</li>
+            <li>📞 Phone: +1 (555) 123-4567</li>
+            <li>💬 Live Chat: Available 24/7</li>
+            <li>📋 Status Page: {{ status_page_url }}</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ status_page_url }}" class="button">Check Status Page</a>
+        </div>
+        
+        <h3>📈 Expected Improvements</h3>
+        <p>After maintenance, you can expect:</p>
+        <ul>
+            <li>🚀 Faster page load times</li>
+            <li>🔒 Enhanced security features</li>
+            <li>📊 Improved analytics capabilities</li>
+            <li>🛠️ New tools and features</li>
+            <li>📱 Better mobile experience</li>
+        </ul>
+        
+        <h3>⏰ Alternative Times</h3>
+        <p>If this maintenance window doesn't work for you:</p>
+        <ul>
+            <li>Contact us to discuss alternative scheduling</li>
+            <li>We can arrange for minimal impact maintenance</li>
+            <li>Emergency maintenance procedures are available</li>
+        </ul>
+        
+        <p><strong>We apologize for any inconvenience and appreciate your patience.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Technical Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This notification was sent to {{ user_email }} on {{ notification_date }}.</p>
+        <p><a href="{{ unsubscribe_url }}">Unsubscribe</a> | <a href="{{ preferences_url }}">Manage Preferences</a></p>
+    </div>
+</body>
+</html>

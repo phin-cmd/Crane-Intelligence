@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuation Report - Crane Intelligence</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .report-summary { background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .valuation-highlight { background: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0; }
+        .equipment-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Your Valuation Report is Ready!</h1>
+        <p>Crane Intelligence Platform</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ username }}!</h2>
+        
+        <p>Your comprehensive crane valuation report has been generated and is ready for review.</p>
+        
+        <div class="report-summary">
+            <h3>📊 Report Summary</h3>
+            <ul>
+                <li><strong>Report ID:</strong> {{ report_id }}</li>
+                <li><strong>Generated:</strong> {{ generation_date }}</li>
+                <li><strong>Equipment:</strong> {{ equipment_name }}</li>
+                <li><strong>Valuation Type:</strong> {{ valuation_type }}</li>
+            </ul>
+        </div>
+        
+        <div class="valuation-highlight">
+            <h3>💰 Estimated Value</h3>
+            <h2 style="color: #28a745; margin: 10px 0;">{{ estimated_value }}</h2>
+            <p><strong>Confidence Level:</strong> {{ confidence_level }}%</p>
+        </div>
+        
+        <div class="equipment-details">
+            <h3>🏗️ Equipment Details</h3>
+            <ul>
+                <li><strong>Manufacturer:</strong> {{ manufacturer }}</li>
+                <li><strong>Model:</strong> {{ model }}</li>
+                <li><strong>Year:</strong> {{ year }}</li>
+                <li><strong>Hours:</strong> {{ operating_hours }}</li>
+                <li><strong>Condition:</strong> {{ condition }}</li>
+            </ul>
+        </div>
+        
+        <h3>📈 Market Analysis Included</h3>
+        <ul>
+            <li>Current market trends for similar equipment</li>
+            <li>Regional pricing variations</li>
+            <li>Seasonal demand patterns</li>
+            <li>Competitive market analysis</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ report_link }}" class="button">View Full Report</a>
+        </div>
+        
+        <h3>📎 Attachments</h3>
+        <p>Your report includes the following documents:</p>
+        <ul>
+            <li>📄 Detailed Valuation Report (PDF)</li>
+            <li>📊 Market Analysis Charts (Excel)</li>
+            <li>📋 Equipment Specifications (PDF)</li>
+            <li>📈 Historical Data Analysis (Excel)</li>
+        </ul>
+        
+        <h3>💡 Next Steps</h3>
+        <ul>
+            <li>Review the detailed valuation report</li>
+            <li>Consider market timing for sale/purchase</li>
+            <li>Schedule equipment inspection if needed</li>
+            <li>Contact our experts for additional analysis</li>
+        </ul>
+        
+        <h3>Need Expert Advice?</h3>
+        <p>Our crane valuation experts are available to discuss your report:</p>
+        <ul>
+            <li>📧 Email: experts@craneintelligence.tech</li>
+            <li>📞 Phone: +1 (555) 123-4567</li>
+            <li>💬 Schedule a consultation</li>
+        </ul>
+        
+        <p><strong>Thank you for using Crane Intelligence!</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Crane Intelligence Platform. All rights reserved.</p>
+        <p>This report was generated for {{ user_email }} on {{ generation_date }}.</p>
+    </div>
+</body>
+</html>

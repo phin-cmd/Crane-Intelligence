@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Users - Crane Intelligence Admin</title>
-    <link rel="stylesheet" href="css/admin-dashboard.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
+    <title>Admin Users - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
     <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
-    <script src="../js/notification-system.js"></script>
-    <script src="js/admin-notifications.js"></script>
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
     <style>
         /* Profile Dropdown Styles */
         .admin-profile {
@@ -1205,9 +1205,10 @@
         }
 
         async function loadAdminUsers() {
+            let loadingId;
             try {
                 console.log('Loading admin users from database...');
-                const loadingId = notificationSystem.showLoading('Loading admin users...');
+                loadingId = notificationSystem.showLoading('Loading admin users...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
                     method: 'GET',
@@ -1457,6 +1458,7 @@
 
         // Admin User Management Functions
         async function addAdminUser() {
+            let loadingId;
             try {
                 const name = prompt('Enter admin user name:');
                 if (!name) return;
@@ -1464,7 +1466,7 @@
                 const email = prompt('Enter admin user email:');
                 if (!email) return;
                 
-                const loadingId = notificationSystem.showLoading('Adding admin user...');
+                loadingId = notificationSystem.showLoading('Adding admin user...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
                     method: 'POST',
@@ -1512,6 +1514,7 @@
         }
 
         async function suspendAdminUser(userId) {
+            let loadingId;
             try {
                 const user = adminUsers.find(u => u.id === userId);
                 if (!user) return;
@@ -1525,7 +1528,7 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading(`${action.charAt(0).toUpperCase() + action.slice(1)}ing admin user...`);
+                loadingId = notificationSystem.showLoading(`${action.charAt(0).toUpperCase() + action.slice(1)}ing admin user...`);
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
                     method: 'PUT',
@@ -1556,6 +1559,7 @@
         }
 
         async function deleteAdminUser(userId) {
+            let loadingId;
             try {
                 const user = adminUsers.find(u => u.id === userId);
                 if (!user) return;
@@ -1568,7 +1572,7 @@
                 
                 if (!confirmed) return;
                 
-                const loadingId = notificationSystem.showLoading('Deleting admin user...');
+                loadingId = notificationSystem.showLoading('Deleting admin user...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
                     method: 'DELETE',
@@ -1617,6 +1621,7 @@
         }
 
         async function saveUserRole() {
+            let loadingId;
             try {
             const selectedRole = document.querySelector('input[name="userRole"]:checked');
             if (!selectedRole) {
@@ -1625,7 +1630,7 @@
             }
 
                 const role = selectedRole.value;
-                const loadingId = notificationSystem.showLoading('Updating user role...');
+                loadingId = notificationSystem.showLoading('Updating user role...');
                 
                 const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${currentEditingUserId}`, {
                     method: 'PUT',
@@ -1717,6 +1722,7 @@
         }
 
         async function createAdminUser() {
+            let loadingId;
             try {
                 const form = document.getElementById('createUserForm');
                 const formData = new FormData(form);
@@ -1754,7 +1760,7 @@
                     return;
                 }
                 
-                const loadingId = notificationSystem.showLoading('Creating admin user...');
+                loadingId = notificationSystem.showLoading('Creating admin user...');
                 
                 const userData = {
                     name,
@@ -1812,8 +1818,9 @@
         }
 
         async function exportAdminUsers() {
+            let loadingId;
             try {
-                const loadingId = notificationSystem.showLoading('Exporting admin users...');
+                loadingId = notificationSystem.showLoading('Exporting admin users...');
                 
                 const response = await fetch('http://localhost:8003/api/v1/admin/admin-users/export', {
                     method: 'GET',

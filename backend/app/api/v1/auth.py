@@ -129,10 +129,10 @@ def create_demo_users(db: Session):
             db.add(test_user)
         
         db.commit()
-        print("✅ Demo users created successfully")
+        print("SUCCESS: Demo users created successfully")
     except Exception as e:
         db.rollback()
-        print(f"⚠️  Demo users creation failed: {e}")
+        print(f"WARNING: Demo users creation failed: {e}")
 
 # Create demo users on startup
 try:
@@ -141,7 +141,7 @@ try:
     create_demo_users(db)
     db.close()
 except Exception as e:
-    print(f"⚠️  Demo users creation failed: {e}")
+    print(f"WARNING: Demo users creation failed: {e}")
 
 
 @router.post("/register", response_model=AuthResponse)

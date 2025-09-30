@@ -257,7 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                const loadingId = adminNotifications.showLoading('Processing...');
+                let loadingId;
+                loadingId = adminNotifications.showLoading('Processing...');
                 
                 // Re-enable button after 5 seconds as fallback
                 setTimeout(() => {
