@@ -13,7 +13,7 @@
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="js/notification-system.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/date-fns.min.js"></script>
     <style>
         /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
         
@@ -3954,7 +3954,7 @@
 
         // Handle Contact Sales button click
         function handleContactSales() {
-            window.location.href = 'http://localhost:3000/contact.html';
+            window.location.href = '/contact.html';
         }
 
         // Show plan management for logged-in users
@@ -4101,7 +4101,7 @@
             
             try {
                 // Send consultation request to backend
-                const response = await fetch('http://localhost:8003/api/v1/consultation/submit', {
+                const response = await fetch('/api/v1/consultation/submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -4205,17 +4205,17 @@
                 const result = await response.json();
                 console.log('Login API Response:', result);
 
-                if (result.success && result.data) {
+                if (result.success) {
                     // Store tokens in localStorage
                     // Handle both possible response structures
                     let accessToken, refreshToken, userData;
                     
-                    if (result.data.tokens && result.data.tokens.access_token) {
+                    if (result.data && result.data.tokens && result.data.tokens.access_token) {
                         // Structure: { data: { tokens: { access_token: "...", refresh_token: "..." } } }
                         accessToken = result.data.tokens.access_token;
                         refreshToken = result.data.tokens.refresh_token;
                         userData = result.data.user;
-                    } else if (result.data.access_token) {
+                    } else if (result.data && result.data.access_token) {
                         // Structure: { data: { access_token: "...", refresh_token: "..." } }
                         accessToken = result.data.access_token;
                         refreshToken = result.data.refresh_token;
@@ -4227,6 +4227,11 @@
                             subscription_tier: result.data.subscription_tier,
                             user_role: result.data.user_role
                         };
+                    } else if (result.access_token) {
+                        // Structure: { access_token: "...", user: {...} }
+                        accessToken = result.access_token;
+                        refreshToken = result.refresh_token;
+                        userData = result.user;
                     }
                     
                     if (accessToken) {
@@ -4734,14 +4739,14 @@
         async function loadRealTimeMarketData() {
             try {
                 // Load crane listings data to calculate market stats
-                const listingsResponse = await fetch('http://localhost:8003/api/v1/enhanced-data/crane-listings?limit=1000');
+                const listingsResponse = await fetch('/api/v1/enhanced-data/crane-listings?limit=1000');
                 const listingsData = await listingsResponse.json();
                 
-                if (listingsData.success && listingsData.listings.length > 0) {
-                    const marketStats = calculateMarketStats(listingsData.listings);
+                if (listingsData.success && listingsData.data && listingsData.data.length > 0) {
+                    const marketStats = calculateMarketStats(listingsData.data);
                     updateMarketStats(marketStats);
                     updateDashboardDisplay(marketStats);
-                    updateTickerDisplay(listingsData.listings);
+                    updateTickerDisplay(listingsData.data);
                 }
                 
             } catch (error) {
