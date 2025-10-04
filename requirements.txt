@@ -57,3 +57,9 @@ aiofiles==24.1.0
 asyncpg==0.30.0
 phonenumbers==9.0.15
 
+
+# Flask Dependencies for Deployment
+Flask==2.3.3
+Flask-CORS==4.0.0
+Werkzeug==2.3.7
+gunicorn==21.2.0
