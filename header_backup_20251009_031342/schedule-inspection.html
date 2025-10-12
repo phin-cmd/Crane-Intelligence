@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Inspection - Crane Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <style>
+        /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            height: 80px !important;
+            position: relative !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            transition: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+        }
+
+        .user-profile {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #FFFFFF;
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .user-dropdown.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+            display: block !important;
+        }
+
+        .dropdown-item {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+            width: 100%;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 255, 133, 0.1) !important;
+            color: #00FF85 !important;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333333;
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        /* ===== MARKET TICKER ===== */
+        .market-ticker {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            animation: ticker 30s linear infinite;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .nav-menu {
+            display: none !important;
+            align-items: center !important;
+            justify-self: center !important;
+            grid-column: 2 !important;
+            gap: var(--space-xl) !important;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .nav-link:hover {
+            color: #00FF85 !important;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .auth-buttons.hidden {
+            display: none !important;
+        }
+
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* Market Ticker - Exact Match to Dashboard */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: var(--space-2xl) 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== INSPECTION FORM ===== */
+        .inspection-form-container {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .form-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--accent-green);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background: var(--primary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #00FF85;
+            color: #00FF85;
+        }
+
+        .back-to-dashboard .back-icon {
+            font-size: 16px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--primary-black);
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: var(--text-primary);
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        .btn-large {
+            padding: var(--space-lg) var(--space-xl);
+            font-size: 16px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 60px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand-section {
+            flex: 2;
+        }
+
+        .footer-links-section {
+            flex: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-bar {
+            width: 4px;
+            height: 40px;
+            background: #FFA500;
+            border-radius: 2px;
+        }
+
+        .footer-logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo-sub {
+            font-size: 16px;
+            font-weight: 400;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .footer-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .footer-newsletter-text {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .footer-newsletter {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-email-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .footer-email-input::placeholder {
+            color: #808080;
+        }
+
+        .footer-subscribe-btn {
+            padding: 12px 24px;
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .footer-subscribe-btn:hover {
+            background: #00E676;
+        }
+
+        .footer-bottom {
+            margin-top: 32px;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: #333333;
+            margin-bottom: 20px;
+        }
+
+        .footer-copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+            margin: 0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .footer-container {
+                padding: 0 24px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .footer-links-section {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            
+            .ticker-container {
+                padding: 0 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            .ticker-container {
+                padding: 0 16px;
+            }
+            
+            .ticker-content {
+                gap: 20px;
+            }
+            
+            .ticker-item {
+                gap: 12px;
+                margin-right: 20px;
+            }
+            
+            .ticker-symbol,
+            .ticker-price,
+            .ticker-change {
+                font-size: 11px;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 32px;
+            }
+            
+            .footer-links-section {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .footer-logo {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            
+            .footer-logo-bar {
+                width: 3px;
+                height: 32px;
+            }
+            
+            .footer-logo-main {
+                font-size: 20px;
+            }
+            
+            .footer-logo-sub {
+                font-size: 14px;
+            }
+            
+            .footer-description {
+                font-size: 13px;
+                max-width: 100%;
+            }
+            
+            .footer-section-title {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            
+            .footer-links a {
+                font-size: 13px;
+            }
+            
+            .footer-newsletter-text {
+                font-size: 13px;
+            }
+            
+            .footer-newsletter {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .footer-email-input,
+            .footer-subscribe-btn {
+                width: 100%;
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-to-dashboard {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .inspection-form-container {
+                padding: var(--space-lg);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 160px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .ticker-container {
+                padding: 0 12px;
+            }
+            
+            .ticker-content {
+                gap: 16px;
+            }
+            
+            .ticker-item {
+                gap: 8px;
+                margin-right: 16px;
+            }
+            
+            .ticker-symbol,
+            .ticker-price,
+            .ticker-change {
+                font-size: 10px;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-content {
+                gap: 24px;
+            }
+            
+            .footer-links-section {
+                gap: 20px;
+            }
+            
+            .footer-logo {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .footer-logo-bar {
+                width: 2px;
+                height: 28px;
+            }
+            
+            .footer-logo-main {
+                font-size: 18px;
+            }
+            
+            .footer-logo-sub {
+                font-size: 12px;
+            }
+            
+            .footer-description {
+                font-size: 12px;
+            }
+            
+            .footer-section-title {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .footer-links a {
+                font-size: 12px;
+            }
+            
+            .footer-newsletter-text {
+                font-size: 12px;
+            }
+            
+            .footer-email-input,
+            .footer-subscribe-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .footer-copyright {
+                font-size: 11px;
+            }
+            
+            .back-to-dashboard {
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">DU</span>
+            </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">Demo User</div>
+                    <div class="user-role" id="userRole">crane_rental_company</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market Ticker -->
+        <div class="market-ticker">
+            <div class="ticker-container">
+                <div class="ticker-content">
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">XCMG</span>
+                        <span class="ticker-price">467.8</span>
+                        <span class="ticker-change down">-0.4%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">MANITEX</span>
+                        <span class="ticker-price">757.8</span>
+                        <span class="ticker-change up">+1.3%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">AMERICAN</span>
+                        <span class="ticker-price">732.9</span>
+                        <span class="ticker-change down">-1.2%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">SHUTTLELIFT</span>
+                        <span class="ticker-price">683.4</span>
+                        <span class="ticker-change up">+2.2%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">GALION</span>
+                        <span class="ticker-price">709.8</span>
+                        <span class="ticker-change down">-0.5%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">DEMAG</span>
+                        <span class="ticker-price">891.2</span>
+                        <span class="ticker-change up">+1.8%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">TEREX</span>
+                        <span class="ticker-price">234.5</span>
+                        <span class="ticker-change down">-0.7%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">LIEBHERR</span>
+                        <span class="ticker-price">567.3</span>
+                        <span class="ticker-change up">+3.1%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Schedule Inspection</h1>
+                <p class="page-subtitle">
+                    Schedule comprehensive crane inspections with certified professionals. 
+                    Ensure safety compliance and optimal equipment performance.
+                </p>
+            </div>
+
+            <!-- Inspection Form -->
+            <div class="inspection-form-container">
+                <form id="inspectionForm">
+                    <!-- Equipment Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Equipment Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Crane ID/Serial Number</label>
+                                <input type="text" class="form-input" id="craneId" placeholder="Enter crane ID or serial number" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Crane Type</label>
+                                <select class="form-select" id="craneType" required>
+                                    <option value="">Select crane type</option>
+                                    <option value="mobile">Mobile Crane</option>
+                                    <option value="tower">Tower Crane</option>
+                                    <option value="overhead">Overhead Crane</option>
+                                    <option value="gantry">Gantry Crane</option>
+                                    <option value="crawler">Crawler Crane</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Manufacturer</label>
+                                <input type="text" class="form-input" id="manufacturer" placeholder="e.g., Liebherr, Grove, Terex" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Model</label>
+                                <input type="text" class="form-input" id="model" placeholder="Enter crane model" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Year of Manufacture</label>
+                                <input type="number" class="form-input" id="year" placeholder="2020" min="1990" max="2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Capacity (Tons)</label>
+                                <input type="number" class="form-input" id="capacity" placeholder="250" min="1" max="2000" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inspection Details -->
+                    <div class="form-section">
+                        <h2 class="section-title">Inspection Details</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Inspection Type</label>
+                                <select class="form-select" id="inspectionType" required>
+                                    <option value="">Select inspection type</option>
+                                    <option value="annual">Annual Inspection</option>
+                                    <option value="monthly">Monthly Inspection</option>
+                                    <option value="pre-operation">Pre-Operation Check</option>
+                                    <option value="post-incident">Post-Incident Inspection</option>
+                                    <option value="compliance">Compliance Inspection</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority Level</label>
+                                <select class="form-select" id="priority" required>
+                                    <option value="">Select priority</option>
+                                    <option value="low">Low - Routine inspection</option>
+                                    <option value="medium">Medium - Scheduled maintenance</option>
+                                    <option value="high">High - Safety concern</option>
+                                    <option value="urgent">Urgent - Immediate attention</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Preferred Date</label>
+                                <input type="date" class="form-input" id="preferredDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Preferred Time</label>
+                                <select class="form-select" id="preferredTime" required>
+                                    <option value="">Select time</option>
+                                    <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                                    <option value="afternoon">Afternoon (12:00 PM - 5:00 PM)</option>
+                                    <option value="evening">Evening (5:00 PM - 8:00 PM)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Location Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Site Name</label>
+                                <input type="text" class="form-input" id="siteName" placeholder="Enter site or project name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-input" id="address" placeholder="Enter full address" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-input" id="city" placeholder="Enter city" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State/Province</label>
+                                <input type="text" class="form-input" id="state" placeholder="Enter state or province" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-input" id="postalCode" placeholder="Enter postal code" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Country</label>
+                                <select class="form-select" id="country" required>
+                                    <option value="">Select country</option>
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="FR">France</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Contact Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Primary Contact Name</label>
+                                <input type="text" class="form-input" id="contactName" placeholder="Enter contact person name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-input" id="phone" placeholder="+1 (555) 123-4567" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" id="email" placeholder="contact@company.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Company</label>
+                                <input type="text" class="form-input" id="company" placeholder="Enter company name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Additional Information</h2>
+                        <div class="form-group">
+                            <label class="form-label">Special Requirements or Notes</label>
+                            <textarea class="form-textarea" id="notes" placeholder="Any special requirements, access instructions, or additional notes for the inspector..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-section">
+                        <div class="form-row">
+                            <button type="button" class="btn btn-secondary btn-large" onclick="clearForm()">
+                                <span>🗑️</span> Clear Form
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-large">
+                                <span>📅</span> Schedule Inspection
+                            </button>
+                        </div>
+                        <div style="text-align: center; margin-top: 16px;">
+                            <a href="dashboard.html" class="back-to-dashboard">
+                                <span class="back-icon">←</span>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand-section">
+                    <div class="footer-logo">
+                        <div class="footer-logo-bar"></div>
+                        <div class="footer-logo-text">
+                            <div class="footer-logo-main">CRANE</div>
+                            <div class="footer-logo-sub">INTELLIGENCE</div>
+                    </div>
+                    </div>
+                    <p class="footer-description">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div class="footer-links-section">
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Quick Links</h4>
+                    <ul class="footer-links">
+                            <li><a href="about-us.html">About Us</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                            <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                            <li><a href="security.html">Security</a></li>
+                    </ul>
+                </div>
+
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Stay Updated</h4>
+                        <p class="footer-newsletter-text">Get the latest insights and market analysis delivered to your inbox</p>
+                        <div class="footer-newsletter">
+                            <input type="email" placeholder="Enter your email" class="footer-email-input">
+                            <button class="footer-subscribe-btn">Subscribe</button>
+                </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-divider"></div>
+                <p class="footer-copyright">&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Authentication functions
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons
+                if (authButtons && userProfile) {
+                    authButtons.classList.add('hidden');
+                    userProfile.classList.add('visible');
+                }
+                
+                // Update user data
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                if (userRole) {
+                    userRole.textContent = user.user_role || 'Premium User';
+                }
+            } else {
+                // Show auth buttons for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.classList.remove('hidden');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const userInfo = document.querySelector('.user-info');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+            if (userInfo) {
+                userInfo.classList.toggle('active');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.getElementById('userProfile');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (userProfile && dropdown) {
+                if (!userProfile.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            updateUserInterface(null);
+            window.location.href = 'homepage.html';
+        }
+
+        // Form functions
+        function clearForm() {
+            document.getElementById('inspectionForm').reset();
+        }
+
+        function showDialog(title, message, type) {
+            // Create dialog element
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const dialogContent = document.createElement('div');
+            dialogContent.style.cssText = `
+                background: #2A2A2A;
+                border: 1px solid #404040;
+                border-radius: 12px;
+                padding: 32px;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            `;
+
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            const color = type === 'success' ? '#00FF85' : type === 'error' ? '#FF4444' : '#FFD600';
+
+            dialogContent.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 16px;">${icon}</div>
+                <h3 style="color: #FFFFFF; font-size: 20px; font-weight: 600; margin-bottom: 12px;">${title}</h3>
+                <p style="color: #B0B0B0; font-size: 14px; margin-bottom: 24px;">${message}</p>
+                <button onclick="this.closest('.dialog').remove()" style="
+                    background: ${color};
+                    color: #000000;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">OK</button>
+            `;
+
+            dialog.className = 'dialog';
+            dialog.appendChild(dialogContent);
+            document.body.appendChild(dialog);
+        }
+
+        // Form submission
+        document.getElementById('inspectionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const inspectionData = Object.fromEntries(formData.entries());
+            
+            // Show loading dialog
+            showDialog(
+                'Scheduling Inspection', 
+                'Please wait while we process your inspection request...',
+                'info'
+            );
+            
+            // Simulate API call
+            setTimeout(() => {
+                showDialog(
+                    'Inspection Scheduled!', 
+                    'Your inspection has been successfully scheduled. You will receive a confirmation email shortly.',
+                    'success'
+                );
+                
+                // Clear form after successful submission
+                clearForm();
+            }, 2000);
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication status
+            const userData = localStorage.getItem('user_data');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            }
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('preferredDate').setAttribute('min', today);
+        });
+    </script>
+</body>
+</html>

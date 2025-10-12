@@ -1121,7 +1121,7 @@
                 console.log('Loading settings from database...');
                 loadingId = notificationSystem.showLoading('Loading settings...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/settings', {
+                const response = await fetch('/api/v1/admin/settings', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

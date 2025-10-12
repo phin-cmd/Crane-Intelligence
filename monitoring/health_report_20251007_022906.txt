@@ -1,0 +1,53 @@
+=== Crane Intelligence Platform Health Report ===
+Generated: Tue Oct  7 02:29:07 UTC 2025
+
+=== System Resources ===
+Disk Usage:
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        68G  8.8G   59G  13% /
+tmpfs           982M   28K  982M   1% /dev/shm
+/dev/vda15      105M  6.1M   99M   6% /boot/efi
+
+Memory Usage:
+               total        used        free      shared  buff/cache   available
+Mem:           1.9Gi       730Mi        98Mi        39Mi       1.1Gi       1.0Gi
+Swap:             0B          0B          0B
+
+=== Docker Services ===
+NAME                            IMAGE                         COMMAND                  SERVICE    CREATED              STATUS              PORTS
+crane-intelligence-backend-1    crane-intelligence-backend    "uvicorn app.main:ap…"   backend    About a minute ago   Up 24 seconds       0.0.0.0:8004->8003/tcp, [::]:8004->8003/tcp
+crane-intelligence-db-1         postgres:15-alpine            "docker-entrypoint.s…"   db         About a minute ago   Up About a minute   0.0.0.0:5434->5432/tcp, [::]:5434->5432/tcp
+crane-intelligence-frontend-1   crane-intelligence-frontend   "/docker-entrypoint.…"   frontend   About a minute ago   Up About a minute   0.0.0.0:3001->80/tcp, [::]:3001->80/tcp
+crane-intelligence-redis-1      redis:7-alpine                "docker-entrypoint.s…"   redis      About a minute ago   Up About a minute   0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
+
+=== API Endpoints ===
+Health Check:
+{"status":"healthy","message":"Crane Intelligence API is running"}
+=== Database Status ===
+                                         version                                          
+------------------------------------------------------------------------------------------
+ PostgreSQL 15.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+(1 row)
+
+
+=== Recent Logs ===
+[2025-10-07 02:29:06] ✅ Frontend (port 3001) is running
+[2025-10-07 02:29:06] Checking Backend health...
+[2025-10-07 02:29:06] ✅ Backend (port 8004) is running
+[2025-10-07 02:29:06] Checking Database health...
+[2025-10-07 02:29:06] ✅ Database (port 5434) is running
+[2025-10-07 02:29:06] Checking Redis health...
+[2025-10-07 02:29:06] ✅ Redis (port 6380) is running
+[2025-10-07 02:29:06] Checking Adminer health...
+[2025-10-07 02:29:06] ✅ Adminer (port 8082) is running
+[2025-10-07 02:29:06] Checking API endpoints...
+[2025-10-07 02:29:06] ✅ API health check passed
+[2025-10-07 02:29:06] ✅ Crane listings endpoint responding
+[2025-10-07 02:29:06] ✅ Market analysis endpoint responding
+[2025-10-07 02:29:06] Checking database connectivity...
+[2025-10-07 02:29:07] ✅ Database connection successful
+[2025-10-07 02:29:07] 📊 Database statistics:
+[2025-10-07 02:29:07]    - Users: 0
+[2025-10-07 02:29:07]    - Crane Listings: 0
+[2025-10-07 02:29:07]    - Consultations: 0
+[2025-10-07 02:29:07] Generating monitoring report: /root/Crane-Intelligence/monitoring/health_report_20251007_022906.txt

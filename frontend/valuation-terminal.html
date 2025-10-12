@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.24.0/plotly.min.js"></script>
-</head>
+    <!-- Unified Header CSS -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <!-- Unified Authentication System -->
+    <script src="/js/unified-auth.js" defer></script>
+  </head>
 <body>
     <!-- Terminal Header -->
     <div class="terminal-header">
@@ -150,11 +154,21 @@
                                         <label for="manufacturer">Manufacturer</label>
                                         <select id="manufacturer" name="manufacturer" required>
                                             <option value="">Select Manufacturer</option>
-                                            <option value="Grove">Grove</option>
-                                            <option value="Liebherr">Liebherr</option>
-                                            <option value="Manitowoc">Manitowoc</option>
-                                            <option value="Terex">Terex</option>
-                                            <option value="Kato">Kato</option>
+                                            <option value="Liebherr">Liebherr (49 models)</option>
+                                            <option value="Grove">Grove (25 models)</option>
+                                            <option value="Manitowoc">Manitowoc (15 models)</option>
+                                            <option value="Tadano">Tadano (15 models)</option>
+                                            <option value="Sany">Sany (12 models)</option>
+                                            <option value="Kobelco">Kobelco (14 models)</option>
+                                            <option value="American">American (12 models)</option>
+                                            <option value="Link-Belt">Link-Belt (8 models)</option>
+                                            <option value="Demag">Demag (4 models)</option>
+                                            <option value="Terex">Terex (3 models)</option>
+                                            <option value="XCMG">XCMG (3 models)</option>
+                                            <option value="Zoomlion">Zoomlion (2 models)</option>
+                                            <option value="HSC">HSC (2 models)</option>
+                                            <option value="Kato">Kato (3 models)</option>
+                                            <option value="IHI">IHI (2 models)</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -463,5 +477,7 @@
 
     <!-- Scripts -->
     <script src="js/valuation-terminal.js"></script>
+    <script src="/js/auto-init-auth.js"></script>
+    <script src="js/api-client.js"></script>
 </body>
 </html>

@@ -2025,7 +2025,7 @@
         async function loadTableColumns(tableName) {
             try {
                 console.log('Loading columns for table:', tableName);
-                const response = await fetch(`http://localhost:8003/api/v1/database/tables/${tableName}/columns`, {
+                const response = await fetch(`/api/v1/database/tables/${tableName}/columns`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2439,7 +2439,7 @@
             try {
                 loadingId = notificationSystem.showLoading('Exporting database...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/database/export', {
+                const response = await fetch('/api/v1/database/export', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`

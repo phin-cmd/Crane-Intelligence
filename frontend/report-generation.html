@@ -1129,44 +1129,70 @@
             transform: translateY(-1px);
         }
     </style>
-</head>
+    <!-- Unified Header CSS -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <!-- Unified Authentication System -->
+    <script src="/js/unified-auth.js" defer></script>
+  </head>
 <body>
     <!-- Header -->
+        <!-- Unified Header -->
     <header class="header">
         <div class="header-container">
+            <!-- Logo -->
             <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                <a href="/homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
                 </a>
             </div>
-            <!-- Navigation menu removed as requested -->
-            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
-                <div class="user-avatar" id="userAvatar">
-                    <span id="userInitials">JD</span>
+
+            <!-- Navigation Menu (visible on homepage, hidden on other pages when logged in) -->
+            <nav class="nav-menu" id="navMenu">
+                <a href="/homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="/homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="/homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="/homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+
+            <!-- Right Side: Auth Buttons OR User Profile -->
+            <div class="header-right">
+                <!-- Login/Signup Buttons (shown when NOT logged in) -->
+                <div class="auth-buttons" id="authButtons" style="display: none;">
+                    <a href="/login.html" class="auth-btn login">Login</a>
+                    <a href="/signup.html" class="auth-btn signup">Sign Up</a>
                 </div>
-                <div class="user-info">
-                    <div class="user-name" id="userDisplayName">John Doe</div>
-                    <div class="user-role" id="userRole">Premium User</div>
-                </div>
-                <span class="dropdown-arrow">▼</span>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="dashboard.html" class="dropdown-item">
-                        <span class="dropdown-icon">📊</span>
-                        Dashboard
-                    </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
-                    <a href="account-settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
-                        Account Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item" onclick="logout()">
-                        <span class="dropdown-icon">🚪</span>
-                        Logout
-                    </a>
+
+                <!-- User Profile Dropdown (shown when logged in) -->
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <div class="user-avatar">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userDisplayName">User Name</div>
+                        <div class="user-role" id="userRole">Free User</div>
+                    </div>
+                    <span class="dropdown-arrow">▼</span>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/dashboard.html" class="dropdown-item">
+                            <span class="dropdown-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="/valuation-terminal.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚡</span>
+                            Valuation Terminal
+                        </a>
+                        <a href="/account-settings.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" data-action="logout">
+                            <span class="dropdown-icon">🚪</span>
+                            Logout
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1742,7 +1768,7 @@
                 
                 try {
                     // Test backend connection
-                    const testResponse = await fetch('http://localhost:8003/api/v1/reports/generate', {
+                    const testResponse = await fetch('/api/v1/reports/generate', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2783,5 +2809,7 @@
             return chartJsLoaded && plotlyLoaded;
         }
     </script>
+    <script src="/js/auto-init-auth.js"></script>
+    <script src="js/api-client.js"></script>
 </body>
 </html>

@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Intelligence Admin Dashboard</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --secondary-bg: #1A1A1A;
+            --border-color: #333333;
+            --radius-lg: 12px;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --accent-blue: #007BFF;
+            --accent-green: #00FF85;
+            --accent-orange: #FFA500;
+        }
+
+        /* Performance metrics - Vertical layout */
+        .perf-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+            width: 100%;
+        }
+
+        .perf-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .perf-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .perf-fill {
+            height: 100%;
+            background-color: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+
+        .perf-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: left;
+        }
+
+        /* Ensure performance container displays vertically */
+        .chart-content .perf-item {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        /* Force vertical stacking for performance metrics */
+        .chart-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        /* Make sure each performance item is clearly separated */
+        .perf-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .perf-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Activity empty state */
+        .activity-empty {
+            text-align: center;
+            padding: var(--spacing-lg) 0;
+        }
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-type {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .result-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .result-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Notification Animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .activity-empty h4 {
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .activity-empty p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Database stats */
+        .database-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        /* Three Equal Tiles Row - Force single row layout with significantly increased width */
+        .charts-grid.three-tiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr !important;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            width: 100%;
+            max-width: 1600px;
+        }
+        
+        /* Ensure tiles don't shrink below reasonable size and significantly increase width */
+        .charts-grid.three-tiles .chart-container {
+            min-width: 500px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* System Performance - centered content with further reduced height */
+        .charts-grid.three-tiles .chart-container:first-child {
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        .charts-grid.three-tiles .chart-container:first-child .chart-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        /* Simple performance display styling */
+        .perf-simple {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .perf-simple-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .perf-simple-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .perf-simple-value {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+
+        .db-stat {
+            text-align: center;
+            padding: var(--spacing-sm);
+        }
+
+        .db-icon {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .db-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .db-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Profile Dropdown Show/Hide */
+        .profile-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block !important;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            color: #333333 !important;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Navigation Group Styles */
+        .nav-group {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #404040;
+        }
+
+        .nav-group-header {
+            margin-bottom: 16px;
+        }
+
+        .nav-group-title {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-group-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-group-menu .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-group-menu .nav-link {
+            color: #B0B0B0;
+            font-size: 14px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            border-radius: 6px;
+        }
+
+        .nav-group-menu .nav-link:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-group-menu .nav-link.active {
+            color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .dropdown-item svg {
+            color: #666666 !important;
+        }
+
+        .dropdown-item span {
+            color: #333333 !important;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eeeeee;
+            margin: 4px 0;
+        }
+
+        /* Profile section positioning */
+        .admin-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .avatar-initials {
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .profile-dropdown-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .profile-dropdown-btn:hover {
+            color: var(--text-primary);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/date-fns.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" id="global-search" placeholder="Search users, content, reports..." class="search-input">
+                <button class="search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="notifications">
+                <button class="notification-btn" id="notification-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-badge" id="notification-badge">3</span>
+                </button>
+            </div>
+            <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
+                <div class="profile-avatar">
+                    <div class="avatar-initials">A</div>
+                </div>
+                <div class="profile-info">
+                    <span class="profile-name" id="admin-name">Admin User</span>
+                    <span class="profile-role" id="admin-role">Super Admin</span>
+                </div>
+                <div class="profile-dropdown-btn" id="profile-dropdown-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="sidebar-nav">
+                <li class="nav-item active">
+                    <a href="dashboard.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="users.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="content.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                        <span>Content</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="analytics.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"></path>
+                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                        </svg>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="security.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        <span>Security</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="data.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        <span>Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="database.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <span>Database</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-users.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <path d="M20 8v6"></path>
+                            <path d="M23 11h-6"></path>
+                        </svg>
+                        <span>Admin Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="core-logic.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                        </svg>
+                        <span>Core Logic</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard Overview</h1>
+                <div class="dashboard-actions">
+                    <button class="btn btn-secondary" id="refresh-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4a9 9 0 0 1-14.85 4.36L23 14"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" id="export-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="active-users">1,247</div>
+                        <div class="metric-label">Active Users</div>
+                        <div class="metric-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +12.5%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="total-revenue">$45,230</div>
+                        <div class="metric-label">Total Revenue</div>
+                        <div class="metric-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +8.2%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22,4 12,14.01 9,11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="system-health">98%</div>
+                        <div class="metric-label">System Health</div>
+                        <div class="metric-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +2.1%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="storage-used">67%</div>
+                        <div class="metric-label">Storage Used</div>
+                        <div class="metric-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +5.3%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- User Activity Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">User Activity</h3>
+                        <div class="chart-controls">
+                            <select class="chart-period" id="user-activity-period">
+                                <option value="7d">Last 7 days</option>
+                                <option value="30d" selected>Last 30 days</option>
+                                <option value="90d">Last 90 days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="user-activity-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Revenue Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Revenue Trends</h3>
+                        <div class="chart-controls">
+                            <select class="chart-period" id="revenue-period">
+                                <option value="6m">Last 6 months</option>
+                                <option value="1y" selected>Last year</option>
+                                <option value="2y">Last 2 years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Geographic Distribution -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Geographic Distribution</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-metric="users">Users</button>
+                            <button class="chart-btn" data-metric="revenue">Revenue</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <div class="geographic-chart" id="geographic-chart">
+                            <div class="geo-item">
+                                <div class="geo-country">United States</div>
+                                <div class="geo-bar">
+                                    <div class="geo-fill" style="width: 85%"></div>
+                                </div>
+                                <div class="geo-value">1,250</div>
+                            </div>
+                            <div class="geo-item">
+                                <div class="geo-country">Canada</div>
+                                <div class="geo-bar">
+                                    <div class="geo-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="geo-value">320</div>
+                            </div>
+                            <div class="geo-item">
+                                <div class="geo-country">United Kingdom</div>
+                                <div class="geo-bar">
+                                    <div class="geo-fill" style="width: 45%"></div>
+                                </div>
+                                <div class="geo-value">180</div>
+                            </div>
+                            <div class="geo-item">
+                                <div class="geo-country">Germany</div>
+                                <div class="geo-bar">
+                                    <div class="geo-fill" style="width: 35%"></div>
+                                </div>
+                                <div class="geo-value">150</div>
+                            </div>
+                            <div class="geo-item">
+                                <div class="geo-country">Australia</div>
+                                <div class="geo-bar">
+                                    <div class="geo-fill" style="width: 25%"></div>
+                                </div>
+                                <div class="geo-value">90</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Three Equal Tiles Row -->
+            <div class="charts-grid three-tiles">
+                <!-- System Performance -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">System Performance</h3>
+                        <div class="chart-controls">
+                            <span class="status-indicator online">Online</span>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <div class="perf-simple">
+                            <div class="perf-simple-item">
+                                <div class="perf-simple-label">CPU</div>
+                                <div class="perf-simple-value">45%</div>
+                            </div>
+                            <div class="perf-simple-item">
+                                <div class="perf-simple-label">Memory</div>
+                                <div class="perf-simple-value">68%</div>
+                            </div>
+                            <div class="perf-simple-item">
+                                <div class="perf-simple-label">Disk</div>
+                                <div class="perf-simple-value">34%</div>
+                            </div>
+                            <div class="perf-simple-item">
+                                <div class="perf-simple-label">Network</div>
+                                <div class="perf-simple-value">12%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Recent Activity</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-secondary btn-sm">View All</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <div class="activity-empty">
+                            <div class="empty-icon">🕐</div>
+                            <h4>No Recent Activity</h4>
+                            <p>Activity will appear here as users interact with the platform.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Management -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            Database Management
+                        </h3>
+                        <div class="chart-controls">
+                            <a href="database.html" class="btn btn-primary btn-sm">Manage</a>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <div class="database-stats">
+                            <div class="db-stat">
+                                <div class="db-icon blue">📊</div>
+                                <div class="db-value" id="dashboard-total-tables">Loading...</div>
+                                <div class="db-label">Tables</div>
+                            </div>
+                            <div class="db-stat">
+                                <div class="db-icon green">📄</div>
+                                <div class="db-value" id="dashboard-total-records">Loading...</div>
+                                <div class="db-label">Records</div>
+                            </div>
+                            <div class="db-stat">
+                                <div class="db-icon orange">🎯</div>
+                                <div class="db-value" id="dashboard-db-size">Loading...</div>
+                                <div class="db-label">Size</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown" id="profile-dropdown">
+        <div class="dropdown-item" onclick="navigateToProfile()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+        </div>
+        <div class="dropdown-item" onclick="navigateToSettings()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Settings</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="logout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16,17 21,12 16,7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notification-panel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="notification-close" id="notification-close">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="notification-list" id="notification-list">
+            <!-- Notifications will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+    
+    <script>
+        // Database Management Functions
+        async function loadDatabaseStats() {
+            try {
+                // Get auth token
+                const token = localStorage.getItem('admin_token');
+                if (!token) {
+                    console.warn('No admin token found, using fallback data');
+                    loadFallbackDatabaseStats();
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8003/api/v1/database/overview', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.overview) {
+                    // Update tables count
+                    const tablesElement = document.getElementById('dashboard-total-tables');
+                    if (tablesElement) {
+                        tablesElement.textContent = data.overview.total_tables || 0;
+                    }
+
+                    // Update records count with proper formatting
+                    const recordsElement = document.getElementById('dashboard-total-records');
+                    if (recordsElement) {
+                        const totalRecords = data.overview.total_records || 0;
+                        recordsElement.textContent = totalRecords.toLocaleString();
+                    }
+
+                    // Update database size with proper formatting
+                    const sizeElement = document.getElementById('dashboard-db-size');
+                    if (sizeElement) {
+                        const totalSize = data.overview.total_size || '0 Bytes';
+                        sizeElement.textContent = formatBytes(totalSize);
+                    }
+
+                    console.log('Database stats loaded successfully:', data.overview);
+                } else {
+                    console.warn('API returned unsuccessful response, using fallback data');
+                    loadFallbackDatabaseStats();
+                }
+            } catch (error) {
+                console.error('Error loading database stats:', error);
+                loadFallbackDatabaseStats();
+            }
+        }
+
+        // Fallback data when API is not available
+        function loadFallbackDatabaseStats() {
+            const tablesElement = document.getElementById('dashboard-total-tables');
+            const recordsElement = document.getElementById('dashboard-total-records');
+            const sizeElement = document.getElementById('dashboard-db-size');
+
+            if (tablesElement) tablesElement.textContent = '8';
+            if (recordsElement) recordsElement.textContent = '18,345';
+            if (sizeElement) sizeElement.textContent = '2.3 MB';
+        }
+
+        // Format bytes to human readable format
+        function formatBytes(bytes) {
+            if (typeof bytes === 'string') {
+                // If it's already formatted, return as is
+                return bytes;
+            }
+            
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function refreshDatabaseStats() {
+            loadDatabaseStats();
+        }
+
+        // Auto-refresh database stats every 30 seconds
+        function startDatabaseStatsRefresh() {
+            // Load immediately
+            loadDatabaseStats();
+            
+            // Then refresh every 30 seconds
+            setInterval(() => {
+                loadDatabaseStats();
+            }, 30000);
+        }
+
+        // Simple Profile Dropdown Functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.admin-sidebar');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (sidebar && mobileMenuToggle) {
+                sidebar.classList.toggle('show');
+                const isActive = sidebar.classList.contains('show');
+                
+                // Update hamburger icon
+                const icon = mobileMenuToggle.querySelector('svg');
+                if (isActive) {
+                    icon.innerHTML = `
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    `;
+                } else {
+                    icon.innerHTML = `
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    `;
+                }
+            }
+        }
+
+        function navigateToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function navigateToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('profile-dropdown');
+            const profileBtn = document.getElementById('profile-dropdown-btn');
+            
+            if (dropdown && profileBtn && 
+                !profileBtn.contains(e.target) && 
+                !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Load database stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle event listener
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            }
+            
+            // Start real-time database stats refresh
+            startDatabaseStatsRefresh();
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            // Refresh button functionality
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    refreshAllData();
+                });
+            }
+
+            // Export button functionality
+            const exportBtn = document.getElementById('export-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    exportDashboardData();
+                });
+            }
+
+            // Global search functionality
+            const globalSearch = document.getElementById('global-search');
+            if (globalSearch) {
+                globalSearch.addEventListener('input', function() {
+                    performGlobalSearch(this.value);
+                });
+            }
+
+            // Search button functionality
+            const searchBtn = document.querySelector('.search-btn');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() {
+                    const searchValue = globalSearch.value;
+                    performGlobalSearch(searchValue);
+                });
+            }
+        }
+
+        function refreshAllData() {
+            // Show loading state
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4a9 9 0 0 1-14.85 4.36L23 14"></path></svg> Refreshing...';
+                refreshBtn.disabled = true;
+            }
+
+            // Refresh all data
+            loadDatabaseStats();
+            
+            // Simulate data refresh
+            setTimeout(() => {
+                // Update metrics with fresh data
+                updateMetrics();
+                
+                // Reset button
+                if (refreshBtn) {
+                    refreshBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4a9 9 0 0 1-14.85 4.36L23 14"></path></svg> Refresh';
+                    refreshBtn.disabled = false;
+                }
+                
+                showNotification('Dashboard refreshed successfully!', 'success');
+            }, 1500);
+        }
+
+        function updateMetrics() {
+            // Update active users
+            const activeUsers = document.getElementById('active-users');
+            if (activeUsers) {
+                const currentValue = parseInt(activeUsers.textContent.replace(',', ''));
+                const newValue = currentValue + Math.floor(Math.random() * 50) - 25;
+                activeUsers.textContent = newValue.toLocaleString();
+            }
+
+            // Update other metrics similarly
+            const totalRevenue = document.getElementById('total-revenue');
+            if (totalRevenue) {
+                const currentValue = parseFloat(totalRevenue.textContent.replace('$', '').replace(',', ''));
+                const newValue = currentValue + (Math.random() * 1000) - 500;
+                totalRevenue.textContent = '$' + newValue.toLocaleString();
+            }
+        }
+
+        function exportDashboardData() {
+            // Show loading state
+            const exportBtn = document.getElementById('export-btn');
+            if (exportBtn) {
+                exportBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Exporting...';
+                exportBtn.disabled = true;
+            }
+
+            // Simulate export process
+            setTimeout(() => {
+                // Create and download CSV
+                const csvData = generateDashboardCSV();
+                downloadCSV(csvData, 'dashboard-export.csv');
+                
+                // Reset button
+                if (exportBtn) {
+                    exportBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Export';
+                    exportBtn.disabled = false;
+                }
+                
+                showNotification('Dashboard data exported successfully!', 'success');
+            }, 2000);
+        }
+
+        function generateDashboardCSV() {
+            const headers = ['Metric', 'Value', 'Change', 'Timestamp'];
+            const data = [
+                ['Active Users', document.getElementById('active-users')?.textContent || '0', '+12.5%', new Date().toISOString()],
+                ['Total Revenue', document.getElementById('total-revenue')?.textContent || '$0', '+8.2%', new Date().toISOString()],
+                ['New Users', document.getElementById('new-users')?.textContent || '0', '+15.3%', new Date().toISOString()],
+                ['Conversion Rate', document.getElementById('conversion-rate')?.textContent || '0%', '+2.1%', new Date().toISOString()]
+            ];
+            
+            return [headers, ...data].map(row => row.join(',')).join('\n');
+        }
+
+        function downloadCSV(csvData, filename) {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function performGlobalSearch(query) {
+            if (!query.trim()) {
+                clearSearchResults();
+                return;
+            }
+
+            // Simulate search across different sections
+            const searchResults = [
+                { type: 'User', name: 'John Doe', email: 'john@example.com', section: 'Users' },
+                { type: 'Content', name: 'Product Overview', status: 'Published', section: 'Content' },
+                { type: 'Report', name: 'Monthly Analytics', date: '2024-01-15', section: 'Analytics' }
+            ].filter(item => 
+                item.name.toLowerCase().includes(query.toLowerCase()) ||
+                item.email?.toLowerCase().includes(query.toLowerCase()) ||
+                item.status?.toLowerCase().includes(query.toLowerCase())
+            );
+
+            displaySearchResults(searchResults);
+        }
+
+        function displaySearchResults(results) {
+            // Create or update search results dropdown
+            let dropdown = document.getElementById('search-results');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.id = 'search-results';
+                dropdown.className = 'search-results-dropdown';
+                document.querySelector('.search-container').appendChild(dropdown);
+            }
+
+            if (results.length === 0) {
+                dropdown.innerHTML = '<div class="search-result-item">No results found</div>';
+            } else {
+                dropdown.innerHTML = results.map(result => 
+                    `<div class="search-result-item" onclick="navigateToResult('${result.section}', '${result.name}')">
+                        <div class="result-type">${result.type}</div>
+                        <div class="result-name">${result.name}</div>
+                        <div class="result-details">${result.email || result.status || result.date}</div>
+                    </div>`
+                ).join('');
+            }
+
+            dropdown.style.display = 'block';
+        }
+
+        function clearSearchResults() {
+            const dropdown = document.getElementById('search-results');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function navigateToResult(section, name) {
+            const sectionMap = {
+                'Users': 'users.html',
+                'Content': 'content.html',
+                'Analytics': 'analytics.html',
+                'Settings': 'settings.html',
+                'Security': 'security.html',
+                'Data': 'data.html',
+                'Database': 'database.html',
+                'Admin Users': 'admin-users.html'
+            };
+
+            if (sectionMap[section]) {
+                window.location.href = sectionMap[section];
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+
+            // Set background color based on type
+            const colors = {
+                success: '#00CC6A',
+                error: '#FF4444',
+                warning: '#FFA500',
+                info: '#007BFF'
+            };
+            notification.style.backgroundColor = colors[type] || colors.info;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function logout() {
+            // Clear stored tokens
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_refresh_token');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

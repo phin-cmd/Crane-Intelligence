@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security & Access Control - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <style>
+        /* Profile Dropdown Styles */
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .admin-profile:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .avatar-initials {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0F0F0F;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .profile-dropdown-btn {
+            display: flex;
+            align-items: center;
+            color: #B0B0B0;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-profile:hover .profile-dropdown-btn {
+            transform: translateY(1px);
+        }
+
+        .profile-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block !important;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #333333 !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item svg {
+            color: #666666 !important;
+            flex-shrink: 0;
+        }
+
+        .dropdown-item span {
+            color: #333333 !important;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eeeeee;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                </div>
+                <h1 class="page-title">Security & Access Control</h1>
+            </div>
+            <div class="header-right">
+                <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
+                    <div class="profile-avatar">
+                        <div class="avatar-initials">AU</div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">Admin User</div>
+                        <div class="profile-role">Administrator</div>
+                    </div>
+                    <div class="profile-dropdown-btn">
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="navigateToProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="navigateToSettings()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="users.html" class="nav-link">Users</a></li>
+                <li><a href="content.html" class="nav-link">Content</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="settings.html" class="nav-link">Settings</a></li>
+                <li><a href="security.html" class="nav-link active">Security</a></li>
+                <li><a href="data.html" class="nav-link">Data</a></li>
+                <li><a href="database.html" class="nav-link">Database</a></li>
+                <li><a href="admin-users.html" class="nav-link">Admin Users</a></li>
+                <li><a href="core-logic.html" class="nav-link">Core Logic</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Security Overview -->
+            <div class="security-overview">
+                <div class="security-stats">
+                    <div class="stat-card security-score">
+                        <div class="stat-icon">🛡️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="securityScore">85</div>
+                            <div class="stat-label">Security Score</div>
+                            <div class="stat-change positive">Good</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="activeThreats">2</div>
+                            <div class="stat-label">Active Threats</div>
+                            <div class="stat-change negative">High</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔒</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="blockedIPs">15</div>
+                            <div class="stat-label">Blocked IPs</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="activeSessions">23</div>
+                            <div class="stat-label">Active Sessions</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading indicator -->
+                <div class="loading" style="display: none; text-align: center; padding: 20px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading security data...</p>
+                </div>
+            </div>
+
+            <!-- Security Tabs -->
+            <div class="security-tabs">
+                <button class="security-tab active" data-tab="events">Security Events</button>
+                <button class="security-tab" data-tab="roles">Role Management</button>
+                <button class="security-tab" data-tab="permissions">Permissions</button>
+                <button class="security-tab" data-tab="sessions">Active Sessions</button>
+                <button class="security-tab" data-tab="audit">Audit Logs</button>
+            </div>
+
+            <!-- Security Events -->
+            <div class="security-panel active" id="events-panel">
+                <div class="panel-header">
+                    <h3>Security Events</h3>
+                    <div class="panel-controls">
+                        <select id="eventSeverityFilter">
+                            <option value="">All Severities</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                        <button class="btn btn-secondary" id="refreshEvents">Refresh</button>
+                    </div>
+                </div>
+                <div class="events-table-container">
+                    <table class="data-table" id="eventsTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Event Type</th>
+                                <th>Severity</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <!-- Events will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Role Management -->
+            <div class="security-panel" id="roles-panel">
+                <div class="panel-header">
+                    <h3>Role Management</h3>
+                    <button class="btn btn-primary" id="createRoleBtn">Create Role</button>
+                </div>
+                <div class="roles-grid">
+                    <div class="role-card">
+                        <div class="role-header">
+                            <h4>Super Admin</h4>
+                            <span class="role-badge critical">Critical</span>
+                        </div>
+                        <div class="role-description">
+                            Full platform access with all permissions
+                        </div>
+                        <div class="role-permissions">
+                            <span class="permission-tag">All Permissions</span>
+                        </div>
+                        <div class="role-actions">
+                            <button class="btn btn-sm btn-secondary">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </div>
+                    <div class="role-card">
+                        <div class="role-header">
+                            <h4>Admin</h4>
+                            <span class="role-badge high">High</span>
+                        </div>
+                        <div class="role-description">
+                            Standard administrative access
+                        </div>
+                        <div class="role-permissions">
+                            <span class="permission-tag">User Management</span>
+                            <span class="permission-tag">Content Management</span>
+                            <span class="permission-tag">Analytics</span>
+                        </div>
+                        <div class="role-actions">
+                            <button class="btn btn-sm btn-secondary">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </div>
+                    <div class="role-card">
+                        <div class="role-header">
+                            <h4>Manager</h4>
+                            <span class="role-badge medium">Medium</span>
+                        </div>
+                        <div class="role-description">
+                            Limited administrative access
+                        </div>
+                        <div class="role-permissions">
+                            <span class="permission-tag">Content Management</span>
+                            <span class="permission-tag">Analytics</span>
+                        </div>
+                        <div class="role-actions">
+                            <button class="btn btn-sm btn-secondary">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </div>
+                    <div class="role-card">
+                        <div class="role-header">
+                            <h4>Support</h4>
+                            <span class="role-badge low">Low</span>
+                        </div>
+                        <div class="role-description">
+                            Support staff access
+                        </div>
+                        <div class="role-permissions">
+                            <span class="permission-tag">User Support</span>
+                            <span class="permission-tag">View Analytics</span>
+                        </div>
+                        <div class="role-actions">
+                            <button class="btn btn-sm btn-secondary">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="security-panel" id="permissions-panel">
+                <div class="panel-header">
+                    <h3>Permission Management</h3>
+                </div>
+                <div class="permissions-grid">
+                    <div class="permission-category">
+                        <h4>User Management</h4>
+                        <div class="permission-list">
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Create Users</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Edit Users</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Delete Users</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>View Users</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="permission-category">
+                        <h4>Content Management</h4>
+                        <div class="permission-list">
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Create Content</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Edit Content</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Delete Content</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Publish Content</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="permission-category">
+                        <h4>System Administration</h4>
+                        <div class="permission-list">
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>View Analytics</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>Manage Settings</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox" checked>
+                                <span>View Logs</span>
+                            </label>
+                            <label class="permission-item">
+                                <input type="checkbox">
+                                <span>System Maintenance</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="security-panel" id="sessions-panel">
+                <div class="panel-header">
+                    <h3>Active Sessions</h3>
+                    <button class="btn btn-danger" id="terminateAllSessions">Terminate All</button>
+                </div>
+                <div class="sessions-table-container">
+                    <table class="data-table" id="sessionsTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>IP Address</th>
+                                <th>Location</th>
+                                <th>Device</th>
+                                <th>Last Activity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTableBody">
+                            <!-- Sessions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audit Logs -->
+            <div class="security-panel" id="audit-panel">
+                <div class="panel-header">
+                    <h3>Audit Logs</h3>
+                    <div class="panel-controls">
+                        <select id="auditActionFilter">
+                            <option value="">All Actions</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="create">Create</option>
+                            <option value="update">Update</option>
+                            <option value="delete">Delete</option>
+                        </select>
+                        <button class="btn btn-secondary" id="exportAuditLogs">Export</button>
+                    </div>
+                </div>
+                <div class="audit-table-container">
+                    <table class="data-table" id="auditTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Resource</th>
+                                <th>IP Address</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            <!-- Audit logs will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin-api.js"></script>
+    <script src="js/security.js"></script>
+    <script>
+        // Profile Dropdown Functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function navigateToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function navigateToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function logout() {
+            // Clear any stored authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profile = document.querySelector('.admin-profile');
+            
+            if (!profile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

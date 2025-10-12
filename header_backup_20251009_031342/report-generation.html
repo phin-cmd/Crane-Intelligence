@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloomberg-Style Report Generation - Crane Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Bloomberg Terminal Style Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            --transition-slow: 0.35s ease;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== HEADER - EXACT MATCH TO HOMEPAGE ===== */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: var(--space-md) 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+            overflow: visible !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            align-items: center !important;
+            height: 80px !important;
+            overflow: visible !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            justify-self: start !important;
+            grid-column: 1;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+            grid-column: 2;
+        }
+
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.3s ease !important;
+        }
+
+        .nav-link:hover {
+            color: #00FF85 !important;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .auth-buttons.hidden {
+            display: none !important;
+        }
+
+        .user-profile {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .user-profile.visible {
+            display: flex !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* ===== BLOOMBERG TERMINAL STYLE CHARTS ===== */
+        .bloomberg-chart {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            margin: 16px 0;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .chart-title {
+            color: #00FF85;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-timeframe {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .chart-grid.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .mini-chart {
+            height: 120px;
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .price-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .price-up {
+            color: #00FF85;
+        }
+
+        .price-down {
+            color: #FF4444;
+        }
+
+        .price-neutral {
+            color: #B0B0B0;
+        }
+
+        .market-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .market-data-item {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .market-data-label {
+            font-size: 12px;
+            color: #B0B0B0;
+            margin-bottom: 4px;
+        }
+
+        .market-data-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .market-data-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* ===== MARKET TICKER - EXACT MATCH TO HOMEPAGE ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            overflow: hidden !important;
+        }
+
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: 40px 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 20px;
+            color: #B0B0B0;
+            font-weight: 400;
+        }
+
+        /* ===== BLOOMBERG-STYLE FORM ===== */
+        .report-form-container {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00FF85;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #00FF85;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: var(--font-primary);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00FF85;
+        }
+
+        .checkbox-item label {
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 133, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+            border-color: #00FF85;
+        }
+
+        .btn-load-sample {
+            background: linear-gradient(135deg, #FFD600, #FFA500);
+            color: #000000;
+        }
+
+        .btn-load-sample:hover {
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 214, 0, 0.3);
+        }
+
+        /* ===== REPORT PREVIEW ===== */
+        .report-preview {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .preview-content {
+            background: #0F0F0F;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 24px;
+            min-height: 400px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #B0B0B0;
+            white-space: pre-wrap;
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #404040;
+            border-top: 4px solid #00FF85;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== FOOTER - EXACT MATCH TO HOMEPAGE ===== */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* ===== DIALOG BOXES ===== */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .dialog-overlay.show {
+            display: flex;
+        }
+
+        .dialog-box {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialog-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .dialog-icon.success {
+            color: #00FF85;
+        }
+
+        .dialog-icon.error {
+            color: #FF4444;
+        }
+
+        .dialog-icon.info {
+            color: #FFD600;
+        }
+
+        .dialog-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 16px;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .dialog-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .dialog-btn-primary {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+        }
+
+        .dialog-btn-primary:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359);
+            transform: translateY(-2px);
+        }
+
+        .dialog-btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .dialog-btn-secondary:hover {
+            background: #404040;
+            border-color: #00FF85;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .header-container {
+                padding: 0 24px !important;
+            }
+            
+            .container {
+                padding: 0 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 16px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .market-ticker {
+                height: 28px;
+            }
+
+            .ticker-item {
+                min-width: 120px;
+                padding: var(--space-xs) var(--space-sm);
+            }
+
+            .ticker-symbol {
+                font-size: 9px;
+            }
+
+            .ticker-price {
+                font-size: 10px;
+            }
+
+            .ticker-change {
+                font-size: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 12px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .form-grid {
+                gap: 16px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+            
+            .action-buttons {
+                gap: 8px;
+            }
+        }
+
+        /* Newsletter styling to match homepage */
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter input::placeholder {
+            color: #808080;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter button:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            <!-- Navigation menu removed as requested -->
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">JD</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">John Doe</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Live Market Data Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Grove GMK5250L</span>
+                    <span class="ticker-price">$2.1M</span>
+                    <span class="ticker-change up">+2.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Liebherr LTM1350</span>
+                    <span class="ticker-price">$2.4M</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Tadano ATF400G</span>
+                    <span class="ticker-price">$2.6M</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Manitowoc MLC300</span>
+                    <span class="ticker-price">$1.8M</span>
+                    <span class="ticker-change up">+0.9%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Terex AC350</span>
+                    <span class="ticker-price">$2.2M</span>
+                    <span class="ticker-change up">+2.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG QY25K5</span>
+                    <span class="ticker-price">$1.5M</span>
+                    <span class="ticker-change down">-0.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Kato NK-500E</span>
+                    <span class="ticker-price">$1.9M</span>
+                    <span class="ticker-change up">+1.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Kobelco CKE2500</span>
+                    <span class="ticker-price">$2.0M</span>
+                    <span class="ticker-change up">+2.7%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Bloomberg-Style Report Generation</h1>
+                <p class="page-subtitle">Generate professional valuation reports with modular blocks, KPI tiles, and financial scenarios</p>
+            </div>
+
+            <!-- Report Generation Form -->
+            <div class="report-form-container">
+                <form id="reportForm">
+                    <!-- Equipment Information Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Equipment Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Manufacturer</label>
+                                <select class="form-select" id="manufacturer" required>
+                                    <option value="">Select Manufacturer</option>
+                                    <option value="Grove">Grove</option>
+                                    <option value="Liebherr">Liebherr</option>
+                                    <option value="Terex">Terex</option>
+                                    <option value="Manitowoc">Manitowoc</option>
+                                    <option value="Tadano">Tadano</option>
+                                    <option value="XCMG">XCMG</option>
+                                    <option value="Kato">Kato</option>
+                                    <option value="Kobelco">Kobelco</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Model</label>
+                                <input type="text" class="form-input" id="model" placeholder="Enter model" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Year</label>
+                                <input type="number" class="form-input" id="year" placeholder="2020" min="1990" max="2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Capacity (Tons)</label>
+                                <input type="number" class="form-input" id="capacity" placeholder="250" value="250" min="1" max="2000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Operating Hours</label>
+                                <input type="number" class="form-input" id="operatingHours" placeholder="5000" value="5000" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Region</label>
+                                <select class="form-select" id="region">
+                                    <option value="">Select Region</option>
+                                    <option value="North America" selected>North America</option>
+                                    <option value="Europe">Europe</option>
+                                    <option value="Asia Pacific">Asia Pacific</option>
+                                    <option value="Middle East">Middle East</option>
+                                    <option value="South America">South America</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Valuation Data Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Valuation Data</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Estimated Value ($)</label>
+                                <input type="number" class="form-input" id="estimatedValue" placeholder="750000" value="2100000" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Age Factor</label>
+                                <input type="text" class="form-input" id="ageFactor" value="0.88" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Condition Score</label>
+                                <input type="text" class="form-input" id="conditionScore" value="0.85" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Options Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Report Options</h2>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeCharts" checked>
+                                <label for="includeCharts">Include Charts & Visualizations</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeComparables" checked>
+                                <label for="includeComparables">Include Comparable Sales</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeFinance" checked>
+                                <label for="includeFinance">Include Finance Scenarios</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeMarket" checked>
+                                <label for="includeMarket">Include Market Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeRisk" checked>
+                                <label for="includeRisk">Include Risk Assessment</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-load-sample" onclick="loadSampleData()">
+                            <span>📊</span> Load Sample Data
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <span>📊</span> Generate Report
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                            <span>🔄</span> Clear Form
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+                            <span>←</span> Back to Dashboard
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your professional report...</p>
+            </div>
+
+            <!-- Report Preview -->
+            <div class="report-preview" id="reportPreview" style="display: none;">
+                <div class="preview-header">
+                    <h3 class="preview-title">Bloomberg Terminal Report</h3>
+                    <div class="preview-actions">
+                        <button class="btn btn-primary btn-small" onclick="downloadReport()">
+                            <span>📄</span> Download PDF
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="shareReport()">
+                            <span>📤</span> Share
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Bloomberg Terminal Style Report Content -->
+                <div class="bloomberg-report" id="bloombergReport">
+                    <!-- Market Overview Charts -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">EQUIPMENT VALUATION TREND</span>
+                            <span class="chart-timeframe">LIVE DATA</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="valuationTrendChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #00FF85;"></div>
+                                <span>Current Valuation</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FFD600;"></div>
+                                <span>Market Average</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FF4444;"></div>
+                                <span>Risk Threshold</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Data Grid -->
+                    <div class="market-data-grid">
+                        <div class="market-data-item">
+                            <div class="market-data-label">Current Value</div>
+                            <div class="market-data-value price-up">$2,100,000</div>
+                            <div class="market-data-change price-up">+5.2%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Market Cap</div>
+                            <div class="market-data-value">$2,850,000</div>
+                            <div class="market-data-change price-up">+2.1%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Volume</div>
+                            <div class="market-data-value">847</div>
+                            <div class="market-data-change price-neutral">0.0%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Risk Score</div>
+                            <div class="market-data-value price-down">Low</div>
+                            <div class="market-data-change price-up">-12.5%</div>
+                        </div>
+                    </div>
+
+                    <!-- Comparative Analysis Charts -->
+                    <div class="chart-grid">
+                        <div class="bloomberg-chart">
+                            <div class="chart-header">
+                                <span class="chart-title">PRICE COMPARISON</span>
+                                <span class="chart-timeframe">6M</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="priceComparisonChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bloomberg-chart">
+                            <div class="chart-header">
+                                <span class="chart-title">MARKET ACTIVITY</span>
+                                <span class="chart-timeframe">30D</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="marketActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Analysis Chart -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">RISK ASSESSMENT MATRIX</span>
+                            <span class="chart-timeframe">REAL-TIME</span>
+                        </div>
+                        <div class="chart-container">
+                            <div id="riskMatrixChart"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Charts Grid -->
+                    <div class="chart-grid">
+                        <div class="mini-chart">
+                            <div class="chart-title">DEPRECIATION CURVE</div>
+                            <canvas id="depreciationChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">UTILIZATION RATE</div>
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">MAINTENANCE COST</div>
+                            <canvas id="maintenanceChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">RESALE VALUE</div>
+                            <canvas id="resaleChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Financial Scenarios Chart -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">FINANCING SCENARIOS</span>
+                            <span class="chart-timeframe">PROJECTED</span>
+                        </div>
+                        <div class="chart-container">
+                            <div id="financingScenariosChart"></div>
+                        </div>
+                    </div>
+
+                    <!-- Raw Data Display -->
+                    <div class="preview-content" id="previewContent" style="display: none;">
+                        <!-- Raw JSON data will be displayed here for debugging -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dialog Boxes -->
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog-box">
+            <div class="dialog-icon" id="dialogIcon">ℹ️</div>
+            <div class="dialog-title" id="dialogTitle">Title</div>
+            <div class="dialog-message" id="dialogMessage">Message</div>
+            <div class="dialog-buttons">
+                <button class="dialog-btn dialog-btn-primary" id="dialogOkBtn" onclick="closeDialog()">OK</button>
+                <button class="dialog-btn dialog-btn-secondary" id="dialogCancelBtn" onclick="closeDialog()" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication functions (same as homepage)
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                if (authButtons && userProfile) {
+                    authButtons.classList.add('hidden');
+                    userProfile.classList.add('visible');
+                }
+                
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                if (userRole) {
+                    userRole.textContent = user.user_role || 'Premium User';
+                }
+            } else {
+                if (authButtons && userProfile) {
+                    authButtons.classList.remove('hidden');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const userInfo = document.querySelector('.user-info');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+            if (userInfo) {
+                userInfo.classList.toggle('active');
+            }
+        }
+
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            updateUserInterface(null);
+            window.location.href = 'homepage.html';
+        }
+
+        function checkAuthStatus() {
+            const accessToken = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (accessToken && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    updateUserInterface(null);
+                }
+            } else {
+                updateUserInterface(null);
+            }
+        }
+
+        // Dialog functions
+        function showDialog(title, message, type = 'info', showCancel = false) {
+            const overlay = document.getElementById('dialogOverlay');
+            const icon = document.getElementById('dialogIcon');
+            const titleEl = document.getElementById('dialogTitle');
+            const messageEl = document.getElementById('dialogMessage');
+            const cancelBtn = document.getElementById('dialogCancelBtn');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            // Set icon and color based on type
+            if (type === 'success') {
+                icon.textContent = '✅';
+                icon.className = 'dialog-icon success';
+            } else if (type === 'error') {
+                icon.textContent = '❌';
+                icon.className = 'dialog-icon error';
+            } else {
+                icon.textContent = 'ℹ️';
+                icon.className = 'dialog-icon info';
+            }
+            
+            // Show/hide cancel button
+            cancelBtn.style.display = showCancel ? 'block' : 'none';
+            
+            overlay.classList.add('show');
+        }
+
+        function closeDialog() {
+            const overlay = document.getElementById('dialogOverlay');
+            overlay.classList.remove('show');
+        }
+
+        // Report generation functions
+        function loadSampleData() {
+            document.getElementById('manufacturer').value = 'Grove';
+            document.getElementById('model').value = 'GMK5250L';
+            document.getElementById('year').value = '2020';
+            document.getElementById('capacity').value = '250';
+            document.getElementById('operatingHours').value = '5000';
+            document.getElementById('region').value = 'North America';
+            document.getElementById('estimatedValue').value = '2100000';
+        }
+
+        function clearForm() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('reportPreview').style.display = 'none';
+        }
+
+        async function generateReport() {
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            
+            // Get selected sections
+            const sections = [];
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                sections.push(checkbox.id);
+            });
+
+            const reportData = {
+                template: "bloomberg_valuation",
+                valuation_data: {
+                    manufacturer: document.getElementById('manufacturer').value,
+                    model: document.getElementById('model').value,
+                    year: parseInt(document.getElementById('year').value) || new Date().getFullYear(),
+                    capacity_tons: parseFloat(document.getElementById('capacity').value) || 0,
+                    hours: parseInt(document.getElementById('operatingHours').value) || 0,
+                    region: document.getElementById('region').value,
+                    estimated_value: parseFloat(document.getElementById('estimatedValue').value) || 0,
+                    confidence_score: 0.85,
+                    age_factor: parseFloat(document.getElementById('ageFactor').value) || 0.88,
+                    condition_score: parseFloat(document.getElementById('conditionScore').value) || 0.85,
+                    market_demand: "High",
+                    risk_score: "Low"
+                },
+                include_charts: document.getElementById('includeCharts').checked,
+                include_comps: document.getElementById('includeComparables').checked,
+                include_finance_scenarios: document.getElementById('includeFinance').checked,
+                include_market_analysis: document.getElementById('includeMarket').checked,
+                include_risk_assessment: document.getElementById('includeRisk').checked
+            };
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('reportPreview').style.display = 'none';
+
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                const userData = localStorage.getItem('user_data');
+                
+                console.log('Auth Debug:', {
+                    accessToken: accessToken ? 'Present' : 'Missing',
+                    userData: userData ? 'Present' : 'Missing',
+                    tokenLength: accessToken ? accessToken.length : 0
+                });
+                
+                if (!accessToken) {
+                    showDialog(
+                        'Authentication Required', 
+                        'Please login to generate reports. You will be redirected to the login page.',
+                        'error'
+                    );
+                    setTimeout(() => {
+                        window.location.href = 'homepage.html';
+                    }, 2000);
+                    return;
+                }
+
+                // Try to connect to backend first, fallback to mock if unavailable
+                let useMockResponse = true;
+                
+                try {
+                    // Test backend connection
+                    const testResponse = await fetch('http://localhost:8003/api/v1/reports/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify(reportData),
+                        signal: AbortSignal.timeout(5000) // 5 second timeout
+                    });
+                    
+                    if (testResponse.ok) {
+                        const result = await testResponse.json();
+                        if (result.success) {
+                            // Display preview
+                            document.getElementById('previewContent').textContent = JSON.stringify(result, null, 2);
+                            document.getElementById('reportPreview').style.display = 'block';
+                            
+                            // Initialize Bloomberg terminal charts
+                            initializeChartsOnReportGeneration();
+                            
+                            // Show success dialog
+                            showDialog(
+                                'Report Generated Successfully!', 
+                                `Your Bloomberg-style report has been generated with ID: ${result.report_id}`,
+                                'success'
+                            );
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Backend not available, using mock response:', error.message);
+                    useMockResponse = true;
+                }
+
+                // Use mock response if backend is unavailable
+                if (useMockResponse) {
+                    console.log('Using mock response for demo purposes');
+                    // Show info dialog about using mock data
+                    showDialog(
+                        'Demo Mode', 
+                        'Backend server is not available. Using demo data for report generation.',
+                        'info'
+                    );
+                }
+
+                // Mock response for demo purposes
+                const mockResult = {
+                    success: true,
+                    report_id: `report_${Date.now()}`,
+                    report_url: `/reports/report_${Date.now()}`,
+                    generated_at: new Date().toISOString(),
+                    message: "Report generated successfully",
+                    pdf_url: `/api/v1/reports/download/report_${Date.now()}`,
+                    data: {
+                        report_id: `report_${Date.now()}`,
+                        generated_at: new Date().toISOString(),
+                        template: reportData.template,
+                        valuation_data: reportData.valuation_data,
+                        options: {
+                            include_charts: reportData.include_charts,
+                            include_comps: reportData.include_comps,
+                            include_finance_scenarios: reportData.include_finance_scenarios,
+                            include_market_analysis: reportData.include_market_analysis,
+                            include_risk_assessment: reportData.include_risk_assessment
+                        },
+                        kpi_metrics: {
+                            estimated_value: reportData.valuation_data.estimated_value,
+                            value_per_ton: reportData.valuation_data.estimated_value / reportData.valuation_data.capacity_tons,
+                            age_factor: reportData.valuation_data.age_factor,
+                            condition_score: reportData.valuation_data.condition_score,
+                            confidence_score: reportData.valuation_data.confidence_score
+                        },
+                        comparable_sales: [
+                            {
+                                manufacturer: reportData.valuation_data.manufacturer,
+                                model: `${reportData.valuation_data.model} (Similar)`,
+                                year: reportData.valuation_data.year - 1,
+                                price: reportData.valuation_data.estimated_value * 0.95,
+                                location: reportData.valuation_data.region
+                            },
+                            {
+                                manufacturer: reportData.valuation_data.manufacturer,
+                                model: `${reportData.valuation_data.model} (Newer)`,
+                                year: reportData.valuation_data.year + 1,
+                                price: reportData.valuation_data.estimated_value * 1.15,
+                                location: reportData.valuation_data.region
+                            }
+                        ],
+                        finance_scenarios: [
+                            {
+                                scenario: "Conservative",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.008,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 1.48,
+                                roi: 12.5
+                            },
+                            {
+                                scenario: "Moderate",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.012,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 1.72,
+                                roi: 18.3
+                            },
+                            {
+                                scenario: "Aggressive",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.018,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 2.08,
+                                roi: 25.7
+                            }
+                        ],
+                        market_analysis: {
+                            demand_level: "High",
+                            market_trend: "Growing",
+                            regional_factors: `Strong demand in ${reportData.valuation_data.region}`,
+                            price_trend: "Stable to increasing"
+                        },
+                        risk_assessment: {
+                            overall_risk: "Low",
+                            market_risk: "Low",
+                            operational_risk: "Medium",
+                            financial_risk: "Low"
+                        }
+                    }
+                };
+                
+                // Display preview
+                document.getElementById('previewContent').textContent = JSON.stringify(mockResult, null, 2);
+                document.getElementById('reportPreview').style.display = 'block';
+                
+                // Initialize Bloomberg terminal charts
+                initializeChartsOnReportGeneration();
+                
+                // Show success dialog
+                showDialog(
+                    'Report Generated Successfully!', 
+                    `Your Bloomberg-style report has been generated with ID: ${mockResult.report_id}`,
+                    'success'
+                );
+                
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showDialog(
+                    'Report Generation Failed', 
+                    error.message || 'An unexpected error occurred while generating the report.',
+                    'error'
+                );
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function downloadReport() {
+            const reportContent = document.getElementById('previewContent').textContent;
+            if (reportContent && reportContent.includes('report_id')) {
+                try {
+                    const reportData = JSON.parse(reportContent);
+                    
+                    // Show loading dialog
+                    showDialog(
+                        'Generating PDF', 
+                        'Please wait while we generate your PDF report...',
+                        'info'
+                    );
+                    
+                    // Generate PDF from report data
+                    generatePDFReport(reportData);
+                    
+                } catch (error) {
+                    console.error('Error parsing report data:', error);
+                    showDialog(
+                        'Report Download', 
+                        'No report data available for download.',
+                        'info'
+                    );
+                }
+            } else {
+                showDialog(
+                    'Report Download', 
+                    'Please generate a report first.',
+                    'info'
+                );
+            }
+        }
+
+        // Function to capture charts as images
+        async function captureChartsForPDF() {
+            const charts = {};
+            
+            try {
+                // Capture main charts
+                const chartElements = [
+                    'valuationTrendChart',
+                    'priceComparisonChart', 
+                    'marketActivityChart',
+                    'riskMatrixChart',
+                    'financingScenariosChart'
+                ];
+                
+                for (const chartId of chartElements) {
+                    const element = document.getElementById(chartId);
+                    if (element) {
+                        console.log(`Capturing chart: ${chartId}`);
+                        const canvas = await html2canvas(element, {
+                            backgroundColor: '#0F0F0F',
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true
+                        });
+                        charts[chartId] = canvas.toDataURL('image/png');
+                    }
+                }
+                
+                // Capture mini charts
+                const miniChartElements = [
+                    'depreciationChart',
+                    'utilizationChart',
+                    'maintenanceChart',
+                    'resaleChart'
+                ];
+                
+                for (const chartId of miniChartElements) {
+                    const element = document.getElementById(chartId);
+                    if (element) {
+                        console.log(`Capturing mini chart: ${chartId}`);
+                        const canvas = await html2canvas(element, {
+                            backgroundColor: '#0F0F0F',
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true
+                        });
+                        charts[chartId] = canvas.toDataURL('image/png');
+                    }
+                }
+                
+                console.log('All charts captured successfully');
+                return charts;
+            } catch (error) {
+                console.error('Error capturing charts:', error);
+                return {};
+            }
+        }
+
+        async function generatePDFReport(reportData) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Capture charts first
+                console.log('Capturing Bloomberg terminal charts...');
+                const chartImages = await captureChartsForPDF();
+                
+                // Set up colors
+                const primaryColor = '#00FF85';
+                const darkColor = '#1A1A1A';
+                const textColor = '#333333';
+                const lightGray = '#666666';
+                
+                let yPosition = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                
+                // Header
+                doc.setFillColor(26, 26, 26);
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('CRANE INTELLIGENCE', margin, 20);
+                
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Valuation Report', margin, 28);
+                
+                yPosition = 45;
+                
+                // Report ID and Date
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Report ID: ${reportData.data.report_id}`, margin, yPosition);
+                doc.text(`Generated: ${new Date(reportData.data.generated_at).toLocaleDateString()}`, pageWidth - margin - 50, yPosition);
+                yPosition += 15;
+                
+                // Line separator
+                doc.setDrawColor(0, 255, 133);
+                doc.setLineWidth(0.5);
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+                
+                // Crane Specifications Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Crane Specifications', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const specs = reportData.data.valuation_data;
+                doc.text(`Capacity: ${specs.capacity_tons} tons`, margin, yPosition);
+                doc.text(`Operating Hours: ${specs.hours.toLocaleString()} hours`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Region: ${specs.region}`, margin, yPosition);
+                doc.text(`Condition Score: ${specs.condition_score}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Valuation Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Valuation Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const valuation = reportData.data.kpi_metrics;
+                doc.text(`Estimated Value: $${valuation.estimated_value.toLocaleString()}`, margin, yPosition);
+                doc.text(`Value per Ton: $${valuation.value_per_ton.toLocaleString()}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Age Factor: ${(valuation.age_factor * 100).toFixed(1)}%`, margin, yPosition);
+                doc.text(`Confidence Score: ${(valuation.confidence_score * 100).toFixed(1)}%`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Risk Assessment Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Risk Assessment', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const risk = reportData.data.risk_assessment;
+                doc.text(`Overall Risk: ${risk.overall_risk}`, margin, yPosition);
+                doc.text(`Market Risk: ${risk.market_risk}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Operational Risk: ${risk.operational_risk}`, margin, yPosition);
+                doc.text(`Financial Risk: ${risk.financial_risk}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Market Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Market Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const market = reportData.data.market_analysis;
+                doc.text(`Demand Level: ${market.demand_level}`, margin, yPosition);
+                doc.text(`Market Trend: ${market.market_trend}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Regional Factors: ${market.regional_factors}`, margin, yPosition);
+                yPosition += 6;
+                doc.text(`Price Trend: ${market.price_trend}`, margin, yPosition);
+                yPosition += 20;
+                
+                // Bloomberg Terminal Charts Section
+                if (Object.keys(chartImages).length > 0) {
+                    // New page for charts
+                    doc.addPage();
+                    yPosition = 20;
+                    
+                    // Charts Section Header
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                    doc.setTextColor(0, 255, 133);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Bloomberg Terminal Charts & Analytics', margin + 5, yPosition + 6);
+                    yPosition += 15;
+                    
+                    // Main Valuation Trend Chart
+                    if (chartImages.valuationTrendChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Equipment Valuation Trend', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 60;
+                        doc.addImage(chartImages.valuationTrendChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                    
+                    // Price Comparison and Market Activity Charts (side by side)
+                    if (chartImages.priceComparisonChart || chartImages.marketActivityChart) {
+                        const chartWidth = (contentWidth - 10) / 2;
+                        const chartHeight = 50;
+                        
+                        if (chartImages.priceComparisonChart) {
+                            doc.setFontSize(10);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('Price Comparison', margin, yPosition);
+                            yPosition += 5;
+                            doc.addImage(chartImages.priceComparisonChart, 'PNG', margin, yPosition, chartWidth, chartHeight);
+                        }
+                        
+                        if (chartImages.marketActivityChart) {
+                            doc.setFontSize(10);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('Market Activity', margin + chartWidth + 10, yPosition - 5);
+                            doc.addImage(chartImages.marketActivityChart, 'PNG', margin + chartWidth + 10, yPosition, chartWidth, chartHeight);
+                        }
+                        
+                        yPosition += chartHeight + 15;
+                    }
+                    
+                    // Risk Matrix Chart
+                    if (chartImages.riskMatrixChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Risk Assessment Matrix', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 60;
+                        doc.addImage(chartImages.riskMatrixChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                    
+                    // Mini Charts Grid
+                    const miniCharts = [
+                        { id: 'depreciationChart', title: 'Depreciation Curve' },
+                        { id: 'utilizationChart', title: 'Utilization Rate' },
+                        { id: 'maintenanceChart', title: 'Maintenance Cost' },
+                        { id: 'resaleChart', title: 'Resale Value' }
+                    ];
+                    
+                    const miniChartWidth = (contentWidth - 15) / 2;
+                    const miniChartHeight = 40;
+                    let miniChartRow = 0;
+                    
+                    for (const chart of miniCharts) {
+                        if (chartImages[chart.id]) {
+                            const xPos = margin + (miniChartRow % 2) * (miniChartWidth + 10);
+                            const yPos = yPosition + Math.floor(miniChartRow / 2) * (miniChartHeight + 20);
+                            
+                            doc.setFontSize(9);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(chart.title, xPos, yPos);
+                            
+                            doc.addImage(chartImages[chart.id], 'PNG', xPos, yPos + 3, miniChartWidth, miniChartHeight);
+                            
+                            miniChartRow++;
+                        }
+                    }
+                    
+                    yPosition += Math.ceil(miniCharts.length / 2) * (miniChartHeight + 20) + 10;
+                    
+                    // Financing Scenarios Chart
+                    if (chartImages.financingScenariosChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Financing Scenarios Comparison', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 50;
+                        doc.addImage(chartImages.financingScenariosChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                }
+                
+                // Footer
+                yPosition = doc.internal.pageSize.getHeight() - 20;
+                doc.setTextColor(lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('This report was generated by Crane Intelligence Platform', margin, yPosition);
+                doc.text('For questions or support: support@craneintelligence.com', margin, yPosition + 5);
+                
+                // Download the PDF
+                const fileName = `crane_report_${reportData.data.report_id}.pdf`;
+                doc.save(fileName);
+                
+                // Close loading dialog and show success
+                setTimeout(() => {
+                    showDialog(
+                        'Report Downloaded', 
+                        'Your PDF report has been downloaded successfully!',
+                        'success'
+                    );
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showDialog(
+                    'PDF Generation Error', 
+                    'Failed to generate PDF. Please try again.',
+                    'error'
+                );
+            }
+        }
+
+        function shareReport() {
+            // Placeholder for sharing functionality
+            showDialog(
+                'Share Report', 
+                'Share functionality will be implemented in a future update',
+                'info'
+            );
+        }
+
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            
+            // If not authenticated, redirect to homepage
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                showDialog(
+                    'Authentication Required', 
+                    'Please login to access the report generation page.',
+                    'error'
+                );
+                setTimeout(() => {
+                    window.location.href = 'homepage.html';
+                }, 2000);
+            }
+        });
+
+        // Form submission
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateReport();
+        });
+
+        // ===== BLOOMBERG TERMINAL CHART FUNCTIONS =====
+        
+        // Initialize all Bloomberg terminal charts
+        function initializeBloombergCharts() {
+            console.log('Starting Bloomberg chart initialization...');
+            
+            // Check if libraries are loaded
+            if (!checkChartLibraries()) {
+                console.error('Chart libraries not loaded, retrying in 2 seconds...');
+                setTimeout(() => {
+                    initializeBloombergCharts();
+                }, 2000);
+                return;
+            }
+            
+            try {
+                console.log('Creating valuation trend chart...');
+                createValuationTrendChart();
+                
+                console.log('Creating price comparison chart...');
+                createPriceComparisonChart();
+                
+                console.log('Creating market activity chart...');
+                createMarketActivityChart();
+                
+                console.log('Creating risk matrix chart...');
+                createRiskMatrixChart();
+                
+                console.log('Creating mini charts...');
+                createDepreciationChart();
+                createUtilizationChart();
+                createMaintenanceChart();
+                createResaleChart();
+                
+                console.log('Creating financing scenarios chart...');
+                createFinancingScenariosChart();
+                
+                console.log('All Bloomberg charts initialized successfully!');
+            } catch (error) {
+                console.error('Error initializing Bloomberg charts:', error);
+            }
+        }
+
+        // Main valuation trend chart
+        function createValuationTrendChart() {
+            const ctx = document.getElementById('valuationTrendChart');
+            if (!ctx) {
+                console.error('valuationTrendChart canvas element not found');
+                return;
+            }
+
+            console.log('Creating valuation trend chart with context:', ctx);
+            
+            try {
+                new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Current Valuation',
+                        data: [1800000, 1850000, 1920000, 1980000, 2050000, 2100000, 2080000, 2120000, 2150000, 2100000, 2180000, 2200000],
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Market Average',
+                        data: [1750000, 1780000, 1820000, 1850000, 1880000, 1900000, 1920000, 1950000, 1980000, 2000000, 2020000, 2050000],
+                        borderColor: '#FFD600',
+                        backgroundColor: 'rgba(255, 214, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    }, {
+                        label: 'Risk Threshold',
+                        data: [1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000],
+                        borderColor: '#FF4444',
+                        backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                },
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 3,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+        }
+
+        // Price comparison chart
+        function createPriceComparisonChart() {
+            const ctx = document.getElementById('priceComparisonChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Grove GMK5250L', 'Liebherr LTM 1300', 'Terex AC 500-2', 'Manitowoc 2250', 'Kato NK-500E'],
+                    datasets: [{
+                        label: 'Price ($)',
+                        data: [2100000, 1950000, 2200000, 1850000, 2050000],
+                        backgroundColor: [
+                            '#00FF85',
+                            '#FFD600',
+                            '#FF4444',
+                            '#00CC6A',
+                            '#FF6B35'
+                        ],
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                },
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Market activity chart
+        function createMarketActivityChart() {
+            const ctx = document.getElementById('marketActivityChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active Listings', 'Recent Sales', 'Auction Results', 'Pending Deals'],
+                    datasets: [{
+                        data: [35, 28, 22, 15],
+                        backgroundColor: [
+                            '#00FF85',
+                            '#FFD600',
+                            '#FF4444',
+                            '#00CC6A'
+                        ],
+                        borderColor: '#0F0F0F',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Risk matrix chart using Plotly
+        function createRiskMatrixChart() {
+            const data = [{
+                x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                y: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                z: [
+                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                    [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1],
+                    [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+                    [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3],
+                    [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4],
+                    [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+                    [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6],
+                    [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
+                    [0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8],
+                    [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+                ],
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#00FF85'],
+                    [0.5, '#FFD600'],
+                    [1, '#FF4444']
+                ]
+            }];
+
+            const layout = {
+                title: {
+                    text: 'Risk vs Return Matrix',
+                    font: { color: '#00FF85', size: 14 }
+                },
+                xaxis: {
+                    title: 'Risk Level',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                yaxis: {
+                    title: 'Return Potential',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                plot_bgcolor: '#0F0F0F',
+                paper_bgcolor: '#0F0F0F',
+                font: { family: 'JetBrains Mono', color: '#B0B0B0' }
+            };
+
+            Plotly.newPlot('riskMatrixChart', data, layout, {responsive: true});
+        }
+
+        // Mini charts
+        function createDepreciationChart() {
+            const ctx = document.getElementById('depreciationChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                    datasets: [{
+                        data: [100, 95, 88, 80, 70, 60, 50, 40, 30, 25, 20],
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createUtilizationChart() {
+            const ctx = document.getElementById('utilizationChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        data: [85, 92, 78, 88],
+                        backgroundColor: '#FFD600',
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createMaintenanceChart() {
+            const ctx = document.getElementById('maintenanceChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        data: [15000, 18000, 12000, 22000, 19000, 16000],
+                        borderColor: '#FF4444',
+                        backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createResaleChart() {
+            const ctx = document.getElementById('resaleChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1Y', '2Y', '3Y', '4Y', '5Y'],
+                    datasets: [{
+                        data: [95, 88, 80, 70, 60],
+                        backgroundColor: '#00CC6A',
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Financing scenarios chart
+        function createFinancingScenariosChart() {
+            const data = [{
+                x: ['Cash Purchase', 'Bank Loan 5%', 'Lease 3Y', 'Lease 5Y', 'Rent-to-Own'],
+                y: [2100000, 2200000, 1950000, 2050000, 2300000],
+                type: 'bar',
+                marker: {
+                    color: ['#00FF85', '#FFD600', '#FF4444', '#00CC6A', '#FF6B35']
+                }
+            }];
+
+            const layout = {
+                title: {
+                    text: 'Financing Options Comparison',
+                    font: { color: '#00FF85', size: 14 }
+                },
+                xaxis: {
+                    title: 'Financing Option',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                yaxis: {
+                    title: 'Total Cost ($)',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                plot_bgcolor: '#0F0F0F',
+                paper_bgcolor: '#0F0F0F',
+                font: { family: 'JetBrains Mono', color: '#B0B0B0' }
+            };
+
+            Plotly.newPlot('financingScenariosChart', data, layout, {responsive: true});
+        }
+
+        // Initialize charts when report is generated
+        function initializeChartsOnReportGeneration() {
+            // Wait for DOM to be ready and libraries to load
+            setTimeout(() => {
+                console.log('Initializing Bloomberg charts...');
+                if (checkChartLibraries()) {
+                    initializeBloombergCharts();
+                } else {
+                    console.log('Chart libraries not ready, retrying...');
+                    setTimeout(() => {
+                        initializeChartsOnReportGeneration();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        // Check if chart libraries are loaded
+        function checkChartLibraries() {
+            const chartJsLoaded = typeof Chart !== 'undefined';
+            const plotlyLoaded = typeof Plotly !== 'undefined';
+            const d3Loaded = typeof d3 !== 'undefined';
+            
+            console.log('Chart libraries status:', {
+                ChartJS: chartJsLoaded,
+                Plotly: plotlyLoaded,
+                D3: d3Loaded
+            });
+            
+            return chartJsLoaded && plotlyLoaded;
+        }
+    </script>
+</body>
+</html>

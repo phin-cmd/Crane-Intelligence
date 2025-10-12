@@ -596,12 +596,14 @@ async def confirm_password_reset(request: PasswordResetConfirmRequest, db: Sessi
         )
 
 
+@router.get("/me", response_model=AuthResponse)
 @router.get("/profile", response_model=AuthResponse)
 async def get_user_profile(current_user: Dict[str, Any] = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Get current user profile and subscription information
     
     Returns user details, subscription status, and usage information.
+    Accessible via /me or /profile endpoints.
     """
     try:
         # Get user from database

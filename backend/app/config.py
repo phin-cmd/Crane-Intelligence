@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Database configuration
+# Database configuration - matches .env file
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://crane_user:crane_password@db:5432/crane_intelligence")
 
 # JWT configuration

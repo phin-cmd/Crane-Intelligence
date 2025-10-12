@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Data - Crane Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --accent-blue: #007BFF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            height: 80px !important;
+            position: relative !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            transition: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+        }
+
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #FFFFFF;
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 255, 133, 0.1);
+            color: #00FF85;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333333;
+            margin: 8px 0;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .user-profile.visible {
+            display: flex !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* Market Ticker - Exact Match to Dashboard */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: var(--space-2xl) 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== EXPORT SECTIONS ===== */
+        .export-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .export-section {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            transition: all 0.2s ease;
+        }
+
+        .export-section:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-green), #00CC6A);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: var(--space-lg);
+            line-height: 1.5;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .export-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md);
+            background: var(--primary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .export-option:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 133, 0.05);
+        }
+
+        .option-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .option-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-blue);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .option-details h4 {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .option-details p {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .export-btn {
+            background: var(--accent-green);
+            color: var(--primary-black);
+            border: none;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .export-btn:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .export-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== FILTER SECTION ===== */
+        .filter-section {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .filter-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .filter-input,
+        .filter-select {
+            background: var(--primary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        /* ===== BULK EXPORT ===== */
+        .bulk-export {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .bulk-export-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .bulk-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .bulk-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #00FF85;
+            color: #00FF85;
+        }
+
+        .back-to-dashboard .back-icon {
+            font-size: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--primary-black);
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-large {
+            padding: var(--space-lg) var(--space-xl);
+            font-size: 16px;
+        }
+
+        /* ===== PROGRESS INDICATOR ===== */
+        .progress-container {
+            display: none;
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-percentage {
+            font-size: 14px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--primary-black);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-bottom: var(--space-md);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), #00CC6A);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-status {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 60px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand-section {
+            flex: 2;
+        }
+
+        .footer-links-section {
+            flex: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-bar {
+            width: 4px;
+            height: 40px;
+            background: #FFA500;
+            border-radius: 2px;
+        }
+
+        .footer-logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo-sub {
+            font-size: 16px;
+            font-weight: 400;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .footer-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .footer-newsletter-text {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .footer-newsletter {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-email-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .footer-email-input::placeholder {
+            color: #808080;
+        }
+
+        .footer-subscribe-btn {
+            padding: 12px 24px;
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .footer-subscribe-btn:hover {
+            background: #00E676;
+        }
+
+        .footer-bottom {
+            margin-top: 32px;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: #333333;
+            margin-bottom: 20px;
+        }
+
+        .footer-copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+            margin: 0;
+        }
+
+        /* ===== MARKET TICKER ===== */
+        .market-ticker {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            animation: ticker 30s linear infinite;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== FOOTER NEWSLETTER ===== */
+        .footer-newsletter-desc {
+            font-size: 14px !important;
+            color: #B0B0B0 !important;
+            margin-bottom: 16px !important;
+        }
+
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .newsletter-input::placeholder {
+            color: #808080;
+        }
+
+        .newsletter-button {
+            padding: 12px 24px;
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .newsletter-button:hover {
+            background: #00E676;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .header-container {
+                padding: 0 24px !important;
+            }
+            
+            .container {
+                padding: 0 24px;
+            }
+            
+            .export-sections {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .date-range {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            
+            .footer-container {
+                padding: 0 24px !important;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .footer-links-section {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            
+            .ticker-container {
+                padding: 0 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 32px;
+            }
+            
+            .footer-links-section {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .footer-logo {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            
+            .footer-logo-bar {
+                width: 3px;
+                height: 32px;
+            }
+            
+            .footer-logo-main {
+                font-size: 20px;
+            }
+            
+            .footer-logo-sub {
+                font-size: 14px;
+            }
+            
+            .footer-description {
+                font-size: 13px;
+                max-width: 100%;
+            }
+            
+            .footer-section-title {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            
+            .footer-links a {
+                font-size: 13px;
+            }
+            
+            .footer-newsletter-text {
+                font-size: 13px;
+            }
+            
+            .footer-newsletter {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .footer-email-input,
+            .footer-subscribe-btn {
+                width: 100%;
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .page-subtitle {
+                font-size: 16px;
+            }
+
+            .export-sections {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .date-range {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .bulk-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .bulk-actions button {
+                width: 100%;
+            }
+            
+            .back-to-dashboard {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .export-options {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .export-option {
+                padding: 20px;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-brand {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 13px !important;
+            }
+            
+            .footer-title {
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                text-align: left !important;
+                color: #00FF85 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+                list-style: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .footer-links li {
+                margin-bottom: 8px !important;
+            }
+            
+            .footer-links a {
+                font-size: 13px !important;
+                text-align: left !important;
+                display: block !important;
+                color: #B0B0B0 !important;
+                text-decoration: none !important;
+                transition: color 0.2s !important;
+            }
+            
+            .footer-links a:hover {
+                color: #00FF85 !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .ticker-container {
+                padding: 0 16px;
+            }
+            
+            .ticker-content {
+                gap: 20px;
+            }
+            
+            .ticker-item {
+                gap: 12px;
+                margin-right: 20px;
+            }
+            
+            .ticker-symbol,
+            .ticker-price,
+            .ticker-change {
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 160px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-content {
+                gap: 24px;
+            }
+            
+            .footer-links-section {
+                gap: 20px;
+            }
+            
+            .footer-logo {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .footer-logo-bar {
+                width: 2px;
+                height: 28px;
+            }
+            
+            .footer-logo-main {
+                font-size: 18px;
+            }
+            
+            .footer-logo-sub {
+                font-size: 12px;
+            }
+            
+            .footer-description {
+                font-size: 12px;
+            }
+            
+            .footer-section-title {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .footer-links a {
+                font-size: 12px;
+            }
+            
+            .footer-newsletter-text {
+                font-size: 12px;
+            }
+            
+            .footer-email-input,
+            .footer-subscribe-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .footer-copyright {
+                font-size: 11px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .page-subtitle {
+                font-size: 14px;
+            }
+            
+            .export-sections {
+                gap: 16px;
+            }
+            
+            .filter-grid {
+                gap: 12px;
+            }
+            
+            .date-range {
+                gap: 10px;
+            }
+            
+            .bulk-actions {
+                gap: 10px;
+            }
+            
+            .back-to-dashboard {
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+            
+            .export-option {
+                padding: 16px;
+            }
+            
+            .export-option h3 {
+                font-size: 16px;
+            }
+            
+            .export-option p {
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+                line-height: 1.5 !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                text-align: left !important;
+                color: #00FF85 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+                list-style: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .footer-links li {
+                margin-bottom: 6px !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+                color: #B0B0B0 !important;
+                text-decoration: none !important;
+                transition: color 0.2s !important;
+            }
+            
+            .footer-links a:hover {
+                color: #00FF85 !important;
+            }
+            
+            .footer-logo-svg {
+                height: 32px !important;
+            }
+            
+            .ticker-container {
+                padding: 0 12px;
+            }
+            
+            .ticker-content {
+                gap: 16px;
+            }
+            
+            .ticker-item {
+                gap: 8px;
+                margin-right: 16px;
+            }
+            
+            .ticker-symbol,
+            .ticker-price,
+            .ticker-change {
+                font-size: 10px;
+            }
+            
+            .newsletter {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .newsletter-input,
+            .newsletter-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">DU</span>
+            </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">Demo User</div>
+                    <div class="user-role" id="userRole">crane_rental_company</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market Ticker -->
+        <div class="market-ticker">
+            <div class="ticker-container">
+                <div class="ticker-content">
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">XCMG</span>
+                        <span class="ticker-price">467.8</span>
+                        <span class="ticker-change down">-0.4%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">MANITEX</span>
+                        <span class="ticker-price">757.8</span>
+                        <span class="ticker-change up">+1.3%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">AMERICAN</span>
+                        <span class="ticker-price">732.9</span>
+                        <span class="ticker-change down">-1.2%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">SHUTTLELIFT</span>
+                        <span class="ticker-price">683.4</span>
+                        <span class="ticker-change up">+2.2%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">GALION</span>
+                        <span class="ticker-price">709.8</span>
+                        <span class="ticker-change down">-0.5%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">DEMAG</span>
+                        <span class="ticker-price">891.2</span>
+                        <span class="ticker-change up">+1.8%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">TEREX</span>
+                        <span class="ticker-price">234.5</span>
+                        <span class="ticker-change down">-0.7%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">LIEBHERR</span>
+                        <span class="ticker-price">567.3</span>
+                        <span class="ticker-change up">+3.1%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Export Data</h1>
+                <p class="page-subtitle">
+                    Export your crane data, reports, and analytics in various formats. 
+                    Choose from individual exports or bulk data downloads.
+                </p>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-header">
+                    <div class="progress-title">Exporting Data...</div>
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-status" id="progressStatus">Preparing export...</div>
+            </div>
+
+            <!-- Export Sections -->
+            <div class="export-sections">
+                <!-- Crane Data Export -->
+                <div class="export-section">
+                    <div class="section-header">
+                        <div class="section-icon">🏗️</div>
+                        <div class="section-title">Crane Data</div>
+                    </div>
+                    <div class="section-description">
+                        Export comprehensive crane information including specifications, 
+                        maintenance records, and operational data.
+                    </div>
+                    <div class="export-options">
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📊</div>
+                                <div class="option-details">
+                                    <h4>Excel Spreadsheet</h4>
+                                    <p>Complete crane database in .xlsx format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportCraneData('excel')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📄</div>
+                                <div class="option-details">
+                                    <h4>PDF Report</h4>
+                                    <p>Formatted crane data report in .pdf format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportCraneData('pdf')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📋</div>
+                                <div class="option-details">
+                                    <h4>CSV File</h4>
+                                    <p>Raw data in comma-separated values format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportCraneData('csv')">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Export -->
+                <div class="export-section">
+                    <div class="section-header">
+                        <div class="section-icon">📈</div>
+                        <div class="section-title">Reports</div>
+                    </div>
+                    <div class="section-description">
+                        Export valuation reports, inspection reports, and 
+                        analytical documents in various formats.
+                    </div>
+                    <div class="export-options">
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📊</div>
+                                <div class="option-details">
+                                    <h4>All Reports</h4>
+                                    <p>Complete report archive in .zip format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportReports('all')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📄</div>
+                                <div class="option-details">
+                                    <h4>Valuation Reports</h4>
+                                    <p>Only valuation reports in .pdf format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportReports('valuation')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">🔍</div>
+                                <div class="option-details">
+                                    <h4>Inspection Reports</h4>
+                                    <p>Only inspection reports in .pdf format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportReports('inspection')">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Export -->
+                <div class="export-section">
+                    <div class="section-header">
+                        <div class="section-icon">📊</div>
+                        <div class="section-title">Analytics</div>
+                    </div>
+                    <div class="section-description">
+                        Export performance metrics, usage statistics, 
+                        and analytical data for further analysis.
+                    </div>
+                    <div class="export-options">
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📈</div>
+                                <div class="option-details">
+                                    <h4>Performance Data</h4>
+                                    <p>Operational metrics and KPIs in .xlsx format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportAnalytics('performance')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📊</div>
+                                <div class="option-details">
+                                    <h4>Usage Statistics</h4>
+                                    <p>Platform usage data in .csv format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportAnalytics('usage')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📋</div>
+                                <div class="option-details">
+                                    <h4>Financial Data</h4>
+                                    <p>Revenue and cost analysis in .xlsx format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportAnalytics('financial')">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Data Export -->
+                <div class="export-section">
+                    <div class="section-header">
+                        <div class="section-icon">👥</div>
+                        <div class="section-title">User Data</div>
+                    </div>
+                    <div class="section-description">
+                        Export user information, activity logs, and 
+                        account data for administrative purposes.
+                    </div>
+                    <div class="export-options">
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">👤</div>
+                                <div class="option-details">
+                                    <h4>User Profiles</h4>
+                                    <p>Complete user database in .xlsx format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportUserData('profiles')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">📝</div>
+                                <div class="option-details">
+                                    <h4>Activity Logs</h4>
+                                    <p>User activity and audit logs in .csv format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportUserData('logs')">Export</button>
+                        </div>
+                        <div class="export-option">
+                            <div class="option-info">
+                                <div class="option-icon">🔐</div>
+                                <div class="option-details">
+                                    <h4>Security Data</h4>
+                                    <p>Security events and access logs in .csv format</p>
+                                </div>
+                            </div>
+                            <button class="export-btn" onclick="exportUserData('security')">Export</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h2 class="filter-title">Export Filters</h2>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Date Range</label>
+                        <div class="date-range">
+                            <input type="date" class="filter-input" id="startDate">
+                            <input type="date" class="filter-input" id="endDate">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Crane Type</label>
+                        <select class="filter-select" id="craneTypeFilter">
+                            <option value="">All Types</option>
+                            <option value="mobile">Mobile Crane</option>
+                            <option value="tower">Tower Crane</option>
+                            <option value="overhead">Overhead Crane</option>
+                            <option value="gantry">Gantry Crane</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="maintenance">Under Maintenance</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Region</label>
+                        <select class="filter-select" id="regionFilter">
+                            <option value="">All Regions</option>
+                            <option value="north-america">North America</option>
+                            <option value="europe">Europe</option>
+                            <option value="asia-pacific">Asia Pacific</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Export -->
+            <div class="bulk-export">
+                <div class="bulk-export-header">
+                    <div>
+                        <h2 class="bulk-title">Bulk Export</h2>
+                        <p class="bulk-description">
+                            Export all data types at once with custom filters and formatting options.
+                        </p>
+                    </div>
+                </div>
+                <div class="bulk-actions">
+                    <button class="btn btn-primary btn-large" onclick="bulkExport('all')">
+                        <span>📦</span> Export Everything
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="bulkExport('filtered')">
+                        <span>🔍</span> Export Filtered Data
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="clearFilters()">
+                        <span>🗑️</span> Clear Filters
+                    </button>
+                    <a href="dashboard.html" class="back-to-dashboard">
+                        <span class="back-icon">←</span>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand-section">
+                    <div class="footer-logo">
+                        <div class="footer-logo-bar"></div>
+                        <div class="footer-logo-text">
+                            <div class="footer-logo-main">CRANE</div>
+                            <div class="footer-logo-sub">INTELLIGENCE</div>
+                        </div>
+                    </div>
+                    <p class="footer-description">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+                
+                <div class="footer-links-section">
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="about-us.html">About Us</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="blog.html">Blog</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Legal & Support</h4>
+                        <ul class="footer-links">
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                            <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                            <li><a href="security.html">Security</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Stay Updated</h4>
+                        <p class="footer-newsletter-text">Get the latest insights and market analysis delivered to your inbox</p>
+                        <div class="footer-newsletter">
+                            <input type="email" placeholder="Enter your email" class="footer-email-input">
+                            <button class="footer-subscribe-btn">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-divider"></div>
+                <p class="footer-copyright">&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Authentication functions
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons
+                if (authButtons && userProfile) {
+                    authButtons.classList.add('hidden');
+                    userProfile.classList.add('visible');
+                }
+                
+                // Update user data
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                if (userRole) {
+                    userRole.textContent = user.user_role || 'Premium User';
+                }
+            } else {
+                // Show auth buttons for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.classList.remove('hidden');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const userInfo = document.querySelector('.user-info');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+            if (userInfo) {
+                userInfo.classList.toggle('active');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.getElementById('userProfile');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (userProfile && dropdown) {
+                if (!userProfile.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            updateUserInterface(null);
+            window.location.href = 'homepage.html';
+        }
+
+        // Export functions
+        function showProgress() {
+            document.getElementById('progressContainer').classList.add('show');
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').classList.remove('show');
+        }
+
+        function updateProgress(percentage, status) {
+            document.getElementById('progressPercentage').textContent = percentage + '%';
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressStatus').textContent = status;
+        }
+
+        function simulateProgress() {
+            showProgress();
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        hideProgress();
+                        showDialog('Export Complete', 'Your data has been exported successfully!', 'success');
+                    }, 500);
+                }
+                updateProgress(Math.floor(progress), 'Exporting data...');
+            }, 200);
+        }
+
+        function exportCraneData(format) {
+            simulateProgress();
+            // Simulate API call
+            setTimeout(() => {
+                const filename = `crane_data_${new Date().toISOString().split('T')[0]}.${format}`;
+                downloadMockFile(filename, format);
+            }, 2000);
+        }
+
+        function exportReports(type) {
+            simulateProgress();
+            setTimeout(() => {
+                const filename = `reports_${type}_${new Date().toISOString().split('T')[0]}.zip`;
+                downloadMockFile(filename, 'zip');
+            }, 2000);
+        }
+
+        function exportAnalytics(type) {
+            simulateProgress();
+            setTimeout(() => {
+                const filename = `analytics_${type}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                downloadMockFile(filename, 'xlsx');
+            }, 2000);
+        }
+
+        function exportUserData(type) {
+            simulateProgress();
+            setTimeout(() => {
+                const filename = `user_data_${type}_${new Date().toISOString().split('T')[0]}.csv`;
+                downloadMockFile(filename, 'csv');
+            }, 2000);
+        }
+
+        function bulkExport(type) {
+            simulateProgress();
+            setTimeout(() => {
+                const filename = `bulk_export_${type}_${new Date().toISOString().split('T')[0]}.zip`;
+                downloadMockFile(filename, 'zip');
+            }, 3000);
+        }
+
+        function downloadMockFile(filename, format) {
+            // Create mock data based on format
+            let content, mimeType;
+            
+            switch(format) {
+                case 'xlsx':
+                    content = 'Mock Excel data content';
+                    mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                    break;
+                case 'pdf':
+                    content = 'Mock PDF data content';
+                    mimeType = 'application/pdf';
+                    break;
+                case 'csv':
+                    content = 'Mock CSV data content';
+                    mimeType = 'text/csv';
+                    break;
+                case 'zip':
+                    content = 'Mock ZIP data content';
+                    mimeType = 'application/zip';
+                    break;
+                default:
+                    content = 'Mock data content';
+                    mimeType = 'text/plain';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function clearFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('craneTypeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('regionFilter').value = '';
+        }
+
+        function showDialog(title, message, type) {
+            // Create dialog element
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const dialogContent = document.createElement('div');
+            dialogContent.style.cssText = `
+                background: #2A2A2A;
+                border: 1px solid #404040;
+                border-radius: 12px;
+                padding: 32px;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            `;
+
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            const color = type === 'success' ? '#00FF85' : type === 'error' ? '#FF4444' : '#FFD600';
+
+            dialogContent.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 16px;">${icon}</div>
+                <h3 style="color: #FFFFFF; font-size: 20px; font-weight: 600; margin-bottom: 12px;">${title}</h3>
+                <p style="color: #B0B0B0; font-size: 14px; margin-bottom: 24px;">${message}</p>
+                <button onclick="this.closest('.dialog').remove()" style="
+                    background: ${color};
+                    color: #000000;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">OK</button>
+            `;
+
+            dialog.className = 'dialog';
+            dialog.appendChild(dialogContent);
+            document.body.appendChild(dialog);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication status
+            const userData = localStorage.getItem('user_data');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            }
+
+            // Set default date range to last 30 days
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>

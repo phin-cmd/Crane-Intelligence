@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <style>
+        /* Profile Dropdown Styles */
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .admin-profile:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .avatar-initials {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0F0F0F;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .profile-dropdown-btn {
+            display: flex;
+            align-items: center;
+            color: #B0B0B0;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-profile:hover .profile-dropdown-btn {
+            transform: translateY(1px);
+        }
+
+        .profile-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block !important;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #333333 !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item svg {
+            color: #666666 !important;
+            flex-shrink: 0;
+        }
+
+        .dropdown-item span {
+            color: #333333 !important;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eeeeee;
+            margin: 4px 0;
+        }
+        
+        /* Data Management Specific Styles */
+        /* Data Management Specific Styles */
+        .data-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .data-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #404040;
+            padding-bottom: 16px;
+        }
+
+        .data-tab {
+            background: transparent;
+            border: 1px solid #404040;
+            color: #B0B0B0;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .data-tab:hover {
+            background: #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        .data-tab.active {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        .data-panel {
+            display: none;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .data-panel.active {
+            display: block;
+        }
+
+        .data-panel h3 {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #404040;
+            padding-bottom: 16px;
+        }
+
+        .data-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: #121212;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group.checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #00FF85;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-section {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-section h4 {
+            color: #00FF85;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h4::before {
+            content: "●";
+            color: #00FF85;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #404040;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+        }
+
+        .btn-danger {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        .btn-warning {
+            background: #FFD600;
+            color: #0F0F0F;
+        }
+
+        .btn-warning:hover {
+            background: #E6C200;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-indicator.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-indicator.inactive {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .status-indicator.warning {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .status-indicator::before {
+            content: "●";
+            font-size: 8px;
+        }
+
+        .help-text {
+            color: #B0B0B0;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .required {
+            color: #FF4444;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+
+        .data-table th {
+            background: #121212;
+            color: #B0B0B0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .data-table td {
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #121212;
+        }
+
+        .sources-table-container {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Navigation Group Styles */
+        .nav-group {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #404040;
+        }
+
+        .nav-group-header {
+            margin-bottom: 16px;
+        }
+
+        .nav-group-title {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-group-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-group-menu .nav-link {
+            color: #B0B0B0;
+            font-size: 14px;
+            padding: 8px 0;
+            display: block;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-group-menu .nav-link:hover {
+            color: #FFFFFF;
+        }
+
+        .nav-group-menu .nav-link.active {
+            color: #00FF85;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00FF85;
+            transition: width 0.3s ease;
+        }
+
+        .file-upload {
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #00FF85;
+        }
+
+        .file-upload.dragover {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #121212;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: #B0B0B0;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .alert-info {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid #007BFF;
+            color: #007BFF;
+        }
+
+        .alert-warning {
+            background: rgba(255, 214, 0, 0.1);
+            border: 1px solid #FFD600;
+            color: #FFD600;
+        }
+
+        .alert-danger {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 133, 0.1);
+            border: 1px solid #00FF85;
+            color: #00FF85;
+        }
+
+        .quality-issues {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .issue-item {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .issue-item:hover {
+            border-color: #404040;
+            background: #1A1A1A;
+        }
+
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .issue-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .issue-type.warning {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .issue-type.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .issue-count {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .issue-description h5 {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+
+        .issue-description p {
+            color: #B0B0B0;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* New Data Management Styles */
+        .data-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            color: #B0B0B0;
+            pointer-events: none;
+        }
+
+        .control-select {
+            padding: 8px 12px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .control-select:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .sortable:hover {
+            background: #333333;
+        }
+
+        .sort-indicator {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .sort-indicator.asc::after {
+            content: "↑";
+            color: #00FF85;
+        }
+
+        .sort-indicator.desc::after {
+            content: "↓";
+            color: #00FF85;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1A1A1A;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #333333;
+            color: #FFFFFF;
+        }
+
+        .data-table tr:hover {
+            background: #2A2A2A;
+        }
+
+        .status-indicator {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-indicator.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-indicator.inactive {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .status-indicator.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+            border: 1px solid #555555;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+        }
+
+        .btn-danger {
+            background: #DC3545;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #C82333;
+        }
+
+        .data-panel {
+            display: none;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .data-panel.active {
+            display: block;
+        }
+
+        .data-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .data-tab {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #B0B0B0;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .data-tab:hover {
+            color: #FFFFFF;
+            background: #2A2A2A;
+        }
+
+        .data-tab.active {
+            color: #00FF85;
+            border-bottom-color: #00FF85;
+            background: #2A2A2A;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .data-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-nav {
+                flex-wrap: wrap;
+            }
+
+            .data-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                </div>
+                <h1 class="page-title">Data Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
+                    <div class="profile-avatar">
+                        <div class="avatar-initials">AU</div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">Admin User</div>
+                        <div class="profile-role">Administrator</div>
+                    </div>
+                    <div class="profile-dropdown-btn">
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="navigateToProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="navigateToSettings()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="users.html" class="nav-link">Users</a></li>
+                <li><a href="content.html" class="nav-link">Content</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="settings.html" class="nav-link">Settings</a></li>
+                <li><a href="security.html" class="nav-link">Security</a></li>
+                <li><a href="data.html" class="nav-link active">Data</a></li>
+                <li><a href="database.html" class="nav-link">Database</a></li>
+                <li><a href="admin-users.html" class="nav-link">Admin Users</a></li>
+                <li><a href="core-logic.html" class="nav-link">Core Logic</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Data Overview -->
+            <div class="data-overview">
+                <div class="data-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalRecords">0</div>
+                            <div class="stat-label">Total Records</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔗</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="dataSources">0</div>
+                            <div class="stat-label">Data Sources</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="dataQuality">95%</div>
+                            <div class="stat-label">Data Quality</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="lastSync">2h ago</div>
+                            <div class="stat-label">Last Sync</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Controls -->
+            <div class="data-controls">
+                <div class="control-group">
+                    <div class="search-box">
+                        <input type="text" id="dataSearch" placeholder="Search data sources..." class="search-input">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <select id="statusFilter" class="control-select">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <select id="typeFilter" class="control-select">
+                        <option value="all">All Types</option>
+                        <option value="api">REST API</option>
+                        <option value="database">Database</option>
+                        <option value="file">File Upload</option>
+                        <option value="webhook">Webhook</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23,4 23,10 17,10"></polyline>
+                            <polyline points="1,20 1,14 7,14"></polyline>
+                            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4L18.36,18.36A9,9,0,0,1,3.51,15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Tabs -->
+            <div class="data-tabs">
+                <button class="data-tab active" data-tab="sources">Data Sources</button>
+                <button class="data-tab" data-tab="quality">Data Quality</button>
+                <button class="data-tab" data-tab="jobs">Background Jobs</button>
+                <button class="data-tab" data-tab="database">Database</button>
+                <button class="data-tab" data-tab="pipeline">Data Pipeline</button>
+            </div>
+
+            <!-- Data Sources -->
+            <div class="data-panel active" id="sources-panel">
+                <div class="panel-header">
+                    <h3>Data Sources</h3>
+                    <button class="btn btn-primary" id="addDataSourceBtn">Add Data Source</button>
+                </div>
+                <div class="sources-table-container">
+                    <table class="data-table" id="sourcesTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="name" class="sortable">
+                                    Name
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="status" class="sortable">
+                                    Status
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="type" class="sortable">
+                                    Type
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="endpoint" class="sortable">
+                                    Connection/Endpoint
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="lastSync" class="sortable">
+                                    Last Sync
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="records" class="sortable">
+                                    Records
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th data-sort="error" class="sortable">
+                                    Error
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sourcesTableBody">
+                            <!-- Data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Data Quality -->
+            <div class="data-panel" id="quality-panel">
+                <div class="panel-header">
+                    <h3>Data Quality Metrics</h3>
+                    <button class="btn btn-primary" id="runQualityCheck">Run Quality Check</button>
+                </div>
+                <div class="quality-metrics">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Overall Quality Score</h4>
+                            <span class="metric-score good">95%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Based on all quality dimensions</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Accuracy</h4>
+                            <span class="metric-score good">98%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 98%"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Data correctness and precision</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Completeness</h4>
+                            <span class="metric-score good">92%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Percentage of complete records</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Consistency</h4>
+                            <span class="metric-score warning">87%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 87%; background: #FFD600;"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Data format consistency</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Timeliness</h4>
+                            <span class="metric-score good">94%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 94%"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Data freshness and updates</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h4>Validity</h4>
+                            <span class="metric-score good">96%</span>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 96%"></div>
+                            </div>
+                        </div>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Data conforms to business rules</p>
+                    </div>
+                </div>
+                
+                <!-- Quality Issues -->
+                <div class="form-section" style="margin-top: 24px;">
+                    <h4>Quality Issues</h4>
+                    <div class="quality-issues">
+                        <div class="issue-item">
+                            <div class="issue-header">
+                                <span class="issue-type warning">Warning</span>
+                                <span class="issue-count">23 records</span>
+                            </div>
+                            <div class="issue-description">
+                                <h5>Missing Email Addresses</h5>
+                                <p>User records with incomplete email information</p>
+                            </div>
+                        </div>
+                        <div class="issue-item">
+                            <div class="issue-header">
+                                <span class="issue-type error">Error</span>
+                                <span class="issue-count">5 records</span>
+                            </div>
+                            <div class="issue-description">
+                                <h5>Invalid Phone Numbers</h5>
+                                <p>Phone numbers that don't match expected format</p>
+                            </div>
+                        </div>
+                        <div class="issue-item">
+                            <div class="issue-header">
+                                <span class="issue-type warning">Warning</span>
+                                <span class="issue-count">12 records</span>
+                            </div>
+                            <div class="issue-description">
+                                <h5>Duplicate Records</h5>
+                                <p>Potential duplicate user entries detected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Background Jobs -->
+            <div class="data-panel" id="jobs-panel">
+                <div class="panel-header">
+                    <h3>Background Jobs</h3>
+                    <button class="btn btn-primary" id="createJobBtn">Create Job</button>
+                </div>
+                <div class="jobs-table-container">
+                    <table class="data-table" id="jobsTable">
+                        <thead>
+                            <tr>
+                                <th>Job Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <!-- Jobs will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Database Management -->
+            <div class="data-panel" id="database-panel">
+                <div class="panel-header">
+                    <h3>Database Administration</h3>
+                    <div class="panel-controls">
+                        <button class="btn btn-secondary" id="backupDbBtn">Backup Database</button>
+                        <button class="btn btn-warning" id="optimizeDbBtn">Optimize Database</button>
+                    </div>
+                </div>
+                <div class="database-info">
+                    <div class="db-stats">
+                        <div class="db-stat">
+                            <span class="label">Database Size:</span>
+                            <span class="value">2.4 GB</span>
+                        </div>
+                        <div class="db-stat">
+                            <span class="label">Tables:</span>
+                            <span class="value">24</span>
+                        </div>
+                        <div class="db-stat">
+                            <span class="label">Indexes:</span>
+                            <span class="value">156</span>
+                        </div>
+                        <div class="db-stat">
+                            <span class="label">Connections:</span>
+                            <span class="value">12/100</span>
+                        </div>
+                    </div>
+                    <div class="db-tables">
+                        <h4>Table Information</h4>
+                        <table class="data-table" id="dbTablesTable">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Rows</th>
+                                    <th>Size</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dbTablesTableBody">
+                                <!-- Table info will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Pipeline -->
+            <div class="data-panel" id="pipeline-panel">
+                <div class="panel-header">
+                    <h3>Data Pipeline</h3>
+                    <button class="btn btn-primary" id="runPipelineBtn">Run Pipeline</button>
+                </div>
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div class="step-icon">📥</div>
+                        <div class="step-content">
+                            <h4>Data Ingestion</h4>
+                            <p>Collect data from various sources</p>
+                            <span class="step-status success">Completed</span>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow">→</div>
+                    <div class="pipeline-step">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-content">
+                            <h4>Data Processing</h4>
+                            <p>Clean and transform data</p>
+                            <span class="step-status running">Running</span>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow">→</div>
+                    <div class="pipeline-step">
+                        <div class="step-icon">💾</div>
+                        <div class="step-content">
+                            <h4>Data Storage</h4>
+                            <p>Store processed data</p>
+                            <span class="step-status pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow">→</div>
+                    <div class="pipeline-step">
+                        <div class="step-icon">📊</div>
+                        <div class="step-content">
+                            <h4>Data Analysis</h4>
+                            <p>Generate insights and reports</p>
+                            <span class="step-status pending">Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Data Management Tab Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.data-tab');
+            const panels = document.querySelectorAll('.data-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and panels
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding panel
+                    this.classList.add('active');
+                    document.getElementById(targetTab + '-panel').classList.add('active');
+                });
+            });
+
+            // File upload functionality
+            const fileUpload = document.getElementById('fileUpload');
+            const fileInput = document.getElementById('fileInput');
+
+            if (fileUpload && fileInput) {
+                fileUpload.addEventListener('click', () => fileInput.click());
+                
+                fileUpload.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    fileUpload.classList.add('dragover');
+                });
+                
+                fileUpload.addEventListener('dragleave', () => {
+                    fileUpload.classList.remove('dragover');
+                });
+                
+                fileUpload.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    fileUpload.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    fileInput.files = files;
+                    handleFileUpload(files);
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    handleFileUpload(e.target.files);
+                });
+            }
+        });
+
+        function handleFileUpload(files) {
+            console.log('Files selected:', files.length);
+            // Handle file upload logic here
+        }
+
+        function executeDataOperation() {
+            console.log('Executing data operation...');
+            // Implement data operation execution
+        }
+
+        function previewOperation() {
+            console.log('Previewing operation...');
+            // Implement operation preview
+        }
+
+        function scheduleOperation() {
+            console.log('Scheduling operation...');
+            // Implement operation scheduling
+        }
+
+        function cancelOperation() {
+            console.log('Cancelling operation...');
+            // Implement operation cancellation
+        }
+
+        // Profile Dropdown Functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function navigateToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function navigateToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function logout() {
+            // Clear any stored authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profile = document.querySelector('.admin-profile');
+            
+            if (!profile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

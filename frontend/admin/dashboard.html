@@ -939,7 +939,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:8003/api/v1/database/overview', {
+                const response = await fetch('/api/v1/database/overview', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

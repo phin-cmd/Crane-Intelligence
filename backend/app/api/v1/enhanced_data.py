@@ -14,9 +14,11 @@ from ...models.spec_catalog import SpecCatalog, ScrapingJob, ScrapingCache, Spec
 from ...models.crane import Crane, MarketData
 from ...services.specs_catalog_service import SpecsCatalogService
 from ...services.data_migration_service import data_migration_service
+from ...services.smart_rental_engine import SmartRentalEngine
 
-# Create service instance
+# Create service instances
 specs_catalog_service = SpecsCatalogService()
+smart_rental_engine = SmartRentalEngine()
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 from datetime import datetime
@@ -199,40 +201,144 @@ async def get_market_trends(db: Session = Depends(get_db)):
 async def get_rental_rates(
     crane_type: Optional[str] = Query(None, description="Crane type filter"),
     region: Optional[str] = Query(None, description="Region filter"),
+    capacity: Optional[float] = Query(None, description="Crane capacity in tons"),
+    year: Optional[int] = Query(None, description="Manufacturing year"),
+    rental_mode: Optional[str] = Query("bare", description="Rental mode: bare or operated"),
     db: Session = Depends(get_db)
 ):
-    """Get rental rates by crane type and region"""
+    """
+    Get rental rates by crane type and region using Smart Rental Engine v3.0
+    
+    This endpoint uses the self-calibrating Smart Rental Engine that:
+    - Automatically learns from regional CSV data
+    - Adjusts rates based on capacity, age, and region
+    - Supports both bare and operated rental modes
+    """
     try:
-        query = db.query(RentalRates)
+        # If specific capacity and region provided, use Smart Rental Engine
+        if capacity and region:
+            specs = {
+                'capacity': capacity,
+                'capacity_tons': capacity,
+                'region': region,
+                'crane_type': crane_type or 'All Terrain',
+                'year': year or 2022
+            }
+            
+            # Calculate smart rental rates
+            rental_result = smart_rental_engine.calculate_rental_rates(specs, rental_mode=rental_mode)
+            
+            return {
+                "success": True,
+                "source": "Smart Rental Engine v3.0",
+                "calibrated": rental_result['inputs']['calibrated'],
+                "rental_rates": rental_result['rental_rates'],
+                "utilization_analysis": rental_result['utilization_analysis'],
+                "rate_factors": rental_result['rate_factors'],
+                "inputs": rental_result['inputs']
+            }
         
-        if crane_type:
-            query = query.filter(RentalRates.crane_type.ilike(f"%{crane_type}%"))
-        
-        if region:
-            query = query.filter(RentalRates.region == region)
-        
-        rates = query.all()
-        
-        return {
-            "success": True,
-            "count": len(rates),
-            "rates": [
-                {
-                    "id": str(rate.id),
-                    "crane_type": rate.crane_type,
-                    "tonnage": rate.tonnage,
-                    "region": rate.region,
-                    "monthly_rate_usd": float(rate.monthly_rate_usd),
-                    "annual_rate_usd": float(rate.annual_rate_usd),
-                    "daily_rate_usd": float(rate.daily_rate_usd),
-                    "rate_date": rate.rate_date.isoformat() if rate.rate_date else None
-                }
-                for rate in rates
-            ]
-        }
+        # Otherwise, try to query database (fallback)
+        # Note: RentalRates table may not exist yet, so handle gracefully
+        try:
+            from ...models.enhanced_crane import RentalRates
+            query = db.query(RentalRates)
+            
+            if crane_type:
+                query = query.filter(RentalRates.crane_type.ilike(f"%{crane_type}%"))
+            
+            if region:
+                query = query.filter(RentalRates.region == region)
+            
+            rates = query.all()
+            
+            return {
+                "success": True,
+                "source": "Database",
+                "count": len(rates),
+                "rates": [
+                    {
+                        "id": str(rate.id),
+                        "crane_type": rate.crane_type,
+                        "tonnage": rate.tonnage,
+                        "region": rate.region,
+                        "monthly_rate_usd": float(rate.monthly_rate_usd),
+                        "annual_rate_usd": float(rate.annual_rate_usd),
+                        "daily_rate_usd": float(rate.daily_rate_usd),
+                        "rate_date": rate.rate_date.isoformat() if rate.rate_date else None
+                    }
+                    for rate in rates
+                ]
+            }
+        except Exception as db_error:
+            # Database query failed, provide helpful message
+            logger.warning(f"Database query failed, using Smart Rental Engine: {db_error}")
+            
+            # Return default rates using Smart Rental Engine
+            default_specs = {
+                'capacity': 100,
+                'region': region or 'Northeast',
+                'crane_type': crane_type or 'All Terrain',
+                'year': 2022
+            }
+            
+            rental_result = smart_rental_engine.calculate_rental_rates(default_specs, rental_mode="bare")
+            
+            return {
+                "success": True,
+                "source": "Smart Rental Engine v3.0 (Database unavailable)",
+                "message": "Using smart rental engine with default parameters. Provide capacity and year for accurate rates.",
+                "rental_rates": rental_result['rental_rates'],
+                "inputs": rental_result['inputs']
+            }
         
     except Exception as e:
         logger.error(f"Error getting rental rates: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/rental-roi-analysis")
+async def get_rental_roi_analysis(
+    capacity: float = Query(..., description="Crane capacity in tons"),
+    region: str = Query(..., description="Region"),
+    crane_type: str = Query("All Terrain", description="Crane type"),
+    year: int = Query(2022, description="Manufacturing year"),
+    purchase_price: float = Query(..., description="Purchase price"),
+    utilization_rate: float = Query(0.70, description="Expected utilization rate (0.0-1.0)")
+):
+    """
+    Calculate ROI analysis for crane rental using Smart Rental Engine v3.0
+    
+    Provides comprehensive financial analysis including:
+    - Annual revenue projections (bare and operated modes)
+    - Operating expenses breakdown
+    - Net operating income
+    - ROI percentages
+    - Payback periods
+    """
+    try:
+        specs = {
+            'capacity': capacity,
+            'capacity_tons': capacity,
+            'region': region,
+            'crane_type': crane_type,
+            'year': year
+        }
+        
+        # Calculate ROI analysis
+        roi_analysis = smart_rental_engine.get_roi_analysis(
+            specs,
+            purchase_price=purchase_price,
+            utilization_rate=utilization_rate
+        )
+        
+        return {
+            "success": True,
+            "source": "Smart Rental Engine v3.0",
+            "roi_analysis": roi_analysis
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating ROI analysis: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/performance-metrics")

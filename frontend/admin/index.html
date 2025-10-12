@@ -351,7 +351,7 @@
         // Simple admin panel initialization
         class AdminPanel {
             constructor() {
-                this.apiBaseUrl = 'http://localhost:8004/api/v1';
+                this.apiBaseUrl = '/api/v1';
                 this.init();
             }
             
@@ -909,7 +909,7 @@
                         return;
                     }
 
-                    const response = await fetch('http://localhost:8004/api/v1/admin/dashboard/stats', {
+                    const response = await fetch('/api/v1/admin/dashboard/stats', {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'

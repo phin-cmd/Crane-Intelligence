@@ -1210,7 +1210,7 @@
                 console.log('Loading admin users from database...');
                 loadingId = notificationSystem.showLoading('Loading admin users...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                const response = await fetch('/api/v1/admin/admin-users', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1468,7 +1468,7 @@
                 
                 loadingId = notificationSystem.showLoading('Adding admin user...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                const response = await fetch('/api/v1/admin/admin-users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1530,7 +1530,7 @@
                 
                 loadingId = notificationSystem.showLoading(`${action.charAt(0).toUpperCase() + action.slice(1)}ing admin user...`);
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
+                const response = await fetch(`/api/v1/admin/admin-users/${userId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1574,7 +1574,7 @@
                 
                 loadingId = notificationSystem.showLoading('Deleting admin user...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
+                const response = await fetch(`/api/v1/admin/admin-users/${userId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1632,7 +1632,7 @@
                 const role = selectedRole.value;
                 loadingId = notificationSystem.showLoading('Updating user role...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${currentEditingUserId}`, {
+                const response = await fetch(`/api/v1/admin/admin-users/${currentEditingUserId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1772,7 +1772,7 @@
                     notes: notes || null
                 };
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                const response = await fetch('/api/v1/admin/admin-users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1822,7 +1822,7 @@
             try {
                 loadingId = notificationSystem.showLoading('Exporting admin users...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users/export', {
+                const response = await fetch('/api/v1/admin/admin-users/export', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`

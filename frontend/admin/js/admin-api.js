@@ -5,7 +5,7 @@
 
 class AdminAPI {
     constructor() {
-        this.baseUrl = 'http://localhost:8003/api/v1';
+        this.baseUrl = '/api/v1';
         this.authToken = localStorage.getItem('admin_token');
         this.refreshToken = localStorage.getItem('admin_refresh_token');
         this.isRefreshing = false;

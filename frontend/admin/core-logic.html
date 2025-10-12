@@ -1778,7 +1778,7 @@
                 console.log('Loading core logic components from database...');
                 loadingId = notificationSystem.showLoading('Loading core logic components...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/components', {
+                const response = await fetch('/api/v1/admin/core-logic/components', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2075,7 +2075,7 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Starting component...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/start`, {
+                const response = await fetch(`/api/v1/admin/core-logic/components/${componentId}/start`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2118,7 +2118,7 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Stopping component...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/stop`, {
+                const response = await fetch(`/api/v1/admin/core-logic/components/${componentId}/stop`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2160,7 +2160,7 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Restarting component...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/restart`, {
+                const response = await fetch(`/api/v1/admin/core-logic/components/${componentId}/restart`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2196,7 +2196,7 @@
             try {
                 loadingId = notificationSystem.showLoading('Exporting core logic data...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/export', {
+                const response = await fetch('/api/v1/admin/core-logic/export', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`

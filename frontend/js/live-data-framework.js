@@ -16,8 +16,8 @@ class LiveDataFramework {
         
         // Configuration
         this.config = {
-            wsUrl: 'ws://localhost:8004/ws',
-            apiBaseUrl: 'http://localhost:8004/api/v1',
+            wsUrl: (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws',
+            apiBaseUrl: '/api/v1',  // Use relative path for production
             refreshInterval: 5000,
             cacheTimeout: 30000,
             maxCacheSize: 1000

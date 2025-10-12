@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRANE INTELLIGENCE - Valuation Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/unified-header.css">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* ===== VALUATION TERMINAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        /* Header Styles - Fixed Logo Alignment */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 0 !important;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 100px;
+        }
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 100%;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .logo-container:hover {
+            opacity: 0.8;
+        }
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+        /* Stock Ticker */
+        .stock-ticker {
+            background: #000000;
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: 1px solid #333;
+        }
+        .ticker-content {
+            display: inline-block;
+            animation: scroll-left 60s linear infinite;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .ticker-item {
+            margin-right: 3rem;
+        }
+        .ticker-symbol {
+            color: #FFFFFF;
+            margin-right: 0.5rem;
+        }
+        .ticker-price {
+            color: #FFFFFF;
+            margin-right: 0.5rem;
+        }
+        .ticker-change.positive {
+            color: #00FF88;
+        }
+        .ticker-change.negative {
+            color: #FF4444;
+        }
+        @keyframes scroll-left {
+            0% { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        /* User Profile */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF88;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #000;
+            font-size: 0.9rem;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .user-email {
+            font-size: 0.9rem;
+            color: #FFFFFF;
+            font-weight: 500;
+        }
+        .user-role {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .dropdown-arrow {
+            margin-left: 0.5rem;
+            color: #888;
+            transition: transform 0.3s ease;
+        }
+        .user-profile.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        /* User Profile Dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            margin-top: 10px;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            border-bottom: 1px solid #404040;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background: #404040;
+        }
+        .dropdown-item.logout {
+            color: #FF4444;
+        }
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+        .page-title {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .page-title h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: #FFFFFF;
+            margin-bottom: 0.5rem;
+        }
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 3rem;
+        }
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 3rem;
+        }
+        .tab-btn {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        .tab-btn:last-child {
+            border-radius: 0 8px 8px 0;
+            border-left: none;
+        }
+        .tab-btn.active {
+            background: #00FF88;
+            color: #000000;
+            border-color: #00FF88;
+        }
+        .tab-btn:hover:not(.active) {
+            background: #404040;
+        }
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Single Valuation Form */
+        .valuation-form {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .form-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: #FFFFFF;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group.half-width {
+            grid-column: span 2;
+        }
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .form-input, .form-select {
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #00FF88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        .form-input::placeholder {
+            color: #666;
+        }
+        .form-select option {
+            background: #2A2A2A;
+            color: #FFFFFF;
+        }
+        /* Form Buttons */
+        .form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background: #555;
+        }
+        .btn-primary {
+            background: #00FF88;
+            color: #000000;
+        }
+        .btn-primary:hover {
+            background: #00E67A;
+            transform: translateY(-2px);
+        }
+        /* Valuation Results */
+        .valuation-results {
+            display: none;
+            margin-top: 2rem;
+        }
+        .valuation-results.show {
+            display: block;
+        }
+        .results-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .result-card {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00FF88;
+            margin-bottom: 0.5rem;
+        }
+        .result-label {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .result-sublabel {
+            font-size: 0.8rem;
+            color: #00FF88;
+        }
+        /* Analysis Tabs */
+        .analysis-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 2rem;
+        }
+        .analysis-tab {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .analysis-tab:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        .analysis-tab:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        .analysis-tab:not(:first-child) {
+            border-left: none;
+        }
+        .analysis-tab.active {
+            background: #FFFFFF;
+            color: #000000;
+        }
+        .analysis-tab:hover:not(.active) {
+            background: #404040;
+        }
+        /* Analysis Content */
+        .analysis-content {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            min-height: 500px;
+        }
+        .analysis-section {
+            display: none;
+        }
+        .analysis-section.active {
+            display: block;
+        }
+        .chart-container {
+            background: #2A2A2A;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            height: 400px;
+            position: relative;
+        }
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #FFFFFF;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: #2A2A2A;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00FF88;
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        /* Bulk Processing */
+        .bulk-upload {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .upload-area {
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .upload-area:hover {
+            border-color: #00FF88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        .upload-area.dragover {
+            border-color: #00FF88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #FFFFFF;
+        }
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .template-btn {
+            background: #404040;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .template-btn:hover {
+            background: #555;
+        }
+        /* Bulk Results */
+        .bulk-results {
+            display: none;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .bulk-results.show {
+            display: block;
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .results-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+        .results-summary {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .results-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #404040;
+        }
+        .results-table th {
+            background: #2A2A2A;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        .results-table td {
+            color: #FFFFFF;
+        }
+        .action-btn {
+            background: #404040;
+            color: #FFFFFF;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            background: #555;
+        }
+        .action-btn.view {
+            background: #00FF88;
+            color: #000000;
+        }
+        .action-btn.view:hover {
+            background: #00E67A;
+        }
+        .action-btn.delete {
+            background: #FF4444;
+        }
+        .action-btn.delete:hover {
+            background: #FF6666;
+        }
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .pagination-btn {
+            background: #404040;
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #555;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-btn.active {
+            background: #00FF88;
+            color: #000000;
+        }
+        .pagination-info {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        /* Quick Actions Tools */
+        .quick-actions {
+            margin: 3rem 0 2rem 0;
+            padding: 2rem 0;
+            border-top: 1px solid #404040;
+        }
+        .quick-actions-title {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .tool-card {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .tool-card:hover {
+            border-color: #00FF88;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
+            transform: translateY(-2px);
+        }
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #404040;
+        }
+        .tool-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2A2A2A;
+            border-radius: 8px;
+        }
+        .tool-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .tool-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .tool-input {
+            width: 100%;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 14px 16px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+        .tool-input:focus {
+            outline: none;
+            border-color: #00FF88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        .tool-input::placeholder {
+            color: #666;
+        }
+        .tool-select {
+            width: 100%;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 14px 16px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tool-select:focus {
+            outline: none;
+            border-color: #00FF88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        .tool-select option {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            padding: 10px;
+        }
+        .tool-btn {
+            background: #00FF88;
+            color: #000000;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+        .tool-btn:hover {
+            background: #00E67A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+        .converter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .converter-input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 14px 16px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .converter-input:focus {
+            outline: none;
+            border-color: #00FF88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        .converter-input::placeholder {
+            color: #666;
+        }
+        .converter-arrow {
+            color: #00FF88;
+            font-size: 1.5rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        input[type="date"].tool-input,
+        input[type="time"].tool-input {
+            min-height: auto;
+            cursor: pointer;
+        }
+        input[type="date"].tool-input::-webkit-calendar-picker-indicator,
+        input[type="time"].tool-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        /* Footer */
+        .footer {
+            background: #1A1A1A;
+            border-top: 1px solid #404040;
+            padding: 3rem 0 2rem 0;
+            margin-top: 2rem;
+        }
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section h3 {
+            color: #00FF88;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .footer-section p {
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .footer-links {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: #00FF88;
+        }
+        .newsletter-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .newsletter-input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 12px;
+            color: #FFFFFF;
+        }
+        .newsletter-input:focus {
+            outline: none;
+            border-color: #00FF88;
+        }
+        .newsletter-btn {
+            background: #00FF88;
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .newsletter-btn:hover {
+            background: #00E67A;
+        }
+        .footer-bottom {
+            border-top: 1px solid #404040;
+            padding-top: 2rem;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .footer-logo img {
+            height: 40px;
+            width: auto;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .modal-close:hover {
+            color: #FFFFFF;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .results-cards {
+                grid-template-columns: 1fr;
+            }
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .tool-card {
+                padding: 1.5rem;
+            }
+            .tool-header {
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+            }
+            .tool-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+            .tool-title {
+                font-size: 1rem;
+            }
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .tab-navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            .tab-btn {
+                border-radius: 8px !important;
+                border: 1px solid #404040 !important;
+                margin-bottom: 0.5rem;
+            }
+            .analysis-tabs {
+                flex-wrap: wrap;
+            }
+            .analysis-tab {
+                border-radius: 8px !important;
+                border: 1px solid #404040 !important;
+                margin: 0.25rem;
+            }
+            .converter-row {
+                flex-direction: column;
+            }
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-container" onclick="navigateToHome()">
+                <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo">
+            </div>
+            
+            <div class="user-profile" onclick="toggleUserDropdown()">
+                <div class="user-avatar">DU</div>
+                <div class="user-info">
+                    <div class="user-email">demo@craneintelligence.tech</div>
+                    <div class="user-role">Premium User</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+                
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                    <a href="valuation_terminal.html" class="dropdown-item">Valuation Terminal</a>
+                    <a href="#" class="dropdown-item">Market Analysis</a>
+                    <a href="#" class="dropdown-item">Settings</a>
+                    <a href="#" class="dropdown-item">Help & Support</a>
+                    <a href="#" class="dropdown-item logout" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stock Ticker -->
+    <div class="stock-ticker">
+        <div class="ticker-content">
+            <span class="ticker-item">
+                <span class="ticker-symbol">XCMG</span>
+                <span class="ticker-price">467.8</span>
+                <span class="ticker-change negative">-0.6%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">MANITEX</span>
+                <span class="ticker-price">757.8</span>
+                <span class="ticker-change positive">+1.3%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">AMERICAN</span>
+                <span class="ticker-price">733.9</span>
+                <span class="ticker-change negative">-1.2%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">SHUTTLELIFT</span>
+                <span class="ticker-price">685.4</span>
+                <span class="ticker-change positive">+2.2%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">GALION</span>
+                <span class="ticker-price">789.8</span>
+                <span class="ticker-change negative">-0.5%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">DEMAG</span>
+                <span class="ticker-price">891.2</span>
+                <span class="ticker-change positive">+1.8%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">TEREX</span>
+                <span class="ticker-price">234.5</span>
+                <span class="ticker-change negative">-0.7%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">LIEBHERR</span>
+                <span class="ticker-price">567.3</span>
+                <span class="ticker-change positive">+3.1%</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1>VALUATION TERMINAL</h1>
+            <p class="page-subtitle">Professional-grade crane valuation with Bloomberg-style analysis</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('single', this)">Single Valuation</button>
+            <button class="tab-btn" onclick="switchTab('bulk', this)">📊 Bulk Processing</button>
+        </div>
+
+        <!-- Single Valuation Tab -->
+        <div id="singleTab" class="tab-content active">
+            <div class="valuation-form">
+                <h2 class="form-title">Crane Valuation</h2>
+                <form id="valuationForm">
+                    <div class="form-grid">
+                        <!-- First Row -->
+                        <div class="form-group">
+                            <label class="form-label">Manufacturer *</label>
+                            <select class="form-select" id="manufacturer" required>
+                                <option value="">Select Manufacturer</option>
+                                <option value="Liebherr">Liebherr (49 models)</option>
+                                <option value="Grove">Grove (25 models)</option>
+                                <option value="Manitowoc">Manitowoc (15 models)</option>
+                                <option value="Tadano">Tadano (15 models)</option>
+                                <option value="Sany">Sany (12 models)</option>
+                                <option value="Kobelco">Kobelco (14 models)</option>
+                                <option value="American">American (12 models)</option>
+                                <option value="Link-Belt">Link-Belt (8 models)</option>
+                                <option value="Demag">Demag (4 models)</option>
+                                <option value="Terex">Terex (3 models)</option>
+                                <option value="XCMG">XCMG (3 models)</option>
+                                <option value="Zoomlion">Zoomlion (2 models)</option>
+                                <option value="HSC">HSC (2 models)</option>
+                                <option value="Kato">Kato (3 models)</option>
+                                <option value="IHI">IHI (2 models)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Model *</label>
+                            <select class="form-select" id="model" required>
+                                <option value="">Select Model</option>
+                                <!-- Models will be populated dynamically based on manufacturer selection -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year *</label>
+                            <input type="number" class="form-input" id="year" placeholder="2023" required>
+                        </div>
+                        
+                        <!-- Second Row -->
+                        <div class="form-group">
+                            <label class="form-label">Capacity (Tons) *</label>
+                            <input type="number" class="form-input" id="capacity" placeholder="500" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Operating Hours *</label>
+                            <input type="number" class="form-input" id="hours" placeholder="3700" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Mileage</label>
+                            <input type="number" class="form-input" id="mileage" placeholder="25000">
+                        </div>
+                        
+                        <!-- Third Row -->
+                        <div class="form-group">
+                            <label class="form-label">Region *</label>
+                            <select class="form-select" id="region" required>
+                                <option value="">Select Region</option>
+                                <option value="North America">North America</option>
+                                <option value="Europe">Europe</option>
+                                <option value="Asia Pacific">Asia Pacific</option>
+                                <option value="Middle East">Middle East</option>
+                                <option value="Africa">Africa</option>
+                                <option value="South America">South America</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Asking Price (Optional)</label>
+                            <input type="text" class="form-input" id="askingPrice" placeholder="$3,500,000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="loadSampleData()">LOAD SAMPLE DATA</button>
+                        <button type="submit" class="btn btn-primary">VALUE CRANE</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Valuation Results -->
+            <div id="valuationResults" class="valuation-results">
+                <div class="results-cards">
+                    <div class="result-card">
+                        <div class="result-value" id="estimatedValue">$3.25M</div>
+                        <div class="result-label">ESTIMATED VALUE</div>
+                        <div class="result-sublabel">+3.0% vs market avg</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" id="confidenceScore">94%</div>
+                        <div class="result-label">CONFIDENCE SCORE</div>
+                        <div class="result-sublabel">High Confidence</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" id="dealGrade">A+</div>
+                        <div class="result-label">DEAL GRADE</div>
+                        <div class="result-sublabel">Strong Buy</div>
+                    </div>
+                </div>
+
+                <!-- Analysis Tabs -->
+                <div class="analysis-tabs">
+                    <button class="analysis-tab active" onclick="switchAnalysis('overview', this)">OVERVIEW</button>
+                    <button class="analysis-tab" onclick="switchAnalysis('analysis', this)">ANALYSIS</button>
+                    <button class="analysis-tab" onclick="switchAnalysis('costbreakdown', this)">COST BREAKDOWN</button>
+                    <button class="analysis-tab" onclick="switchAnalysis('comparables', this)">COMPARABLES</button>
+                    <button class="analysis-tab" onclick="switchAnalysis('risk', this)">RISK</button>
+                </div>
+
+                <div class="analysis-content">
+                    <!-- Overview Section -->
+                    <div id="overviewSection" class="analysis-section active">
+                        <div class="chart-container">
+                            <div class="chart-title">VALUATION TREND ANALYSIS</div>
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value">0.9</div>
+                                <div class="metric-label">AGE FACTOR</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">0.85</div>
+                                <div class="metric-label">CONDITION</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">High</div>
+                                <div class="metric-label">MARKET DEMAND</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">Low</div>
+                                <div class="metric-label">RISK SCORE</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Section -->
+                    <div id="analysisSection" class="analysis-section">
+                        <div class="chart-container">
+                            <div class="chart-title">MANUFACTURER ANALYSIS</div>
+                            <canvas id="manufacturerChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">CAPACITY DISTRIBUTION</div>
+                            <canvas id="capacityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Cost Breakdown Section -->
+                    <div id="costbreakdownSection" class="analysis-section">
+                        <div class="chart-title">VALUATION COST BREAKDOWN</div>
+                        
+                        <!-- Base Value Calculation -->
+                        <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #00FF88; margin-bottom: 1rem; font-size: 1.1rem; text-transform: uppercase;">Base Value Calculation</h4>
+                            <table class="results-table" style="margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 60%;"><strong>Capacity Base Price</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">$2,500,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">500 tons × $5,000/ton base rate</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Base calculation</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Manufacturer Premium</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">+$375,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">Terex premium factor: 15%</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Brand value</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Model Premium</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">+$200,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">AC 500-2 model premium: 8%</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Model features</td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #00FF88;">
+                                        <td><strong>Subtotal (Base Value)</strong></td>
+                                        <td style="text-align: right; color: #00FF88; font-size: 1.2rem;"><strong>$3,075,000</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Adjustments -->
+                        <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #FFB800; margin-bottom: 1rem; font-size: 1.1rem; text-transform: uppercase;">Adjustments</h4>
+                            <table class="results-table" style="margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 60%;"><strong>Age Depreciation</strong></td>
+                                        <td style="text-align: right; color: #FFB800;">-$153,750</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">2022 model (2 years old) @ 5% per year</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Age factor: 0.90</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Operating Hours Adjustment</strong></td>
+                                        <td style="text-align: right; color: #FF4444;">-$92,250</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">3,700 hours (above average) @ -3%</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Usage impact</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Regional Factor</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">+$123,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">North America premium: +4%</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Market demand</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Market Conditions</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">+$92,250</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">Current market trend: Strong (+3%)</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Supply/demand</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Condition Score Adjustment</strong></td>
+                                        <td style="text-align: right; color: #00FF88;">+$153,750</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">Excellent condition (95/100) @ +5%</td>
+                                        <td style="text-align: right; color: #888; font-size: 0.9rem;">Maintenance quality</td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #FFB800;">
+                                        <td><strong>Total Adjustments</strong></td>
+                                        <td style="text-align: right; color: #FFB800; font-size: 1.2rem;"><strong>+$123,000</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Final Valuation Summary -->
+                        <div style="background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%); padding: 2rem; border-radius: 8px; border: 2px solid #00FF88;">
+                            <h4 style="color: #FFFFFF; margin-bottom: 1.5rem; font-size: 1.3rem; text-transform: uppercase; text-align: center;">Final Valuation Summary</h4>
+                            <table class="results-table" style="margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 60%; font-size: 1.1rem;"><strong>Base Value</strong></td>
+                                        <td style="text-align: right; font-size: 1.1rem;">$3,075,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-size: 1.1rem;"><strong>Total Adjustments</strong></td>
+                                        <td style="text-align: right; font-size: 1.1rem;">+$123,000</td>
+                                    </tr>
+                                    <tr style="border-top: 3px solid #00FF88;">
+                                        <td style="font-size: 1.5rem;"><strong>ESTIMATED VALUE</strong></td>
+                                        <td style="text-align: right; color: #00FF88; font-size: 1.8rem;"><strong>$3,198,000</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="padding-top: 1rem; border-top: 1px solid #404040;">
+                                            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                                <span style="color: #888;">Confidence Score:</span>
+                                                <span style="color: #00FF88; font-weight: 600;">94%</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                                <span style="color: #888;">Value Range:</span>
+                                                <span style="color: #FFFFFF; font-weight: 600;">$3.04M - $3.36M</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                                <span style="color: #888;">Market Position:</span>
+                                                <span style="color: #00FF88; font-weight: 600;">Strong Buy</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Calculation Methodology Note -->
+                        <div style="background: #1A1A1A; padding: 1rem; border-radius: 8px; margin-top: 1.5rem; border-left: 4px solid #00FF88;">
+                            <p style="color: #888; font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                <strong style="color: #00FF88;">Methodology:</strong> This cost breakdown analysis uses our proprietary multi-factor rules engine that considers capacity-based pricing, manufacturer reputation, model-specific features, equipment age, operating hours, regional market conditions, and current supply/demand dynamics. All adjustments are based on real-time market data and historical transaction analysis across 50,000+ crane sales.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Comparables Section -->
+                    <div id="comparablesSection" class="analysis-section">
+                        <div class="chart-title">COMPARABLE SALES DATA</div>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th>Year</th>
+                                    <th>Capacity</th>
+                                    <th>Hours</th>
+                                    <th>Sale Price</th>
+                                    <th>Price/Ton</th>
+                                    <th>Trend</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>LIEBHERR LTM1500-8.1</td>
+                                    <td>2022</td>
+                                    <td>500T</td>
+                                    <td>1200</td>
+                                    <td>$3,145,000</td>
+                                    <td>$6,290</td>
+                                    <td style="color: #00FF88;">+2.3%</td>
+                                    <td>North America</td>
+                                </tr>
+                                <tr>
+                                    <td>GROVE GMK2500L</td>
+                                    <td>2021</td>
+                                    <td>250T</td>
+                                    <td>1800</td>
+                                    <td>$1,890,000</td>
+                                    <td>$7,560</td>
+                                    <td style="color: #FF4444;">-1.8%</td>
+                                    <td>Europe</td>
+                                </tr>
+                                <tr>
+                                    <td>TADANO ATF600G-8</td>
+                                    <td>2020</td>
+                                    <td>600T</td>
+                                    <td>2500</td>
+                                    <td>$2,450,000</td>
+                                    <td>$4,083</td>
+                                    <td style="color: #FF4444;">-0.5%</td>
+                                    <td>Asia Pacific</td>
+                                </tr>
+                                <tr>
+                                    <td>MANITOWOC MLC300</td>
+                                    <td>2019</td>
+                                    <td>300T</td>
+                                    <td>2800</td>
+                                    <td>$1,750,000</td>
+                                    <td>$5,833</td>
+                                    <td style="color: #00FF88;">+3.1%</td>
+                                    <td>North America</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Risk Section -->
+                    <div id="riskSection" class="analysis-section">
+                        <div class="chart-title">RISK ANALYSIS</div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value" style="color: #FF4444;">35%</div>
+                                <div class="metric-label">Market Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color: #FFB800;">25%</div>
+                                <div class="metric-label">Condition Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color: #FFB800;">20%</div>
+                                <div class="metric-label">Age Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color: #00FF88;">20%</div>
+                                <div class="metric-label">Location Risk</div>
+                            </div>
+                        </div>
+                        <div class="metric-card" style="margin-top: 2rem; text-align: center;">
+                            <div class="metric-value" style="color: #00FF88; font-size: 3rem;">LOW</div>
+                            <div class="metric-label">Overall Risk Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Processing Tab -->
+        <div id="bulkTab" class="tab-content">
+            <div class="bulk-upload">
+                <h2 class="form-title">Bulk Crane Valuation</h2>
+                <div class="upload-area" id="uploadArea" onclick="triggerFileInput()">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Drop your Excel file here or click to browse</div>
+                    <div class="upload-subtext">Supports .xlsx, .xls, .csv files up to 10MB</div>
+                </div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(event)">
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="template-btn" onclick="downloadTemplate()">DOWNLOAD TEMPLATE</button>
+                </div>
+            </div>
+
+            <!-- Bulk Results -->
+            <div id="bulkResults" class="bulk-results">
+                <div class="results-header">
+                    <div>
+                        <div class="results-title">Bulk Valuation Results</div>
+                        <div class="results-summary" id="resultsSummary">5 cranes processed • 5 successful • 0 errors</div>
+                    </div>
+                    <div class="results-actions">
+                        <button class="btn btn-secondary" onclick="exportResults()">EXPORT RESULTS</button>
+                        <button class="btn btn-primary" onclick="generateReport()">GENERATE REPORT</button>
+                    </div>
+                </div>
+                
+                <table class="results-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Crane</th>
+                            <th>Year</th>
+                            <th>Capacity</th>
+                            <th>Hours</th>
+                            <th>Region</th>
+                            <th>Estimated Value</th>
+                            <th>Confidence</th>
+                            <th>Grade</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+                
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Tools -->
+        <div class="quick-actions">
+            <h2 class="quick-actions-title">Quick Actions Tools</h2>
+            <div class="tools-grid">
+                <!-- Notes Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📝</div>
+                        <div class="tool-title">Notes</div>
+                    </div>
+                    <div class="tool-content">
+                        <textarea class="tool-input" placeholder="Add your valuation notes, observations, or follow-up items here..." id="notesInput"></textarea>
+                        <button class="tool-btn" onclick="saveNotes()">💾 SAVE NOTES</button>
+                    </div>
+                </div>
+
+                <!-- Calendar Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📅</div>
+                        <div class="tool-title">Schedule Event</div>
+                    </div>
+                    <div class="tool-content">
+                        <input type="date" class="tool-input" id="eventDate" placeholder="Event date">
+                        <input type="time" class="tool-input" id="eventTime" placeholder="Event time">
+                        <input type="text" class="tool-input" placeholder="Event description (e.g., Site inspection, Meeting)" id="eventDescription" style="min-height: auto;">
+                        <button class="tool-btn" onclick="scheduleEvent()">📌 SCHEDULE EVENT</button>
+                    </div>
+                </div>
+
+                <!-- Unit Converter Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🔄</div>
+                        <div class="tool-title">Unit Converter</div>
+                    </div>
+                    <div class="tool-content">
+                        <select class="tool-select" id="converterType" onchange="convertUnits()">
+                            <option value="tons">Tons → Kilograms</option>
+                            <option value="feet">Feet → Meters</option>
+                            <option value="pounds">Pounds → Kilograms</option>
+                            <option value="gallons">Gallons → Liters</option>
+                        </select>
+                        <div class="converter-row">
+                            <input type="number" class="converter-input" placeholder="Enter value" id="converterInput" oninput="convertUnits()">
+                            <div class="converter-arrow">→</div>
+                            <input type="text" class="converter-input" placeholder="Result" id="converterResult" readonly style="background: #1A1A1A; color: #00FF88; font-weight: 600;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence">
+                    </div>
+                    <p>Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>QUICK LINKS</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>LEGAL & SUPPORT</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Security</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>STAY UPDATED</h3>
+                    <p>Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter-form">
+                        <input type="email" class="newsletter-input" placeholder="Enter your email">
+                        <button class="newsletter-btn">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal for Detailed Reports -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detailed Crane Report</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Report content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentTab = 'single';
+        let currentAnalysis = 'overview';
+        let bulkData = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let chartInstances = {}; // Store chart instances to prevent duplicates
+
+        // Manufacturer-Model mapping
+        const manufacturerModels = {
+            'Liebherr': [
+                // Mobile All-Terrain Cranes
+                'LTM 1025', 'LTM 1030-2.1', 'LTM 1040-2.1', 'LTM 1050-3.1', 'LTM 1060-3.1',
+                'LTM 1070-4.2', 'LTM 1080-2', 'LTM 1090-4.2', 'LTM 1100-5.2', 'LTM 1110-5.1',
+                'LTM 1120-4.1', 'LTM 1130-5.1', 'LTM 1160-5.2', 'LTM 1200-5.1', 'LTM 1220-5.2',
+                'LTM 1230-5.1', 'LTM 1250-6.1', 'LTM 1300-6.2', 'LTM 1350-6.1', 'LTM 1400-7.1',
+                'LTM 1450-8.1', 'LTM 1500-8.1', 'LTM 1650-8.1', 'LTM 1750-9.1', 'LTM 11200-9.1',
+                // Mobile City Cranes
+                'LTC 1045-3.1', 'LTC 1050-3.1',
+                // Mobile Rough Terrain Cranes
+                'LRT 1090-2.1', 'LRT 1100-2.1',
+                // Mobile Telescopic Crawler Cranes
+                'LTR 1040', 'LTR 1060', 'LTR 1100', 'LTR 1220',
+                // Crawler Lattice Cranes
+                'LR 1100', 'LR 1160', 'LR 1200', 'LR 1250', 'LR 1280', 'LR 1300.1 SX',
+                'LR 1350/1', 'LR 1400/2', 'LR 1500', 'LR 1600/2', 'LR 1700-1.0', 'LR 1750/2',
+                'LR 1800-1.0', 'LR 11350', 'LR 13000'
+            ],
+            'Grove': [
+                // Mobile All-Terrain Cranes
+                'GMK3050-2', 'GMK3060-2', 'GMK3060L-1', 'GMK4090-1', 'GMK4100L-1',
+                'GMK4100L-2', 'GMK5150L-1', 'GMK5250L-1', 'GMK5250XL-1', 'GMK6300L-1',
+                'GMK6400-1', 'GMK7550',
+                // Mobile Rough Terrain Cranes
+                'RT530E-2', 'RT540E', 'GRT655', 'GRT655L', 'GRT880', 'GRT8100', 'GRT8120', 'GRT9165',
+                // Mobile Truck-Mounted Cranes
+                'TMS500-2', 'TMS700E', 'TMS800E', 'TMS9000-2',
+                // Mobile Telescopic Crawler Cranes
+                'GHC30', 'GHC45', 'GHC55', 'GHC75', 'GHC85', 'GHC130'
+            ],
+            'Manitowoc': [
+                // Crawler Lattice Cranes
+                '3900', '4100W', '777', '888', '999', '14000', '16000', '18000', '21000', '2250',
+                'MLC100-1', 'MLC150-1', 'MLC300', 'MLC650', '31000'
+            ],
+            'Tadano': [
+                // Mobile Rough Terrain Cranes
+                'GR-500XL', 'GR-550XL-3', 'GR-750XL-3', 'GR-800XL-4', 'GR-1000XL-4', 'GR-1200XL',
+                // Mobile All-Terrain Cranes
+                'ATF 70G-4', 'ATF 110G-5', 'ATF 130G-5', 'ATF 200G-5', 'ATF 220G-5',
+                'AC 4.100L-1', 'AC 5.220-1', 'AC 7.450-1',
+                // Crawler Lattice Cranes
+                'CC 2800-1', 'CC 3800-1', 'CC 6800-1', 'CC 8800-1'
+            ],
+            'Sany': [
+                // Mobile All-Terrain Cranes
+                'SAC1200', 'SAC2200', 'SAC2500', 'SAC6000',
+                // Mobile Rough Terrain Cranes
+                'SRC900',
+                // Mobile Truck-Mounted Cranes
+                'STC750',
+                // Crawler Lattice Cranes
+                'SCC1000A', 'SCC1500D', 'SCC2500A', 'SCC4000A', 'SCC6500A', 'SCC8000A', 'SCC10000A'
+            ],
+            'Kobelco': [
+                // Crawler Lattice Cranes
+                'CK800G-2', 'CK850G-2', 'CK1000G-2', 'CK1200G-2', 'CK1600G-2', 'CK2000G-2',
+                'CK2500G-2', 'CK3300G-2', 'CKE800G-2', 'CKE900G-2', 'CKE1100G-2', 'CKE1350G-2',
+                'SL4500', 'SL6000'
+            ],
+            'American': [
+                // Crawler Lattice Cranes
+                'American 7250', 'American 7260', 'American 8470', 'American 9299', 'American 9310',
+                'HC 50', 'HC 80', 'HC 110', 'HC 165', 'HC 230', 'HC 275', 'HC 285'
+            ],
+            'Link-Belt': [
+                // Crawler Lattice Cranes
+                '218 HSL', '238 HSL', '298 HSL', '348 Series 2',
+                // Mobile Telescopic Crawler Cranes
+                'TCC-1100', 'TCC-2500',
+                // Mobile Rough Terrain Cranes
+                'RTC-8090',
+                // Mobile All-Terrain Cranes
+                'ATC-3275'
+            ],
+            'Demag': [
+                // Mobile All-Terrain Cranes
+                'AC 100/4L', 'AC 700',
+                // Crawler Lattice Cranes
+                'CC 2800-1', 'CC 8800-1'
+            ],
+            'Terex': [
+                // Mobile Rough Terrain Cranes
+                'RT 780',
+                // Mobile All-Terrain Cranes
+                'AC 350/6',
+                // Crawler Lattice Cranes
+                'CC 2800-1'
+            ],
+            'XCMG': [
+                // Crawler Lattice Cranes
+                'XGC88000',
+                // Mobile Truck-Mounted Cranes
+                'XCT100',
+                // Mobile All-Terrain Cranes
+                'XCA300'
+            ],
+            'Zoomlion': [
+                // Crawler Lattice Cranes
+                'ZCC12500', 'ZCC3200NP'
+            ],
+            'HSC': [
+                // Crawler Lattice Cranes
+                'SCX1200A-3', 'SCX2800A-3'
+            ],
+            'Kato': [
+                // Mobile Truck-Mounted Cranes
+                'NK-250E',
+                // Mobile Rough Terrain Cranes
+                'KR-35H (MR-350)', 'SR-250R'
+            ],
+            'IHI': [
+                // Crawler Lattice Cranes
+                'CCH700', 'CCH2500'
+            ]
+        };
+
+        // Populate models based on manufacturer selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const manufacturerSelect = document.getElementById('manufacturer');
+            const modelSelect = document.getElementById('model');
+            
+            if (manufacturerSelect && modelSelect) {
+                manufacturerSelect.addEventListener('change', function() {
+                    const manufacturer = this.value;
+                    
+                    // Clear existing options
+                    modelSelect.innerHTML = '<option value="">Select Model</option>';
+                    
+                    // Populate models for selected manufacturer
+                    if (manufacturer && manufacturerModels[manufacturer]) {
+                        manufacturerModels[manufacturer].forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model;
+                            option.textContent = model;
+                            modelSelect.appendChild(option);
+                        });
+                    }
+                });
+            }
+        });
+
+        // Header functionality
+        function navigateToHome() {
+            window.location.href = 'index.html';
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.querySelector('.user-profile');
+            
+            dropdown.classList.toggle('show');
+            userProfile.classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'index.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (!userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+                userProfile.classList.remove('active');
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab, element) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        // Analysis tab switching
+        function switchAnalysis(analysis, element) {
+            currentAnalysis = analysis;
+            
+            // Update analysis tab buttons
+            document.querySelectorAll('.analysis-tab').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            // Update analysis sections
+            document.querySelectorAll('.analysis-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(analysis + 'Section').classList.add('active');
+            
+            // Initialize charts if needed
+            if (analysis === 'overview') {
+                initializeTrendChart();
+            } else if (analysis === 'analysis') {
+                initializeManufacturerChart();
+                initializeCapacityChart();
+            } else if (analysis === 'costbreakdown') {
+                // Cost breakdown section is static, no initialization needed
+                console.log('Cost breakdown section displayed');
+            }
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            document.getElementById('manufacturer').value = 'Terex';
+            document.getElementById('model').value = 'AC 500-2';
+            document.getElementById('year').value = '2022';
+            document.getElementById('capacity').value = '500';
+            document.getElementById('hours').value = '3700';
+            document.getElementById('mileage').value = '25000';
+            document.getElementById('region').value = 'North America';
+            document.getElementById('askingPrice').value = '$3,500,000';
+        }
+
+        // Form submission
+        document.getElementById('valuationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = document.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'CALCULATING...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Show results
+                document.getElementById('valuationResults').classList.add('show');
+                
+                // Scroll to results
+                document.getElementById('valuationResults').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Initialize charts
+                initializeTrendChart();
+                
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+
+        // Chart initialization
+        function initializeTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            
+            // Destroy existing chart if it exists
+            if (chartInstances['trendChart']) {
+                chartInstances['trendChart'].destroy();
+            }
+            
+            chartInstances['trendChart'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: '12 Month History',
+                        data: [3.00, 3.05, 3.12, 3.15, 3.22, 3.25, 3.28, 3.30, 3.32, 3.31, 3.28, 3.25],
+                        borderColor: '#00FF88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#404040'
+                            },
+                            ticks: {
+                                color: '#888',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2) + 'M';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#404040'
+                            },
+                            ticks: {
+                                color: '#888'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeManufacturerChart() {
+            const ctx = document.getElementById('manufacturerChart');
+            if (!ctx) return;
+            
+            // Destroy existing chart if it exists
+            if (chartInstances['manufacturerChart']) {
+                chartInstances['manufacturerChart'].destroy();
+            }
+            
+            chartInstances['manufacturerChart'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Terex', 'Liebherr', 'Grove', 'Tadano', 'Manitowoc', 'Others'],
+                    datasets: [{
+                        data: [25, 20, 18, 15, 12, 10],
+                        backgroundColor: [
+                            '#00FF88',
+                            '#FFB800',
+                            '#FF4444',
+                            '#4A90E2',
+                            '#7B68EE',
+                            '#888888'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#FFFFFF',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeCapacityChart() {
+            const ctx = document.getElementById('capacityChart');
+            if (!ctx) return;
+            
+            // Destroy existing chart if it exists
+            if (chartInstances['capacityChart']) {
+                chartInstances['capacityChart'].destroy();
+            }
+            
+            chartInstances['capacityChart'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-50T', '50-100T', '100-200T', '200-500T', '500-1000T', '1000T+'],
+                    datasets: [{
+                        label: 'Market Share',
+                        data: [35, 28, 25, 40, 25, 15],
+                        backgroundColor: '#00FF88'
+                    }, {
+                        label: 'Average Value ($M)',
+                        data: [0.5, 1.2, 2.1, 3.8, 6.2, 12.5],
+                        backgroundColor: '#FFB800',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: {
+                                color: '#404040'
+                            },
+                            ticks: {
+                                color: '#888'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: '#888'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#404040'
+                            },
+                            ticks: {
+                                color: '#888'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Bulk upload functionality
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.innerHTML = '<div class="upload-text">Processing file...</div>';
+            
+            // Simulate file processing
+            setTimeout(() => {
+                // Sample data for demonstration
+                bulkData = [
+                    {
+                        crane: 'Terex AC 500-2',
+                        year: '2022',
+                        capacity: '500T',
+                        hours: '3700',
+                        region: 'North America',
+                        estimatedValue: '$3,250,000',
+                        confidence: '95%',
+                        grade: 'A+'
+                    },
+                    {
+                        crane: 'Liebherr LTM 1500-8.1',
+                        year: '2021',
+                        capacity: '500T',
+                        hours: '4200',
+                        region: 'Europe',
+                        estimatedValue: '$3,180,000',
+                        confidence: '97%',
+                        grade: 'A+'
+                    },
+                    {
+                        crane: 'Grove GMK2500L',
+                        year: '2020',
+                        capacity: '250T',
+                        hours: '1800',
+                        region: 'North America',
+                        estimatedValue: '$1,890,000',
+                        confidence: '99%',
+                        grade: 'A'
+                    },
+                    {
+                        crane: 'Tadano ATF600G-8',
+                        year: '2019',
+                        capacity: '600T',
+                        hours: '2500',
+                        region: 'Asia Pacific',
+                        estimatedValue: '$2,450,000',
+                        confidence: '96%',
+                        grade: 'A'
+                    },
+                    {
+                        crane: 'Manitowoc MLC300',
+                        year: '2018',
+                        capacity: '300T',
+                        hours: '2800',
+                        region: 'North America',
+                        estimatedValue: '$1,750,000',
+                        confidence: '94%',
+                        grade: 'B+'
+                    }
+                ];
+                
+                displayBulkResults();
+                uploadArea.innerHTML = '<div class="upload-icon">✅</div><div class="upload-text">File processed successfully</div>';
+            }, 2000);
+        }
+
+        function displayBulkResults() {
+            const resultsDiv = document.getElementById('bulkResults');
+            const tableBody = document.getElementById('resultsTableBody');
+            const summary = document.getElementById('resultsSummary');
+            
+            // Update summary
+            summary.textContent = `${bulkData.length} cranes processed • ${bulkData.length} successful • 0 errors`;
+            
+            // Clear existing results
+            tableBody.innerHTML = '';
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = bulkData.slice(startIndex, endIndex);
+            
+            // Populate table
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.crane}</td>
+                    <td>${item.year}</td>
+                    <td>${item.capacity}</td>
+                    <td>${item.hours}</td>
+                    <td>${item.region}</td>
+                    <td>${item.estimatedValue}</td>
+                    <td>${item.confidence}</td>
+                    <td>${item.grade}</td>
+                    <td>
+                        <button class="action-btn view" onclick="viewReport(${startIndex + index})">📊</button>
+                        <button class="action-btn delete" onclick="deleteItem(${startIndex + index})">🗑️</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination
+            updatePagination();
+            
+            // Show results
+            resultsDiv.classList.add('show');
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(bulkData.length / itemsPerPage);
+            
+            pagination.innerHTML = '';
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.textContent = '← Previous';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => changePage(currentPage - 1);
+            pagination.appendChild(prevBtn);
+            
+            // Page info
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'pagination-info';
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            pagination.appendChild(pageInfo);
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.textContent = 'Next →';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => changePage(currentPage + 1);
+            pagination.appendChild(nextBtn);
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(bulkData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            displayBulkResults();
+        }
+
+        function viewReport(index) {
+            const item = bulkData[index];
+            const modal = document.getElementById('reportModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: #00FF88; margin-bottom: 1rem;">${item.crane}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                        <div><strong>Year:</strong> ${item.year}</div>
+                        <div><strong>Capacity:</strong> ${item.capacity}</div>
+                        <div><strong>Hours:</strong> ${item.hours}</div>
+                        <div><strong>Region:</strong> ${item.region}</div>
+                        <div><strong>Estimated Value:</strong> ${item.estimatedValue}</div>
+                        <div><strong>Confidence:</strong> ${item.confidence}</div>
+                    </div>
+                    <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="color: #FFFFFF; margin-bottom: 1rem;">Valuation Breakdown</h4>
+                        <div style="margin-bottom: 0.5rem;">Base Value: $2,800,000</div>
+                        <div style="margin-bottom: 0.5rem;">Age Adjustment: +$150,000</div>
+                        <div style="margin-bottom: 0.5rem;">Condition Adjustment: +$200,000</div>
+                        <div style="margin-bottom: 0.5rem;">Market Adjustment: +$100,000</div>
+                        <div style="border-top: 1px solid #404040; padding-top: 0.5rem; margin-top: 1rem; font-weight: 600;">
+                            Final Value: ${item.estimatedValue}
+                        </div>
+                    </div>
+                    <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #FFFFFF; margin-bottom: 1rem;">Risk Analysis</h4>
+                        <div style="margin-bottom: 0.5rem;">Market Risk: <span style="color: #FF4444;">Medium</span></div>
+                        <div style="margin-bottom: 0.5rem;">Condition Risk: <span style="color: #FFB800;">Low</span></div>
+                        <div style="margin-bottom: 0.5rem;">Age Risk: <span style="color: #00FF88;">Very Low</span></div>
+                        <div>Overall Grade: <span style="color: #00FF88; font-weight: 600;">${item.grade}</span></div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function deleteItem(index) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                bulkData.splice(index, 1);
+                displayBulkResults();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+
+        function downloadTemplate() {
+            // Create a simple CSV template
+            const csvContent = "Manufacturer,Model,Year,Capacity,Hours,Mileage,Region,Asking Price\n" +
+                              "Terex,AC 500-2,2022,500,3700,25000,North America,$3500000\n" +
+                              "Liebherr,LTM 1500-8.1,2021,500,4200,18000,Europe,$3200000";
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'crane_valuation_template.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function exportResults() {
+            // Convert results to CSV
+            const headers = ['Crane', 'Year', 'Capacity', 'Hours', 'Region', 'Estimated Value', 'Confidence', 'Grade'];
+            const csvContent = [
+                headers.join(','),
+                ...bulkData.map(item => [
+                    item.crane,
+                    item.year,
+                    item.capacity,
+                    item.hours,
+                    item.region,
+                    item.estimatedValue,
+                    item.confidence,
+                    item.grade
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bulk_valuation_results.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function generateReport() {
+            alert('Comprehensive report generation feature coming soon!');
+        }
+
+        // Quick Actions Tools
+        function saveNotes() {
+            const notes = document.getElementById('notesInput').value;
+            if (notes.trim()) {
+                localStorage.setItem('valuationNotes', notes);
+                alert('Notes saved successfully!');
+            }
+        }
+
+        function scheduleEvent() {
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const description = document.getElementById('eventDescription').value;
+            
+            if (date && time && description) {
+                alert(`Event scheduled: ${description} on ${date} at ${time}`);
+                // Clear form
+                document.getElementById('eventDate').value = '';
+                document.getElementById('eventTime').value = '';
+                document.getElementById('eventDescription').value = '';
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function convertUnits() {
+            const input = parseFloat(document.getElementById('converterInput').value);
+            const type = document.getElementById('converterType').value;
+            const result = document.getElementById('converterResult');
+            
+            if (isNaN(input)) {
+                result.value = '';
+                return;
+            }
+            
+            let converted;
+            switch (type) {
+                case 'tons':
+                    converted = input * 1000;
+                    result.value = converted.toFixed(2) + ' kg';
+                    break;
+                case 'feet':
+                    converted = input * 0.3048;
+                    result.value = converted.toFixed(2) + ' m';
+                    break;
+                case 'pounds':
+                    converted = input * 0.453592;
+                    result.value = converted.toFixed(2) + ' kg';
+                    break;
+                case 'gallons':
+                    converted = input * 3.78541;
+                    result.value = converted.toFixed(2) + ' L';
+                    break;
+            }
+        }
+
+        // Load saved notes on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedNotes = localStorage.getItem('valuationNotes');
+            if (savedNotes) {
+                document.getElementById('notesInput').value = savedNotes;
+            }
+        });
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.match(/\.(xlsx|xls|csv)$/)) {
+                    document.getElementById('fileInput').files = files;
+                    handleFileUpload({ target: { files: files } });
+                } else {
+                    alert('Please upload a valid Excel or CSV file');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

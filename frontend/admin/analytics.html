@@ -717,7 +717,7 @@
                 console.log('Loading analytics data from database...');
                 loadingId = notificationSystem.showLoading('Loading analytics data...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/analytics?timeRange=${currentTimeRange}`, {
+                const response = await fetch(`/api/v1/admin/analytics?timeRange=${currentTimeRange}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1136,7 +1136,7 @@
             try {
                 loadingId = notificationSystem.showLoading(`Generating ${reportType} report...`);
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/reports/generate', {
+                const response = await fetch('/api/v1/admin/reports/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1191,7 +1191,7 @@
             try {
                 loadingId = notificationSystem.showLoading('Generating custom report...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/reports/custom', {
+                const response = await fetch('/api/v1/admin/reports/custom', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1276,7 +1276,7 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Exporting analytics data...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/analytics/export', {
+                const response = await fetch('/api/v1/admin/analytics/export', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

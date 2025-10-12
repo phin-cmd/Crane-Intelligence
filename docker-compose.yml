@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   backend:
     build: .
     ports:
       - "8004:8003"
     environment:
-      - DATABASE_URL=postgresql://crane_user:crane_password@db:5432/crane_db
+      - DATABASE_URL=postgresql://crane_user:crane_password@db:5432/crane_intelligence
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db
       - redis

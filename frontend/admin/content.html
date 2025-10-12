@@ -411,7 +411,7 @@
                 console.log('Loading content from database...');
                 loadingId = notificationSystem.showLoading('Loading content...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content', {
+                const response = await fetch('/api/v1/admin/content', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -774,7 +774,7 @@
                     tags: []
                 };
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content', {
+                const response = await fetch('/api/v1/admin/content', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -871,7 +871,7 @@
                     views: 0
                 };
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content', {
+                const response = await fetch('/api/v1/admin/content', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -916,7 +916,7 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Deleting content...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/content/${contentId}`, {
+                const response = await fetch(`/api/v1/admin/content/${contentId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -966,7 +966,7 @@
             try {
                 const contentIds = Array.from(selectedContent);
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content/bulk-publish', {
+                const response = await fetch('/api/v1/admin/content/bulk-publish', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1018,7 +1018,7 @@
             try {
                 const contentIds = Array.from(selectedContent);
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content/bulk-draft', {
+                const response = await fetch('/api/v1/admin/content/bulk-draft', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1082,7 +1082,7 @@
                             views: 0
                         };
                         
-                        const response = await fetch('http://localhost:8003/api/v1/admin/content', {
+                        const response = await fetch('/api/v1/admin/content', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1134,7 +1134,7 @@
             try {
                 const contentIds = Array.from(selectedContent);
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/content/bulk-delete', {
+                const response = await fetch('/api/v1/admin/content/bulk-delete', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1183,7 +1183,7 @@
                             formData.append('files', file);
                         });
                         
-                        const response = await fetch('http://localhost:8003/api/v1/admin/media/upload', {
+                        const response = await fetch('/api/v1/admin/media/upload', {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`

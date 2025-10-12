@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALUATION TERMINAL - Crane Intelligence</title>
+    <link rel="stylesheet" href="css/valuation-terminal-new.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.24.0/plotly.min.js"></script>
+    <!-- Unified Header CSS -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <!-- Unified Authentication System -->
+    <script src="/js/unified-auth.js" defer></script>
+  </head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>VALUATION TERMINAL</h1>
+            <p>Professional-grade crane valuation with Bloomberg-style analysis</p>
+            </div>
+                </div>
+
+    <!-- Mode Selection -->
+    <div class="mode-selection">
+        <div class="mode-tabs">
+            <div class="mode-tab active" data-mode="single">
+                <span>Single Valuation</span>
+                </div>
+            <div class="mode-tab" data-mode="bulk">
+                <span>Bulk Processing</span>
+                </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Single Valuation Mode -->
+        <div class="valuation-mode active" id="single-valuation">
+            <!-- Crane Valuation Form -->
+            <div class="valuation-form">
+                <h2>CRANE VALUATION</h2>
+                <form id="crane-valuation-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                            <label for="manufacturer">MANUFACTURER</label>
+                            <select id="manufacturer" name="manufacturer" required>
+                            <option value="">Select Manufacturer</option>
+                            <option value="Liebherr">Liebherr (49 models)</option>
+                            <option value="Grove">Grove (25 models)</option>
+                            <option value="Manitowoc">Manitowoc (15 models)</option>
+                            <option value="Tadano">Tadano (15 models)</option>
+                            <option value="Sany">Sany (12 models)</option>
+                            <option value="Kobelco">Kobelco (14 models)</option>
+                            <option value="American">American (12 models)</option>
+                            <option value="Link-Belt">Link-Belt (8 models)</option>
+                            <option value="Demag">Demag (4 models)</option>
+                            <option value="Terex">Terex (3 models)</option>
+                            <option value="XCMG">XCMG (3 models)</option>
+                            <option value="Zoomlion">Zoomlion (2 models)</option>
+                            <option value="HSC">HSC (2 models)</option>
+                            <option value="Kato">Kato (3 models)</option>
+                            <option value="IHI">IHI (2 models)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                            <label for="model">MODEL</label>
+                            <select id="model" name="model" required>
+                            <option value="">Select Model</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                            <label for="year">YEAR</label>
+                            <input type="number" id="year" name="year" min="1990" max="2025" required>
+                    </div>
+                    <div class="form-group">
+                            <label for="capacity">CAPACITY (TONS)</label>
+                            <input type="number" id="capacity" name="capacity" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                            <label for="hours">OPERATING HOURS</label>
+                            <input type="number" id="hours" name="hours" min="0" required>
+                    </div>
+                    <div class="form-group">
+                            <label for="mileage">MILEAGE (OPTIONAL)</label>
+                            <input type="number" id="mileage" name="mileage" min="0" placeholder="For truck & all-terrain cranes">
+                    </div>
+                    <div class="form-group">
+                            <label for="boomLength">BOOM LENGTH (METERS)</label>
+                            <input type="number" id="boomLength" name="boom_length" min="0" step="0.1" placeholder="e.g., 60">
+                    </div>
+                    <div class="form-group">
+                            <label for="condition">CONDITION *</label>
+                            <select id="condition" name="condition" required>
+                            <option value="">Select Condition</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="good" selected>Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                            <label for="region">REGION</label>
+                            <select id="region" name="region" required>
+                            <option value="">Select Region</option>
+                            <option value="North America">North America</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Asia Pacific">Asia Pacific</option>
+                            <option value="Middle East">Middle East</option>
+                            <option value="Latin America">Latin America</option>
+                        </select>
+                    </div>
+                        <div class="form-group full-width">
+                            <label for="asking-price">ASKING PRICE (OPTIONAL)</label>
+                            <input type="text" id="asking-price" name="asking_price" placeholder="Enter asking price">
+                    </div>
+                </div>
+                <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="loadSampleData()">LOAD SAMPLE DATA</button>
+                        <button type="submit" class="btn-primary">VALUE CRANE</button>
+                </div>
+            </form>
+        </div>
+
+            <!-- Valuation Results -->
+            <div class="valuation-results" id="valuation-results" style="display: none;">
+                <div class="results-cards">
+            <div class="result-card">
+                        <div class="result-value" id="estimated-value">$3.25M</div>
+                <div class="result-label">ESTIMATED VALUE</div>
+                        <div class="result-subtitle" id="market-comparison">+2.3% vs market avg</div>
+            </div>
+            <div class="result-card">
+                        <div class="result-value" id="confidence-score">94%</div>
+                <div class="result-label">CONFIDENCE SCORE</div>
+                        <div class="result-subtitle" id="confidence-level">High Confidence</div>
+            </div>
+            <div class="result-card">
+                        <div class="result-value" id="deal-grade">A+</div>
+                <div class="result-label">DEAL GRADE</div>
+                        <div class="result-subtitle" id="deal-recommendation">Strong buy</div>
+            </div>
+        </div>
+
+                <!-- Analysis Tabs -->
+                <div class="analysis-tabs">
+                    <div class="tab-nav">
+                        <div class="tab active" data-tab="overview">OVERVIEW</div>
+                        <div class="tab" data-tab="analysis">ANALYSIS</div>
+                        <div class="tab" data-tab="comparables">COMPARABLES</div>
+                        <div class="tab" data-tab="risk">RISK</div>
+            </div>
+
+            <!-- Overview Tab -->
+                    <div class="tab-content active" id="overview-tab">
+                        <div class="overview-content">
+                            <div class="key-metrics">
+                                <h3>KEY METRICS</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                        <span class="metric-label">AGE FACTOR</span>
+                                        <span class="metric-value">0.9</span>
+                            </div>
+                            <div class="metric-item">
+                                        <span class="metric-label">MARKET DEMAND</span>
+                                        <span class="metric-value">High</span>
+                            </div>
+                            <div class="metric-item">
+                                        <span class="metric-label">RISK SCORE</span>
+                                        <span class="metric-value">Low</span>
+                            </div>
+                            </div>
+                        </div>
+                            <div class="manufacturer-analysis">
+                                <h3>MANUFACTURER ANALYSIS</h3>
+                                <div id="manufacturer-chart"></div>
+                    </div>
+                </div>
+                        <div class="capacity-distribution">
+                            <h3>CAPACITY DISTRIBUTION</h3>
+                            <div id="capacity-chart"></div>
+                </div>
+            </div>
+
+            <!-- Analysis Tab -->
+                    <div class="tab-content" id="analysis-tab">
+                        <div class="analysis-content">
+                            <div class="trend-analysis">
+                                <h3>VALUATION TREND ANALYSIS</h3>
+                                <p>12 MONTH HISTORY</p>
+                                <div id="trend-chart"></div>
+                            </div>
+                </div>
+            </div>
+
+            <!-- Comparables Tab -->
+                    <div class="tab-content" id="comparables-tab">
+                        <div class="comparables-content">
+                            <h3>COMPARABLE SALES DATA</h3>
+                            <div class="comparables-table">
+                                <table>
+                        <thead>
+                            <tr>
+                                <th>EQUIPMENT</th>
+                                <th>YEAR</th>
+                                <th>CAPACITY</th>
+                                            <th>HOURS</th>
+                                <th>SALE PRICE</th>
+                                <th>PRICE/TON</th>
+                                <th>TREND</th>
+                                <th>LOCATION</th>
+                            </tr>
+                        </thead>
+                                    <tbody id="comparables-tbody">
+                                        <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                            </div>
+                </div>
+            </div>
+
+            <!-- Risk Tab -->
+                    <div class="tab-content" id="risk-tab">
+                        <div class="risk-content">
+                            <div class="risk-analysis">
+                                <h3>RISK ANALYSIS</h3>
+                                <div class="risk-factors">
+                                    <div class="risk-item">
+                                        <span class="risk-label">Market Risk</span>
+                                        <span class="risk-value">35%</span>
+                            </div>
+                                    <div class="risk-item">
+                                        <span class="risk-label">Age Risk</span>
+                                        <span class="risk-value">20%</span>
+                            </div>
+                                    <div class="risk-item">
+                                        <span class="risk-label">Location Risk</span>
+                                        <span class="risk-value">20%</span>
+                            </div>
+                            </div>
+                                <div class="overall-risk">
+                                    <span class="risk-label">Overall Risk Score</span>
+                                    <span class="risk-value">LOW</span>
+                            </div>
+                        </div>
+                    </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+
+        <!-- Bulk Processing Mode -->
+        <div class="valuation-mode" id="bulk-valuation">
+            <div class="bulk-upload">
+                <h2>BULK CRANE VALUATION</h2>
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Upload Document</h3>
+                        <p>Upload CSV or Excel file with crane data</p>
+                        <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls" style="display: none;">
+                        <button class="btn-primary" onclick="document.getElementById('bulk-file').click()">SELECT FILE</button>
+                    </div>
+                </div>
+                
+                <!-- Bulk Results -->
+                <div class="bulk-results" id="bulk-results" style="display: none;">
+                    <div class="bulk-summary">
+                        <h3>BULK VALUATION RESULTS</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="total-processed">0</span>
+                                <span class="stat-label">Total Processed</span>
+                        </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="successful-valuations">0</span>
+                                <span class="stat-label">Successful</span>
+                    </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="failed-valuations">0</span>
+                                <span class="stat-label">Failed</span>
+                            </div>
+                            </div>
+                            </div>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination-controls">
+                        <div class="pagination-info">
+                            <span id="pagination-info">Showing 1-10 of 0 results</span>
+                        </div>
+                        <div class="pagination-buttons">
+                            <button class="btn-pagination" id="prev-page" disabled>Previous</button>
+                            <div class="page-numbers" id="page-numbers"></div>
+                            <button class="btn-pagination" id="next-page" disabled>Next</button>
+                    </div>
+                </div>
+                    
+                    <!-- Results Table -->
+                    <div class="bulk-table-container">
+                        <table class="bulk-results-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th>Year</th>
+                                    <th>Capacity</th>
+                                    <th>Hours</th>
+                                    <th>Estimated Value</th>
+                                    <th>Confidence</th>
+                                    <th>Grade</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulk-results-tbody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Export Options -->
+                    <div class="export-options">
+                        <button class="btn-secondary" onclick="exportResults('csv')">Export CSV</button>
+                        <button class="btn-secondary" onclick="exportResults('excel')">Export Excel</button>
+                        <button class="btn-secondary" onclick="exportResults('pdf')">Export PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tools Section -->
+    <div class="tools-section">
+        <div class="tools-container">
+            <h3>PROFESSIONAL TOOLS</h3>
+        <div class="tools-grid">
+                <div class="tool-card" onclick="openBuildNotes()">
+                <i class="fas fa-sticky-note"></i>
+                    <h4>Build Notes</h4>
+                    <p>Document construction progress and specifications</p>
+                </div>
+                <div class="tool-card" onclick="openCalendar()">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>Calendar</h4>
+                    <p>Schedule inspections and maintenance</p>
+                </div>
+                <div class="tool-card" onclick="openUnitConverter()">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h4>Unit Converter</h4>
+                    <p>Convert between measurement units</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span>CRANE INTELLIGENCE TERMINAL v2.0</span>
+                <span>|</span>
+                <span>Real-time Market Data</span>
+                <span>|</span>
+                <span>Bloomberg-style Interface</span>
+                    </div>
+            <div class="footer-right">
+                <span>Last Update: <span id="last-update">--:--:--</span></span>
+                <span>|</span>
+                <span>Connection: <span class="connection-status">LIVE</span></span>
+                </div>
+                </div>
+                </div>
+
+    <!-- Modals -->
+    <div class="modal" id="build-notes-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Build Notes</h3>
+                <button class="close-btn" onclick="closeModal('build-notes-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea id="build-notes-text" placeholder="Enter your build notes here..."></textarea>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="saveBuildNotes()">Save Notes</button>
+                    <button class="btn-secondary" onclick="closeModal('build-notes-modal')">Cancel</button>
+                </div>
+                    </div>
+                </div>
+            </div>
+
+    <div class="modal" id="calendar-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Calendar</h3>
+                <button class="close-btn" onclick="closeModal('calendar-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="calendar-widget"></div>
+        </div>
+        </div>
+    </div>
+
+    <div class="modal" id="unit-converter-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Unit Converter</h3>
+                <button class="close-btn" onclick="closeModal('unit-converter-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="converter-form">
+                        <div class="converter-group">
+                            <label>From:</label>
+                        <input type="number" id="from-value" placeholder="Enter value">
+                        <select id="from-unit">
+                                <option value="tons">Tons</option>
+                                <option value="kg">Kilograms</option>
+                                <option value="lbs">Pounds</option>
+                            </select>
+                        </div>
+                        <div class="converter-group">
+                            <label>To:</label>
+                        <input type="number" id="to-value" readonly>
+                        <select id="to-unit">
+                                <option value="tons">Tons</option>
+                                <option value="kg">Kilograms</option>
+                                <option value="lbs">Pounds</option>
+                            </select>
+                        </div>
+                    <button class="btn-primary" onclick="convertUnits()">Convert</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/valuation-terminal-new.js"></script>
+    <script src="/js/auto-init-auth.js"></script>
+    <script src="js/api-client.js"></script>
+</body>
+</html>
