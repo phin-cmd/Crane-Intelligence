@@ -348,18 +348,37 @@
         .btn-secondary {
             background: #404040;
             color: #FFFFFF;
+            font-size: 1rem;
+            padding: 12px 28px;
+            border: 1px solid #555;
         }
         .btn-secondary:hover {
             background: #555;
+            border-color: #666;
+            transform: translateY(-1px);
         }
         .btn-primary {
             background: #00FF88;
             color: #000000;
+            font-size: 1.1rem;
+            padding: 14px 32px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
         }
         .btn-primary:hover {
             background: #00E67A;
             transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 255, 136, 0.4);
         }
+        /* Action Buttons Container */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+            padding: 20px 0;
+        }
+
         /* Valuation Results */
         .valuation-results {
             display: none;
@@ -1247,7 +1266,7 @@
                         </div>
                     </div>
                     
-                    <div class="form-buttons">
+                    <div class="action-buttons">
                         <button type="button" class="btn btn-secondary" onclick="loadSampleData()">LOAD SAMPLE DATA</button>
                         <button type="button" class="btn btn-primary" onclick="performDirectValuation()">VALUE CRANE</button>
                     </div>
@@ -4733,7 +4752,7 @@ function getCraneSpecifications(manufacturer, model) {
     }
     
     // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
+    for (const [mfr, models] of Object.entries(manufacturerModels)) {
         if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
             for (const [mdl, specs] of Object.entries(models)) {
                 if (mdl.toLowerCase() === model.toLowerCase()) {
@@ -4744,7 +4763,7 @@ function getCraneSpecifications(manufacturer, model) {
     }
     
     // Try partial match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
+    for (const [mfr, models] of Object.entries(manufacturerModels)) {
         if (manufacturer.toLowerCase().includes(mfr.toLowerCase()) || mfr.toLowerCase().includes(manufacturer.toLowerCase())) {
             for (const [mdl, specs] of Object.entries(models)) {
                 if (model.toLowerCase().includes(mdl.toLowerCase()) || mdl.toLowerCase().includes(model.toLowerCase())) {
@@ -4764,14 +4783,14 @@ function getModelsForManufacturer(manufacturer) {
     }
     
     // Try exact match
-    if (craneDatabase[manufacturer]) {
-        return Object.keys(craneDatabase[manufacturer]);
+    if (manufacturerModels[manufacturer]) {
+        return manufacturerModels[manufacturer];
     }
     
     // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
+    for (const [mfr, models] of Object.entries(manufacturerModels)) {
         if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
-            return Object.keys(models);
+            return models;
         }
     }
     
