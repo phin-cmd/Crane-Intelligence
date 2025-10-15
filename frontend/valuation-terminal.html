@@ -1870,6 +1870,156 @@
 
         // Populate models based on manufacturer selection
         document.addEventListener('DOMContentLoaded', function() {
+        // ============================================================================
+        // AUTO-PREFILL FUNCTIONALITY
+        // ============================================================================
+        
+        // Event listener for manufacturer selection
+        document.getElementById('manufacturer').addEventListener('change', function() {
+            const manufacturer = this.value;
+            updateModelOptions(manufacturer);
+        });
+        
+        // Event listener for model selection
+        document.getElementById('model').addEventListener('change', function() {
+            const manufacturer = document.getElementById('manufacturer').value;
+            const model = this.value;
+            autofillCraneSpecs(manufacturer, model);
+        });
+        
+        // Update model dropdown based on manufacturer selection
+        function updateModelOptions(manufacturer) {
+            const modelSelect = document.getElementById('model');
+            
+            if (!manufacturer || manufacturer === 'Select manufacturer') {
+                // Reset to default
+                modelSelect.innerHTML = '<option value="">Select model</option>';
+                return;
+            }
+            
+            const models = getModelsForManufacturer(manufacturer);
+            
+            if (models && models.length > 0) {
+                // Populate model dropdown
+                let options = '<option value="">Select model</option>';
+                models.forEach(model => {
+                    options += `<option value="${model}">${model}</option>`;
+                });
+                modelSelect.innerHTML = options;
+            } else {
+                // No models found, allow manual entry
+                modelSelect.innerHTML = '<option value="">Enter model manually</option>';
+            }
+        }
+        
+        // Auto-fill crane specifications based on manufacturer and model
+        function autofillCraneSpecs(manufacturer, model) {
+            if (!manufacturer || !model) {
+                return;
+            }
+            
+            const specs = getCraneSpecifications(manufacturer, model);
+            
+            if (specs) {
+                // Fill in the fields (but keep them editable)
+                const capacityInput = document.getElementById('capacity');
+                const craneTypeSelect = document.getElementById('craneType');
+                const boomLengthInput = document.getElementById('boomLength');
+                
+                // Set capacity
+                if (capacityInput && specs.capacity) {
+                    capacityInput.value = specs.capacity;
+                    // Add visual feedback
+                    capacityInput.style.borderColor = '#00FF88';
+                    setTimeout(() => { capacityInput.style.borderColor = ''; }, 2000);
+                }
+                
+                // Set crane type
+                if (craneTypeSelect && specs.craneType) {
+                    craneTypeSelect.value = specs.craneType;
+                    craneTypeSelect.style.borderColor = '#00FF88';
+                    setTimeout(() => { craneTypeSelect.style.borderColor = ''; }, 2000);
+                }
+                
+                // Set boom length
+                if (boomLengthInput && specs.boomLength) {
+                    boomLengthInput.value = specs.boomLength;
+                    boomLengthInput.style.borderColor = '#00FF88';
+                    setTimeout(() => { boomLengthInput.style.borderColor = ''; }, 2000);
+                }
+                
+                // Show notification
+                showAutofillNotification(manufacturer, model);
+            }
+        }
+        
+        // Show notification that fields were auto-filled
+        function showAutofillNotification(manufacturer, model) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #1A1A1A;
+                border: 2px solid #00FF88;
+                border-radius: 8px;
+                padding: 15px 20px;
+                color: #FFFFFF;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">✓</span>
+                    <div>
+                        <div style="font-weight: 600; color: #00FF88;">Auto-filled</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 3px;">
+                            ${manufacturer} ${model} specifications loaded
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS animations for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
             const manufacturerSelect = document.getElementById('manufacturer');
             const modelSelect = document.getElementById('model');
             
@@ -2043,6 +2193,40 @@
         };
 
         // Function to calculate boom package premium
+        // Calculate manufacturer premium based on brand reputation
+        function calculateManufacturerPremium(manufacturer, baseCapacityValue) {
+            const manufacturerFactors = {
+                'Liebherr': 0.20,      // 20% premium
+                'Grove': 0.18,         // 18% premium
+                'Tadano': 0.15,        // 15% premium
+                'Manitowoc': 0.17,     // 17% premium
+                'Terex': 0.15,         // 15% premium
+                'Kobelco': 0.12,       // 12% premium
+                'Link-Belt': 0.10,     // 10% premium
+                'Sany': 0.08,          // 8% premium
+                'XCMG': 0.08,          // 8% premium
+                'Zoomlion': 0.08,      // 8% premium
+                'Demag': 0.18,         // 18% premium
+                'Kato': 0.12,          // 12% premium
+                'Sumitomo': 0.12       // 12% premium
+            };
+            
+            // Find matching manufacturer (case-insensitive, partial match)
+            let factor = 0.10; // Default 10% for unknown manufacturers
+            for (const [brand, premium] of Object.entries(manufacturerFactors)) {
+                if (manufacturer.toLowerCase().includes(brand.toLowerCase())) {
+                    factor = premium;
+                    break;
+                }
+            }
+            
+            return {
+                premium: baseCapacityValue * factor,
+                factor: factor,
+                percentage: Math.round(factor * 100)
+            };
+        }
+
         function calculateBoomPackagePremium(manufacturer, model, jibType, boomLength, jibLength) {
             let premium = 0;
             
@@ -2267,14 +2451,18 @@
             // Base value calculation (for display breakdown)
             const baseCapacityValue = capacity * 5000;
                 
-                // Calculate boom package premium
-                const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
+                // Calculate manufacturer premium based on brand
+                const manufacturerPremiumData = calculateManufacturerPremium(manufacturer, baseCapacityValue);
+                const manufacturerPremium = manufacturerPremiumData.premium;
                 
                 // Calculate model premium (8% of base capacity value)
                 const modelPremium = baseCapacityValue * 0.08;
                 
-                // Calculate total base value (base + manufacturer premium + model premium)
-                const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
+                // Calculate boom/jib package premium (separate from manufacturer premium)
+                const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
+                
+                // Calculate total base value (base + manufacturer + model + boom/jib)
+                const totalBaseValue = baseCapacityValue + manufacturerPremium + modelPremium + boomPremium;
                 
                 // Age adjustment (5% depreciation per year)
                 const currentYear = new Date().getFullYear();
@@ -2502,7 +2690,7 @@
                 
                 // Update Cost Breakdown tab with actual values - PASS ALL ADJUSTMENT VALUES
                 try {
-                    updateCostBreakdownTab(baseCapacityValue, boomPremium, totalBaseValue, age, ageAdjustment, 
+                    updateCostBreakdownTab(baseCapacityValue, manufacturerPremium, modelPremium, boomPremium, totalBaseValue, age, ageAdjustment, 
                         hours, expectedHours, hoursAdjustment, regionalAdjustment, marketConditionsValue, 
                         conditionScoreValue, totalAdjustments, finalEstimatedValue, manufacturer, model, 
                         confidenceScore, capacity);
@@ -2536,9 +2724,11 @@
             console.log('DEBUG: fallbackToLocalCalculation called');
             // Base value calculation
             const baseCapacityValue = capacity * 5000;
-            const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
+            const manufacturerPremiumData = calculateManufacturerPremium(manufacturer, baseCapacityValue);
+            const manufacturerPremium = manufacturerPremiumData.premium;
             const modelPremium = baseCapacityValue * 0.08;
-            const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
+            const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
+            const totalBaseValue = baseCapacityValue + manufacturerPremium + modelPremium + boomPremium;
             
             // Age adjustment
             const currentYear = new Date().getFullYear();
@@ -2736,7 +2926,7 @@
             }
         }
         
-        function updateCostBreakdownTab(baseCapacityValue, boomPremium, totalBaseValue, age, ageAdjustment,
+        function updateCostBreakdownTab(baseCapacityValue, manufacturerPremium, modelPremium, boomPremium, totalBaseValue, age, ageAdjustment,
                                        hours, expectedHours, hoursAdjustment, regionalAdjustment, 
                                        marketConditionsValue, conditionScoreValue, totalAdjustments, 
                                        finalEstimatedValue, manufacturer, model, confidenceScore, capacity) {
@@ -2764,11 +2954,22 @@
                     manufacturerPremiumDesc.textContent = manufacturer + ' premium factor: ' + premiumPercent + '%';
                 }
                 
-                // Model premium (assuming 8% of base for now)
-                const modelPremiumValue = baseCapacityValue * 0.08;
-                const modelPremium = document.getElementById('modelPremium');
-                if (modelPremium) {
-                    modelPremium.textContent = '+$' + Math.round(modelPremiumValue).toLocaleString();
+                // Display manufacturer premium (passed as parameter)
+                const manufacturerPremiumElement = document.getElementById('manufacturerPremium');
+                if (manufacturerPremiumElement) {
+                    manufacturerPremiumElement.textContent = '+$' + Math.round(manufacturerPremium).toLocaleString();
+                }
+                
+                const manufacturerPremiumDesc = document.getElementById('manufacturerPremiumDesc');
+                if (manufacturerPremiumDesc) {
+                    const premiumPercent = Math.round((manufacturerPremium / baseCapacityValue) * 100);
+                    manufacturerPremiumDesc.textContent = manufacturer + ' premium factor: ' + premiumPercent + '%';
+                }
+                
+                // Display model premium (passed as parameter)
+                const modelPremiumElement = document.getElementById('modelPremium');
+                if (modelPremiumElement) {
+                    modelPremiumElement.textContent = '+$' + Math.round(modelPremium).toLocaleString();
                 }
                 
                 const modelPremiumDesc = document.getElementById('modelPremiumDesc');
@@ -3989,6 +4190,156 @@
 
         // Load saved notes on page load
         document.addEventListener('DOMContentLoaded', function() {
+        // ============================================================================
+        // AUTO-PREFILL FUNCTIONALITY
+        // ============================================================================
+        
+        // Event listener for manufacturer selection
+        document.getElementById('manufacturer').addEventListener('change', function() {
+            const manufacturer = this.value;
+            updateModelOptions(manufacturer);
+        });
+        
+        // Event listener for model selection
+        document.getElementById('model').addEventListener('change', function() {
+            const manufacturer = document.getElementById('manufacturer').value;
+            const model = this.value;
+            autofillCraneSpecs(manufacturer, model);
+        });
+        
+        // Update model dropdown based on manufacturer selection
+        function updateModelOptions(manufacturer) {
+            const modelSelect = document.getElementById('model');
+            
+            if (!manufacturer || manufacturer === 'Select manufacturer') {
+                // Reset to default
+                modelSelect.innerHTML = '<option value="">Select model</option>';
+                return;
+            }
+            
+            const models = getModelsForManufacturer(manufacturer);
+            
+            if (models && models.length > 0) {
+                // Populate model dropdown
+                let options = '<option value="">Select model</option>';
+                models.forEach(model => {
+                    options += `<option value="${model}">${model}</option>`;
+                });
+                modelSelect.innerHTML = options;
+            } else {
+                // No models found, allow manual entry
+                modelSelect.innerHTML = '<option value="">Enter model manually</option>';
+            }
+        }
+        
+        // Auto-fill crane specifications based on manufacturer and model
+        function autofillCraneSpecs(manufacturer, model) {
+            if (!manufacturer || !model) {
+                return;
+            }
+            
+            const specs = getCraneSpecifications(manufacturer, model);
+            
+            if (specs) {
+                // Fill in the fields (but keep them editable)
+                const capacityInput = document.getElementById('capacity');
+                const craneTypeSelect = document.getElementById('craneType');
+                const boomLengthInput = document.getElementById('boomLength');
+                
+                // Set capacity
+                if (capacityInput && specs.capacity) {
+                    capacityInput.value = specs.capacity;
+                    // Add visual feedback
+                    capacityInput.style.borderColor = '#00FF88';
+                    setTimeout(() => { capacityInput.style.borderColor = ''; }, 2000);
+                }
+                
+                // Set crane type
+                if (craneTypeSelect && specs.craneType) {
+                    craneTypeSelect.value = specs.craneType;
+                    craneTypeSelect.style.borderColor = '#00FF88';
+                    setTimeout(() => { craneTypeSelect.style.borderColor = ''; }, 2000);
+                }
+                
+                // Set boom length
+                if (boomLengthInput && specs.boomLength) {
+                    boomLengthInput.value = specs.boomLength;
+                    boomLengthInput.style.borderColor = '#00FF88';
+                    setTimeout(() => { boomLengthInput.style.borderColor = ''; }, 2000);
+                }
+                
+                // Show notification
+                showAutofillNotification(manufacturer, model);
+            }
+        }
+        
+        // Show notification that fields were auto-filled
+        function showAutofillNotification(manufacturer, model) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #1A1A1A;
+                border: 2px solid #00FF88;
+                border-radius: 8px;
+                padding: 15px 20px;
+                color: #FFFFFF;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">✓</span>
+                    <div>
+                        <div style="font-weight: 600; color: #00FF88;">Auto-filled</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 3px;">
+                            ${manufacturer} ${model} specifications loaded
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS animations for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
             const savedNotes = localStorage.getItem('valuationNotes');
             if (savedNotes) {
                 document.getElementById('notesInput').value = savedNotes;
@@ -4028,6 +4379,244 @@
     
     <!-- GPT Chatbot Connector -->
     <script src="/js/chatbot-connector.js"></script>
-    <script src="js/api-client.js"></script>
+    <script src="js/api-client.js">
+    <script>
+    // ============================================================================
+    // CRANE SPECIFICATIONS DATABASE - AUTO-PREFILL
+    // ============================================================================
+    // Comprehensive Crane Specifications Database
+// Auto-prefill data for manufacturer and model combinations
+
+const craneDatabase = {
+    // LIEBHERR Models
+    'Liebherr': {
+        'LTM 1500-8.1': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
+        'LTM 11200-9.1': { capacity: 1200, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
+        'LTM 1750-9.1': { capacity: 750, craneType: 'All-Terrain Crane', boomLength: 318, typicalYear: 2019 },
+        'LTM 1450-8.1': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
+        'LTM 1300-6.2': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
+        'LTM 1250-6.1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2021 },
+        'LTM 1220-5.2': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
+        'LTM 1200-5.1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
+        'LTM 1160-5.2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
+        'LTM 1130-5.1': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2023 },
+        'LTM 1110-5.1': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
+        'LTM 1095-5.1': { capacity: 95, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
+        'LTM 1070-4.2': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
+        'LTM 1060-3.1': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
+        'LR 1600/2': { capacity: 600, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
+        'LR 1750/2': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2018 },
+        'LR 11350': { capacity: 1350, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2017 },
+        'LR 1300 SX': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
+        'LR 1250': { capacity: 250, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
+    },
+    
+    // GROVE Models
+    'Grove': {
+        'GMK7450': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
+        'GMK6400': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2021 },
+        'GMK5250L': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 230, typicalYear: 2021 },
+        'GMK5220': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
+        'GMK5180-1': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
+        'GMK5150L-1': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2022 },
+        'GMK5120': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
+        'GMK4100L-1': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
+        'GMK3060': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
+        'GRT8100': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
+        'GRT8120': { capacity: 120, craneType: 'Rough Terrain Crane', boomLength: 164, typicalYear: 2023 },
+        'RT890E': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
+        'RT770E': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
+        'RT540E': { capacity: 40, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
+    },
+    
+    // TADANO Models
+    'Tadano': {
+        'ATF 400G-6': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
+        'ATF 220G-5': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2021 },
+        'ATF 180G-5': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
+        'ATF 130G-5': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2022 },
+        'ATF 110G-5': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
+        'ATF 90G-4': { capacity: 90, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
+        'ATF 70G-4': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
+        'ATF 60-3': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
+        'GR-1000XL-4': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
+        'GR-800XL-3': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
+        'GR-600XL-3': { capacity: 60, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
+        'GR-500XL': { capacity: 50, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
+        'GR-350XL': { capacity: 35, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
+        'CC 2800-1': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
+        'CC 2400-1': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
+    },
+    
+    // TEREX Models
+    'Terex': {
+        'AC 1000-9': { capacity: 1000, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
+        'AC 700-9': { capacity: 700, craneType: 'All-Terrain Crane', boomLength: 308, typicalYear: 2019 },
+        'AC 500-2': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
+        'AC 450-2': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
+        'AC 350-6': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
+        'AC 300-6': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
+        'AC 250-1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2022 },
+        'AC 200-1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
+        'AC 160-2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
+        'AC 120-1': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
+        'AC 100-4L': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
+        'RT 780': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
+        'RT 670': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
+        'RT 555': { capacity: 55, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
+    },
+    
+    // MANITOWOC Models
+    'Manitowoc': {
+        '31000': { capacity: 2300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2016 },
+        '18000': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2017 },
+        '16000': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2018 },
+        '14000': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2019 },
+        'MLC650': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
+        'MLC300': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
+        'MLC165': { capacity: 165, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
+        'MLC150': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
+        'MLC100-1': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
+        '999': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
+        '888': { capacity: 230, craneType: 'Crawler Crane', boomLength: 262, typicalYear: 2021 },
+    },
+    
+    // KOBELCO Models
+    'Kobelco': {
+        'CK3300G-2': { capacity: 330, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2019 },
+        'CK2750G-2': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
+        'CK2500G-2': { capacity: 250, craneType: 'Crawler Crane', boomLength: 269, typicalYear: 2020 },
+        'CK1600G-2': { capacity: 160, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
+        'CK1200G-2': { capacity: 120, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
+        'CK1100G-2': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
+        'CK1000G-2': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
+        'CK850G': { capacity: 85, craneType: 'Crawler Crane', boomLength: 197, typicalYear: 2023 },
+        'CK750G': { capacity: 75, craneType: 'Crawler Crane', boomLength: 184, typicalYear: 2023 },
+        'CK550G': { capacity: 55, craneType: 'Crawler Crane', boomLength: 164, typicalYear: 2024 },
+    },
+    
+    // LINK-BELT Models
+    'Link-Belt': {
+        '348 HSL': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
+        '298 HSL': { capacity: 130, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
+        '238 HSL': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
+        '218 HSL': { capacity: 90, craneType: 'Crawler Crane', boomLength: 203, typicalYear: 2022 },
+        'TCC-1400': { capacity: 140, craneType: 'Telescopic Crawler Crane', boomLength: 190, typicalYear: 2022 },
+        'TCC-1200': { capacity: 120, craneType: 'Telescopic Crawler Crane', boomLength: 184, typicalYear: 2023 },
+        'TCC-1100': { capacity: 110, craneType: 'Telescopic Crawler Crane', boomLength: 177, typicalYear: 2023 },
+        'TCC-750': { capacity: 75, craneType: 'Telescopic Crawler Crane', boomLength: 164, typicalYear: 2023 },
+        'RTC-8090 II': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
+        'RTC-8065 II': { capacity: 65, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
+    },
+    
+    // SANY Models
+    'Sany': {
+        'SCC40000A': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
+        'SCC16000A': { capacity: 1600, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
+        'SCC8500': { capacity: 850, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
+        'SCC4000E': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2020 },
+        'SCC2600A': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
+        'SAC6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
+        'SAC3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
+        'SAC2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
+        'SAC1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
+        'SAC1500': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2023 },
+    },
+    
+    // XCMG Models
+    'XCMG': {
+        'XGC88000': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
+        'XGC28000': { capacity: 1250, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
+        'XGC15000A': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
+        'XGC8000': { capacity: 800, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
+        'XGC4000': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2021 },
+        'XCA1600': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
+        'XCA1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2022 },
+        'XCA800': { capacity: 80, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
+        'XCA600': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2023 },
+        'XCA400': { capacity: 40, craneType: 'All-Terrain Crane', boomLength: 144, typicalYear: 2024 },
+    },
+    
+    // ZOOMLION Models
+    'Zoomlion': {
+        'ZCC33000': { capacity: 3300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
+        'ZCC13000': { capacity: 1300, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
+        'ZCC9800': { capacity: 980, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
+        'ZCC3200NP': { capacity: 320, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
+        'ZCC2600': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
+        'ZAT6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
+        'ZAT3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
+        'ZAT2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
+        'ZAT1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
+        'ZAT1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
+    },
+};
+
+// Function to get crane specifications
+function getCraneSpecifications(manufacturer, model) {
+    if (!manufacturer || !model) {
+        return null;
+    }
+    
+    // Try exact match first
+    if (craneDatabase[manufacturer] && craneDatabase[manufacturer][model]) {
+        return craneDatabase[manufacturer][model];
+    }
+    
+    // Try case-insensitive match
+    for (const [mfr, models] of Object.entries(craneDatabase)) {
+        if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
+            for (const [mdl, specs] of Object.entries(models)) {
+                if (mdl.toLowerCase() === model.toLowerCase()) {
+                    return specs;
+                }
+            }
+        }
+    }
+    
+    // Try partial match
+    for (const [mfr, models] of Object.entries(craneDatabase)) {
+        if (manufacturer.toLowerCase().includes(mfr.toLowerCase()) || mfr.toLowerCase().includes(manufacturer.toLowerCase())) {
+            for (const [mdl, specs] of Object.entries(models)) {
+                if (model.toLowerCase().includes(mdl.toLowerCase()) || mdl.toLowerCase().includes(model.toLowerCase())) {
+                    return specs;
+                }
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Function to get all models for a manufacturer
+function getModelsForManufacturer(manufacturer) {
+    if (!manufacturer) {
+        return [];
+    }
+    
+    // Try exact match
+    if (craneDatabase[manufacturer]) {
+        return Object.keys(craneDatabase[manufacturer]);
+    }
+    
+    // Try case-insensitive match
+    for (const [mfr, models] of Object.entries(craneDatabase)) {
+        if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
+            return Object.keys(models);
+        }
+    }
+    
+    return [];
+}
+
+// Export for use in HTML
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { craneDatabase, getCraneSpecifications, getModelsForManufacturer };
+}
+
+
+    </script>
+    
+    </script>
 </body>
 </html>
