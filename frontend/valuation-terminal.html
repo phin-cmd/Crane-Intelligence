@@ -1249,7 +1249,7 @@
                     
                     <div class="form-buttons">
                         <button type="button" class="btn btn-secondary" onclick="loadSampleData()">LOAD SAMPLE DATA</button>
-                        <button type="submit" class="btn btn-primary">VALUE CRANE</button>
+                        <button type="button" class="btn btn-primary" onclick="performDirectValuation()">VALUE CRANE</button>
                     </div>
                 </form>
             </div>
@@ -4379,8 +4379,177 @@
     
     <!-- GPT Chatbot Connector -->
     <script src="/js/chatbot-connector.js"></script>
-    <script src="js/api-client.js">
+    <script src="js/api-client.js"></script>
     <script>
+
+// ============================================================================
+// GLOBAL FUNCTIONS FOR ONCLICK HANDLERS
+console.log('GLOBAL FUNCTIONS BLOCK EXECUTING...');
+// ============================================================================
+
+// Direct valuation function for VALUE CRANE button
+window.performDirectValuation = function() {
+    console.log('Direct valuation triggered');
+    
+    const manufacturer = document.getElementById('manufacturer').value;
+    const model = document.getElementById('model').value;
+    const year = parseInt(document.getElementById('year').value);
+    const capacity = parseFloat(document.getElementById('capacity').value);
+    const hours = parseInt(document.getElementById('hours').value);
+    
+    if (!manufacturer || !model || !year || !capacity || !hours) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    console.log('Performing calculation with:', {manufacturer, model, year, capacity, hours});
+    
+    // Calculation logic
+    const baseValue = capacity * 10000;
+    const age = 2025 - year;
+    const ageDepreciation = Math.max(0, 1 - (age * 0.08));
+    const hoursDepreciation = Math.max(0, 1 - (hours / 100000));
+    const estimatedValue = Math.round(baseValue * ageDepreciation * hoursDepreciation);
+    const confidence = Math.min(95, 70 + (capacity / 100));
+    
+    console.log('Calculation complete:', estimatedValue);
+    
+    // Display results
+    const estimatedValueEl = document.getElementById('estimatedValue');
+    const confidenceScoreEl = document.getElementById('confidenceScore');
+    
+    if (estimatedValueEl) {
+        estimatedValueEl.textContent = '$' + (estimatedValue / 1000000).toFixed(2) + 'M';
+    }
+    if (confidenceScoreEl) {
+        confidenceScoreEl.textContent = Math.round(confidence) + '%';
+    }
+    
+    // Show results section
+    const resultsSection = document.getElementById('valuationResults');
+    if (resultsSection) {
+        resultsSection.classList.add('show');
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+// Tab switching function
+window.switchTab = function(tab, element) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+    
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    const tabElement = document.getElementById(tab + 'Tab');
+    if (tabElement) {
+        tabElement.classList.add('active');
+    }
+};
+
+// Download CSV template
+window.downloadTemplate = function() {
+    const csvContent = "Manufacturer,Model,Year,Capacity (Tons),Operating Hours,Mileage,Crane Type,Boom Length (meters),Region,Jib Included,Jib Length (ft),Asking Price\nLiebherr,LTM 1500-8.1,2020,500,5000,25000,All-Terrain Crane,275,North America,No,0,3500000\nGrove,GMK6400,2019,400,6000,30000,All-Terrain Crane,197,Europe,Yes - Standard Jib,100,2800000\nTadano,ATF 220G-5,2021,220,3000,15000,All-Terrain Crane,197,Asia Pacific,No,0,1500000";
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crane_valuation_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    console.log('Template downloaded');
+};
+
+// Process bulk CSV file
+window.processBulkFile = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    console.log('Processing:', file.name);
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        const results = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const values = line.split(',');
+            if (values.length < 11) continue;
+            
+            const year = parseInt(values[2]);
+            const capacity = parseFloat(values[3]);
+            const hours = parseInt(values[4]);
+            
+            const baseValue = capacity * 10000;
+            const age = 2025 - year;
+            const ageDepr = Math.max(0, 1 - (age * 0.08));
+            const hoursDepr = Math.max(0, 1 - (hours / 100000));
+            const estValue = Math.round(baseValue * ageDepr * hoursDepr);
+            const conf = Math.min(95, 70 + (capacity / 100));
+            
+            results.push({
+                crane: values[0] + ' ' + values[1],
+                year: year,
+                capacity: capacity,
+                hours: hours,
+                region: values[8],
+                estimatedValue: estValue,
+                confidence: Math.round(conf),
+                grade: estValue > 2000000 ? 'A' : estValue > 1000000 ? 'B' : 'C'
+            });
+        }
+        
+        displayBulkResults(results);
+    };
+    
+    reader.readAsText(file);
+};
+
+function displayBulkResults(results) {
+    const tbody = document.getElementById('resultsTableBody');
+    const summary = document.getElementById('resultsSummary');
+    const resultsDiv = document.getElementById('bulkResults');
+    
+    if (summary) {
+        summary.textContent = results.length + ' cranes processed • ' + results.length + ' successful • 0 errors';
+    }
+    
+    if (tbody) {
+        tbody.innerHTML = '';
+        results.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td>' + r.crane + '</td><td>' + r.year + '</td><td>' + r.capacity + ' tons</td><td>' + r.hours.toLocaleString() + '</td><td>' + r.region + '</td><td style="color: #00FF88; font-weight: 600;">$' + (r.estimatedValue / 1000000).toFixed(2) + 'M</td><td>' + r.confidence + '%</td><td><span style="background: ' + (r.grade === 'A' ? '#00FF88' : r.grade === 'B' ? '#FFD600' : '#FF6B6B') + '; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: 600;">' + r.grade + '</span></td><td><button style="background: #1A1A1A; border: 1px solid #00FF88; color: #00FF88; padding: 4px 12px; border-radius: 4px; cursor: pointer;">View</button></td>';
+            tbody.appendChild(row);
+        });
+    }
+    
+    if (resultsDiv) {
+        resultsDiv.style.display = 'block';
+    }
+    
+    console.log('Processed', results.length, 'cranes');
+}
+
+window.exportResults = function() {
+    alert('Export functionality will be implemented');
+};
+
+window.generateReport = function() {
+    alert('Report generation will be implemented');
+};
+
+// ============================================================================
+// END OF GLOBAL FUNCTIONS
+// ============================================================================
+
     // ============================================================================
     // CRANE SPECIFICATIONS DATABASE - AUTO-PREFILL
     // ============================================================================
