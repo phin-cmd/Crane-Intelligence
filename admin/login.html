@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <style>
+        /* COMPREHENSIVE ANTI-FLICKERING CSS */
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+        
+        /* Prevent all visual updates that cause flickering */
+        .ticker-content, .metric-value, .chart-container, .data-card, .live-data, .market-data {
+            transition: none !important;
+            animation: none !important;
+            transform: none !important;
+        }
+        
+        /* Disable hover effects that might cause flickering */
+        *:hover {
+            transition: none !important;
+        }
+        
+        /* Prevent layout shifts */
+        .ticker-card, .metric-item, .dashboard-metric {
+            min-height: 1.2em;
+            overflow: hidden;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            background: #0056b3;
+        }
+
+        .login-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        .demo-credentials {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .demo-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: inline-block;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="js/anti-flickering.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence">
+            <h1 class="login-title">Admin Login</h1>
+            <p class="login-subtitle">Sign in to access the admin panel</p>
+        </div>
+
+        <form id="login-form">
+                    <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="admin@craneintelligence.com" required>
+                    </div>
+
+                    <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="login-btn">
+                        <span class="btn-text">Sign In</span>
+                <span class="loading">Signing in...</span>
+                    </button>
+
+            <div id="error-message" class="error-message" style="display: none;"></div>
+                </form>
+
+        <div class="demo-credentials">
+            <div class="demo-title">Demo Credentials</div>
+            <div class="demo-text">Email: admin@craneintelligence.com</div>
+            <div class="demo-text">Password: admin123</div>
+                    </div>
+                </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const loginBtn = document.getElementById('login-btn');
+            const errorMessage = document.getElementById('error-message');
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // Show loading state
+                loginBtn.disabled = true;
+                loginBtn.querySelector('.btn-text').classList.add('loading');
+                loginBtn.querySelector('.loading').classList.add('show');
+                errorMessage.style.display = 'none';
+
+                try {
+                    // Simulate API call
+                    const response = await fetch('/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.access_token) {
+                        // Store token
+                        localStorage.setItem('admin_token', data.access_token);
+                        if (data.refresh_token) {
+                            localStorage.setItem('admin_refresh_token', data.refresh_token);
+                        }
+
+                        // Redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error(data.detail || 'Login failed');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    errorMessage.textContent = 'Invalid credentials. Please try again.';
+                    errorMessage.style.display = 'block';
+                } finally {
+                    // Hide loading state
+                    loginBtn.disabled = false;
+                    loginBtn.querySelector('.btn-text').classList.remove('loading');
+                    loginBtn.querySelector('.loading').classList.remove('show');
+                }
+            });
+
+            // Auto-fill demo credentials
+            document.getElementById('email').value = 'admin@craneintelligence.com';
+            document.getElementById('password').value = 'admin123';
+        });
+    </script>
+</body>
+</html>
