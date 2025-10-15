@@ -2270,8 +2270,11 @@
                 // Calculate boom package premium
                 const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
                 
-                // Calculate total base value
-                const totalBaseValue = baseCapacityValue + boomPremium;
+                // Calculate model premium (8% of base capacity value)
+                const modelPremium = baseCapacityValue * 0.08;
+                
+                // Calculate total base value (base + manufacturer premium + model premium)
+                const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
                 
                 // Age adjustment (5% depreciation per year)
                 const currentYear = new Date().getFullYear();
@@ -2534,7 +2537,8 @@
             // Base value calculation
             const baseCapacityValue = capacity * 5000;
             const boomPremium = calculateBoomPackagePremium(manufacturer, model, jibIncluded, boomLength, jibLength);
-            const totalBaseValue = baseCapacityValue + boomPremium;
+            const modelPremium = baseCapacityValue * 0.08;
+            const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
             
             // Age adjustment
             const currentYear = new Date().getFullYear();
