@@ -4126,7 +4126,321 @@
                 </head>
                 <body>
                     ${reportHTML}
-                </body>
+                
+<script>
+    // Comprehensive Crane Specifications Database
+    const craneDatabase = {
+        "Liebherr": [
+            { model: "LTM 1500-8.1", capacity: 500, type: "All-Terrain Crane", boomLength: 275 },
+            { model: "LTM 11200-9.1", capacity: 1200, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "LTM 1750-9.1", capacity: 750, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "LTM 1450-8.1", capacity: 450, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "LTM 1400-7.1", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "LTM 1350-6.1", capacity: 350, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1300-6.2", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1250-6.1", capacity: 250, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1230-5.1", capacity: 230, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "LTM 1220-5.2", capacity: 220, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "LR 1600/2", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "LR 1750/2", capacity: 750, type: "Crawler Crane", boomLength: 492 },
+            { model: "LR 11350", capacity: 1350, type: "Crawler Crane", boomLength: 656 },
+            { model: "LR 13000", capacity: 3000, type: "Crawler Crane", boomLength: 748 },
+            { model: "LTR 1220", capacity: 220, type: "Telescopic Crawler Crane", boomLength: 213 },
+            { model: "LTM 1090-4.2", capacity: 90, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1110-5.1", capacity: 110, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1130-5.1", capacity: 130, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1160-5.2", capacity: 160, type: "All-Terrain Crane", boomLength: 197 }
+        ],
+        "Tadano": [
+            { model: "ATF 400G-6", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "ATF 220G-5", capacity: 220, type: "All-Terrain Crane", boomLength: 217 },
+            { model: "ATF 130G-5", capacity: 130, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ATF 110G-5", capacity: 110, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ATF 90G-4", capacity: 90, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "ATF 70G-4", capacity: 70, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "CC 2800-1", capacity: 660, type: "Crawler Crane", boomLength: 492 },
+            { model: "CC 3800-1", capacity: 715, type: "Crawler Crane", boomLength: 492 },
+            { model: "GR-1000XL", capacity: 100, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "GR-750XL", capacity: 75, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "GR-600XL", capacity: 60, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "GR-550XL", capacity: 55, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "GR-500XL", capacity: 50, type: "Rough Terrain Crane", boomLength: 118 },
+            { model: "GR-300XL", capacity: 30, type: "Rough Terrain Crane", boomLength: 105 },
+            { model: "GR-250XL", capacity: 25, type: "Rough Terrain Crane", boomLength: 92 }
+        ],
+        "Grove": [
+            { model: "GMK7450", capacity: 450, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK6400", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK6300L", capacity: 350, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK5250L", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "GMK5220", capacity: 220, type: "All-Terrain Crane", boomLength: 217 },
+            { model: "GMK5150L", capacity: 150, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "GMK4100L-1", capacity: 100, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "GMK3060L", capacity: 60, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "GRT8100", capacity: 100, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "GRT880", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RT890E", capacity: 90, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "RT765E-2", capacity: 65, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RT540E", capacity: 40, type: "Rough Terrain Crane", boomLength: 105 },
+            { model: "GHC75", capacity: 75, type: "Truck-Mounted Crane", boomLength: 141 }
+        ],
+        "Terex": [
+            { model: "AC 1000-9", capacity: 1200, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "AC 700-9", capacity: 700, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "AC 500-2", capacity: 500, type: "All-Terrain Crane", boomLength: 275 },
+            { model: "AC 350-6", capacity: 350, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "AC 250-1", capacity: 250, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "AC 200-1", capacity: 200, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "AC 100-4L", capacity: 100, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "CC 8800-1", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "CC 6800", capacity: 1250, type: "Crawler Crane", boomLength: 492 },
+            { model: "HC 275", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "RT 780", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RT 670", capacity: 70, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RT 555", capacity: 55, type: "Rough Terrain Crane", boomLength: 118 },
+            { model: "RT 345XL", capacity: 45, type: "Rough Terrain Crane", boomLength: 105 }
+        ],
+        "Manitowoc": [
+            { model: "31000", capacity: 2535, type: "Crawler Crane", boomLength: 820 },
+            { model: "21000", capacity: 1323, type: "Crawler Crane", boomLength: 656 },
+            { model: "18000", capacity: 1000, type: "Crawler Crane", boomLength: 492 },
+            { model: "16000", capacity: 750, type: "Crawler Crane", boomLength: 492 },
+            { model: "14000", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "MLC650", capacity: 650, type: "Crawler Crane", boomLength: 492 },
+            { model: "MLC300", capacity: 300, type: "Crawler Crane", boomLength: 328 },
+            { model: "999", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "888", capacity: 230, type: "Crawler Crane", boomLength: 295 },
+            { model: "777", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "2250", capacity: 300, type: "Crawler Crane", boomLength: 328 }
+        ],
+        "Kobelco": [
+            { model: "CK3300G-2", capacity: 330, type: "Crawler Crane", boomLength: 328 },
+            { model: "CK2750G-2", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "CK2500G-2", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "CK1100G-2", capacity: 110, type: "Crawler Crane", boomLength: 230 },
+            { model: "CK1000G-3", capacity: 100, type: "Crawler Crane", boomLength: 213 },
+            { model: "CK850G-2", capacity: 85, type: "Crawler Crane", boomLength: 197 },
+            { model: "SL6000G", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "7250", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "7200", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "7150", capacity: 150, type: "Crawler Crane", boomLength: 230 }
+        ],
+        "Link-Belt": [
+            { model: "348 HSL", capacity: 300, type: "Crawler Crane", boomLength: 328 },
+            { model: "298 HSL", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "238 HSL", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "218 HSL", capacity: 150, type: "Crawler Crane", boomLength: 230 },
+            { model: "TCC-1400", capacity: 140, type: "Telescopic Crawler Crane", boomLength: 230 },
+            { model: "TCC-1200", capacity: 120, type: "Telescopic Crawler Crane", boomLength: 213 },
+            { model: "RTC-8090 II", capacity: 90, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "RTC-8080 II", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RTC-8065 II", capacity: 65, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RTC-8050 II", capacity: 50, type: "Rough Terrain Crane", boomLength: 118 }
+        ],
+        "Sany": [
+            { model: "SCC40000A", capacity: 4000, type: "Crawler Crane", boomLength: 984 },
+            { model: "SCC25000TM", capacity: 2500, type: "Crawler Crane", boomLength: 820 },
+            { model: "SCC16000TM", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "SCC10000TM", capacity: 1000, type: "Crawler Crane", boomLength: 492 },
+            { model: "SCC8500", capacity: 850, type: "Crawler Crane", boomLength: 492 },
+            { model: "SCC6500A", capacity: 650, type: "Crawler Crane", boomLength: 492 },
+            { model: "SAC6000", capacity: 600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "SAC3000", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "SAC1500", capacity: 150, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "SAC800", capacity: 80, type: "All-Terrain Crane", boomLength: 164 }
+        ],
+        "XCMG": [
+            { model: "XGC88000", capacity: 4000, type: "Crawler Crane", boomLength: 984 },
+            { model: "XGC55000", capacity: 2500, type: "Crawler Crane", boomLength: 820 },
+            { model: "XGC28000", capacity: 1250, type: "Crawler Crane", boomLength: 656 },
+            { model: "XGC16000A", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "XGC12000", capacity: 1200, type: "Crawler Crane", boomLength: 492 },
+            { model: "XGC8000", capacity: 800, type: "Crawler Crane", boomLength: 492 },
+            { model: "XCA1600", capacity: 1600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "XCA800", capacity: 800, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "XCA400", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "XCA220", capacity: 220, type: "All-Terrain Crane", boomLength: 217 }
+        ],
+        "Zoomlion": [
+            { model: "ZCC33000", capacity: 3300, type: "Crawler Crane", boomLength: 820 },
+            { model: "ZCC26000", capacity: 2600, type: "Crawler Crane", boomLength: 820 },
+            { model: "ZCC13200", capacity: 1320, type: "Crawler Crane", boomLength: 656 },
+            { model: "ZCC9800", capacity: 980, type: "Crawler Crane", boomLength: 492 },
+            { model: "ZCC8800", capacity: 880, type: "Crawler Crane", boomLength: 492 },
+            { model: "ZCC3200NP", capacity: 320, type: "Crawler Crane", boomLength: 328 },
+            { model: "ZAT6000", capacity: 600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "ZAT3000", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "ZAT1200", capacity: 120, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ZAT800", capacity: 80, type: "All-Terrain Crane", boomLength: 164 }
+        ]
+    };
+
+    // Auto-prefill functionality
+    function populateModelDropdown(manufacturer) {
+        const modelSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('model');
+        });
+        
+        if (!modelSelect) {
+            console.error('Model select element not found');
+            return;
+        }
+
+        // Clear existing options
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+
+        // Get models for selected manufacturer
+        const models = craneDatabase[manufacturer] || [];
+        
+        // Add model options
+        models.forEach(crane => {
+            const option = document.createElement('option');
+            option.value = crane.model;
+            option.textContent = crane.model;
+            option.dataset.capacity = crane.capacity;
+            option.dataset.type = crane.type;
+            option.dataset.boomLength = crane.boomLength;
+            modelSelect.appendChild(option);
+        });
+
+        console.log(`Populated ${models.length} models for ${manufacturer}`);
+    }
+
+    function autofillCraneSpecs(model, manufacturer) {
+        const models = craneDatabase[manufacturer] || [];
+        const craneData = models.find(c => c.model === model);
+        
+        if (!craneData) {
+            console.log('Crane data not found for:', model);
+            return;
+        }
+
+        // Find and fill capacity field
+        const capacityInput = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]')).find(input => {
+            const label = input.closest('div')?.querySelector('label');
+            return label && label.textContent && label.textContent.toLowerCase().includes('capacity');
+        });
+        
+        if (capacityInput) {
+            capacityInput.value = craneData.capacity;
+            capacityInput.style.border = '2px solid #00ff88';
+            setTimeout(() => capacityInput.style.border = '', 2000);
+        }
+
+        // Find and fill crane type dropdown
+        const craneTypeSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('crane type');
+        });
+        
+        if (craneTypeSelect) {
+            const options = Array.from(craneTypeSelect.options);
+            const matchingOption = options.find(opt => opt.textContent.includes(craneData.type));
+            if (matchingOption) {
+                craneTypeSelect.value = matchingOption.value;
+                craneTypeSelect.style.border = '2px solid #00ff88';
+                setTimeout(() => craneTypeSelect.style.border = '', 2000);
+            }
+        }
+
+        // Find and fill boom length field
+        const boomInput = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]')).find(input => {
+            const label = input.closest('div')?.querySelector('label');
+            return label && label.textContent && label.textContent.toLowerCase().includes('boom');
+        });
+        
+        if (boomInput) {
+            boomInput.value = craneData.boomLength;
+            boomInput.style.border = '2px solid #00ff88';
+            setTimeout(() => boomInput.style.border = '', 2000);
+        }
+
+        // Show notification
+        showToast(`${manufacturer} ${model} specifications loaded`);
+        
+        console.log('Auto-filled:', craneData);
+    }
+
+    function showToast(message) {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideIn 0.3s ease-out reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Add event listeners when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find manufacturer select
+        const manufacturerSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('manufacturer');
+        });
+
+        if (manufacturerSelect) {
+            manufacturerSelect.addEventListener('change', function() {
+                const manufacturer = this.value;
+                if (manufacturer && manufacturer !== 'Select Manufacturer') {
+                    populateModelDropdown(manufacturer);
+                }
+            });
+        }
+
+        // Find model select
+        const modelSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('model');
+        });
+
+        if (modelSelect) {
+            modelSelect.addEventListener('change', function() {
+                const model = this.value;
+                const manufacturerSelect = Array.from(document.querySelectorAll('select')).find(s => {
+                    const label = s.previousElementSibling;
+                    return label && label.textContent && label.textContent.toLowerCase().includes('manufacturer');
+                });
+                const manufacturer = manufacturerSelect ? manufacturerSelect.value : '';
+                
+                if (model && model !== 'Select Model' && manufacturer) {
+                    autofillCraneSpecs(model, manufacturer);
+                }
+            });
+        }
+
+        console.log('Auto-prefill functionality initialized');
+    });
+</script>
+
+</body>
                 </html>
             `);
             reportWindow.document.close();
@@ -4384,239 +4698,321 @@
     // ============================================================================
     // CRANE SPECIFICATIONS DATABASE - AUTO-PREFILL
     // ============================================================================
+
+</script>
+
+<script>
     // Comprehensive Crane Specifications Database
-// Auto-prefill data for manufacturer and model combinations
+    const craneDatabase = {
+        "Liebherr": [
+            { model: "LTM 1500-8.1", capacity: 500, type: "All-Terrain Crane", boomLength: 275 },
+            { model: "LTM 11200-9.1", capacity: 1200, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "LTM 1750-9.1", capacity: 750, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "LTM 1450-8.1", capacity: 450, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "LTM 1400-7.1", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "LTM 1350-6.1", capacity: 350, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1300-6.2", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1250-6.1", capacity: 250, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "LTM 1230-5.1", capacity: 230, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "LTM 1220-5.2", capacity: 220, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "LR 1600/2", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "LR 1750/2", capacity: 750, type: "Crawler Crane", boomLength: 492 },
+            { model: "LR 11350", capacity: 1350, type: "Crawler Crane", boomLength: 656 },
+            { model: "LR 13000", capacity: 3000, type: "Crawler Crane", boomLength: 748 },
+            { model: "LTR 1220", capacity: 220, type: "Telescopic Crawler Crane", boomLength: 213 },
+            { model: "LTM 1090-4.2", capacity: 90, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1110-5.1", capacity: 110, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1130-5.1", capacity: 130, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "LTM 1160-5.2", capacity: 160, type: "All-Terrain Crane", boomLength: 197 }
+        ],
+        "Tadano": [
+            { model: "ATF 400G-6", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "ATF 220G-5", capacity: 220, type: "All-Terrain Crane", boomLength: 217 },
+            { model: "ATF 130G-5", capacity: 130, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ATF 110G-5", capacity: 110, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ATF 90G-4", capacity: 90, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "ATF 70G-4", capacity: 70, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "CC 2800-1", capacity: 660, type: "Crawler Crane", boomLength: 492 },
+            { model: "CC 3800-1", capacity: 715, type: "Crawler Crane", boomLength: 492 },
+            { model: "GR-1000XL", capacity: 100, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "GR-750XL", capacity: 75, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "GR-600XL", capacity: 60, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "GR-550XL", capacity: 55, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "GR-500XL", capacity: 50, type: "Rough Terrain Crane", boomLength: 118 },
+            { model: "GR-300XL", capacity: 30, type: "Rough Terrain Crane", boomLength: 105 },
+            { model: "GR-250XL", capacity: 25, type: "Rough Terrain Crane", boomLength: 92 }
+        ],
+        "Grove": [
+            { model: "GMK7450", capacity: 450, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK6400", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK6300L", capacity: 350, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "GMK5250L", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "GMK5220", capacity: 220, type: "All-Terrain Crane", boomLength: 217 },
+            { model: "GMK5150L", capacity: 150, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "GMK4100L-1", capacity: 100, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "GMK3060L", capacity: 60, type: "All-Terrain Crane", boomLength: 164 },
+            { model: "GRT8100", capacity: 100, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "GRT880", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RT890E", capacity: 90, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "RT765E-2", capacity: 65, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RT540E", capacity: 40, type: "Rough Terrain Crane", boomLength: 105 },
+            { model: "GHC75", capacity: 75, type: "Truck-Mounted Crane", boomLength: 141 }
+        ],
+        "Terex": [
+            { model: "AC 1000-9", capacity: 1200, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "AC 700-9", capacity: 700, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "AC 500-2", capacity: 500, type: "All-Terrain Crane", boomLength: 275 },
+            { model: "AC 350-6", capacity: 350, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "AC 250-1", capacity: 250, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "AC 200-1", capacity: 200, type: "All-Terrain Crane", boomLength: 213 },
+            { model: "AC 100-4L", capacity: 100, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "CC 8800-1", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "CC 6800", capacity: 1250, type: "Crawler Crane", boomLength: 492 },
+            { model: "HC 275", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "RT 780", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RT 670", capacity: 70, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RT 555", capacity: 55, type: "Rough Terrain Crane", boomLength: 118 },
+            { model: "RT 345XL", capacity: 45, type: "Rough Terrain Crane", boomLength: 105 }
+        ],
+        "Manitowoc": [
+            { model: "31000", capacity: 2535, type: "Crawler Crane", boomLength: 820 },
+            { model: "21000", capacity: 1323, type: "Crawler Crane", boomLength: 656 },
+            { model: "18000", capacity: 1000, type: "Crawler Crane", boomLength: 492 },
+            { model: "16000", capacity: 750, type: "Crawler Crane", boomLength: 492 },
+            { model: "14000", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "MLC650", capacity: 650, type: "Crawler Crane", boomLength: 492 },
+            { model: "MLC300", capacity: 300, type: "Crawler Crane", boomLength: 328 },
+            { model: "999", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "888", capacity: 230, type: "Crawler Crane", boomLength: 295 },
+            { model: "777", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "2250", capacity: 300, type: "Crawler Crane", boomLength: 328 }
+        ],
+        "Kobelco": [
+            { model: "CK3300G-2", capacity: 330, type: "Crawler Crane", boomLength: 328 },
+            { model: "CK2750G-2", capacity: 275, type: "Crawler Crane", boomLength: 328 },
+            { model: "CK2500G-2", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "CK1100G-2", capacity: 110, type: "Crawler Crane", boomLength: 230 },
+            { model: "CK1000G-3", capacity: 100, type: "Crawler Crane", boomLength: 213 },
+            { model: "CK850G-2", capacity: 85, type: "Crawler Crane", boomLength: 197 },
+            { model: "SL6000G", capacity: 600, type: "Crawler Crane", boomLength: 492 },
+            { model: "7250", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "7200", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "7150", capacity: 150, type: "Crawler Crane", boomLength: 230 }
+        ],
+        "Link-Belt": [
+            { model: "348 HSL", capacity: 300, type: "Crawler Crane", boomLength: 328 },
+            { model: "298 HSL", capacity: 250, type: "Crawler Crane", boomLength: 295 },
+            { model: "238 HSL", capacity: 200, type: "Crawler Crane", boomLength: 262 },
+            { model: "218 HSL", capacity: 150, type: "Crawler Crane", boomLength: 230 },
+            { model: "TCC-1400", capacity: 140, type: "Telescopic Crawler Crane", boomLength: 230 },
+            { model: "TCC-1200", capacity: 120, type: "Telescopic Crawler Crane", boomLength: 213 },
+            { model: "RTC-8090 II", capacity: 90, type: "Rough Terrain Crane", boomLength: 154 },
+            { model: "RTC-8080 II", capacity: 80, type: "Rough Terrain Crane", boomLength: 141 },
+            { model: "RTC-8065 II", capacity: 65, type: "Rough Terrain Crane", boomLength: 128 },
+            { model: "RTC-8050 II", capacity: 50, type: "Rough Terrain Crane", boomLength: 118 }
+        ],
+        "Sany": [
+            { model: "SCC40000A", capacity: 4000, type: "Crawler Crane", boomLength: 984 },
+            { model: "SCC25000TM", capacity: 2500, type: "Crawler Crane", boomLength: 820 },
+            { model: "SCC16000TM", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "SCC10000TM", capacity: 1000, type: "Crawler Crane", boomLength: 492 },
+            { model: "SCC8500", capacity: 850, type: "Crawler Crane", boomLength: 492 },
+            { model: "SCC6500A", capacity: 650, type: "Crawler Crane", boomLength: 492 },
+            { model: "SAC6000", capacity: 600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "SAC3000", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "SAC1500", capacity: 150, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "SAC800", capacity: 80, type: "All-Terrain Crane", boomLength: 164 }
+        ],
+        "XCMG": [
+            { model: "XGC88000", capacity: 4000, type: "Crawler Crane", boomLength: 984 },
+            { model: "XGC55000", capacity: 2500, type: "Crawler Crane", boomLength: 820 },
+            { model: "XGC28000", capacity: 1250, type: "Crawler Crane", boomLength: 656 },
+            { model: "XGC16000A", capacity: 1600, type: "Crawler Crane", boomLength: 656 },
+            { model: "XGC12000", capacity: 1200, type: "Crawler Crane", boomLength: 492 },
+            { model: "XGC8000", capacity: 800, type: "Crawler Crane", boomLength: 492 },
+            { model: "XCA1600", capacity: 1600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "XCA800", capacity: 800, type: "All-Terrain Crane", boomLength: 295 },
+            { model: "XCA400", capacity: 400, type: "All-Terrain Crane", boomLength: 262 },
+            { model: "XCA220", capacity: 220, type: "All-Terrain Crane", boomLength: 217 }
+        ],
+        "Zoomlion": [
+            { model: "ZCC33000", capacity: 3300, type: "Crawler Crane", boomLength: 820 },
+            { model: "ZCC26000", capacity: 2600, type: "Crawler Crane", boomLength: 820 },
+            { model: "ZCC13200", capacity: 1320, type: "Crawler Crane", boomLength: 656 },
+            { model: "ZCC9800", capacity: 980, type: "Crawler Crane", boomLength: 492 },
+            { model: "ZCC8800", capacity: 880, type: "Crawler Crane", boomLength: 492 },
+            { model: "ZCC3200NP", capacity: 320, type: "Crawler Crane", boomLength: 328 },
+            { model: "ZAT6000", capacity: 600, type: "All-Terrain Crane", boomLength: 328 },
+            { model: "ZAT3000", capacity: 300, type: "All-Terrain Crane", boomLength: 230 },
+            { model: "ZAT1200", capacity: 120, type: "All-Terrain Crane", boomLength: 197 },
+            { model: "ZAT800", capacity: 80, type: "All-Terrain Crane", boomLength: 164 }
+        ]
+    };
 
-const craneDatabase = {
-    // LIEBHERR Models
-    'Liebherr': {
-        'LTM 1500-8.1': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
-        'LTM 11200-9.1': { capacity: 1200, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
-        'LTM 1750-9.1': { capacity: 750, craneType: 'All-Terrain Crane', boomLength: 318, typicalYear: 2019 },
-        'LTM 1450-8.1': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
-        'LTM 1300-6.2': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
-        'LTM 1250-6.1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2021 },
-        'LTM 1220-5.2': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'LTM 1200-5.1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'LTM 1160-5.2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'LTM 1130-5.1': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2023 },
-        'LTM 1110-5.1': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'LTM 1095-5.1': { capacity: 95, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'LTM 1070-4.2': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'LTM 1060-3.1': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'LR 1600/2': { capacity: 600, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'LR 1750/2': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2018 },
-        'LR 11350': { capacity: 1350, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2017 },
-        'LR 1300 SX': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'LR 1250': { capacity: 250, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-    },
-    
-    // GROVE Models
-    'Grove': {
-        'GMK7450': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
-        'GMK6400': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2021 },
-        'GMK5250L': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 230, typicalYear: 2021 },
-        'GMK5220': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'GMK5180-1': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'GMK5150L-1': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2022 },
-        'GMK5120': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'GMK4100L-1': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'GMK3060': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'GRT8100': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
-        'GRT8120': { capacity: 120, craneType: 'Rough Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'RT890E': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RT770E': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'RT540E': { capacity: 40, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
-    },
-    
-    // TADANO Models
-    'Tadano': {
-        'ATF 400G-6': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
-        'ATF 220G-5': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2021 },
-        'ATF 180G-5': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'ATF 130G-5': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2022 },
-        'ATF 110G-5': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'ATF 90G-4': { capacity: 90, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
-        'ATF 70G-4': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'ATF 60-3': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'GR-1000XL-4': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
-        'GR-800XL-3': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'GR-600XL-3': { capacity: 60, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'GR-500XL': { capacity: 50, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
-        'GR-350XL': { capacity: 35, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
-        'CC 2800-1': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'CC 2400-1': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
-    },
-    
-    // TEREX Models
-    'Terex': {
-        'AC 1000-9': { capacity: 1000, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
-        'AC 700-9': { capacity: 700, craneType: 'All-Terrain Crane', boomLength: 308, typicalYear: 2019 },
-        'AC 500-2': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
-        'AC 450-2': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
-        'AC 350-6': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'AC 300-6': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
-        'AC 250-1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2022 },
-        'AC 200-1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'AC 160-2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'AC 120-1': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'AC 100-4L': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'RT 780': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RT 670': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'RT 555': { capacity: 55, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
-    },
-    
-    // MANITOWOC Models
-    'Manitowoc': {
-        '31000': { capacity: 2300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2016 },
-        '18000': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2017 },
-        '16000': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2018 },
-        '14000': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2019 },
-        'MLC650': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'MLC300': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'MLC165': { capacity: 165, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
-        'MLC150': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
-        'MLC100-1': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
-        '999': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
-        '888': { capacity: 230, craneType: 'Crawler Crane', boomLength: 262, typicalYear: 2021 },
-    },
-    
-    // KOBELCO Models
-    'Kobelco': {
-        'CK3300G-2': { capacity: 330, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2019 },
-        'CK2750G-2': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
-        'CK2500G-2': { capacity: 250, craneType: 'Crawler Crane', boomLength: 269, typicalYear: 2020 },
-        'CK1600G-2': { capacity: 160, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
-        'CK1200G-2': { capacity: 120, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
-        'CK1100G-2': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
-        'CK1000G-2': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
-        'CK850G': { capacity: 85, craneType: 'Crawler Crane', boomLength: 197, typicalYear: 2023 },
-        'CK750G': { capacity: 75, craneType: 'Crawler Crane', boomLength: 184, typicalYear: 2023 },
-        'CK550G': { capacity: 55, craneType: 'Crawler Crane', boomLength: 164, typicalYear: 2024 },
-    },
-    
-    // LINK-BELT Models
-    'Link-Belt': {
-        '348 HSL': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
-        '298 HSL': { capacity: 130, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
-        '238 HSL': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
-        '218 HSL': { capacity: 90, craneType: 'Crawler Crane', boomLength: 203, typicalYear: 2022 },
-        'TCC-1400': { capacity: 140, craneType: 'Telescopic Crawler Crane', boomLength: 190, typicalYear: 2022 },
-        'TCC-1200': { capacity: 120, craneType: 'Telescopic Crawler Crane', boomLength: 184, typicalYear: 2023 },
-        'TCC-1100': { capacity: 110, craneType: 'Telescopic Crawler Crane', boomLength: 177, typicalYear: 2023 },
-        'TCC-750': { capacity: 75, craneType: 'Telescopic Crawler Crane', boomLength: 164, typicalYear: 2023 },
-        'RTC-8090 II': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RTC-8065 II': { capacity: 65, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-    },
-    
-    // SANY Models
-    'Sany': {
-        'SCC40000A': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'SCC16000A': { capacity: 1600, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'SCC8500': { capacity: 850, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'SCC4000E': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2020 },
-        'SCC2600A': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-        'SAC6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
-        'SAC3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'SAC2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'SAC1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'SAC1500': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2023 },
-    },
-    
-    // XCMG Models
-    'XCMG': {
-        'XGC88000': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'XGC28000': { capacity: 1250, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'XGC15000A': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'XGC8000': { capacity: 800, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
-        'XGC4000': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2021 },
-        'XCA1600': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'XCA1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2022 },
-        'XCA800': { capacity: 80, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
-        'XCA600': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2023 },
-        'XCA400': { capacity: 40, craneType: 'All-Terrain Crane', boomLength: 144, typicalYear: 2024 },
-    },
-    
-    // ZOOMLION Models
-    'Zoomlion': {
-        'ZCC33000': { capacity: 3300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'ZCC13000': { capacity: 1300, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'ZCC9800': { capacity: 980, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'ZCC3200NP': { capacity: 320, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'ZCC2600': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-        'ZAT6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
-        'ZAT3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'ZAT2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'ZAT1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'ZAT1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-    },
-};
+    // Auto-prefill functionality
+    function populateModelDropdown(manufacturer) {
+        const modelSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('model');
+        });
+        
+        if (!modelSelect) {
+            console.error('Model select element not found');
+            return;
+        }
 
-// Function to get crane specifications
-function getCraneSpecifications(manufacturer, model) {
-    if (!manufacturer || !model) {
-        return null;
+        // Clear existing options
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+
+        // Get models for selected manufacturer
+        const models = craneDatabase[manufacturer] || [];
+        
+        // Add model options
+        models.forEach(crane => {
+            const option = document.createElement('option');
+            option.value = crane.model;
+            option.textContent = crane.model;
+            option.dataset.capacity = crane.capacity;
+            option.dataset.type = crane.type;
+            option.dataset.boomLength = crane.boomLength;
+            modelSelect.appendChild(option);
+        });
+
+        console.log(`Populated ${models.length} models for ${manufacturer}`);
     }
-    
-    // Try exact match first
-    if (craneDatabase[manufacturer] && craneDatabase[manufacturer][model]) {
-        return craneDatabase[manufacturer][model];
-    }
-    
-    // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
-        if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
-            for (const [mdl, specs] of Object.entries(models)) {
-                if (mdl.toLowerCase() === model.toLowerCase()) {
-                    return specs;
-                }
+
+    function autofillCraneSpecs(model, manufacturer) {
+        const models = craneDatabase[manufacturer] || [];
+        const craneData = models.find(c => c.model === model);
+        
+        if (!craneData) {
+            console.log('Crane data not found for:', model);
+            return;
+        }
+
+        // Find and fill capacity field
+        const capacityInput = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]')).find(input => {
+            const label = input.closest('div')?.querySelector('label');
+            return label && label.textContent && label.textContent.toLowerCase().includes('capacity');
+        });
+        
+        if (capacityInput) {
+            capacityInput.value = craneData.capacity;
+            capacityInput.style.border = '2px solid #00ff88';
+            setTimeout(() => capacityInput.style.border = '', 2000);
+        }
+
+        // Find and fill crane type dropdown
+        const craneTypeSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('crane type');
+        });
+        
+        if (craneTypeSelect) {
+            const options = Array.from(craneTypeSelect.options);
+            const matchingOption = options.find(opt => opt.textContent.includes(craneData.type));
+            if (matchingOption) {
+                craneTypeSelect.value = matchingOption.value;
+                craneTypeSelect.style.border = '2px solid #00ff88';
+                setTimeout(() => craneTypeSelect.style.border = '', 2000);
             }
         }
+
+        // Find and fill boom length field
+        const boomInput = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]')).find(input => {
+            const label = input.closest('div')?.querySelector('label');
+            return label && label.textContent && label.textContent.toLowerCase().includes('boom');
+        });
+        
+        if (boomInput) {
+            boomInput.value = craneData.boomLength;
+            boomInput.style.border = '2px solid #00ff88';
+            setTimeout(() => boomInput.style.border = '', 2000);
+        }
+
+        // Show notification
+        showToast(`${manufacturer} ${model} specifications loaded`);
+        
+        console.log('Auto-filled:', craneData);
     }
-    
-    // Try partial match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
-        if (manufacturer.toLowerCase().includes(mfr.toLowerCase()) || mfr.toLowerCase().includes(manufacturer.toLowerCase())) {
-            for (const [mdl, specs] of Object.entries(models)) {
-                if (model.toLowerCase().includes(mdl.toLowerCase()) || mdl.toLowerCase().includes(model.toLowerCase())) {
-                    return specs;
-                }
+
+    function showToast(message) {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
             }
+        `;
+        document.head.appendChild(style);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideIn 0.3s ease-out reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Add event listeners when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find manufacturer select
+        const manufacturerSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('manufacturer');
+        });
+
+        if (manufacturerSelect) {
+            manufacturerSelect.addEventListener('change', function() {
+                const manufacturer = this.value;
+                if (manufacturer && manufacturer !== 'Select Manufacturer') {
+                    populateModelDropdown(manufacturer);
+                }
+            });
         }
-    }
-    
-    return null;
-}
 
-// Function to get all models for a manufacturer
-function getModelsForManufacturer(manufacturer) {
-    if (!manufacturer) {
-        return [];
-    }
-    
-    // Try exact match
-    if (craneDatabase[manufacturer]) {
-        return Object.keys(craneDatabase[manufacturer]);
-    }
-    
-    // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(craneDatabase)) {
-        if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
-            return Object.keys(models);
+        // Find model select
+        const modelSelect = Array.from(document.querySelectorAll('select')).find(s => {
+            const label = s.previousElementSibling;
+            return label && label.textContent && label.textContent.toLowerCase().includes('model');
+        });
+
+        if (modelSelect) {
+            modelSelect.addEventListener('change', function() {
+                const model = this.value;
+                const manufacturerSelect = Array.from(document.querySelectorAll('select')).find(s => {
+                    const label = s.previousElementSibling;
+                    return label && label.textContent && label.textContent.toLowerCase().includes('manufacturer');
+                });
+                const manufacturer = manufacturerSelect ? manufacturerSelect.value : '';
+                
+                if (model && model !== 'Select Model' && manufacturer) {
+                    autofillCraneSpecs(model, manufacturer);
+                }
+            });
         }
-    }
-    
-    return [];
-}
 
-// Export for use in HTML
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { craneDatabase, getCraneSpecifications, getModelsForManufacturer };
-}
+        console.log('Auto-prefill functionality initialized');
+    });
+</script>
 
-
-    </script>
-    
-    </script>
 </body>
 </html>
