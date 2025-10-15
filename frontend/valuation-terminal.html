@@ -3205,126 +3205,311 @@
             const uploadArea = document.getElementById('uploadArea');
             uploadArea.innerHTML = '<div class="upload-text">Processing file...</div>';
             
+            const fileName = file.name.toLowerCase();
+            const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+            const isCSV = fileName.endsWith('.csv');
+            
+            if (!isExcel && !isCSV) {
+                uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: Unsupported file format. Please upload .xlsx, .xls, or .csv</div>';
+                return;
+            }
+            
             // Read file content
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const text = e.target.result;
-                    const lines = text.split('\n').filter(line => line.trim());
-                    
-                    if (lines.length < 2) {
-                        uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: File is empty or invalid</div>';
-                        return;
+            
+            if (isExcel) {
+                // Handle Excel files
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // Get first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // Convert to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        if (jsonData.length < 2) {
+                            uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: File is empty or invalid</div>';
+                            return;
+                        }
+                        
+                        await processBulkData(jsonData, uploadArea);
+                        
+                    } catch (error) {
+                        console.error('Excel processing error:', error);
+                        uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error processing Excel file: ' + error.message + '</div>';
                     }
-                    
-                    // Parse CSV
-                    const headers = lines[0].split(',').map(h => h.trim());
-                    const dataRows = lines.slice(1);
-                    
-                    bulkData = [];
-                    let successCount = 0;
-                    let errorCount = 0;
-                    
-                    // Process each crane
-                    for (let i = 0; i < dataRows.length; i++) {
-                        const row = dataRows[i].split(',').map(c => c.trim());
+                };
+                reader.readAsArrayBuffer(file);
+                
+            } else {
+                // Handle CSV files
+                reader.onload = async function(e) {
+                    try {
+                        const text = e.target.result;
+                        const lines = text.split('
+').filter(line => line.trim());
                         
-                        if (row.length < 5) continue; // Skip invalid rows
+                        if (lines.length < 2) {
+                            uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: File is empty or invalid</div>';
+                            return;
+                        }
                         
-                        const manufacturer = row[0] || '';
-                        const model = row[1] || '';
-                        const year = parseInt(row[2]) || new Date().getFullYear();
-                        const capacity = parseInt(row[3]) || 100;
-                        const hours = parseInt(row[4]) || 0;
-                        const condition = row[5] || 'good';
-                        const boomLength = parseFloat(row[6]) || null;
-                        const craneType = row[7] || 'All-Terrain Crane';
-                        const region = row[8] || 'North America';
-                        
-                        try {
-                            // Use same calculation logic as single valuation
-                            const currentYear = new Date().getFullYear();
-                            const age = currentYear - year;
+                        // Parse CSV to array format
+                        const jsonData = lines.map(line => {
+                            // Handle quoted values
+                            const values = [];
+                            let current = '';
+                            let inQuotes = false;
                             
-                            // Calculate base value
-                            const baseCapacityValue = capacity * 5000;
-                            
-                            // Apply adjustments
-                            const ageAdjustment = baseCapacityValue * (age * 0.05);
-                            const averageHoursPerYear = 1500;
-                            const expectedHours = age * averageHoursPerYear;
-                            const excessHours = hours - expectedHours;
-                            const hoursAdjustment = excessHours > 0 ? (baseCapacityValue * 0.03) : 0;
-                            
-                            const regionalFactors = {
-                                'North America': 1.04,
-                                'Europe': 1.02,
-                                'Asia Pacific': 0.98,
-                                'Middle East': 1.01,
-                                'Africa': 0.95,
-                                'South America': 0.97
-                            };
-                            const regionalAdjustment = baseCapacityValue * ((regionalFactors[region] || 1.0) - 1);
-                            
-                            // Boom length adjustment
-                            let boomAdjustment = 0;
-                            if (boomLength) {
-                                const baseline = 40;
-                                if (boomLength > baseline) {
-                                    boomAdjustment = baseCapacityValue * ((boomLength - baseline) / 10.0 * 0.02);
-                                } else if (boomLength < baseline) {
-                                    boomAdjustment = -baseCapacityValue * ((baseline - boomLength) / 10.0 * 0.015);
+                            for (let i = 0; i < line.length; i++) {
+                                const char = line[i];
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    values.push(current.trim());
+                                    current = '';
+                                } else {
+                                    current += char;
                                 }
                             }
-                            
-                            const estimatedValue = baseCapacityValue - ageAdjustment - hoursAdjustment + regionalAdjustment + boomAdjustment;
-                            
-                            // Calculate metrics using same functions
-                            const confidenceScore = calculateConfidenceScore(age, hours, capacity, region);
-                            const riskScore = calculateRiskScore(age, hours, region, capacity);
-                            const dealGrade = calculateDealGrade(confidenceScore, riskScore);
-                            
-                            bulkData.push({
-                                crane: `${manufacturer} ${model}`,
-                                year: year.toString(),
-                                capacity: `${capacity}T`,
-                                hours: hours.toString(),
-                                region: region,
-                                estimatedValue: '$' + Math.round(estimatedValue).toLocaleString(),
-                                confidence: `${confidenceScore}%`,
-                                grade: dealGrade,
-                                boomLength: boomLength,
-                                condition: condition,
-                                craneType: craneType
-                            });
-                            
-                            successCount++;
-                            
-                            // Update progress
-                            uploadArea.innerHTML = `<div class="upload-text">Processing... ${i + 1} of ${dataRows.length} cranes</div>`;
-                            
-                        } catch (error) {
-                console.error('DEBUG: Catch block triggered:', error);
-                            console.error('Error processing row:', error);
-                            errorCount++;
+                            values.push(current.trim());
+                            return values;
+                        });
+                        
+                        await processBulkData(jsonData, uploadArea);
+                        
+                    } catch (error) {
+                        console.error('CSV processing error:', error);
+                        uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error processing CSV file: ' + error.message + '</div>';
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        async function processBulkData(jsonData, uploadArea) {
+            const headers = jsonData[0];
+            const dataRows = jsonData.slice(1);
+            
+            bulkData = [];
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+            
+            // Process each crane
+            for (let i = 0; i < dataRows.length; i++) {
+                const row = dataRows[i];
+                
+                // Skip empty rows
+                if (!row || row.length === 0 || row.every(cell => !cell)) continue;
+                
+                // Validate minimum required fields
+                if (row.length < 5) {
+                    errors.push(`Row ${i + 2}: Insufficient data (need at least Manufacturer, Model, Year, Capacity, Hours)`);
+                    errorCount++;
+                    continue;
+                }
+                
+                try {
+                    // Extract and validate data
+                    const manufacturer = String(row[0] || '').trim();
+                    const model = String(row[1] || '').trim();
+                    const year = parseInt(row[2]) || new Date().getFullYear();
+                    const capacity = parseInt(row[3]) || 0;
+                    const hours = parseInt(row[4]) || 0;
+                    const condition = String(row[5] || 'good').trim();
+                    const boomLength = row[6] ? parseFloat(row[6]) : null;
+                    const craneType = String(row[7] || 'All-Terrain Crane').trim();
+                    const region = String(row[8] || 'North America').trim();
+                    
+                    // Validation
+                    if (!manufacturer) {
+                        errors.push(`Row ${i + 2}: Missing manufacturer`);
+                        errorCount++;
+                        continue;
+                    }
+                    if (!model) {
+                        errors.push(`Row ${i + 2}: Missing model`);
+                        errorCount++;
+                        continue;
+                    }
+                    if (capacity <= 0) {
+                        errors.push(`Row ${i + 2}: Invalid capacity (${capacity})`);
+                        errorCount++;
+                        continue;
+                    }
+                    if (year < 1950 || year > new Date().getFullYear() + 1) {
+                        errors.push(`Row ${i + 2}: Invalid year (${year})`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    // ===== USE UNIFIED CALCULATION LOGIC =====
+                    const currentYear = new Date().getFullYear();
+                    const age = currentYear - year;
+                    
+                    // Step 1: Base capacity value
+                    const baseCapacityValue = capacity * 5000;
+                    
+                    // Step 2: Manufacturer premium
+                    const manufacturerFactors = {
+                        'liebherr': 0.20,
+                        'grove': 0.18,
+                        'tadano': 0.18,
+                        'terex': 0.15,
+                        'manitowoc': 0.15,
+                        'link-belt': 0.12
+                    };
+                    const manuLower = manufacturer.toLowerCase();
+                    let manufacturerFactor = 0.10; // Default
+                    for (const [key, value] of Object.entries(manufacturerFactors)) {
+                        if (manuLower.includes(key)) {
+                            manufacturerFactor = value;
+                            break;
                         }
                     }
+                    const boomPremium = baseCapacityValue * manufacturerFactor;
                     
-                    if (bulkData.length > 0) {
-                        displayBulkResults();
-                        uploadArea.innerHTML = `<div class="upload-icon">✅</div><div class="upload-text">Processed ${successCount} cranes successfully${errorCount > 0 ? ` (${errorCount} errors)` : ''}</div>`;
-                    } else {
-                        uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: No valid data found in file</div>';
-                    }
+                    // Step 3: Model premium (8% of base)
+                    const modelPremium = baseCapacityValue * 0.08;
+                    
+                    // Step 4: Total base value
+                    const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
+                    
+                    // Step 5: Age adjustment (5% per year)
+                    const ageAdjustment = totalBaseValue * (age * 0.05);
+                    
+                    // Step 6: Hours adjustment
+                    const averageHoursPerYear = 1500;
+                    const expectedHours = age * averageHoursPerYear;
+                    const excessHours = hours - expectedHours;
+                    const hoursAdjustment = excessHours > 0 ? (totalBaseValue * 0.03) : 0;
+                    
+                    // Step 7: Regional adjustment
+                    const regionalFactors = {
+                        'North America': 1.04,
+                        'Europe': 1.02,
+                        'Asia Pacific': 0.98,
+                        'Middle East': 1.01,
+                        'Africa': 0.95,
+                        'South America': 0.97
+                    };
+                    const regionalAdjustment = totalBaseValue * ((regionalFactors[region] || 1.0) - 1);
+                    
+                    // Step 8: Market conditions (3% of base)
+                    const marketConditionsValue = totalBaseValue * 0.03;
+                    
+                    // Step 9: Condition score (5% of base)
+                    const conditionScoreValue = totalBaseValue * 0.05;
+                    
+                    // Step 10: Calculate final estimated value (UNIFIED FORMULA)
+                    const finalEstimatedValue = totalBaseValue 
+                        - ageAdjustment 
+                        - hoursAdjustment 
+                        + regionalAdjustment 
+                        + marketConditionsValue 
+                        + conditionScoreValue;
+                    
+                    // Calculate total adjustments
+                    const totalAdjustments = -ageAdjustment - hoursAdjustment + regionalAdjustment + marketConditionsValue + conditionScoreValue;
+                    
+                    // Calculate metrics
+                    const confidenceScore = calculateConfidenceScore(age, hours, capacity, region);
+                    const riskScore = calculateRiskScore(age, hours, region, capacity);
+                    const dealGrade = calculateDealGrade(confidenceScore, riskScore);
+                    
+                    // Store result
+                    bulkData.push({
+                        crane: `${manufacturer} ${model}`,
+                        manufacturer: manufacturer,
+                        model: model,
+                        year: year.toString(),
+                        capacity: `${capacity}T`,
+                        capacityNumeric: capacity,
+                        hours: hours.toString(),
+                        hoursNumeric: hours,
+                        region: region,
+                        estimatedValue: '$' + Math.round(finalEstimatedValue).toLocaleString(),
+                        estimatedValueNumeric: Math.round(finalEstimatedValue),
+                        confidence: `${confidenceScore}%`,
+                        confidenceNumeric: confidenceScore,
+                        grade: dealGrade,
+                        boomLength: boomLength,
+                        condition: condition,
+                        craneType: craneType,
+                        breakdown: {
+                            baseCapacityValue: baseCapacityValue,
+                            manufacturerPremium: boomPremium,
+                            modelPremium: modelPremium,
+                            totalBaseValue: totalBaseValue,
+                            age: age,
+                            ageAdjustment: ageAdjustment,
+                            expectedHours: expectedHours,
+                            excessHours: excessHours,
+                            hoursAdjustment: hoursAdjustment,
+                            regionalAdjustment: regionalAdjustment,
+                            marketConditionsValue: marketConditionsValue,
+                            conditionScoreValue: conditionScoreValue,
+                            totalAdjustments: totalAdjustments,
+                            finalEstimatedValue: finalEstimatedValue
+                        },
+                        riskScore: riskScore
+                    });
+                    
+                    successCount++;
                     
                 } catch (error) {
-                console.error('DEBUG: Catch block triggered:', error);
-                    console.error('File processing error:', error);
-                    uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error processing file. Please check format.</div>';
+                    console.error(`Error processing row ${i + 2}:`, error);
+                    errors.push(`Row ${i + 2}: ${error.message}`);
+                    errorCount++;
                 }
-            };
+                
+                // Update progress
+                uploadArea.innerHTML = `<div class="upload-text">Processing... ${i + 1} of ${dataRows.length} rows</div>`;
+            }
             
-            reader.readAsText(file);
+            // Display results
+            if (bulkData.length > 0) {
+                displayBulkResults();
+                
+                let statusMessage = `<div class="upload-icon">✅</div><div class="upload-text">Successfully processed ${successCount} crane${successCount !== 1 ? 's' : ''}`;
+                if (errorCount > 0) {
+                    statusMessage += ` (${errorCount} error${errorCount !== 1 ? 's' : ''})`;
+                }
+                statusMessage += '</div>';
+                
+                if (errors.length > 0 && errors.length <= 5) {
+                    statusMessage += '<div style="margin-top: 1rem; padding: 1rem; background: #2A2A2A; border-radius: 4px; text-align: left; font-size: 0.9rem;">';
+                    statusMessage += '<div style="color: #FFB800; font-weight: 600; margin-bottom: 0.5rem;">Errors:</div>';
+                    errors.forEach(err => {
+                        statusMessage += `<div style="color: #FF4444; margin-bottom: 0.25rem;">• ${err}</div>`;
+                    });
+                    statusMessage += '</div>';
+                } else if (errors.length > 5) {
+                    statusMessage += `<div style="margin-top: 1rem; padding: 1rem; background: #2A2A2A; border-radius: 4px; color: #FFB800;">⚠️ ${errors.length} errors occurred. Check console for details.</div>`;
+                    console.error('Bulk processing errors:', errors);
+                }
+                
+                uploadArea.innerHTML = statusMessage;
+            } else {
+                let errorMessage = '<div class="upload-icon">❌</div><div class="upload-text">No valid data found in file</div>';
+                if (errors.length > 0) {
+                    errorMessage += '<div style="margin-top: 1rem; padding: 1rem; background: #2A2A2A; border-radius: 4px; text-align: left; font-size: 0.9rem;">';
+                    errorMessage += '<div style="color: #FFB800; font-weight: 600; margin-bottom: 0.5rem;">Errors:</div>';
+                    errors.slice(0, 5).forEach(err => {
+                        errorMessage += `<div style="color: #FF4444; margin-bottom: 0.25rem;">• ${err}</div>`;
+                    });
+                    if (errors.length > 5) {
+                        errorMessage += `<div style="color: #888; margin-top: 0.5rem;">... and ${errors.length - 5} more errors</div>`;
+                    }
+                    errorMessage += '</div>';
+                }
+                uploadArea.innerHTML = errorMessage;
+            }
         }
 
         function displayBulkResults() {
@@ -3412,97 +3597,114 @@
             const modal = document.getElementById('reportModal');
             const modalBody = document.getElementById('modalBody');
             
-            // Recalculate detailed breakdown for this crane
-            const year = parseInt(item.year);
-            const capacity = parseInt(item.capacity);
-            const hours = parseInt(item.hours);
-            const currentYear = new Date().getFullYear();
-            const age = currentYear - year;
-            
-            const baseValue = capacity * 5000;
-            const ageAdjustment = baseValue * (age * 0.05);
-            const avgHoursPerYear = 1500;
-            const expectedHours = age * avgHoursPerYear;
-            const excessHours = hours - expectedHours;
-            const hoursAdjustment = excessHours > 0 ? (baseValue * 0.03) : 0;
-            
-            const regionalFactors = {
-                'North America': 1.04,
-                'Europe': 1.02,
-                'Asia Pacific': 0.98,
-                'Middle East': 1.01,
-                'Africa': 0.95,
-                'South America': 0.97
-            };
-            const regionalFactor = regionalFactors[item.region] || 1.0;
-            const regionalAdjustment = baseValue * (regionalFactor - 1);
-            
-            let boomAdjustment = 0;
-            if (item.boomLength) {
-                const baseline = 40;
-                const boomLen = parseFloat(item.boomLength);
-                if (boomLen > baseline) {
-                    boomAdjustment = baseValue * ((boomLen - baseline) / 10.0 * 0.02);
-                } else if (boomLen < baseline) {
-                    boomAdjustment = -baseValue * ((baseline - boomLen) / 10.0 * 0.015);
-                }
-            }
+            // Use stored breakdown data for accurate display
+            const breakdown = item.breakdown;
             
             modalBody.innerHTML = `
                 <div style="margin-bottom: 2rem;">
                     <h3 style="color: #00FF88; margin-bottom: 1rem;">${item.crane}</h3>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                        <div><strong>Manufacturer:</strong> ${item.manufacturer}</div>
+                        <div><strong>Model:</strong> ${item.model}</div>
                         <div><strong>Year:</strong> ${item.year}</div>
                         <div><strong>Capacity:</strong> ${item.capacity}</div>
-                        <div><strong>Hours:</strong> ${item.hours.toLocaleString()}</div>
+                        <div><strong>Hours:</strong> ${parseInt(item.hours).toLocaleString()}</div>
                         <div><strong>Region:</strong> ${item.region}</div>
                         <div><strong>Condition:</strong> ${item.condition || 'N/A'}</div>
-                        <div><strong>Boom Length:</strong> ${item.boomLength ? item.boomLength + 'm' : 'N/A'}</div>
                         <div><strong>Crane Type:</strong> ${item.craneType || 'N/A'}</div>
-                        <div><strong>Deal Grade:</strong> <span style="color: ${item.grade.startsWith('A') ? '#00FF88' : item.grade.startsWith('B') ? '#FFB800' : '#FF4444'}; font-weight: 700; font-size: 1.2rem;">${item.grade}</span></div>
                     </div>
                     
-                    <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #00FF88;">
-                        <div style="font-size: 2rem; font-weight: 800; color: #00FF88; margin-bottom: 0.5rem;">${item.estimatedValue}</div>
-                        <div style="color: #888;">Estimated Market Value</div>
-                        <div style="color: #FFB800; margin-top: 0.5rem;">Confidence: ${item.confidence}</div>
+                    <div style="background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%); padding: 2rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px solid #00FF88;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: #00FF88; margin-bottom: 0.5rem;">${item.estimatedValue}</div>
+                            <div style="color: #888; font-size: 1.1rem;">Final Estimated Value</div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #404040;">
+                                <div style="display: flex; justify-content: space-around;">
+                                    <div>
+                                        <div style="color: #888; font-size: 0.9rem;">Confidence</div>
+                                        <div style="color: #00FF88; font-weight: 600; font-size: 1.2rem;">${item.confidence}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #888; font-size: 0.9rem;">Deal Grade</div>
+                                        <div style="color: ${item.grade.startsWith('A') ? '#00FF88' : item.grade.startsWith('B') ? '#FFB800' : '#FF4444'}; font-weight: 700; font-size: 1.3rem;">${item.grade}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #888; font-size: 0.9rem;">Risk Score</div>
+                                        <div style="color: ${item.riskScore < 25 ? '#00FF88' : item.riskScore < 45 ? '#FFB800' : '#FF4444'}; font-weight: 600; font-size: 1.2rem;">${item.riskScore}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h4 style="color: #FFFFFF; margin-bottom: 1rem;">📊 Detailed Valuation Breakdown</h4>
+                        <h4 style="color: #00FF88; margin-bottom: 1rem; text-transform: uppercase;">Base Value Calculation</h4>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                            <span>Base Value (${capacity}T × $5,000):</span>
-                            <span style="color: #00FF88;">$${baseValue.toLocaleString()}</span>
+                            <span>Capacity Base Price (${item.capacityNumeric}T × $5,000):</span>
+                            <span style="color: #00FF88; font-weight: 600;">$${Math.round(breakdown.baseCapacityValue).toLocaleString()}</span>
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                            <span>Age Depreciation (${age} years @ 5%):</span>
-                            <span style="color: #FF4444;">-$${ageAdjustment.toLocaleString()}</span>
+                            <span>Manufacturer Premium (${item.manufacturer}):</span>
+                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.manufacturerPremium).toLocaleString()}</span>
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                            <span>Hours Adjustment (${excessHours > 0 ? 'high' : 'low'} usage):</span>
-                            <span style="color: ${excessHours > 0 ? '#FF4444' : '#00FF88'};">${excessHours > 0 ? '-' : '+'}$${Math.abs(hoursAdjustment).toLocaleString()}</span>
+                            <span>Model Premium (${item.model}):</span>
+                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.modelPremium).toLocaleString()}</span>
+                        </div>
+                        <div style="border-top: 2px solid #00FF88; padding-top: 0.5rem; margin-top: 0.5rem; display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>Total Base Value:</span>
+                            <span style="color: #00FF88; font-size: 1.1rem;">$${Math.round(breakdown.totalBaseValue).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="color: #FFB800; margin-bottom: 1rem; text-transform: uppercase;">Adjustments</h4>
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                            <span>Age Depreciation (${breakdown.age} years @ 5%/year):</span>
+                            <span style="color: #FF4444; font-weight: 600;">-$${Math.round(breakdown.ageAdjustment).toLocaleString()}</span>
+                        </div>
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                            <span>Operating Hours (${parseInt(item.hours).toLocaleString()} hrs, expected ${breakdown.expectedHours.toLocaleString()}):</span>
+                            <span style="color: ${breakdown.hoursAdjustment > 0 ? '#FF4444' : '#00FF88'}; font-weight: 600;">${breakdown.hoursAdjustment > 0 ? '-' : '+'}$${Math.round(Math.abs(breakdown.hoursAdjustment)).toLocaleString()}</span>
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
                             <span>Regional Factor (${item.region}):</span>
-                            <span style="color: ${regionalAdjustment >= 0 ? '#00FF88' : '#FF4444'};">${regionalAdjustment >= 0 ? '+' : ''}$${regionalAdjustment.toLocaleString()}</span>
+                            <span style="color: ${breakdown.regionalAdjustment >= 0 ? '#00FF88' : '#FF4444'}; font-weight: 600;">${breakdown.regionalAdjustment >= 0 ? '+' : ''}$${Math.round(breakdown.regionalAdjustment).toLocaleString()}</span>
                         </div>
-                        ${item.boomLength ? `
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                            <span>Boom Length Adjustment (${item.boomLength}m):</span>
-                            <span style="color: ${boomAdjustment >= 0 ? '#00FF88' : '#FF4444'};">${boomAdjustment >= 0 ? '+' : ''}$${Math.abs(boomAdjustment).toLocaleString()}</span>
+                            <span>Market Conditions (current premium):</span>
+                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.marketConditionsValue).toLocaleString()}</span>
                         </div>
-                        ` : ''}
-                        <div style="border-top: 2px solid #404040; padding-top: 0.5rem; margin-top: 1rem; display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
-                            <span>Final Estimated Value:</span>
-                            <span style="color: #00FF88;">${item.estimatedValue}</span>
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                            <span>Condition Score (${item.condition}):</span>
+                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.conditionScoreValue).toLocaleString()}</span>
+                        </div>
+                        <div style="border-top: 2px solid #FFB800; padding-top: 0.5rem; margin-top: 0.5rem; display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>Total Adjustments:</span>
+                            <span style="color: ${breakdown.totalAdjustments >= 0 ? '#00FF88' : '#FFB800'}; font-size: 1.1rem;">${breakdown.totalAdjustments >= 0 ? '+' : ''}$${Math.round(breakdown.totalAdjustments).toLocaleString()}</span>
                         </div>
                     </div>
-                    <div style="background: #2A2A2A; padding: 1.5rem; border-radius: 8px;">
-                        <h4 style="color: #FFFFFF; margin-bottom: 1rem;">⚠️ Risk Analysis</h4>
-                        <div style="margin-bottom: 0.5rem;">Market Risk: <span style="color: #FF4444;">Medium</span></div>
-                        <div style="margin-bottom: 0.5rem;">Condition Risk: <span style="color: #FFB800;">Low</span></div>
-                        <div style="margin-bottom: 0.5rem;">Age Risk: <span style="color: #00FF88;">Very Low</span></div>
-                        <div>Overall Grade: <span style="color: #00FF88; font-weight: 600;">${item.grade}</span></div>
+                    
+                    <div style="background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%); padding: 1.5rem; border-radius: 8px; border: 2px solid #00FF88;">
+                        <h4 style="color: #FFFFFF; margin-bottom: 1rem; text-transform: uppercase; text-align: center;">Final Valuation Summary</h4>
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 1.1rem;">
+                            <span>Base Value:</span>
+                            <span style="font-weight: 600;">$${Math.round(breakdown.totalBaseValue).toLocaleString()}</span>
+                        </div>
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 1.1rem;">
+                            <span>Total Adjustments:</span>
+                            <span style="font-weight: 600;">${breakdown.totalAdjustments >= 0 ? '+' : ''}$${Math.round(breakdown.totalAdjustments).toLocaleString()}</span>
+                        </div>
+                        <div style="border-top: 3px solid #00FF88; padding-top: 1rem; margin-top: 1rem; display: flex; justify-content: space-between; font-size: 1.3rem;">
+                            <span style="font-weight: 700;">ESTIMATED VALUE:</span>
+                            <span style="color: #00FF88; font-weight: 800;">$${Math.round(breakdown.finalEstimatedValue).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #1A1A1A; padding: 1rem; border-radius: 8px; margin-top: 1.5rem; border-left: 4px solid #00FF88;">
+                        <p style="color: #888; font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                            <strong style="color: #00FF88;">Methodology:</strong> This valuation uses the same unified calculation engine as single valuations, ensuring consistency across all assessments. All adjustments are based on real-time market data and historical transaction analysis.
+                        </p>
                     </div>
                 </div>
             `;
@@ -3539,12 +3741,67 @@
         }
 
         function exportResults() {
-            // Convert results to CSV with enhanced fields
-            const headers = ['Crane', 'Year', 'Capacity', 'Hours', 'Condition', 'Boom Length (m)', 'Crane Type', 'Region', 'Estimated Value', 'Confidence', 'Grade'];
+            if (!bulkData || bulkData.length === 0) {
+                alert('No data available to export');
+                return;
+            }
+            
+            // Create comprehensive CSV with all calculation details
+            const headers = [
+                'Manufacturer', 'Model', 'Year', 'Capacity (T)', 'Hours', 'Condition', 
+                'Boom Length (m)', 'Crane Type', 'Region',
+                'Base Capacity Value', 'Manufacturer Premium', 'Model Premium', 'Total Base Value',
+                'Age (years)', 'Age Adjustment', 'Expected Hours', 'Hours Adjustment',
+                'Regional Adjustment', 'Market Conditions', 'Condition Score',
+                'Total Adjustments', 'Final Estimated Value',
+                'Confidence Score (%)', 'Risk Score', 'Deal Grade'
+            ];
+            
             const csvContent = [
                 headers.join(','),
-                ...bulkData.map(item => [
-                    `"${item.crane}"`,
+                ...bulkData.map(item => {
+                    const b = item.breakdown;
+                    return [
+                        `"${item.manufacturer}"`,
+                        `"${item.model}"`,
+                        item.year,
+                        item.capacityNumeric,
+                        item.hoursNumeric,
+                        `"${item.condition || 'N/A'}"`,
+                        item.boomLength || 'N/A',
+                        `"${item.craneType || 'N/A'}"`,
+                        `"${item.region}"`,
+                        Math.round(b.baseCapacityValue),
+                        Math.round(b.manufacturerPremium),
+                        Math.round(b.modelPremium),
+                        Math.round(b.totalBaseValue),
+                        b.age,
+                        Math.round(b.ageAdjustment),
+                        b.expectedHours,
+                        Math.round(b.hoursAdjustment),
+                        Math.round(b.regionalAdjustment),
+                        Math.round(b.marketConditionsValue),
+                        Math.round(b.conditionScoreValue),
+                        Math.round(b.totalAdjustments),
+                        Math.round(b.finalEstimatedValue),
+                        item.confidenceNumeric,
+                        item.riskScore,
+                        item.grade
+                    ].join(',');
+                })
+            ].join('
+');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crane_valuation_detailed_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            console.log(`Exported ${bulkData.length} crane valuations with full calculation breakdown`);
+        }"`,
                     item.year,
                     item.capacity,
                     item.hours,
