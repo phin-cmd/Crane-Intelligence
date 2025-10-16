@@ -2450,6 +2450,8 @@
         // Enhanced function to get relevant comparables from crane database
         // Enhanced function to get relevant comparables from crane database
         function getRelevantComparables(craneType, capacity) {
+            console.log('🔍 getRelevantComparables called with:', craneType, capacity);
+            
             // First try static database
             const staticComparables = comparablesDatabase[craneType] || [];
             
@@ -2461,13 +2463,18 @@
                 comp.capacity >= minCapacity && comp.capacity <= maxCapacity
             );
             
+            console.log('📊 Static comparables found:', matches.length);
+            
             // If we have enough matches from static database, return them
             if (matches.length >= 4) {
+                console.log('✅ Returning', matches.length, 'static comparables');
                 return matches.slice(0, 4);
             }
             
             // Otherwise, generate dynamic comparables from crane database
+            console.log('🔧 Generating dynamic comparables...');
             const dynamicComparables = generateDynamicComparables(craneType, capacity, minCapacity, maxCapacity);
+            console.log('✅ Dynamic comparables generated:', dynamicComparables.length);
             
             // Combine static and dynamic, remove duplicates
             const combined = [...matches, ...dynamicComparables];
@@ -2482,19 +2489,24 @@
                 }
             }
             
+            console.log('📤 Returning', unique.length, 'total comparables');
             return unique.slice(0, 4);
         }
         
         // Generate dynamic comparables from crane database
-        // Generate dynamic comparables from crane database
         function generateDynamicComparables(craneType, targetCapacity, minCapacity, maxCapacity) {
+            console.log('🏗️  generateDynamicComparables called:', {craneType, targetCapacity, minCapacity, maxCapacity});
+            
             if (!window.craneDatabase || typeof window.craneDatabase !== 'object') {
-                console.warn('Crane database not available for comparables');
+                console.warn('⚠️  Crane database not available for comparables');
                 return [];
             }
             
+            console.log('✅ Crane database available, manufacturers:', Object.keys(window.craneDatabase).length);
+            
             const comparables = [];
             const currentYear = new Date().getFullYear();
+            let totalCranesChecked = 0;
             
             // Iterate through all manufacturers in the database
             for (const manufacturer in window.craneDatabase) {
@@ -2505,6 +2517,8 @@
                 
                 // Filter cranes by capacity and type
                 for (const crane of cranes) {
+                    totalCranesChecked++;
+                    
                     // Match capacity range
                     const craneCapacity = crane.capacity || 0;
                     if (craneCapacity < minCapacity || craneCapacity > maxCapacity) continue;
@@ -2569,6 +2583,8 @@
                         trend: trend
                     });
                     
+                    console.log(`  ✓ Added comparable: ${manufacturer} ${crane.model} (${craneCapacity}T)`);
+                    
                     // Stop after finding enough comparables
                     if (comparables.length >= 6) break;
                 }
@@ -2576,7 +2592,7 @@
                 if (comparables.length >= 6) break;
             }
             
-            console.log(`Generated ${comparables.length} dynamic comparables for ${craneType} ${targetCapacity}T`);
+            console.log(`🔍 Checked ${totalCranesChecked} cranes, generated ${comparables.length} comparables`);
             return comparables;
         }
                 
