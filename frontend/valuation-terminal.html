@@ -2486,8 +2486,9 @@
         }
         
         // Generate dynamic comparables from crane database
+        // Generate dynamic comparables from crane database
         function generateDynamicComparables(craneType, targetCapacity, minCapacity, maxCapacity) {
-            if (!window.craneDatabase || !Array.isArray(window.craneDatabase)) {
+            if (!window.craneDatabase || typeof window.craneDatabase !== 'object') {
                 console.warn('Crane database not available for comparables');
                 return [];
             }
@@ -2495,83 +2496,90 @@
             const comparables = [];
             const currentYear = new Date().getFullYear();
             
-            // Filter crane database for similar cranes
-            const similarCranes = window.craneDatabase.filter(crane => {
-                // Match crane type if available
-                if (crane.crane_type && craneType) {
-                    const typeMatch = crane.crane_type.toLowerCase().includes(craneType.toLowerCase()) ||
-                                    craneType.toLowerCase().includes(crane.crane_type.toLowerCase());
-                    if (!typeMatch) return false;
+            // Iterate through all manufacturers in the database
+            for (const manufacturer in window.craneDatabase) {
+                if (!window.craneDatabase.hasOwnProperty(manufacturer)) continue;
+                
+                const cranes = window.craneDatabase[manufacturer];
+                if (!Array.isArray(cranes)) continue;
+                
+                // Filter cranes by capacity and type
+                for (const crane of cranes) {
+                    // Match capacity range
+                    const craneCapacity = crane.capacity || 0;
+                    if (craneCapacity < minCapacity || craneCapacity > maxCapacity) continue;
+                    
+                    // Match crane type if available
+                    if (crane.type && craneType) {
+                        const typeMatch = crane.type.toLowerCase().includes(craneType.toLowerCase()) ||
+                                        craneType.toLowerCase().includes(crane.type.toLowerCase());
+                        if (!typeMatch) continue;
+                    }
+                    
+                    // Generate realistic sale data
+                    const yearVariation = Math.floor(Math.random() * 5); // 0-4 years old
+                    const saleYear = currentYear - yearVariation;
+                    
+                    // Calculate estimated price based on capacity and age
+                    const basePrice = craneCapacity * 5000;
+                    const manufacturerPremium = getManufacturerFactor(manufacturer) * basePrice;
+                    const modelPremium = basePrice * 0.08;
+                    const totalBase = basePrice + manufacturerPremium + modelPremium;
+                    
+                    // Age depreciation
+                    const ageDepreciation = totalBase * (yearVariation * 0.05);
+                    
+                    // Random hours based on age
+                    const avgHoursPerYear = 1500;
+                    const hours = Math.round((avgHoursPerYear * yearVariation) * (0.8 + Math.random() * 0.4));
+                    
+                    // Hours adjustment
+                    const expectedHours = yearVariation * avgHoursPerYear;
+                    const hoursAdjustment = hours > expectedHours ? totalBase * 0.03 : 0;
+                    
+                    // Regional variation
+                    const regions = ['North America', 'Europe', 'Asia Pacific'];
+                    const region = regions[Math.floor(Math.random() * regions.length)];
+                    const regionalFactors = {
+                        'North America': 1.04,
+                        'Europe': 1.02,
+                        'Asia Pacific': 0.98
+                    };
+                    const regionalAdjustment = totalBase * (regionalFactors[region] - 1.0);
+                    
+                    // Market conditions
+                    const marketAdjustment = totalBase * 0.03;
+                    
+                    // Calculate final price
+                    const estimatedPrice = Math.round(
+                        totalBase - ageDepreciation - hoursAdjustment + regionalAdjustment + marketAdjustment
+                    );
+                    
+                    // Generate trend
+                    const trendValue = (Math.random() * 4 - 1).toFixed(1); // -1% to +3%
+                    const trend = trendValue >= 0 ? `+${trendValue}%` : `${trendValue}%`;
+                    
+                    comparables.push({
+                        equipment: `${manufacturer} ${crane.model}`,
+                        capacity: Math.round(craneCapacity),
+                        year: saleYear,
+                        hours: hours,
+                        price: estimatedPrice,
+                        location: region,
+                        trend: trend
+                    });
+                    
+                    // Stop after finding enough comparables
+                    if (comparables.length >= 6) break;
                 }
                 
-                // Match capacity range
-                const craneCapacity = crane.max_capacity_tons || crane.capacity || 0;
-                return craneCapacity >= minCapacity && craneCapacity <= maxCapacity;
-            });
-            
-            // Generate comparables from similar cranes
-            for (const crane of similarCranes.slice(0, 6)) {
-                const craneCapacity = crane.max_capacity_tons || crane.capacity || targetCapacity;
-                const manufacturer = crane.manufacturer || 'Unknown';
-                const model = crane.model || 'Unknown';
-                
-                // Generate realistic sale data
-                const yearVariation = Math.floor(Math.random() * 5); // 0-4 years old
-                const saleYear = currentYear - yearVariation;
-                
-                // Calculate estimated price based on capacity and age
-                const basePrice = craneCapacity * 5000;
-                const manufacturerPremium = getManufacturerFactor(manufacturer) * basePrice;
-                const modelPremium = basePrice * 0.08;
-                const totalBase = basePrice + manufacturerPremium + modelPremium;
-                
-                // Age depreciation
-                const ageDepreciation = totalBase * (yearVariation * 0.05);
-                
-                // Random hours based on age
-                const avgHoursPerYear = 1500;
-                const hours = Math.round((avgHoursPerYear * yearVariation) * (0.8 + Math.random() * 0.4));
-                
-                // Hours adjustment
-                const expectedHours = yearVariation * avgHoursPerYear;
-                const hoursAdjustment = hours > expectedHours ? totalBase * 0.03 : 0;
-                
-                // Regional variation
-                const regions = ['North America', 'Europe', 'Asia Pacific'];
-                const region = regions[Math.floor(Math.random() * regions.length)];
-                const regionalFactors = {
-                    'North America': 1.04,
-                    'Europe': 1.02,
-                    'Asia Pacific': 0.98
-                };
-                const regionalAdjustment = totalBase * (regionalFactors[region] - 1.0);
-                
-                // Market conditions
-                const marketAdjustment = totalBase * 0.03;
-                
-                // Calculate final price
-                const estimatedPrice = Math.round(
-                    totalBase - ageDepreciation - hoursAdjustment + regionalAdjustment + marketAdjustment
-                );
-                
-                // Generate trend
-                const trendValue = (Math.random() * 4 - 1).toFixed(1); // -1% to +3%
-                const trend = trendValue >= 0 ? `+${trendValue}%` : `${trendValue}%`;
-                
-                comparables.push({
-                    equipment: `${manufacturer} ${model}`,
-                    capacity: Math.round(craneCapacity),
-                    year: saleYear,
-                    hours: hours,
-                    price: estimatedPrice,
-                    location: region,
-                    trend: trend
-                });
+                if (comparables.length >= 6) break;
             }
             
+            console.log(`Generated ${comparables.length} dynamic comparables for ${craneType} ${targetCapacity}T`);
             return comparables;
         }
-        
+                
         // Helper function to get manufacturer factor
         function getManufacturerFactor(manufacturer) {
             const factors = {
