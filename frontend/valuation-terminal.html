@@ -3988,7 +3988,7 @@
                         <h4 style="color: #FFB800; margin-bottom: 1rem; text-transform: uppercase;">Adjustments</h4>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
                             <span>Age Depreciation (${breakdown.age} years @ 5%/year):</span>
-                            <span style="color: #FF4444; font-weight: 600;">-$${Math.round(breakdown.ageAdjustment).toLocaleString()}</span>
+                            <span style="color: #FF4444; font-weight: 600;">-$${Math.round(breakdown.ageDepreciation).toLocaleString()}</span>
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
                             <span>Operating Hours (${parseInt(item.hours).toLocaleString()} hrs, expected ${breakdown.expectedHours.toLocaleString()}):</span>
@@ -4000,11 +4000,11 @@
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
                             <span>Market Conditions (current premium):</span>
-                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.marketConditionsValue).toLocaleString()}</span>
+                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.marketConditions).toLocaleString()}</span>
                         </div>
                         <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
                             <span>Condition Score (${item.condition}):</span>
-                            <span style="color: #00FF88; font-weight: 600;">+$${Math.round(breakdown.conditionScoreValue).toLocaleString()}</span>
+                            <span style="color: ${breakdown.conditionAdjustment >= 0 ? '#00FF88' : '#FF4444'}; font-weight: 600;">${breakdown.conditionAdjustment >= 0 ? '+' : ''}$${Math.round(breakdown.conditionAdjustment).toLocaleString()}</span>
                         </div>
                         <div style="border-top: 2px solid #FFB800; padding-top: 0.5rem; margin-top: 0.5rem; display: flex; justify-content: space-between; font-weight: 600;">
                             <span>Total Adjustments:</span>
