@@ -1,13 +1,16 @@
-<!-- Crane Intelligence Platform - Valuation Terminal v3.0 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
+<!-- Crane Intelligence Platform - Valuation Terminal v3.1 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>CRANE INTELLIGENCE - Valuation Terminal v3.0</title>
+    <title>CRANE INTELLIGENCE - Valuation Terminal v3.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
@@ -4353,6 +4356,9 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
                     <title>Bulk Valuation Report - ${new Date().toLocaleDateString()}</title>
                     <style>
         /* COMPREHENSIVE ANTI-FLICKERING CSS */
@@ -5364,15 +5370,31 @@ function getModelsForManufacturer(manufacturer) {
         return [];
     }
     
-    // Try exact match
-    if (window.manufacturerModels[manufacturer]) {
-        return window.manufacturerModels[manufacturer];
+    // Use crane database instead of hardcoded manufacturerModels
+    if (window.craneDatabase && window.craneDatabase[manufacturer]) {
+        return window.craneDatabase[manufacturer].map(crane => crane.model);
     }
     
     // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(window.manufacturerModels)) {
-        if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
-            return models;
+    if (window.craneDatabase) {
+        for (const [mfr, cranes] of Object.entries(window.craneDatabase)) {
+            if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
+                return cranes.map(crane => crane.model);
+            }
+        }
+    }
+    
+    // Fallback to old manufacturerModels if database not available
+    if (window.manufacturerModels && window.manufacturerModels[manufacturer]) {
+        return window.manufacturerModels[manufacturer];
+    }
+    
+    // Try case-insensitive match on fallback
+    if (window.manufacturerModels) {
+        for (const [mfr, models] of Object.entries(window.manufacturerModels)) {
+            if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
+                return models;
+            }
         }
     }
     
