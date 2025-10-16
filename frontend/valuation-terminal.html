@@ -2535,7 +2535,7 @@
         
         // Function to handle local calculations after API call
         // Function to handle local calculations after API call
-        function continueLocalCalculations(estimatedValue, capacity, year, hours, region, manufacturer, model, jibIncluded, boomLength, jibLength, craneType, submitBtn, originalText) {
+        window.continueLocalCalculations = function(estimatedValue, capacity, year, hours, region, manufacturer, model, jibIncluded, boomLength, jibLength, craneType, submitBtn, originalText) {
             console.log('DEBUG: continueLocalCalculations called');
             // Execute calculations immediately
             // Base value calculation (for display breakdown)
@@ -3554,8 +3554,7 @@
                 reader.onload = async function(e) {
                     try {
                         const text = e.target.result;
-                        const lines = text.split('
-').filter(line => line.trim());
+                        const lines = text.split('\n').filter(line => line.trim());
                         
                         if (lines.length < 2) {
                             uploadArea.innerHTML = '<div class="upload-icon">❌</div><div class="upload-text">Error: File is empty or invalid</div>';
@@ -4093,8 +4092,7 @@
                         item.grade
                     ].join(',');
                 })
-            ].join('
-');
+            ].join('\n');
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
@@ -4105,27 +4103,6 @@
             window.URL.revokeObjectURL(url);
             
             console.log(`Exported ${bulkData.length} crane valuations with full calculation breakdown`);
-        }"`,
-                    item.year,
-                    item.capacity,
-                    item.hours,
-                    item.condition || 'N/A',
-                    item.boomLength || 'N/A',
-                    `"${item.craneType || 'N/A'}"`,
-                    `"${item.region}"`,
-                    `"${item.estimatedValue}"`,
-                    item.confidence,
-                    item.grade
-                ].join(','))
-            ].join('\n');
-            
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `bulk_valuation_results_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
         }
 
         function generateReport() {
@@ -4221,7 +4198,41 @@
                             body { background: white; color: black; }
                             button { display: none; }
                         }
-                    </style>
+                    
+/* Sample and Submit Button Styles */
+.sample-btn {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #ffffff;
+    border: 1px solid #00ff88;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.sample-btn:hover {
+    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    transform: translateY(-2px);
+}
+.submit-btn {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+    color: #000000;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.submit-btn:hover {
+    background: linear-gradient(135deg, #00cc6a 0%, #00ff88 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    transform: translateY(-2px);
+}
+</style>
                 </head>
                 <body>
                     ${reportHTML}
@@ -4487,50 +4498,536 @@ console.log('GLOBAL FUNCTIONS BLOCK EXECUTING...');
 // ============================================================================
 
 // Direct valuation function for VALUE CRANE button
+
 window.performDirectValuation = function() {
-    console.log('Direct valuation triggered');
+    console.log('Direct valuation triggered - COMPREHENSIVE VERSION');
     
+    // Get form values
     const manufacturer = document.getElementById('manufacturer').value;
     const model = document.getElementById('model').value;
     const year = parseInt(document.getElementById('year').value);
     const capacity = parseFloat(document.getElementById('capacity').value);
     const hours = parseInt(document.getElementById('hours').value);
+    const condition = document.getElementById('condition')?.value || 'good';
+    const region = document.getElementById('region')?.value || 'North America';
+    const boomLength = parseFloat(document.getElementById('boomLength')?.value || 0);
     
     if (!manufacturer || !model || !year || !capacity || !hours) {
         alert('Please fill in all required fields');
         return;
     }
     
-    console.log('Performing calculation with:', {manufacturer, model, year, capacity, hours});
+    console.log('Performing calculation with:', {manufacturer, model, year, capacity, hours, condition, region});
     
-    // Calculation logic
-    const baseValue = capacity * 10000;
-    const age = 2025 - year;
-    const ageDepreciation = Math.max(0, 1 - (age * 0.08));
-    const hoursDepreciation = Math.max(0, 1 - (hours / 100000));
-    const estimatedValue = Math.round(baseValue * ageDepreciation * hoursDepreciation);
-    const confidence = Math.min(95, 70 + (capacity / 100));
+    // ===== COMPREHENSIVE CALCULATION LOGIC =====
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - year;
     
-    console.log('Calculation complete:', estimatedValue);
+    // Step 1: Base capacity value
+    const baseCapacityValue = capacity * 5000;
     
-    // Display results
+    // Step 2: Manufacturer premium
+    const manufacturerFactors = {
+        'liebherr': 0.20,
+        'grove': 0.18,
+        'tadano': 0.18,
+        'terex': 0.15,
+        'manitowoc': 0.15,
+        'link-belt': 0.12
+    };
+    const manuLower = manufacturer.toLowerCase();
+    let manufacturerFactor = 0.10; // Default
+    for (const [key, value] of Object.entries(manufacturerFactors)) {
+        if (manuLower.includes(key)) {
+            manufacturerFactor = value;
+            break;
+        }
+    }
+    const manufacturerPremiumValue = baseCapacityValue * manufacturerFactor;
+    
+    // Step 3: Model premium (8% of base)
+    const modelPremiumValue = baseCapacityValue * 0.08;
+    
+    // Step 4: Total base value
+    const totalBaseValue = baseCapacityValue + manufacturerPremiumValue + modelPremiumValue;
+    
+    // Step 5: Age adjustment (5% per year)
+    const ageDepreciationValue = totalBaseValue * (age * 0.05);
+    
+    // Step 6: Hours adjustment
+    const averageHoursPerYear = 1500;
+    const expectedHours = age * averageHoursPerYear;
+    const excessHours = hours - expectedHours;
+    const hoursAdjustmentValue = excessHours > 0 ? (totalBaseValue * 0.03) : 0;
+    
+    // Step 7: Regional adjustment
+    const regionalFactors = {
+        'North America': 1.04,
+        'Europe': 1.02,
+        'Asia Pacific': 0.98,
+        'Middle East': 1.01,
+        'Latin America': 0.96,
+        'Africa': 0.94
+    };
+    const regionalMultiplier = regionalFactors[region] || 1.0;
+    const regionalAdjustmentValue = totalBaseValue * (regionalMultiplier - 1.0);
+    
+    // Step 8: Market conditions (current trend: +3%)
+    const marketTrend = 0.03;
+    const marketConditionsValue = totalBaseValue * marketTrend;
+    
+    // Step 9: Condition score adjustment
+    const conditionFactors = {
+        'excellent': 0.05,
+        'good': 0.02,
+        'fair': -0.02,
+        'poor': -0.08
+    };
+    const conditionFactor = conditionFactors[condition.toLowerCase()] || 0;
+    const conditionAdjustmentValue = totalBaseValue * conditionFactor;
+    
+    // Step 10: Calculate total adjustments
+    const totalAdjustments = -ageDepreciationValue - hoursAdjustmentValue + regionalAdjustmentValue + marketConditionsValue + conditionAdjustmentValue;
+    
+    // Step 11: Final estimated value
+    const estimatedValue = Math.round(totalBaseValue + totalAdjustments);
+    
+    // Step 12: Confidence score (70-95%)
+    const confidenceBase = 70;
+    const capacityBonus = Math.min(15, capacity / 100);
+    const ageBonus = Math.max(0, 10 - age);
+    const confidence = Math.min(95, confidenceBase + capacityBonus + ageBonus);
+    
+    // Step 13: Value range (±5%)
+    const valueRangeLow = Math.round(estimatedValue * 0.95);
+    const valueRangeHigh = Math.round(estimatedValue * 1.05);
+    
+    // Step 14: Deal recommendation
+    let dealRecommendation = 'Hold';
+    if (confidence > 85 && age < 5) {
+        dealRecommendation = 'Strong Buy';
+    } else if (confidence > 75 && age < 8) {
+        dealRecommendation = 'Buy';
+    } else if (age > 15 || confidence < 65) {
+        dealRecommendation = 'Caution';
+    }
+    
+    console.log('Calculation complete:', {
+        baseCapacityValue,
+        manufacturerPremiumValue,
+        modelPremiumValue,
+        totalBaseValue,
+        ageDepreciationValue,
+        hoursAdjustmentValue,
+        regionalAdjustmentValue,
+        marketConditionsValue,
+        conditionAdjustmentValue,
+        totalAdjustments,
+        estimatedValue,
+        confidence
+    });
+    
+    // ===== UPDATE ALL DISPLAY ELEMENTS =====
+    
+    // Top tile - Estimated Value
     const estimatedValueEl = document.getElementById('estimatedValue');
-    const confidenceScoreEl = document.getElementById('confidenceScore');
-    
     if (estimatedValueEl) {
         estimatedValueEl.textContent = '$' + (estimatedValue / 1000000).toFixed(2) + 'M';
     }
+    
+    // Top tile - Confidence Score
+    const confidenceScoreEl = document.getElementById('confidenceScore');
     if (confidenceScoreEl) {
         confidenceScoreEl.textContent = Math.round(confidence) + '%';
     }
+
+
+    // ===== TOP TILE - ADDITIONAL ELEMENTS =====
     
+    // Deal Grade
+    let dealGrade = 'C';
+    if (confidence > 90 && age < 3) {
+        dealGrade = 'A+';
+    } else if (confidence > 85 && age < 5) {
+        dealGrade = 'A';
+    } else if (confidence > 80 && age < 8) {
+        dealGrade = 'B+';
+    } else if (confidence > 75) {
+        dealGrade = 'B';
+    } else if (confidence > 70) {
+        dealGrade = 'C+';
+    }
+    
+    const dealGradeEl = document.getElementById('dealGrade');
+    if (dealGradeEl) {
+        dealGradeEl.textContent = dealGrade;
+    }
+    
+    const dealRecommendationEl = document.getElementById('dealRecommendation');
+    if (dealRecommendationEl) {
+        dealRecommendationEl.textContent = dealRecommendation;
+    }
+    
+    // Confidence Level
+    let confidenceLevel = 'Moderate';
+    if (confidence > 90) {
+        confidenceLevel = 'Very High';
+    } else if (confidence > 85) {
+        confidenceLevel = 'High';
+    } else if (confidence > 75) {
+        confidenceLevel = 'Good';
+    } else if (confidence < 70) {
+        confidenceLevel = 'Low';
+    }
+    
+    const confidenceLevelEl = document.getElementById('confidenceLevel');
+    if (confidenceLevelEl) {
+        confidenceLevelEl.textContent = confidenceLevel;
+    }
+    
+    // Value Difference (compared to average market value)
+    const averageMarketValue = capacity * 5500; // Slightly higher than base
+    const valueDiff = estimatedValue - averageMarketValue;
+    const valueDiffPercent = ((valueDiff / averageMarketValue) * 100).toFixed(1);
+    
+    const valueDifferenceEl = document.getElementById('valueDifference');
+    if (valueDifferenceEl) {
+        const sign = valueDiff >= 0 ? '+' : '';
+        valueDifferenceEl.textContent = sign + valueDiffPercent + '% vs market avg';
+        valueDifferenceEl.style.color = valueDiff >= 0 ? '#00FF88' : '#FF6B6B';
+    }
+
+    
+    // ===== BOTTOM METRICS =====
+    
+    // Age Factor
+    const ageFactor = Math.max(0, 1 - (age * 0.05));
+    const ageFactorEl = document.getElementById('ageFactorValue');
+    if (ageFactorEl) {
+        ageFactorEl.textContent = (ageFactor * 100).toFixed(0) + '%';
+    }
+    
+    // Condition
+    const conditionScore = {
+        'excellent': 95,
+        'good': 85,
+        'fair': 70,
+        'poor': 50
+    }[condition.toLowerCase()] || 75;
+    const conditionValueEl = document.getElementById('conditionValue');
+    if (conditionValueEl) {
+        conditionValueEl.textContent = conditionScore + '/100';
+    }
+    
+    // Market Demand
+    const marketDemand = regionalMultiplier > 1.0 ? 'High' : regionalMultiplier === 1.0 ? 'Medium' : 'Low';
+    const marketDemandEl = document.getElementById('marketDemandValue');
+    if (marketDemandEl) {
+        marketDemandEl.textContent = marketDemand;
+    }
+    
+    // Risk Score
+    const riskScore = Math.max(1, Math.min(10, Math.round((age / 2) + (hours / 10000) - (confidence / 10))));
+    const riskScoreEl = document.getElementById('riskScoreValue');
+    if (riskScoreEl) {
+        riskScoreEl.textContent = riskScore + '/10';
+    }
+    
+    // ===== FINANCIAL TAB - BASE VALUE CALCULATION =====
+    
+    // Capacity Base Price
+    const capacityBasePriceEl = document.getElementById('capacityBasePrice');
+    if (capacityBasePriceEl) {
+        capacityBasePriceEl.textContent = '$' + baseCapacityValue.toLocaleString();
+    }
+    
+    const capacityCalculationEl = document.getElementById('capacityCalculation');
+    if (capacityCalculationEl) {
+        capacityCalculationEl.textContent = capacity + ' tons × $5,000/ton base rate';
+    }
+    
+    // Manufacturer Premium
+    const manufacturerPremiumEl = document.getElementById('manufacturerPremium');
+    if (manufacturerPremiumEl) {
+        manufacturerPremiumEl.textContent = '+$' + manufacturerPremiumValue.toLocaleString();
+    }
+    
+    const manufacturerPremiumDescEl = document.getElementById('manufacturerPremiumDesc');
+    if (manufacturerPremiumDescEl) {
+        manufacturerPremiumDescEl.textContent = manufacturer + ' premium factor: ' + (manufacturerFactor * 100).toFixed(0) + '%';
+    }
+    
+    // Model Premium
+    const modelPremiumEl = document.getElementById('modelPremium');
+    if (modelPremiumEl) {
+        modelPremiumEl.textContent = '+$' + modelPremiumValue.toLocaleString();
+    }
+    
+    const modelPremiumDescEl = document.getElementById('modelPremiumDesc');
+    if (modelPremiumDescEl) {
+        modelPremiumDescEl.textContent = model + ' model premium: 8%';
+    }
+    
+    // Subtotal Base Value
+    const breakdownSubtotalBaseValueEl = document.getElementById('breakdownSubtotalBaseValue');
+    if (breakdownSubtotalBaseValueEl) {
+        breakdownSubtotalBaseValueEl.textContent = '$' + totalBaseValue.toLocaleString();
+    }
+    
+    // ===== FINANCIAL TAB - ADJUSTMENTS =====
+    
+    // Age Depreciation
+    const ageDepreciationEl = document.getElementById('ageDepreciation');
+    if (ageDepreciationEl) {
+        ageDepreciationEl.textContent = '-$' + ageDepreciationValue.toLocaleString();
+    }
+    
+    const ageDepreciationDescEl = document.getElementById('ageDepreciationDesc');
+    if (ageDepreciationDescEl) {
+        ageDepreciationDescEl.textContent = year + ' model (' + age + ' years old) @ 5% per year';
+    }
+    
+    // Operating Hours Adjustment
+    const operatingHoursAdjEl = document.getElementById('operatingHoursAdj');
+    if (operatingHoursAdjEl) {
+        operatingHoursAdjEl.textContent = '-$' + hoursAdjustmentValue.toLocaleString();
+    }
+    
+    const operatingHoursDescEl = document.getElementById('operatingHoursDesc');
+    if (operatingHoursDescEl) {
+        const hoursStatus = excessHours > 0 ? 'above average' : 'below average';
+        operatingHoursDescEl.textContent = hours.toLocaleString() + ' hours (' + hoursStatus + ') @ -3%';
+    }
+    
+    // Regional Factor
+    const regionalFactorEl = document.getElementById('regionalFactor');
+    if (regionalFactorEl) {
+        const sign = regionalAdjustmentValue >= 0 ? '+' : '';
+        regionalFactorEl.textContent = sign + '$' + Math.abs(regionalAdjustmentValue).toLocaleString();
+    }
+    
+    const regionalFactorDescEl = document.getElementById('regionalFactorDesc');
+    if (regionalFactorDescEl) {
+        const regionalPercent = ((regionalMultiplier - 1.0) * 100).toFixed(0);
+        const sign = regionalPercent >= 0 ? '+' : '';
+        regionalFactorDescEl.textContent = region + ' premium: ' + sign + regionalPercent + '%';
+    }
+    
+    // Market Conditions
+    const marketConditionsEl = document.getElementById('marketConditions');
+    if (marketConditionsEl) {
+        marketConditionsEl.textContent = '+$' + marketConditionsValue.toLocaleString();
+    }
+    
+    const marketConditionsDescEl = document.getElementById('marketConditionsDesc');
+    if (marketConditionsDescEl) {
+        marketConditionsDescEl.textContent = 'Current market trend: Strong (+3%)';
+    }
+    
+    // Condition Score Adjustment
+    const conditionScoreAdjEl = document.getElementById('conditionScoreAdj');
+    if (conditionScoreAdjEl) {
+        const sign = conditionAdjustmentValue >= 0 ? '+' : '';
+        conditionScoreAdjEl.textContent = sign + '$' + Math.abs(conditionAdjustmentValue).toLocaleString();
+    }
+    
+    const conditionScoreDescEl = document.getElementById('conditionScoreDesc');
+    if (conditionScoreDescEl) {
+        const conditionPercent = (conditionFactor * 100).toFixed(0);
+        const sign = conditionPercent >= 0 ? '+' : '';
+        conditionScoreDescEl.textContent = condition.charAt(0).toUpperCase() + condition.slice(1) + ' condition (' + conditionScore + '/100) @ ' + sign + conditionPercent + '%';
+    }
+    
+    // Total Adjustments
+    const breakdownTotalAdjustmentsEl = document.getElementById('breakdownTotalAdjustments');
+    if (breakdownTotalAdjustmentsEl) {
+        const sign = totalAdjustments >= 0 ? '+' : '';
+        breakdownTotalAdjustmentsEl.textContent = sign + '$' + Math.abs(totalAdjustments).toLocaleString();
+    }
+    
+    // ===== FINANCIAL TAB - FINAL SUMMARY =====
+    
+    const finalSummaryBaseValueEl = document.getElementById('finalSummaryBaseValue');
+    if (finalSummaryBaseValueEl) {
+        finalSummaryBaseValueEl.textContent = '$' + totalBaseValue.toLocaleString();
+    }
+    
+    const finalSummaryTotalAdjustmentsEl = document.getElementById('finalSummaryTotalAdjustments');
+    if (finalSummaryTotalAdjustmentsEl) {
+        const sign = totalAdjustments >= 0 ? '+' : '';
+        finalSummaryTotalAdjustmentsEl.textContent = sign + '$' + Math.abs(totalAdjustments).toLocaleString();
+    }
+    
+    const finalSummaryEstimatedValueEl = document.getElementById('finalSummaryEstimatedValue');
+    if (finalSummaryEstimatedValueEl) {
+        finalSummaryEstimatedValueEl.textContent = '$' + estimatedValue.toLocaleString();
+    }
+    
+    const finalSummaryConfidenceScoreEl = document.getElementById('finalSummaryConfidenceScore');
+    if (finalSummaryConfidenceScoreEl) {
+        finalSummaryConfidenceScoreEl.textContent = Math.round(confidence) + '%';
+    }
+    
+    const finalSummaryValueRangeEl = document.getElementById('finalSummaryValueRange');
+    if (finalSummaryValueRangeEl) {
+        finalSummaryValueRangeEl.textContent = '$' + (valueRangeLow / 1000000).toFixed(2) + 'M - $' + (valueRangeHigh / 1000000).toFixed(2) + 'M';
+    }
+    
+    const finalSummaryDealRecommendationEl = document.getElementById('finalSummaryDealRecommendation');
+    if (finalSummaryDealRecommendationEl) {
+        finalSummaryDealRecommendationEl.textContent = dealRecommendation;
+    }
+    
+    // ===== RENTAL VS PURCHASE CALCULATIONS =====
+    
+    // Calculate rental rates based on estimated value
+    const monthlyBareRental = Math.round((estimatedValue * 0.015) / 100) * 100; // 1.5% of value per month
+    const monthlyOperatedRental = Math.round((estimatedValue * 0.025) / 100) * 100; // 2.5% of value per month
+    const dailyBareRental = Math.round(monthlyBareRental / 22);
+    const dailyOperatedRental = Math.round(monthlyOperatedRental / 22);
+    
+    // Update rental rates
+    const bareRentalMonthlyEl = document.getElementById('bareRentalMonthly');
+    if (bareRentalMonthlyEl) {
+        bareRentalMonthlyEl.textContent = '$' + monthlyBareRental.toLocaleString();
+    }
+    
+    const bareRentalDailyEl = document.getElementById('bareRentalDaily');
+    if (bareRentalDailyEl) {
+        bareRentalDailyEl.textContent = '$' + dailyBareRental.toLocaleString();
+    }
+    
+    const operatedRentalMonthlyEl = document.getElementById('operatedRentalMonthly');
+    if (operatedRentalMonthlyEl) {
+        operatedRentalMonthlyEl.textContent = '$' + monthlyOperatedRental.toLocaleString();
+    }
+    
+    const operatedRentalDailyEl = document.getElementById('operatedRentalDaily');
+    if (operatedRentalDailyEl) {
+        operatedRentalDailyEl.textContent = '$' + dailyOperatedRental.toLocaleString();
+    }
+    
+    // Calculate break-even analysis
+    const purchaseCost = estimatedValue;
+    const maintenancePerMonth = Math.round(capacity * 50); // $50 per ton per month
+    const insurancePerMonth = Math.round(estimatedValue * 0.0005); // 0.05% per month
+    const storagePerMonth = 500; // Fixed storage cost
+    const totalMonthlyOwnership = maintenancePerMonth + insurancePerMonth + storagePerMonth;
+    
+    const breakEvenMonths = Math.round(purchaseCost / (monthlyBareRental - totalMonthlyOwnership));
+    
+    const breakEvenEl = document.getElementById('breakEvenMonths');
+    if (breakEvenEl) {
+        breakEvenEl.textContent = breakEvenMonths + ' months';
+    }
+    
+    const totalOwnershipCostEl = document.getElementById('totalOwnershipCost');
+    if (totalOwnershipCostEl) {
+        totalOwnershipCostEl.textContent = '$' + totalMonthlyOwnership.toLocaleString() + '/mo';
+    }
+    
+
+    // ===== RENTAL SECTION - ADDITIONAL DISPLAYS =====
+    
+    // Update bare rental displays
+    const bareMonthlyDisplayEl = document.getElementById('bareMonthlyDisplay');
+    if (bareMonthlyDisplayEl) {
+        bareMonthlyDisplayEl.textContent = '$' + monthlyBareRental.toLocaleString();
+    }
+    
+    const bareAnnualDisplayEl = document.getElementById('bareAnnualDisplay');
+    if (bareAnnualDisplayEl) {
+        const annualBare = monthlyBareRental * 12;
+        bareAnnualDisplayEl.textContent = '$' + annualBare.toLocaleString() + '/year';
+    }
+    
+    // Update operated rental displays
+    const operatedMonthlyDisplayEl = document.getElementById('operatedMonthlyDisplay');
+    if (operatedMonthlyDisplayEl) {
+        operatedMonthlyDisplayEl.textContent = '$' + monthlyOperatedRental.toLocaleString();
+    }
+    
+    const operatedAnnualDisplayEl = document.getElementById('operatedAnnualDisplay');
+    if (operatedAnnualDisplayEl) {
+        const annualOperated = monthlyOperatedRental * 12;
+        operatedAnnualDisplayEl.textContent = '$' + annualOperated.toLocaleString() + '/year';
+    }
+    
+    // Update utilization scenarios
+    const utilizationScenariosDisplayEl = document.getElementById('utilizationScenariosDisplay');
+    if (utilizationScenariosDisplayEl) {
+        const scenarios = [
+            { util: 50, rate: monthlyBareRental / 0.5 },
+            { util: 70, rate: monthlyBareRental / 0.7 },
+            { util: 85, rate: monthlyBareRental / 0.85 },
+            { util: 95, rate: monthlyBareRental / 0.95 }
+        ];
+        
+        utilizationScenariosDisplayEl.innerHTML = scenarios.map(s => `
+            <div>
+                <div style="color: #888;">${s.util}% Util</div>
+                <div style="color: #FFF; font-weight: 600;">$${Math.round(s.rate).toLocaleString()}/mo</div>
+            </div>
+        `).join('');
+    }
+    
+    // Populate 5-year cost comparison table
+    const rentalVsPurchaseBodyEl = document.getElementById('rentalVsPurchaseBody');
+    if (rentalVsPurchaseBodyEl) {
+        const fiveYearRentalBare = monthlyBareRental * 12 * 5;
+        const fiveYearRentalOperated = monthlyOperatedRental * 12 * 5;
+        
+        const maintenanceCost = estimatedValue * 0.03 * 5; // 3% per year
+        const insuranceCost = estimatedValue * 0.015 * 5; // 1.5% per year
+        const storageCost = 12000 * 5; // $12K per year
+        const fiveYearOperating = maintenanceCost + insuranceCost + storageCost;
+        const fiveYearPurchase = purchaseCost + fiveYearOperating;
+        
+        const depreciation = estimatedValue * 0.25; // 25% over 5 years
+        const netPurchaseCost = fiveYearPurchase - (estimatedValue - depreciation);
+        
+        rentalVsPurchaseBodyEl.innerHTML = `
+            <tr>
+                <td><strong>Purchase</strong></td>
+                <td style="color: #FF6B6B;">$${purchaseCost.toLocaleString()}</td>
+                <td>$${Math.round(fiveYearOperating).toLocaleString()}</td>
+                <td style="color: #FFB800; font-weight: 600;">$${Math.round(fiveYearPurchase).toLocaleString()}</td>
+                <td><span style="background: ${netPurchaseCost < fiveYearRentalBare ? '#00FF88' : '#FFB800'}; color: #000; padding: 4px 12px; border-radius: 4px; font-weight: 600;">${netPurchaseCost < fiveYearRentalBare ? 'Buy' : 'Consider'}</span></td>
+            </tr>
+            <tr>
+                <td><strong>Bare Rental</strong></td>
+                <td style="color: #00FF88;">$0</td>
+                <td>$${fiveYearRentalBare.toLocaleString()}</td>
+                <td style="color: #FFB800; font-weight: 600;">$${fiveYearRentalBare.toLocaleString()}</td>
+                <td><span style="background: ${fiveYearRentalBare < netPurchaseCost ? '#00FF88' : '#FFB800'}; color: #000; padding: 4px 12px; border-radius: 4px; font-weight: 600;">${fiveYearRentalBare < netPurchaseCost ? 'Rent' : 'Consider'}</span></td>
+            </tr>
+            <tr>
+                <td><strong>Operated Rental</strong></td>
+                <td style="color: #00FF88;">$0</td>
+                <td>$${fiveYearRentalOperated.toLocaleString()}</td>
+                <td style="color: #FFB800; font-weight: 600;">$${fiveYearRentalOperated.toLocaleString()}</td>
+                <td><span style="background: #FF6B6B; color: #FFF; padding: 4px 12px; border-radius: 4px; font-weight: 600;">Expensive</span></td>
+            </tr>
+            <tr style="border-top: 2px solid #00FF88;">
+                <td colspan="4"><strong>Break-Even Point (Purchase vs Bare Rental)</strong></td>
+                <td style="color: #00FF88; font-weight: 600;">${breakEvenMonths} months</td>
+            </tr>
+        `;
+    }
+    
+    // Update rental comparison chart
+    updateRentalComparisonChart(monthlyBareRental, monthlyOperatedRental, totalMonthlyOwnership);
+
     // Show results section
     const resultsSection = document.getElementById('valuationResults');
     if (resultsSection) {
         resultsSection.classList.add('show');
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    
+    console.log('All sections updated successfully');
 };
+
 
 // Tab switching function
 window.switchTab = function(tab, element) {
@@ -4655,219 +5152,26 @@ window.generateReport = function() {
     // Comprehensive Crane Specifications Database
 // Auto-prefill data for manufacturer and model combinations
 
-const craneDatabase = {
-    // LIEBHERR Models
-        'Liebherr': [
-            {model: 'LTM 1025', capacity: 102, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1030-2.1', capacity: 103, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1040-2.1', capacity: 104, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1050-3.1', capacity: 105, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1060-3.1', capacity: 106, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1070-4.2', capacity: 107, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1080-2', capacity: 108, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1090-4.2', capacity: 109, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1100-5.2', capacity: 110, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1110-5.1', capacity: 111, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1120-4.1', capacity: 112, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1130-5.1', capacity: 113, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1160-5.2', capacity: 116, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1200-5.1', capacity: 120, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1220-5.2', capacity: 122, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1230-5.1', capacity: 123, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1250-6.1', capacity: 125, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1300-6.2', capacity: 130, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1350-6.1', capacity: 135, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1400-7.1', capacity: 140, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1450-8.1', capacity: 145, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1500-8.1', capacity: 150, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1650-8.1', capacity: 165, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 1750-9.1', capacity: 175, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTM 11200-9.1', capacity: 112, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTC 1045-3.1', capacity: 104, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LTC 1050-3.1', capacity: 105, type: 'All-Terrain Crane', boomLength: 60},
-            {model: 'LRT 1090-2.1', capacity: 109, type: 'Rough Terrain Crane', boomLength: 60},
-            {model: 'LRT 1100-2.1', capacity: 110, type: 'Rough Terrain Crane', boomLength: 60},
-            {model: 'LTR 1040', capacity: 104, type: 'Telescopic Crawler Crane', boomLength: 60},
-            {model: 'LTR 1060', capacity: 106, type: 'Telescopic Crawler Crane', boomLength: 60},
-            {model: 'LTR 1100', capacity: 110, type: 'Telescopic Crawler Crane', boomLength: 60},
-            {model: 'LTR 1220', capacity: 122, type: 'Telescopic Crawler Crane', boomLength: 60},
-            {model: 'LR 1100', capacity: 110, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1160', capacity: 116, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1200', capacity: 120, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1250', capacity: 125, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1280', capacity: 128, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1300.1 SX', capacity: 130, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1350/1', capacity: 135, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1400/2', capacity: 140, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1500', capacity: 150, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1600/2', capacity: 160, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1700-1.0', capacity: 170, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1750/2', capacity: 175, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 1800-1.0', capacity: 180, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 11350', capacity: 113, type: 'Crawler Crane', boomLength: 60},
-            {model: 'LR 13000', capacity: 130, type: 'Crawler Crane', boomLength: 60}
-        ],
-        'LTM 1500-8.1': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
-        'LTM 11200-9.1': { capacity: 1200, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
-        'LTM 1750-9.1': { capacity: 750, craneType: 'All-Terrain Crane', boomLength: 318, typicalYear: 2019 },
-        'LTM 1450-8.1': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
-        'LTM 1300-6.2': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
-        'LTM 1250-6.1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2021 },
-        'LTM 1220-5.2': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'LTM 1200-5.1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'LTM 1160-5.2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'LTM 1130-5.1': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2023 },
-        'LTM 1110-5.1': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'LTM 1095-5.1': { capacity: 95, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'LTM 1070-4.2': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'LTM 1060-3.1': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'LR 1600/2': { capacity: 600, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'LR 1750/2': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2018 },
-        'LR 11350': { capacity: 1350, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2017 },
-        'LR 1300 SX': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'LR 1250': { capacity: 250, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-    },
+
+function updateManufacturerCounts() {
+    const manufacturerSelect = document.getElementById("manufacturer");
+    console.log("🔍 updateManufacturerCounts called, select element:", manufacturerSelect);
+    if (!manufacturerSelect) {
+        console.warn("⚠️  Manufacturer select element not found");
+        return;
+    }
     
-    // GROVE Models
-    'Grove': {
-        'GMK7450': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
-        'GMK6400': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2021 },
-        'GMK5250L': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 230, typicalYear: 2021 },
-        'GMK5220': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'GMK5180-1': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'GMK5150L-1': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2022 },
-        'GMK5120': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'GMK4100L-1': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'GMK3060': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'GRT8100': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
-        'GRT8120': { capacity: 120, craneType: 'Rough Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'RT890E': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RT770E': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'RT540E': { capacity: 40, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
-    },
-    
-    // TADANO Models
-    'Tadano': {
-        'ATF 400G-6': { capacity: 400, craneType: 'All-Terrain Crane', boomLength: 262, typicalYear: 2020 },
-        'ATF 220G-5': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2021 },
-        'ATF 180G-5': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'ATF 130G-5': { capacity: 130, craneType: 'All-Terrain Crane', boomLength: 190, typicalYear: 2022 },
-        'ATF 110G-5': { capacity: 110, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'ATF 90G-4': { capacity: 90, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
-        'ATF 70G-4': { capacity: 70, craneType: 'All-Terrain Crane', boomLength: 164, typicalYear: 2023 },
-        'ATF 60-3': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2024 },
-        'GR-1000XL-4': { capacity: 100, craneType: 'Rough Terrain Crane', boomLength: 154, typicalYear: 2023 },
-        'GR-800XL-3': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'GR-600XL-3': { capacity: 60, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'GR-500XL': { capacity: 50, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
-        'GR-350XL': { capacity: 35, craneType: 'Rough Terrain Crane', boomLength: 110, typicalYear: 2024 },
-        'CC 2800-1': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'CC 2400-1': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
-    },
-    
-    // TEREX Models
-    'Terex': {
-        'AC 1000-9': { capacity: 1000, craneType: 'All-Terrain Crane', boomLength: 328, typicalYear: 2018 },
-        'AC 700-9': { capacity: 700, craneType: 'All-Terrain Crane', boomLength: 308, typicalYear: 2019 },
-        'AC 500-2': { capacity: 500, craneType: 'All-Terrain Crane', boomLength: 275, typicalYear: 2020 },
-        'AC 450-2': { capacity: 450, craneType: 'All-Terrain Crane', boomLength: 269, typicalYear: 2020 },
-        'AC 350-6': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'AC 300-6': { capacity: 300, craneType: 'All-Terrain Crane', boomLength: 236, typicalYear: 2021 },
-        'AC 250-1': { capacity: 250, craneType: 'All-Terrain Crane', boomLength: 229, typicalYear: 2022 },
-        'AC 200-1': { capacity: 200, craneType: 'All-Terrain Crane', boomLength: 213, typicalYear: 2022 },
-        'AC 160-2': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'AC 120-1': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-        'AC 100-4L': { capacity: 100, craneType: 'All-Terrain Crane', boomLength: 177, typicalYear: 2023 },
-        'RT 780': { capacity: 80, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RT 670': { capacity: 70, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-        'RT 555': { capacity: 55, craneType: 'Rough Terrain Crane', boomLength: 124, typicalYear: 2024 },
-    },
-    
-    // MANITOWOC Models
-    'Manitowoc': {
-        '31000': { capacity: 2300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2016 },
-        '18000': { capacity: 750, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2017 },
-        '16000': { capacity: 660, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2018 },
-        '14000': { capacity: 500, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2019 },
-        'MLC650': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2019 },
-        'MLC300': { capacity: 300, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'MLC165': { capacity: 165, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
-        'MLC150': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
-        'MLC100-1': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
-        '999': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
-        '888': { capacity: 230, craneType: 'Crawler Crane', boomLength: 262, typicalYear: 2021 },
-    },
-    
-    // KOBELCO Models
-    'Kobelco': {
-        'CK3300G-2': { capacity: 330, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2019 },
-        'CK2750G-2': { capacity: 275, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2020 },
-        'CK2500G-2': { capacity: 250, craneType: 'Crawler Crane', boomLength: 269, typicalYear: 2020 },
-        'CK1600G-2': { capacity: 160, craneType: 'Crawler Crane', boomLength: 246, typicalYear: 2021 },
-        'CK1200G-2': { capacity: 120, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
-        'CK1100G-2': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
-        'CK1000G-2': { capacity: 100, craneType: 'Crawler Crane', boomLength: 213, typicalYear: 2022 },
-        'CK850G': { capacity: 85, craneType: 'Crawler Crane', boomLength: 197, typicalYear: 2023 },
-        'CK750G': { capacity: 75, craneType: 'Crawler Crane', boomLength: 184, typicalYear: 2023 },
-        'CK550G': { capacity: 55, craneType: 'Crawler Crane', boomLength: 164, typicalYear: 2024 },
-    },
-    
-    // LINK-BELT Models
-    'Link-Belt': {
-        '348 HSL': { capacity: 150, craneType: 'Crawler Crane', boomLength: 236, typicalYear: 2021 },
-        '298 HSL': { capacity: 130, craneType: 'Crawler Crane', boomLength: 229, typicalYear: 2021 },
-        '238 HSL': { capacity: 110, craneType: 'Crawler Crane', boomLength: 220, typicalYear: 2022 },
-        '218 HSL': { capacity: 90, craneType: 'Crawler Crane', boomLength: 203, typicalYear: 2022 },
-        'TCC-1400': { capacity: 140, craneType: 'Telescopic Crawler Crane', boomLength: 190, typicalYear: 2022 },
-        'TCC-1200': { capacity: 120, craneType: 'Telescopic Crawler Crane', boomLength: 184, typicalYear: 2023 },
-        'TCC-1100': { capacity: 110, craneType: 'Telescopic Crawler Crane', boomLength: 177, typicalYear: 2023 },
-        'TCC-750': { capacity: 75, craneType: 'Telescopic Crawler Crane', boomLength: 164, typicalYear: 2023 },
-        'RTC-8090 II': { capacity: 90, craneType: 'Rough Terrain Crane', boomLength: 144, typicalYear: 2023 },
-        'RTC-8065 II': { capacity: 65, craneType: 'Rough Terrain Crane', boomLength: 134, typicalYear: 2024 },
-    },
-    
-    // SANY Models
-    'Sany': {
-        'SCC40000A': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'SCC16000A': { capacity: 1600, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'SCC8500': { capacity: 850, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'SCC4000E': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2020 },
-        'SCC2600A': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-        'SAC6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
-        'SAC3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'SAC2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'SAC1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'SAC1500': { capacity: 150, craneType: 'All-Terrain Crane', boomLength: 197, typicalYear: 2023 },
-    },
-    
-    // XCMG Models
-    'XCMG': {
-        'XGC88000': { capacity: 4000, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'XGC28000': { capacity: 1250, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'XGC15000A': { capacity: 650, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'XGC8000': { capacity: 800, craneType: 'Crawler Crane', boomLength: 328, typicalYear: 2020 },
-        'XGC4000': { capacity: 400, craneType: 'Crawler Crane', boomLength: 308, typicalYear: 2021 },
-        'XCA1600': { capacity: 160, craneType: 'All-Terrain Crane', boomLength: 203, typicalYear: 2022 },
-        'XCA1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2022 },
-        'XCA800': { capacity: 80, craneType: 'All-Terrain Crane', boomLength: 170, typicalYear: 2023 },
-        'XCA600': { capacity: 60, craneType: 'All-Terrain Crane', boomLength: 157, typicalYear: 2023 },
-        'XCA400': { capacity: 40, craneType: 'All-Terrain Crane', boomLength: 144, typicalYear: 2024 },
-    },
-    
-    // ZOOMLION Models
-    'Zoomlion': {
-        'ZCC33000': { capacity: 3300, craneType: 'Crawler Crane', boomLength: 492, typicalYear: 2018 },
-        'ZCC13000': { capacity: 1300, craneType: 'Crawler Crane', boomLength: 394, typicalYear: 2019 },
-        'ZCC9800': { capacity: 980, craneType: 'Crawler Crane', boomLength: 354, typicalYear: 2020 },
-        'ZCC3200NP': { capacity: 320, craneType: 'Crawler Crane', boomLength: 295, typicalYear: 2020 },
-        'ZCC2600': { capacity: 260, craneType: 'Crawler Crane', boomLength: 279, typicalYear: 2021 },
-        'ZAT6000': { capacity: 600, craneType: 'All-Terrain Crane', boomLength: 295, typicalYear: 2020 },
-        'ZAT3500': { capacity: 350, craneType: 'All-Terrain Crane', boomLength: 246, typicalYear: 2021 },
-        'ZAT2200': { capacity: 220, craneType: 'All-Terrain Crane', boomLength: 217, typicalYear: 2022 },
-        'ZAT1800': { capacity: 180, craneType: 'All-Terrain Crane', boomLength: 210, typicalYear: 2022 },
-        'ZAT1200': { capacity: 120, craneType: 'All-Terrain Crane', boomLength: 184, typicalYear: 2023 },
-    },
-};
+    let updated = 0;
+    Array.from(manufacturerSelect.options).forEach(option => {
+        if (option.value && window.manufacturerModels[option.value]) {
+            const count = window.manufacturerModels[option.value].length;
+            option.textContent = option.value + " (" + count + " models)";
+            updated++;
+        }
+    });
+    console.log(`✅ Updated ${updated} manufacturer options with model counts`);
+}
+
 
 // Function to get crane specifications
 function getCraneSpecifications(manufacturer, model) {
@@ -4881,30 +5185,19 @@ function getCraneSpecifications(manufacturer, model) {
     }
     
     // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(manufacturerModels)) {
+    for (const [mfr, models] of Object.entries(window.manufacturerModels)) {
         if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
             for (const [mdl, specs] of Object.entries(models)) {
-// DISABLED:                 if (mdl.toLowerCase() === model.toLowerCase()) {
-// DISABLED:                     return specs;
-// DISABLED:                 }
-// DISABLED:             }
-// DISABLED:         }
-// DISABLED:     }
-// DISABLED:     
-// DISABLED:     // Try partial match
-// DISABLED:     for (const [mfr, models] of Object.entries(manufacturerModels)) {
-// DISABLED:         if (manufacturer.toLowerCase().includes(mfr.toLowerCase()) || mfr.toLowerCase().includes(manufacturer.toLowerCase())) {
-// DISABLED:             for (const [mdl, specs] of Object.entries(models)) {
-// DISABLED:                 if (model.toLowerCase().includes(mdl.toLowerCase()) || mdl.toLowerCase().includes(model.toLowerCase())) {
-// DISABLED:                     return specs;
-// DISABLED:                 }
-// DISABLED:             }
-// DISABLED:         }
-// DISABLED:     }
-// DISABLED:     
-// DISABLED:     return null;
-// DISABLED: }
-// DISABLED: 
+                if (mdl.toLowerCase() === model.toLowerCase()) {
+                    return specs;
+                }
+            }
+        }
+    }
+    
+    return null;
+}
+
 // Function to get all models for a manufacturer
 function getModelsForManufacturer(manufacturer) {
     if (!manufacturer) {
@@ -4912,12 +5205,12 @@ function getModelsForManufacturer(manufacturer) {
     }
     
     // Try exact match
-    if (manufacturerModels[manufacturer]) {
-        return manufacturerModels[manufacturer];
+    if (window.manufacturerModels[manufacturer]) {
+        return window.manufacturerModels[manufacturer];
     }
     
     // Try case-insensitive match
-    for (const [mfr, models] of Object.entries(manufacturerModels)) {
+    for (const [mfr, models] of Object.entries(window.manufacturerModels)) {
         if (mfr.toLowerCase() === manufacturer.toLowerCase()) {
             return models;
         }
@@ -4934,9 +5227,55 @@ if (typeof module !== 'undefined' && module.exports) {
 
     </script>
     
-    </script>
 
 <script>
+
+// Inline crane database for immediate availability
+window.manufacturerModels = {};
+window.craneDatabase = {};
+
+window.manufacturerModels['Liebherr'] = ["LTM 1025", "LTM 1030-2.1", "LTM 1040-2.1", "LTM 1050-3.1", "LTM 1060-3.1", "LTM 1070-4.2", "LTM 1080-2", "LTM 1090-4.2", "LTM 1100-5.2", "LTM 1110-5.1", "LTM 1120-4.1", "LTM 1130-5.1", "LTM 1160-5.2", "LTM 1200-5.1", "LTM 1220-5.2", "LTM 1230-5.1", "LTM 1250-6.1", "LTM 1300-6.2", "LTM 1350-6.1", "LTM 1400-7.1", "LTM 1450-8.1", "LTM 1500-8.1", "LTM 1650-8.1", "LTM 1750-9.1", "LTM 11200-9.1", "LTC 1045-3.1", "LTC 1050-3.1", "LRT 1090-2.1", "LRT 1100-2.1", "LTR 1040", "LTR 1060", "LTR 1100", "LTR 1220", "LR 1100", "LR 1160", "LR 1200", "LR 1250", "LR 1280", "LR 1300.1 SX", "LR 1350/1", "LR 1400/2", "LR 1500", "LR 1600/2", "LR 1700-1.0", "LR 1750/2", "LR 1800-1.0", "LR 11350", "LR 13000", "LG 1750"];
+window.craneDatabase['Liebherr'] = [{"model": "LTM 1025", "capacity": 25, "type": "All-Terrain Crane", "boomLength": 30}, {"model": "LTM 1030-2.1", "capacity": 30, "type": "All-Terrain Crane", "boomLength": 35}, {"model": "LTM 1040-2.1", "capacity": 40, "type": "All-Terrain Crane", "boomLength": 35}, {"model": "LTM 1050-3.1", "capacity": 50, "type": "All-Terrain Crane", "boomLength": 40}, {"model": "LTM 1060-3.1", "capacity": 60, "type": "All-Terrain Crane", "boomLength": 48}, {"model": "LTM 1070-4.2", "capacity": 70, "type": "All-Terrain Crane", "boomLength": 50}, {"model": "LTM 1080-2", "capacity": 80, "type": "All-Terrain Crane", "boomLength": 50}, {"model": "LTM 1090-4.2", "capacity": 90, "type": "All-Terrain Crane", "boomLength": 52}, {"model": "LTM 1100-5.2", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 52}, {"model": "LTM 1110-5.1", "capacity": 110, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1120-4.1", "capacity": 120, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1130-5.1", "capacity": 130, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1160-5.2", "capacity": 160, "type": "All-Terrain Crane", "boomLength": 62}, {"model": "LTM 1200-5.1", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 72}, {"model": "LTM 1220-5.2", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1230-5.1", "capacity": 230, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1250-6.1", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 72}, {"model": "LTM 1300-6.2", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1350-6.1", "capacity": 350, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1400-7.1", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1450-8.1", "capacity": 450, "type": "All-Terrain Crane", "boomLength": 85}, {"model": "LTM 1500-8.1", "capacity": 500, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1650-8.1", "capacity": 650, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTM 1750-9.1", "capacity": 750, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTM 11200-9.1", "capacity": 1200, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTC 1045-3.1", "capacity": 45, "type": "City Crane", "boomLength": 36}, {"model": "LTC 1050-3.1", "capacity": 50, "type": "City Crane", "boomLength": 30}, {"model": "LRT 1090-2.1", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 50}, {"model": "LRT 1100-2.1", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 52}, {"model": "LTR 1040", "capacity": 40, "type": "Telescopic Crawler Crane", "boomLength": 40}, {"model": "LTR 1060", "capacity": 60, "type": "Telescopic Crawler Crane", "boomLength": 48}, {"model": "LTR 1100", "capacity": 100, "type": "Telescopic Crawler Crane", "boomLength": 52}, {"model": "LTR 1220", "capacity": 220, "type": "Telescopic Crawler Crane", "boomLength": 60}, {"model": "LR 1100", "capacity": 100, "type": "Crawler Crane", "boomLength": 78}, {"model": "LR 1160", "capacity": 160, "type": "Crawler Crane", "boomLength": 81}, {"model": "LR 1200", "capacity": 200, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1250", "capacity": 250, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1280", "capacity": 280, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1300.1 SX", "capacity": 300, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1350/1", "capacity": 350, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1400/2", "capacity": 400, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1500", "capacity": 500, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1600/2", "capacity": 600, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1700-1.0", "capacity": 700, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1750/2", "capacity": 750, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1800-1.0", "capacity": 800, "type": "Crawler Crane", "boomLength": 168}, {"model": "LR 11350", "capacity": 1350, "type": "Crawler Crane", "boomLength": 198}, {"model": "LR 13000", "capacity": 3000, "type": "Crawler Crane", "boomLength": 246}, {"model": "LG 1750", "capacity": 750, "type": "Gantry Crane", "boomLength": 120}];
+
+window.manufacturerModels['Tadano'] = ["GR-550XL", "GR-1000XLL", "TR-250M", "AR-2000M", "GR-750XL", "ATF 110G-5", "TR-500XL", "GR-1600XL", "GR-300EX", "ATF 400G-6", "TR-800M", "GR-1000XL", "AR-5500M", "GR-350XL", "GR-500EX", "ATF 200G-5", "GR-700EX", "TR-600XL", "GR-750EX", "ATF 180G-5", "TR-100M", "GR-1450EX", "ATF 90G-4", "GR-150XL", "TR-350M", "ATF 70G-4", "GR-900XL", "ATF 220G-5", "TR-600M", "GR-1200XL", "ATF 150G-5", "GR-600XL", "TR-80M", "ATF 60G-3", "GR-1300XL", "TR-350XL", "GR-800EX", "AR-5000M", "GR-250N", "ATF 130G-5", "GR-800XL", "TR-300M", "GR-200EX", "ATF 100G-4", "GR-700XL", "TR-550M", "GR-100EX", "GR-600EX", "TR-300XL", "GR-200XL"];
+window.craneDatabase['Tadano'] = [{"model": "GR-550XL", "capacity": 55, "type": "Rough Terrain Crane", "boomLength": 113}, {"model": "GR-1000XLL", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 167}, {"model": "TR-250M", "capacity": 25, "type": "Truck-Mounted Crane", "boomLength": 98}, {"model": "AR-2000M", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "GR-750XL", "capacity": 75, "type": "Rough Terrain Crane", "boomLength": 141}, {"model": "ATF 110G-5", "capacity": 120, "type": "All-Terrain Crane", "boomLength": 171}, {"model": "TR-500XL", "capacity": 50, "type": "Truck-Mounted Crane", "boomLength": 138}, {"model": "GR-1600XL", "capacity": 160, "type": "Rough Terrain Crane", "boomLength": 200}, {"model": "GR-300EX", "capacity": 30, "type": "Rough Terrain Crane", "boomLength": 102}, {"model": "ATF 400G-6", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "TR-800M", "capacity": 80, "type": "Truck-Mounted Crane", "boomLength": 145}, {"model": "GR-1000XL", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 154}, {"model": "AR-5500M", "capacity": 550, "type": "All-Terrain Crane", "boomLength": 275}, {"model": "GR-350XL", "capacity": 35, "type": "Rough Terrain Crane", "boomLength": 101}, {"model": "GR-500EX", "capacity": 50, "type": "Rough Terrain Crane", "boomLength": 141}, {"model": "ATF 200G-5", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "GR-700EX", "capacity": 70, "type": "Rough Terrain Crane", "boomLength": 147}, {"model": "TR-600XL", "capacity": 60, "type": "Truck-Mounted Crane", "boomLength": 150}, {"model": "GR-750EX", "capacity": 75, "type": "Rough Terrain Crane", "boomLength": 147}, {"model": "ATF 180G-5", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "TR-100M", "capacity": 10, "type": "Truck-Mounted Crane", "boomLength": 65}, {"model": "GR-1450EX", "capacity": 145, "type": "Rough Terrain Crane", "boomLength": 200}, {"model": "ATF 90G-4", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 154}, {"model": "GR-150XL", "capacity": 15, "type": "Rough Terrain Crane", "boomLength": 79}, {"model": "TR-350M", "capacity": 35, "type": "Truck-Mounted Crane", "boomLength": 110}, {"model": "ATF 70G-4", "capacity": 75, "type": "All-Terrain Crane", "boomLength": 164}, {"model": "GR-900XL", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 154}, {"model": "ATF 220G-5", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 223}, {"model": "TR-600M", "capacity": 60, "type": "Truck-Mounted Crane", "boomLength": 141}, {"model": "GR-1200XL", "capacity": 120, "type": "Rough Terrain Crane", "boomLength": 184}, {"model": "ATF 150G-5", "capacity": 165, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "GR-600XL", "capacity": 60, "type": "Rough Terrain Crane", "boomLength": 138}, {"model": "TR-80M", "capacity": 8, "type": "Truck-Mounted Crane", "boomLength": 62}, {"model": "ATF 60G-3", "capacity": 70, "type": "All-Terrain Crane", "boomLength": 142}, {"model": "GR-1300XL", "capacity": 130, "type": "Rough Terrain Crane", "boomLength": 184}, {"model": "TR-350XL", "capacity": 35, "type": "Truck-Mounted Crane", "boomLength": 110}, {"model": "GR-800EX", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 144}, {"model": "AR-5000M", "capacity": 500, "type": "All-Terrain Crane", "boomLength": 260}, {"model": "GR-250N", "capacity": 25, "type": "Rough Terrain Crane", "boomLength": 95}, {"model": "ATF 130G-5", "capacity": 150, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "GR-800XL", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 154}, {"model": "TR-300M", "capacity": 30, "type": "Truck-Mounted Crane", "boomLength": 105}, {"model": "GR-200EX", "capacity": 20, "type": "Rough Terrain Crane", "boomLength": 82}, {"model": "ATF 100G-4", "capacity": 110, "type": "All-Terrain Crane", "boomLength": 164}, {"model": "GR-700XL", "capacity": 70, "type": "Rough Terrain Crane", "boomLength": 147}, {"model": "TR-550M", "capacity": 55, "type": "Truck-Mounted Crane", "boomLength": 130}, {"model": "GR-100EX", "capacity": 10, "type": "Rough Terrain Crane", "boomLength": 72}, {"model": "GR-600EX", "capacity": 60, "type": "Rough Terrain Crane", "boomLength": 141}, {"model": "TR-300XL", "capacity": 30, "type": "Truck-Mounted Crane", "boomLength": 105}, {"model": "GR-200XL", "capacity": 20, "type": "Rough Terrain Crane", "boomLength": 79}];
+
+window.manufacturerModels['Grove'] = ["GMK5250L", "GMK5150L", "GMK5200", "GMK6300L", "GMK6400", "GMK7450", "RT540E", "RT550E", "RT555E", "RT560E", "RT765E-2", "RT770E", "RT775E", "RT780E", "RT890E", "RT9130E-2", "GRT8100", "GRT8120", "GRT655", "GRT880", "GMK3050-2", "GMK3060", "GMK4080-1", "GMK4100L-1", "GMK5130-2"];
+window.craneDatabase['Grove'] = [{"model": "GMK5250L", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 200}, {"model": "GMK5150L", "capacity": 150, "type": "All-Terrain Crane", "boomLength": 180}, {"model": "GMK5200", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 190}, {"model": "GMK6300L", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 220}, {"model": "GMK6400", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 240}, {"model": "GMK7450", "capacity": 450, "type": "All-Terrain Crane", "boomLength": 260}, {"model": "RT540E", "capacity": 40, "type": "Rough Terrain Crane", "boomLength": 110}, {"model": "RT550E", "capacity": 50, "type": "Rough Terrain Crane", "boomLength": 120}, {"model": "RT555E", "capacity": 55, "type": "Rough Terrain Crane", "boomLength": 125}, {"model": "RT560E", "capacity": 60, "type": "Rough Terrain Crane", "boomLength": 130}, {"model": "RT765E-2", "capacity": 65, "type": "Rough Terrain Crane", "boomLength": 135}, {"model": "RT770E", "capacity": 70, "type": "Rough Terrain Crane", "boomLength": 140}, {"model": "RT775E", "capacity": 75, "type": "Rough Terrain Crane", "boomLength": 145}, {"model": "RT780E", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 150}, {"model": "RT890E", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 155}, {"model": "RT9130E-2", "capacity": 130, "type": "Rough Terrain Crane", "boomLength": 175}, {"model": "GRT8100", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 160}, {"model": "GRT8120", "capacity": 120, "type": "Rough Terrain Crane", "boomLength": 170}, {"model": "GRT655", "capacity": 55, "type": "Rough Terrain Crane", "boomLength": 125}, {"model": "GRT880", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 150}, {"model": "GMK3050-2", "capacity": 50, "type": "All-Terrain Crane", "boomLength": 130}, {"model": "GMK3060", "capacity": 60, "type": "All-Terrain Crane", "boomLength": 140}, {"model": "GMK4080-1", "capacity": 80, "type": "All-Terrain Crane", "boomLength": 150}, {"model": "GMK4100L-1", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 160}, {"model": "GMK5130-2", "capacity": 130, "type": "All-Terrain Crane", "boomLength": 170}];
+
+window.manufacturerModels['Manitowoc'] = ["18000", "MLC300", "MLC650", "MLC100-1", "MLC165", "999", "2250", "4100W", "4600S", "16000", "21000", "31000", "MLC100", "MLC150", "MLC200"];
+window.craneDatabase['Manitowoc'] = [{"model": "18000", "capacity": 550, "type": "Crawler Crane", "boomLength": 320}, {"model": "MLC300", "capacity": 300, "type": "Crawler Crane", "boomLength": 220}, {"model": "MLC650", "capacity": 650, "type": "Crawler Crane", "boomLength": 350}, {"model": "MLC100-1", "capacity": 100, "type": "Crawler Crane", "boomLength": 180}, {"model": "MLC165", "capacity": 165, "type": "Crawler Crane", "boomLength": 200}, {"model": "999", "capacity": 275, "type": "Crawler Crane", "boomLength": 240}, {"model": "2250", "capacity": 300, "type": "Crawler Crane", "boomLength": 260}, {"model": "4100W", "capacity": 230, "type": "Crawler Crane", "boomLength": 210}, {"model": "4600S", "capacity": 250, "type": "Crawler Crane", "boomLength": 230}, {"model": "16000", "capacity": 440, "type": "Crawler Crane", "boomLength": 300}, {"model": "21000", "capacity": 600, "type": "Crawler Crane", "boomLength": 360}, {"model": "31000", "capacity": 880, "type": "Crawler Crane", "boomLength": 420}, {"model": "MLC100", "capacity": 100, "type": "Crawler Crane", "boomLength": 175}, {"model": "MLC150", "capacity": 150, "type": "Crawler Crane", "boomLength": 190}, {"model": "MLC200", "capacity": 200, "type": "Crawler Crane", "boomLength": 210}];
+
+window.manufacturerModels['Sany'] = ["SCC8500", "SCC4000E", "SCC6500A", "SCC1000A", "SCC2500A", "SAC1800", "SAC2200", "SAC3000", "SAC4000", "STC250", "STC500", "STC750"];
+window.craneDatabase['Sany'] = [{"model": "SCC8500", "capacity": 850, "type": "Crawler Crane", "boomLength": 440}, {"model": "SCC4000E", "capacity": 400, "type": "Crawler Crane", "boomLength": 300}, {"model": "SCC6500A", "capacity": 650, "type": "Crawler Crane", "boomLength": 380}, {"model": "SCC1000A", "capacity": 100, "type": "Crawler Crane", "boomLength": 180}, {"model": "SCC2500A", "capacity": 250, "type": "Crawler Crane", "boomLength": 240}, {"model": "SAC1800", "capacity": 180, "type": "All-Terrain Crane", "boomLength": 190}, {"model": "SAC2200", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 210}, {"model": "SAC3000", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 230}, {"model": "SAC4000", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 250}, {"model": "STC250", "capacity": 25, "type": "Truck-Mounted Crane", "boomLength": 100}, {"model": "STC500", "capacity": 50, "type": "Truck-Mounted Crane", "boomLength": 130}, {"model": "STC750", "capacity": 75, "type": "Truck-Mounted Crane", "boomLength": 150}];
+
+window.manufacturerModels['Kobelco'] = ["CK1600G-2", "CK2750G", "CK3300G", "CK850G-2", "CK1000G-2", "CK1200G", "CK2000-II", "CK2500-II", "CK3000G", "CK4000", "CK5500", "CK750G", "CK900G", "CK1100G"];
+window.craneDatabase['Kobelco'] = [{"model": "CK1600G-2", "capacity": 160, "type": "Crawler Crane", "boomLength": 164}, {"model": "CK2750G", "capacity": 275, "type": "Crawler Crane", "boomLength": 230}, {"model": "CK3300G", "capacity": 330, "type": "Crawler Crane", "boomLength": 260}, {"model": "CK850G-2", "capacity": 85, "type": "Crawler Crane", "boomLength": 150}, {"model": "CK1000G-2", "capacity": 100, "type": "Crawler Crane", "boomLength": 160}, {"model": "CK1200G", "capacity": 120, "type": "Crawler Crane", "boomLength": 170}, {"model": "CK2000-II", "capacity": 200, "type": "Crawler Crane", "boomLength": 200}, {"model": "CK2500-II", "capacity": 250, "type": "Crawler Crane", "boomLength": 220}, {"model": "CK3000G", "capacity": 300, "type": "Crawler Crane", "boomLength": 250}, {"model": "CK4000", "capacity": 400, "type": "Crawler Crane", "boomLength": 280}, {"model": "CK5500", "capacity": 550, "type": "Crawler Crane", "boomLength": 320}, {"model": "CK750G", "capacity": 75, "type": "Crawler Crane", "boomLength": 140}, {"model": "CK900G", "capacity": 90, "type": "Crawler Crane", "boomLength": 155}, {"model": "CK1100G", "capacity": 110, "type": "Crawler Crane", "boomLength": 165}];
+
+window.manufacturerModels['Link-Belt'] = ["RTC-8090 II", "RTC-8065 II", "RTC-8050 II", "RTC-80100 II", "RTC-80110 II", "RTC-80130 II", "RTC-80150 II", "RTC-80160 II"];
+window.craneDatabase['Link-Belt'] = [{"model": "RTC-8090 II", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 136}, {"model": "RTC-8065 II", "capacity": 65, "type": "Rough Terrain Crane", "boomLength": 125}, {"model": "RTC-8050 II", "capacity": 50, "type": "Rough Terrain Crane", "boomLength": 115}, {"model": "RTC-80100 II", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 145}, {"model": "RTC-80110 II", "capacity": 110, "type": "Rough Terrain Crane", "boomLength": 155}, {"model": "RTC-80130 II", "capacity": 130, "type": "Rough Terrain Crane", "boomLength": 165}, {"model": "RTC-80150 II", "capacity": 150, "type": "Rough Terrain Crane", "boomLength": 175}, {"model": "RTC-80160 II", "capacity": 160, "type": "Rough Terrain Crane", "boomLength": 180}];
+
+window.manufacturerModels['Terex'] = ["AC 100/4L", "Demag AC 100-4L", "AC 250-1"];
+window.craneDatabase['Terex'] = [{"model": "AC 100/4L", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 140}, {"model": "Demag AC 100-4L", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 140}, {"model": "AC 250-1", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 200}];
+
+window.manufacturerModels['Zoomlion'] = ["QY70V", "QY100V"];
+window.craneDatabase['Zoomlion'] = [{"model": "QY70V", "capacity": 70, "type": "All-Terrain Crane", "boomLength": 128}, {"model": "QY100V", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 150}];
+
+window.manufacturerModels['Caterpillar'] = ["CAT 320"];
+window.craneDatabase['Caterpillar'] = [{"model": "CAT 320", "capacity": 180, "type": "Crawler Crane", "boomLength": 172}];
+
+window.manufacturerModels['Demag'] = ["AC 220-5"];
+window.craneDatabase['Demag'] = [{"model": "AC 220-5", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 188}];
+
+
+// Initialize manufacturer counts
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("✅ Inline crane database loaded");
+    console.log("Total manufacturers:", Object.keys(window.manufacturerModels).length);
+    updateManufacturerCounts();
+});
+
+
 // Comprehensive Crane Specifications Database
 // REMOVED DUPLICATE: const craneDatabase = {
 // REMOVED DUPLICATE:         "Liebherr": [
@@ -5286,6 +5625,118 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('Auto-prefill functionality initialized');
 });
+
+
+// Update rental comparison chart
+function updateRentalComparisonChart(bareRental, operatedRental, ownershipCost) {
+    const ctx = document.getElementById('rentalComparisonChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.rentalChart) {
+        window.rentalChart.destroy();
+    }
+    
+    const months = [1, 6, 12, 24, 36, 48, 60];
+    const bareRentalCosts = months.map(m => bareRental * m);
+    const operatedRentalCosts = months.map(m => operatedRental * m);
+    const ownershipCosts = months.map(m => ownershipCost * m);
+    
+    window.rentalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months.map(m => m + ' mo'),
+            datasets: [
+                {
+                    label: 'Bare Rental',
+                    data: bareRentalCosts,
+                    borderColor: '#00FF88',
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4
+                },
+                {
+                    label: 'Operated Rental',
+                    data: operatedRentalCosts,
+                    borderColor: '#FFB800',
+                    backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4
+                },
+                {
+                    label: 'Ownership Cost',
+                    data: ownershipCosts,
+                    borderColor: '#00A8FF',
+                    backgroundColor: 'rgba(0, 168, 255, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#FFFFFF',
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#00FF88',
+                    bodyColor: '#FFFFFF',
+                    borderColor: '#00FF88',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#888888',
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#888888',
+                        font: {
+                            size: 11
+                        },
+                        callback: function(value) {
+                            return '$' + (value / 1000).toFixed(0) + 'K';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 </script>
 
 </body>
