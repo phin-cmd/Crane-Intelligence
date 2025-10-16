@@ -5133,31 +5133,6 @@ window.processBulkFile = function(event) {
     reader.readAsText(file);
 };
 
-function displayBulkResults(results) {
-    const tbody = document.getElementById('resultsTableBody');
-    const summary = document.getElementById('resultsSummary');
-    const resultsDiv = document.getElementById('bulkResults');
-    
-    if (summary) {
-        summary.textContent = results.length + ' cranes processed • ' + results.length + ' successful • 0 errors';
-    }
-    
-    if (tbody) {
-        tbody.innerHTML = '';
-        results.forEach(r => {
-            const row = document.createElement('tr');
-            row.innerHTML = '<td>' + r.crane + '</td><td>' + r.year + '</td><td>' + r.capacity + ' tons</td><td>' + r.hours.toLocaleString() + '</td><td>' + r.region + '</td><td style="color: #00FF88; font-weight: 600;">$' + (r.estimatedValue / 1000000).toFixed(2) + 'M</td><td>' + r.confidence + '%</td><td><span style="background: ' + (r.grade === 'A' ? '#00FF88' : r.grade === 'B' ? '#FFD600' : '#FF6B6B') + '; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: 600;">' + r.grade + '</span></td><td><button style="background: #1A1A1A; border: 1px solid #00FF88; color: #00FF88; padding: 4px 12px; border-radius: 4px; cursor: pointer;">View</button></td>';
-            tbody.appendChild(row);
-        });
-    }
-    
-    if (resultsDiv) {
-        resultsDiv.style.display = 'block';
-    }
-    
-    console.log('Processed', results.length, 'cranes');
-}
-
 window.exportResults = function() {
     alert('Export functionality will be implemented');
 };
