@@ -3651,7 +3651,7 @@
                         continue;
                     }
                     
-                    // ===== USE UNIFIED CALCULATION LOGIC =====
+                    // ===== ENHANCED UNIFIED CALCULATION LOGIC =====
                     const currentYear = new Date().getFullYear();
                     const age = currentYear - year;
                     
@@ -3675,22 +3675,22 @@
                             break;
                         }
                     }
-                    const boomPremium = baseCapacityValue * manufacturerFactor;
+                    const manufacturerPremiumValue = baseCapacityValue * manufacturerFactor;
                     
                     // Step 3: Model premium (8% of base)
-                    const modelPremium = baseCapacityValue * 0.08;
+                    const modelPremiumValue = baseCapacityValue * 0.08;
                     
                     // Step 4: Total base value
-                    const totalBaseValue = baseCapacityValue + boomPremium + modelPremium;
+                    const totalBaseValue = baseCapacityValue + manufacturerPremiumValue + modelPremiumValue;
                     
                     // Step 5: Age adjustment (5% per year)
-                    const ageAdjustment = totalBaseValue * (age * 0.05);
+                    const ageDepreciationValue = totalBaseValue * (age * 0.05);
                     
                     // Step 6: Hours adjustment
                     const averageHoursPerYear = 1500;
                     const expectedHours = age * averageHoursPerYear;
                     const excessHours = hours - expectedHours;
-                    const hoursAdjustment = excessHours > 0 ? (totalBaseValue * 0.03) : 0;
+                    const hoursAdjustmentValue = excessHours > 0 ? (totalBaseValue * 0.03) : 0;
                     
                     // Step 7: Regional adjustment
                     const regionalFactors = {
@@ -3698,34 +3698,56 @@
                         'Europe': 1.02,
                         'Asia Pacific': 0.98,
                         'Middle East': 1.01,
-                        'Africa': 0.95,
-                        'South America': 0.97
+                        'Latin America': 0.96,
+                        'Africa': 0.94
                     };
-                    const regionalAdjustment = totalBaseValue * ((regionalFactors[region] || 1.0) - 1);
+                    const regionalMultiplier = regionalFactors[region] || 1.0;
+                    const regionalAdjustmentValue = totalBaseValue * (regionalMultiplier - 1.0);
                     
-                    // Step 8: Market conditions (3% of base)
-                    const marketConditionsValue = totalBaseValue * 0.03;
+                    // Step 8: Market conditions (current trend: +3%)
+                    const marketTrend = 0.03;
+                    const marketConditionsValue = totalBaseValue * marketTrend;
                     
-                    // Step 9: Condition score (5% of base)
-                    const conditionScoreValue = totalBaseValue * 0.05;
+                    // Step 9: Condition score adjustment
+                    const conditionFactors = {
+                        'excellent': 0.05,
+                        'good': 0.02,
+                        'fair': -0.02,
+                        'poor': -0.08
+                    };
+                    const conditionFactor = conditionFactors[condition.toLowerCase()] || 0;
+                    const conditionAdjustmentValue = totalBaseValue * conditionFactor;
                     
-                    // Step 10: Calculate final estimated value (UNIFIED FORMULA)
-                    const finalEstimatedValue = totalBaseValue 
-                        - ageAdjustment 
-                        - hoursAdjustment 
-                        + regionalAdjustment 
-                        + marketConditionsValue 
-                        + conditionScoreValue;
+                    // Step 10: Calculate total adjustments
+                    const totalAdjustments = -ageDepreciationValue - hoursAdjustmentValue + regionalAdjustmentValue + marketConditionsValue + conditionAdjustmentValue;
                     
-                    // Calculate total adjustments
-                    const totalAdjustments = -ageAdjustment - hoursAdjustment + regionalAdjustment + marketConditionsValue + conditionScoreValue;
+                    // Step 11: Final estimated value
+                    const finalEstimatedValue = Math.round(totalBaseValue + totalAdjustments);
                     
-                    // Calculate metrics
-                    const confidenceScore = calculateConfidenceScore(age, hours, capacity, region);
-                    const riskScore = calculateRiskScore(age, hours, region, capacity);
-                    const dealGrade = calculateDealGrade(confidenceScore, riskScore);
+                    // Step 12: Confidence score (70-95%)
+                    const confidenceBase = 70;
+                    const capacityBonus = Math.min(15, capacity / 100);
+                    const ageBonus = Math.max(0, 10 - age);
+                    const confidence = Math.min(95, confidenceBase + capacityBonus + ageBonus);
                     
-                    // Store result
+                    // Step 13: Risk score
+                    const riskScore = Math.max(1, Math.min(10, Math.round((age / 2) + (hours / 10000) - (confidence / 10))));
+                    
+                    // Step 14: Deal grade
+                    let dealGrade = 'C';
+                    if (confidence > 90 && age < 3) {
+                        dealGrade = 'A+';
+                    } else if (confidence > 85 && age < 5) {
+                        dealGrade = 'A';
+                    } else if (confidence > 80 && age < 8) {
+                        dealGrade = 'B+';
+                    } else if (confidence > 75) {
+                        dealGrade = 'B';
+                    } else if (confidence > 70) {
+                        dealGrade = 'C+';
+                    }
+                    
+                    // Store result with complete breakdown
                     bulkData.push({
                         crane: `${manufacturer} ${model}`,
                         manufacturer: manufacturer,
@@ -3736,31 +3758,33 @@
                         hours: hours.toString(),
                         hoursNumeric: hours,
                         region: region,
-                        estimatedValue: '$' + Math.round(finalEstimatedValue).toLocaleString(),
-                        estimatedValueNumeric: Math.round(finalEstimatedValue),
-                        confidence: `${confidenceScore}%`,
-                        confidenceNumeric: confidenceScore,
-                        grade: dealGrade,
-                        boomLength: boomLength,
                         condition: condition,
                         craneType: craneType,
+                        estimatedValue: '$' + finalEstimatedValue.toLocaleString(),
+                        estimatedValueNumeric: finalEstimatedValue,
+                        confidence: `${Math.round(confidence)}%`,
+                        confidenceNumeric: Math.round(confidence),
+                        grade: dealGrade,
+                        riskScore: riskScore,
+                        boomLength: boomLength,
                         breakdown: {
                             baseCapacityValue: baseCapacityValue,
-                            manufacturerPremium: boomPremium,
-                            modelPremium: modelPremium,
+                            manufacturerPremium: manufacturerPremiumValue,
+                            manufacturerFactor: manufacturerFactor,
+                            modelPremium: modelPremiumValue,
                             totalBaseValue: totalBaseValue,
                             age: age,
-                            ageAdjustment: ageAdjustment,
+                            ageDepreciation: ageDepreciationValue,
                             expectedHours: expectedHours,
                             excessHours: excessHours,
-                            hoursAdjustment: hoursAdjustment,
-                            regionalAdjustment: regionalAdjustment,
-                            marketConditionsValue: marketConditionsValue,
-                            conditionScoreValue: conditionScoreValue,
+                            hoursAdjustment: hoursAdjustmentValue,
+                            regionalMultiplier: regionalMultiplier,
+                            regionalAdjustment: regionalAdjustmentValue,
+                            marketConditions: marketConditionsValue,
+                            conditionAdjustment: conditionAdjustmentValue,
                             totalAdjustments: totalAdjustments,
                             finalEstimatedValue: finalEstimatedValue
-                        },
-                        riskScore: riskScore
+                        }
                     });
                     
                     successCount++;
