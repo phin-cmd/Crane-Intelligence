@@ -1,5 +1,5 @@
 <!-- Updated: 20251016192928 - v3.2 with 30 Kobelco models -->
-<!-- Crane Intelligence Platform - Valuation Terminal v3.5 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
+<!-- Crane Intelligence Platform - Valuation Terminal v3.6 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>CRANE INTELLIGENCE - Valuation Terminal v3.5</title>
+    <title>CRANE INTELLIGENCE - Valuation Terminal v3.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
@@ -89,15 +89,26 @@
         }
         /* Stock Ticker */
         .stock-ticker {
-            background: #000000;
-            padding: 8px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            border-bottom: 1px solid #333;
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 20px !important;
+            overflow: hidden !important;
         }
         .ticker-content {
-            display: inline-block;
-            animation: scroll-left 60s linear infinite;
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scroll-left 30s linear infinite !important;
+            white-space: nowrap !important;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             font-weight: 500;
@@ -1095,6 +1106,24 @@
     <script src="js/anti-flickering.js"></script>
   </head>
 <body>
+    <!-- ============================================ -->
+    <!-- AUTHENTICATION CHECK - Restrict to logged-in users -->
+    <!-- ============================================ -->
+    <script>
+        (function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                console.log('⚠️  Access denied: User not authenticated');
+                console.log('🔄 Redirecting to homepage...');
+                window.location.href = '/homepage.html';
+            } else {
+                console.log('✅ Access granted: User authenticated');
+            }
+        })();
+    </script>
+
     <!-- Header -->
         <!-- Unified Header -->
     <header class="header">
@@ -1160,7 +1189,8 @@
 
     <!-- Stock Ticker -->
     <div class="stock-ticker">
-        <div class="ticker-content">
+        <div class="ticker-container">
+            <div class="ticker-content">
             <span class="ticker-item">
                 <span class="ticker-symbol">LIEBHERR</span>
                 <span class="ticker-price">567.3</span>
@@ -4439,6 +4469,24 @@
 </style>
                 </head>
                 <body>
+    <!-- ============================================ -->
+    <!-- AUTHENTICATION CHECK - Restrict to logged-in users -->
+    <!-- ============================================ -->
+    <script>
+        (function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                console.log('⚠️  Access denied: User not authenticated');
+                console.log('🔄 Redirecting to homepage...');
+                window.location.href = '/homepage.html';
+            } else {
+                console.log('✅ Access granted: User authenticated');
+            }
+        })();
+    </script>
+
                     ${reportHTML}
                 </body>
                 </html>
