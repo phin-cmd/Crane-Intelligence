@@ -1,5 +1,5 @@
 <!-- Updated: 20251016192928 - v3.2 with 30 Kobelco models -->
-<!-- Crane Intelligence Platform - Valuation Terminal v3.4 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
+<!-- Crane Intelligence Platform - Valuation Terminal v3.5 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>CRANE INTELLIGENCE - Valuation Terminal v3.4</title>
+    <title>CRANE INTELLIGENCE - Valuation Terminal v3.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
@@ -2911,7 +2911,11 @@
                 });
                 
                 // Update comparables table
+                console.log('🚀 ABOUT TO CALL getRelevantComparables with:', craneType, capacity);
+                alert('Calling comparables for: ' + craneType + ', ' + capacity + 'T');
                 const comparables = getRelevantComparables(craneType, capacity);
+                console.log('🎯 Got comparables:', comparables.length);
+                alert('Got ' + comparables.length + ' comparables');
                 const comparablesTableBody = document.getElementById('comparablesTableBody');
                 comparablesTableBody.innerHTML = '';
                 
@@ -5217,6 +5221,50 @@ window.performDirectValuation = function() {
     
     // Update rental comparison chart
     updateRentalComparisonChart(monthlyBareRental, monthlyOperatedRental, totalMonthlyOwnership);
+
+
+    // ===== UPDATE COMPARABLES TABLE =====
+    console.log('🔍 Updating comparables table...');
+    const craneType = document.getElementById('craneType')?.value || 'All-Terrain Crane';
+    console.log('📊 Calling getRelevantComparables with:', craneType, capacity);
+    const comparables = getRelevantComparables(craneType, capacity);
+    console.log('✅ Got comparables:', comparables.length);
+    
+    const comparablesTableBody = document.getElementById('comparablesTableBody');
+    if (comparablesTableBody) {
+        comparablesTableBody.innerHTML = '';
+        
+        if (comparables && comparables.length > 0) {
+            console.log('📝 Populating', comparables.length, 'comparables into table');
+            comparables.forEach(comp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${comp.equipment}</td>
+                    <td>${craneType}</td>
+                    <td>${comp.year}</td>
+                    <td>${comp.capacity}T</td>
+                    <td>${comp.hours.toLocaleString()}</td>
+                    <td>$${comp.price.toLocaleString()}</td>
+                    <td>$${Math.round(comp.price / comp.capacity).toLocaleString()}</td>
+                    <td style="color: ${comp.trend.startsWith('+') ? '#00FF88' : '#FF4444'};">${comp.trend}</td>
+                    <td>${comp.location}</td>
+                `;
+                comparablesTableBody.appendChild(row);
+            });
+            console.log('✅ Comparables table populated');
+        } else {
+            console.log('⚠️  No comparables found');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan="9" style="text-align: center; color: #888;">
+                    No comparable sales data available for this crane class and capacity range.
+                </td>
+            `;
+            comparablesTableBody.appendChild(row);
+        }
+    } else {
+        console.error('❌ comparablesTableBody element not found');
+    }
 
     // Show results section
     const resultsSection = document.getElementById('valuationResults');
