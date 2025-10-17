@@ -1,5 +1,5 @@
 <!-- Updated: 20251016192928 - v3.2 with 30 Kobelco models -->
-<!-- Crane Intelligence Platform - Valuation Terminal v3.6 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
+<!-- Crane Intelligence Platform - Valuation Terminal v3.7 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>CRANE INTELLIGENCE - Valuation Terminal v3.6</title>
+    <title>CRANE INTELLIGENCE - Valuation Terminal v3.7</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
@@ -1111,15 +1111,23 @@
     <!-- ============================================ -->
     <script>
         (function() {
-            const token = localStorage.getItem('token');
-            const user = localStorage.getItem('user');
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
             
-            if (!token || !user) {
+            if (!token || !userData) {
                 console.log('⚠️  Access denied: User not authenticated');
+                console.log('📋 Token:', token ? 'exists' : 'missing');
+                console.log('📋 User data:', userData ? 'exists' : 'missing');
                 console.log('🔄 Redirecting to homepage...');
                 window.location.href = '/homepage.html';
             } else {
                 console.log('✅ Access granted: User authenticated');
+                try {
+                    const user = JSON.parse(userData);
+                    console.log('👤 User:', user.name || user.email || 'Unknown');
+                } catch(e) {
+                    console.log('⚠️  Could not parse user data');
+                }
             }
         })();
     </script>
@@ -4472,20 +4480,7 @@
     <!-- ============================================ -->
     <!-- AUTHENTICATION CHECK - Restrict to logged-in users -->
     <!-- ============================================ -->
-    <script>
-        (function() {
-            const token = localStorage.getItem('token');
-            const user = localStorage.getItem('user');
-            
-            if (!token || !user) {
-                console.log('⚠️  Access denied: User not authenticated');
-                console.log('🔄 Redirecting to homepage...');
-                window.location.href = '/homepage.html';
-            } else {
-                console.log('✅ Access granted: User authenticated');
-            }
-        })();
-    </script>
+
 
                     ${reportHTML}
                 </body>
