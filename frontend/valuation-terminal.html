@@ -1,5 +1,5 @@
 <!-- Updated: 20251016192928 - v3.2 with 30 Kobelco models -->
-<!-- Crane Intelligence Platform - Valuation Terminal v3.8 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
+<!-- Crane Intelligence Platform - Valuation Terminal v3.9 | Last Updated: Oct 12, 2025 | Smart Rental Engine Integrated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>CRANE INTELLIGENCE - Valuation Terminal v3.8</title>
+    <title>CRANE INTELLIGENCE - Valuation Terminal v3.9</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
@@ -104,14 +104,15 @@
             overflow: hidden !important;
         }
         .ticker-content {
-            display: flex !important;
+            display: inline-flex !important;
             align-items: center !important;
             gap: 40px !important;
-            animation: scroll-left 30s linear infinite !important;
+            animation: scroll-left 40s linear infinite !important;
             white-space: nowrap !important;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             font-weight: 500;
+            will-change: transform !important;
         }
         .ticker-item {
             margin-right: 3rem;
@@ -1238,6 +1239,45 @@
                 <span class="ticker-symbol">KOBELCO</span>
                 <span class="ticker-price">512.3</span>
                 <span class="ticker-change positive">+1.2%</span>
+            </span>            <span class="ticker-item">
+                <span class="ticker-symbol">LIEBHERR</span>
+                <span class="ticker-price">567.3</span>
+                <span class="ticker-change positive">+3.1%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">TADANO</span>
+                <span class="ticker-price">892.5</span>
+                <span class="ticker-change positive">+2.4%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">GROVE</span>
+                <span class="ticker-price">734.2</span>
+                <span class="ticker-change positive">+1.8%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">MANITOWOC</span>
+                <span class="ticker-price">456.8</span>
+                <span class="ticker-change negative">-0.9%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">LINK-BELT</span>
+                <span class="ticker-price">623.4</span>
+                <span class="ticker-change positive">+1.5%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">SANY</span>
+                <span class="ticker-price">789.1</span>
+                <span class="ticker-change positive">+2.7%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">XCMG</span>
+                <span class="ticker-price">467.8</span>
+                <span class="ticker-change negative">-0.6%</span>
+            </span>
+            <span class="ticker-item">
+                <span class="ticker-symbol">KOBELCO</span>
+                <span class="ticker-price">512.3</span>
+                <span class="ticker-change positive">+1.2%</span>
             </span>
         </div>
     </div>
@@ -1788,19 +1828,23 @@
                         <div class="tool-title">Unit Converter</div>
                     </div>
                     <div class="tool-content">
-                        <select class="tool-select" id="converterType" onchange="convertUnits()">
-                            <option value="tons">Tons → Kilograms</option>
-                            <option value="feet">Feet → Meters</option>
-                            <option value="pounds">Pounds → Kilograms</option>
-                            <option value="gallons">Gallons → Liters</option>
+                        <select class="tool-select" id="converterType" style="margin-bottom: 15px;">
+                            <option value="tons_kg">Tons → Kilograms</option>
+                            <option value="kg_tons">Kilograms → Tons</option>
+                            <option value="ft_m">Feet → Meters</option>
+                            <option value="m_ft">Meters → Feet</option>
+                            <option value="tons_lbs">Tons → Pounds</option>
+                            <option value="lbs_tons">Pounds → Tons</option>
                         </select>
-                        <div class="converter-input-wrapper">
-                            <input type="number" class="converter-input" placeholder="Enter value" id="converterInput" oninput="convertUnits()">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="number" class="converter-input" placeholder="Enter value" id="converterInput" style="flex: 1;">
+                            <span style="color: #00FF88; font-size: 1.5rem; font-weight: bold;">→</span>
+                            <input type="text" class="converter-input" placeholder="Result" id="converterResult" readonly style="flex: 1; background: #1A1A1A; color: #00FF88; font-weight: 600;">
                         </div>
-                        <div class="converter-arrow-center">→</div>
-                        <div class="converter-result-wrapper">
-                            <input type="text" class="converter-input" placeholder="Result" id="converterResult" readonly style="background: #1A1A1A; color: #00FF88; font-weight: 600;">
-                        </div>
+                        <button onclick="performConversion()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #00FF88 0%, #00CC6A 100%); color: #000; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                            <span style="font-size: 1.2rem;">🔄</span>
+                            <span>CONVERT</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -4484,7 +4528,130 @@
 
 
                     ${reportHTML}
-                </body>
+                
+    <!-- ============================================ -->
+    <!-- BACKEND INTEGRATION FOR QUICK TOOLS -->
+    <!-- ============================================ -->
+    <script>
+        // API endpoint
+        const API_BASE = window.location.origin + '/api';
+        
+        // Save Notes Function
+        async function saveNote() {
+            const noteText = document.getElementById('noteText')?.value;
+            if (!noteText || !noteText.trim()) {
+                alert('Please enter a note before saving');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_BASE}/notes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        content: noteText,
+                        timestamp: new Date().toISOString(),
+                        category: 'valuation_terminal'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Note saved successfully!');
+                    document.getElementById('noteText').value = '';
+                } else {
+                    alert('⚠️  Failed to save note. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error saving note:', error);
+                alert('❌ Error saving note: ' + error.message);
+            }
+        }
+        
+        // Schedule Event Function
+        async function scheduleEvent() {
+            const eventTitle = document.getElementById('eventTitle')?.value;
+            const eventDate = document.getElementById('eventDate')?.value;
+            const eventTime = document.getElementById('eventTime')?.value;
+            
+            if (!eventTitle || !eventDate || !eventTime) {
+                alert('Please fill in all event fields');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_BASE}/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: eventTitle,
+                        date: eventDate,
+                        time: eventTime,
+                        timestamp: new Date().toISOString(),
+                        source: 'valuation_terminal'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Event scheduled successfully!');
+                    document.getElementById('eventTitle').value = '';
+                    document.getElementById('eventDate').value = '';
+                    document.getElementById('eventTime').value = '';
+                } else {
+                    alert('⚠️  Failed to schedule event. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error scheduling event:', error);
+                alert('❌ Error scheduling event: ' + error.message);
+            }
+        }
+        
+        // Unit Converter Function
+        function performConversion() {
+            const value = parseFloat(document.getElementById('converterInput')?.value);
+            const conversionType = document.getElementById('converterType')?.value;
+            
+            if (isNaN(value) || !fromUnit || !toUnit) {
+                alert('Please enter a valid value and select units');
+                return;
+            }
+            
+            // Conversion logic
+            const conversions = {
+                'tons_kg': 1000,
+                'kg_tons': 0.001,
+                'tons_lbs': 2204.62,
+                'lbs_tons': 0.000453592,
+                'ft_m': 0.3048,
+                'm_ft': 3.28084,
+                'usd_eur': 0.92,  // Example rate
+                'eur_usd': 1.09   // Example rate
+            };
+            
+            const rate = conversions[conversionType];
+            
+            if (rate && !isNaN(value)) {
+                const result = value * rate;
+                document.getElementById('converterResult').value = result.toFixed(2);
+                console.log(`✅ Converted ${value} to ${result.toFixed(2)} (${conversionType})`);
+            } else if (isNaN(value)) {
+                alert('⚠️  Please enter a valid number');
+            } else {
+                alert('⚠️  Conversion not supported');
+            }
+        }
+        
+        console.log('✅ Backend integration for quick tools loaded');
+    </script>
+
+</body>
                 </html>
             `);
             reportWindow.document.close();
@@ -6021,6 +6188,129 @@ function updateRentalComparisonChart(bareRental, operatedRental, ownershipCost) 
 }
 
 </script>
+
+
+    <!-- ============================================ -->
+    <!-- BACKEND INTEGRATION FOR QUICK TOOLS -->
+    <!-- ============================================ -->
+    <script>
+        // API endpoint
+        const API_BASE = window.location.origin + '/api';
+        
+        // Save Notes Function
+        async function saveNote() {
+            const noteText = document.getElementById('noteText')?.value;
+            if (!noteText || !noteText.trim()) {
+                alert('Please enter a note before saving');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_BASE}/notes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        content: noteText,
+                        timestamp: new Date().toISOString(),
+                        category: 'valuation_terminal'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Note saved successfully!');
+                    document.getElementById('noteText').value = '';
+                } else {
+                    alert('⚠️  Failed to save note. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error saving note:', error);
+                alert('❌ Error saving note: ' + error.message);
+            }
+        }
+        
+        // Schedule Event Function
+        async function scheduleEvent() {
+            const eventTitle = document.getElementById('eventTitle')?.value;
+            const eventDate = document.getElementById('eventDate')?.value;
+            const eventTime = document.getElementById('eventTime')?.value;
+            
+            if (!eventTitle || !eventDate || !eventTime) {
+                alert('Please fill in all event fields');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_BASE}/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: eventTitle,
+                        date: eventDate,
+                        time: eventTime,
+                        timestamp: new Date().toISOString(),
+                        source: 'valuation_terminal'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Event scheduled successfully!');
+                    document.getElementById('eventTitle').value = '';
+                    document.getElementById('eventDate').value = '';
+                    document.getElementById('eventTime').value = '';
+                } else {
+                    alert('⚠️  Failed to schedule event. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error scheduling event:', error);
+                alert('❌ Error scheduling event: ' + error.message);
+            }
+        }
+        
+        // Unit Converter Function
+        function performConversion() {
+            const value = parseFloat(document.getElementById('converterInput')?.value);
+            const conversionType = document.getElementById('converterType')?.value;
+            
+            if (isNaN(value) || !fromUnit || !toUnit) {
+                alert('Please enter a valid value and select units');
+                return;
+            }
+            
+            // Conversion logic
+            const conversions = {
+                'tons_kg': 1000,
+                'kg_tons': 0.001,
+                'tons_lbs': 2204.62,
+                'lbs_tons': 0.000453592,
+                'ft_m': 0.3048,
+                'm_ft': 3.28084,
+                'usd_eur': 0.92,  // Example rate
+                'eur_usd': 1.09   // Example rate
+            };
+            
+            const rate = conversions[conversionType];
+            
+            if (rate && !isNaN(value)) {
+                const result = value * rate;
+                document.getElementById('converterResult').value = result.toFixed(2);
+                console.log(`✅ Converted ${value} to ${result.toFixed(2)} (${conversionType})`);
+            } else if (isNaN(value)) {
+                alert('⚠️  Please enter a valid number');
+            } else {
+                alert('⚠️  Conversion not supported');
+            }
+        }
+        
+        console.log('✅ Backend integration for quick tools loaded');
+    </script>
 
 </body>
 </html>
