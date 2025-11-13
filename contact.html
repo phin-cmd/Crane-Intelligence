@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Aggressive Cache Busting -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="cache-version" content="v2.4-20251024">
+    <title>Contact Us - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Cache bust: 2024-01-15 */
+        :root {
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 20px 16px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 16px;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .contact-form {
+                padding: 24px;
+            }
+            
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            .form-input,
+            .form-textarea,
+            .form-select {
+                font-size: 16px !important;
+                padding: 12px 16px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .form-submit {
+                width: 100% !important;
+                padding: 16px !important;
+                font-size: 16px !important;
+                min-height: 44px !important;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 12px;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .contact-grid {
+                gap: 24px;
+            }
+            
+            .contact-form {
+                padding: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-textarea,
+            .form-select {
+                font-size: 16px !important;
+                padding: 12px 16px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .form-submit {
+                width: 100% !important;
+                padding: 14px !important;
+                font-size: 14px !important;
+                min-height: 44px !important;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .contact-form {
+                padding: 20px;
+            }
+            
+            /* Footer Mobile Responsive Styles */
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                text-align: left !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+            }
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #00FF85;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #B0B0B0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .contact-form {
+            background: #1A1A1A;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #333333;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .form-textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 133, 0.3);
+        }
+
+        .contact-info {
+            background: #1A1A1A;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #333333;
+        }
+        
+        .contact-item {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 10px;
+            border-left: 4px solid #00FF85;
+        }
+        
+        .contact-item h3 {
+            color: #00FF85;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .contact-item p {
+            color: #E0E0E0;
+            margin: 5px 0;
+        }
+        
+        .contact-item a {
+            color: #00FF85;
+            text-decoration: none;
+        }
+
+        .contact-item a:hover {
+            text-decoration: underline;
+        }
+
+        .office-hours {
+            background: #1A1A1A;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #333333;
+            margin-bottom: 40px;
+        }
+        
+        .office-hours h3 {
+            color: #00FF85;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .hours-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .hours-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #333333;
+            color: #E0E0E0;
+        }
+
+        .hours-list li:last-child {
+            border-bottom: none;
+        }
+
+        .day {
+            font-weight: 600;
+        }
+
+        .time {
+            color: #00FF85;
+        }
+        
+        .map-container {
+            background: #1A1A1A;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #333333;
+            text-align: center;
+        }
+        
+        .map-placeholder {
+            background: #2A2A2A;
+            height: 300px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #B0B0B0;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Header styles are now handled by unified-header.css */
+
+        .nav-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+            grid-column: 2;
+        }
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.3s ease !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .nav-link:hover {
+            color: #00FF85 !important;
+        }
+
+        .nav-link.active {
+            color: #00FF85 !important;
+        }
+
+        .header-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 20px !important;
+            justify-self: end !important;
+            grid-column: 3;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+            border: 2px solid #00FF85;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #FFFFFF;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: #2A2A2A;
+            color: #00FF85;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333;
+            margin: 8px 0;
+        }
+
+        .auth-btn {
+            padding: 8px 16px !important;
+            border-radius: 4px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            border: 1px solid transparent !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .auth-btn.login {
+            color: #FFFFFF !important;
+            background: transparent !important;
+            border: 1px solid #404040 !important;
+        }
+
+        .auth-btn.login:hover {
+            background: #404040 !important;
+            border-color: #404040 !important;
+        }
+
+        .auth-btn.signup {
+            color: #000000 !important;
+            background: #FFD600 !important;
+            border: 1px solid #FFD600 !important;
+        }
+
+        .auth-btn.signup:hover {
+            background: #FFE066 !important;
+            border-color: #FFE066 !important;
+        }
+
+        /* Mobile menu styles removed */
+
+        /* Mobile menu styles removed */
+        
+        /* Mobile menu styles removed */
+
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-btn.login {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .auth-btn.signup {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000;
+        }
+
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF !important;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0 !important;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #404040;
+            margin: 8px 0;
+        }
+
+        /* Market Ticker */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== FOOTER STYLES - EXACT MATCH TO HOMEPAGE ===== */
+        .footer {
+            background: #0F0F0F !important;
+            color: #FFFFFF !important;
+            padding: 80px 0 30px !important;
+            margin-top: auto !important;
+            border-top: 1px solid #404040 !important;
+        }
+
+        .footer-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--spacing-xl) !important;
+        }
+
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr 1fr !important;
+            gap: 48px !important;
+            margin-bottom: 32px !important;
+        }
+
+        .footer-brand {
+            display: flex !important;
+            align-items: center !important;
+            margin-bottom: 20px !important;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px !important;
+            color: #B0B0B0 !important;
+            line-height: 1.5 !important;
+            max-width: 320px !important;
+        }
+
+        .footer-title {
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #FFFFFF !important;
+            margin-bottom: 20px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        .footer-links {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px !important;
+        }
+
+        .footer-links a {
+            color: #B0B0B0 !important;
+            text-decoration: none !important;
+            font-size: 14px !important;
+            transition: color 0.3s ease !important;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85 !important;
+        }
+
+        .footer-newsletter-desc {
+            font-size: 14px !important;
+            color: #B0B0B0 !important;
+            margin-bottom: 16px !important;
+        }
+
+        .newsletter {
+            display: flex !important;
+            gap: 8px !important;
+        }
+
+        .newsletter input {
+            flex: 1 !important;
+            padding: 8px 12px !important;
+            background: #1A1A1A !important;
+            border: 1px solid #404040 !important;
+            border-radius: 4px !important;
+            color: #FFFFFF !important;
+            font-size: 14px !important;
+        }
+
+        .newsletter button {
+            padding: 8px 16px !important;
+            background: #00FF85 !important;
+            color: #000000 !important;
+            border: none !important;
+            border-radius: 4px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background 0.3s ease !important;
+        }
+
+        .newsletter button:hover {
+            background: #00CC6A !important;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #404040 !important;
+            padding-top: 20px !important;
+            text-align: center !important;
+        }
+
+        .footer-bottom p {
+            font-size: 12px !important;
+            color: #808080 !important;
+            margin: 0 !important;
+        }
+        
+        
+        /* ===== MARKET TICKER RESPONSIVE STYLES ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+        
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            overflow: hidden !important;
+        }
+        
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+        
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .ticker-item {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+        
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .ticker-change.up {
+            color: #00FF85;
+        }
+        
+        .ticker-change.down {
+            color: #FF4444;
+        }
+        
+        /* ===== FOOTER RESPONSIVE STYLES ===== */
+        .footer {
+            background: #0F0F0F !important;
+            border-top: 1px solid #404040 !important;
+            padding: 60px 0 20px !important;
+            margin-top: auto !important;
+        }
+        
+        .footer-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+        }
+        
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr !important;
+            gap: 40px !important;
+            margin-bottom: 40px !important;
+        }
+        
+        .footer-brand {
+            margin-bottom: 20px !important;
+        }
+        
+        .footer-logo-svg {
+            height: 40px !important;
+            width: auto !important;
+        }
+        
+        .footer-desc {
+            color: #B0B0B0 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            margin: 0 !important;
+        }
+        
+        .footer-title {
+            color: #FFFFFF !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            margin-bottom: 20px !important;
+        }
+        
+        .footer-links {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px !important;
+        }
+        
+        .footer-links a {
+            color: #B0B0B0 !important;
+            text-decoration: none !important;
+            font-size: 14px !important;
+            transition: color 0.2s ease !important;
+        }
+        
+        .footer-links a:hover {
+            color: #00FF85 !important;
+        }
+        
+        .newsletter {
+            display: flex !important;
+            gap: 8px !important;
+            margin-top: 16px !important;
+        }
+        
+        .newsletter input {
+            flex: 1 !important;
+            padding: 12px 16px !important;
+            background: #1A1A1A !important;
+            border: 1px solid #404040 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            font-size: 14px !important;
+        }
+        
+        .newsletter button {
+            padding: 12px 20px !important;
+            background: linear-gradient(135deg, #00FF85, #00CC6A) !important;
+            color: #000 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .newsletter button:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359) !important;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #404040 !important;
+            padding-top: 20px !important;
+            text-align: center !important;
+        }
+        
+        .footer-bottom p {
+            color: #B0B0B0 !important;
+            font-size: 12px !important;
+            margin: 0 !important;
+        }
+        
+        /* ===== MOBILE RESPONSIVE OVERRIDES - EXACT MATCH TO HOMEPAGE ===== */
+        @media (max-width: 768px) {
+            .header-container {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 0 16px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            /* Mobile menu toggle removed */
+            
+            .auth-buttons {
+                display: flex !important;
+                gap: 12px !important;
+                margin-left: auto !important;
+            }
+            
+            .auth-btn {
+                padding: 10px 16px !important;
+                font-size: 14px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            .ticker-container {
+                padding: 0 16px !important;
+            }
+            
+            .ticker-content {
+                gap: 20px !important;
+            }
+            
+            .ticker-item {
+                padding: 6px 12px !important;
+            }
+            
+            .ticker-symbol {
+                font-size: 12px !important;
+            }
+            
+            .ticker-price {
+                font-size: 12px !important;
+            }
+            
+            .ticker-change {
+                font-size: 12px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 30px !important;
+                text-align: center !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .footer-links {
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 16px !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .footer-links a {
+                font-size: 14px !important;
+                padding: 8px 0 !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .newsletter input {
+                margin-bottom: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .ticker-container {
+                padding: 0 12px !important;
+            }
+            
+            .ticker-content {
+                gap: 16px !important;
+            }
+            
+            .ticker-item {
+                padding: 4px 8px !important;
+            }
+            
+            .ticker-symbol {
+                font-size: 10px !important;
+            }
+            
+            .ticker-price {
+                font-size: 10px !important;
+            }
+            
+            .ticker-change {
+                font-size: 10px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-grid {
+                gap: 20px !important;
+            }
+            
+            .footer-title {
+                font-size: 15px !important;
+                margin-bottom: 14px !important;
+            }
+            
+            .footer-link {
+                font-size: 13px !important;
+                padding: 6px 0 !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=20">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <script>
+        // Authentication and User Management
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    updateUserInterface(null); // Show auth buttons for guest users
+                }
+            } else {
+                updateUserInterface(null); // Show auth buttons for guest users
+            }
+        });
+        
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'none';
+                    userProfile.style.display = 'flex';
+                    authButtons.classList.remove('visible');
+                    userProfile.classList.add('visible');
+                }
+                
+                // Update user information
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                // Fetch subscription tier from API
+                if (userRole) {
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        fetch('https://craneintelligence.tech/api/v1/auth/subscription-tier', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const tierNames = {
+                                'basic': 'Basic User',
+                                'starter': 'Starter User',
+                                'professional': 'Professional User',
+                                'enterprise': 'Enterprise User'
+                            };
+                            const tierName = tierNames[data.tier] || 'Basic User';
+                            userRole.textContent = tierName;
+                            console.log('Contact - Updated subscription tier display:', tierName);
+                        })
+                        .catch(error => {
+                            console.error('Contact - Error fetching subscription tier:', error);
+                            userRole.textContent = 'Basic User';
+                        });
+                    } else {
+                        userRole.textContent = 'Basic User';
+                    }
+                }
+            } else {
+                // Show auth buttons for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'flex';
+                    userProfile.style.display = 'none';
+                    authButtons.classList.add('visible');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.classList.add('show');
+                    dropdown.style.display = 'block';
+                }
+                console.log('Dropdown toggled:', dropdown.classList.contains('show'));
+            } else {
+                console.log('Dropdown element not found');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'homepage.html';
+        }
+        
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (mobileMenu && mobileMenuToggle) {
+                mobileMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (mobileMenu && mobileMenuToggle && 
+                !mobileMenu.contains(e.target) && 
+                !mobileMenuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+            }
+        });
+
+        // Login/Signup Modal Functions
+        function openLoginModal() {
+            window.location.href = 'homepage.html#login';
+        }
+
+        function openSignupModal() {
+            window.location.href = 'homepage.html#signup';
+        }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="contact.html" class="nav-link active">CONTACT</a>
+            </nav>
+            
+            <div class="header-right">
+                <div class="auth-buttons" id="authButtons">
+                    <button class="auth-btn login" onclick="openLoginModal()">Login</button>
+                    <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
+                </div>
+                
+                <div class="user-profile" id="userProfile">
+                    <div class="user-avatar" onclick="toggleDropdown()">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-info" onclick="toggleDropdown()">
+                        <div class="user-name" id="userDisplayName">User</div>
+                        <div class="user-role" id="userRole">Premium User</div>
+                    </div>
+                    <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="dashboard.html" class="dropdown-item">
+                            <span class="dropdown-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="valuation_terminal.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚡</span>
+                            Valuation Terminal
+                        </a>
+                        <a href="account-settings.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account Settings
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <span class="dropdown-icon">🚪</span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+            </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">234.5</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">567.3</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">Contact Us</h1>
+            <p class="page-subtitle">Get in touch with our team for support, questions, or partnership opportunities</p>
+                </div>
+                
+        <div class="contact-grid">
+                    <div class="contact-form">
+                <h2 style="color: #00FF85; margin-bottom: 30px; font-size: 1.8rem;">Send us a Message</h2>
+                        <form id="contactForm">
+                            <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" id="company" name="company" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select id="subject" name="subject" class="form-select" required>
+                                    <option value="">Select a subject</option>
+                            <option value="general">General Inquiry</option>
+                                    <option value="support">Technical Support</option>
+                            <option value="sales">Sales Question</option>
+                            <option value="partnership">Partnership</option>
+                            <option value="feedback">Feedback</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" name="message" class="form-textarea" placeholder="Tell us how we can help you..." required></textarea>
+                            </div>
+                            
+                    <button type="submit" class="form-submit">Send Message</button>
+                        </form>
+                    </div>
+                    
+                    <div class="contact-info">
+                <h2 style="color: #00FF85; margin-bottom: 30px; font-size: 1.8rem;">Get in Touch</h2>
+                
+                <div class="contact-item">
+                    <h3>📧 Email</h3>
+                            <p><a href="mailto:support@craneintelligence.com">support@craneintelligence.com</a></p>
+                    <p><a href="mailto:sales@craneintelligence.com">sales@craneintelligence.com</a></p>
+                        </div>
+                        
+                <div class="contact-item">
+                    <h3>📞 Phone</h3>
+                    <p><a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a></p>
+                    <p>Mon-Fri: 9 AM - 6 PM EST</p>
+                        </div>
+                        
+                <div class="contact-item">
+                    <h3>💬 Live Chat</h3>
+                    <p>Available 24/7 on our platform</p>
+                    <p>Average response time: 2 minutes</p>
+                        </div>
+                        
+                <div class="contact-item">
+                    <h3>🏢 Address</h3>
+                    <p>CRANE INTELLIGENCE HQ</p>
+                    <p>123 Technology Drive</p>
+                    <p>San Francisco, CA 94105</p>
+                            </div>
+                        </div>
+                    </div>
+        
+        <div class="office-hours">
+            <h3>Office Hours</h3>
+                        <ul class="hours-list">
+                <li>
+                    <span class="day">Monday - Friday</span>
+                    <span class="time">9:00 AM - 6:00 PM EST</span>
+                </li>
+                <li>
+                    <span class="day">Saturday</span>
+                    <span class="time">10:00 AM - 4:00 PM EST</span>
+                </li>
+                <li>
+                    <span class="day">Sunday</span>
+                    <span class="time">Closed</span>
+                </li>
+                <li>
+                    <span class="day">Emergency Support</span>
+                    <span class="time">24/7 Available</span>
+                </li>
+                        </ul>
+                    </div>
+                    
+        <div class="map-container">
+            <h3 style="color: #00FF85; margin-bottom: 20px;">Visit Our Office</h3>
+            <div class="map-placeholder">
+                📍 Interactive Map Coming Soon<br>
+                <small>123 Technology Drive, San Francisco, CA 94105</small>
+                    </div>
+            <p style="color: #B0B0B0;">We're located in the heart of San Francisco's tech district, easily accessible by public transportation and car.</p>
+                    </div>
+                </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Show success message
+            alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="security.html">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p class="footer-newsletter-desc">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

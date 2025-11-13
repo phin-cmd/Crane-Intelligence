@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Crane Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 50px 40px;
+            background: rgba(26, 31, 46, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 255, 133, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 255, 133, 0.1);
+            border-top-color: #00FF85;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .status-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #00FF85;
+            color: #0a0e1a;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 133, 0.3);
+        }
+        .error {
+            color: #ff4444;
+        }
+        .success {
+            color: #00FF85;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CRANE INTELLIGENCE</div>
+        
+        <!-- Loading State -->
+        <div id="loading-state">
+            <div class="spinner"></div>
+            <h1>Verifying Your Email</h1>
+            <p>Please wait while we verify your email address...</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" class="hidden">
+            <div class="status-icon">✅</div>
+            <h1 class="success">Email Verified Successfully!</h1>
+            <p>Your email has been verified. You can now log in to your Crane Intelligence account and access all features.</p>
+            <a href="/homepage.html" class="button">Go to Login</a>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden">
+            <div class="status-icon">❌</div>
+            <h1 class="error">Verification Failed</h1>
+            <p id="error-message">Invalid verification link. Please check your email and try again.</p>
+            <a href="/homepage.html" class="button">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        console.log('Verification token from URL:', token);
+
+        // Verify email
+        async function verifyEmail() {
+            if (!token) {
+                showError('Invalid verification link. Please check your email and try again.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const data = await response.json();
+                console.log('Verification response:', data);
+
+                if (response.ok && data.success) {
+                    showSuccess();
+                    // Redirect to login after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '/homepage.html';
+                    }, 3000);
+                } else {
+                    showError(data.error || data.message || 'Verification failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('An error occurred during verification. Please try again later.');
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('success-state').classList.remove('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('success-state').classList.add('hidden');
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        // Start verification when page loads
+        verifyEmail();
+    </script>
+</body>
+</html>

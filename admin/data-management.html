@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <style>
+        /* Data Management Specific Styles */
+        .data-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .data-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #404040;
+            padding-bottom: 16px;
+        }
+
+        .data-tab {
+            background: transparent;
+            border: 1px solid #404040;
+            color: #B0B0B0;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .data-tab:hover {
+            background: #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        .data-tab.active {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        .data-panel {
+            display: none;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .data-panel.active {
+            display: block;
+        }
+
+        .data-panel h3 {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #404040;
+            padding-bottom: 16px;
+        }
+
+        .data-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: #121212;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group.checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #00FF85;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-section {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-section h4 {
+            color: #00FF85;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h4::before {
+            content: "●";
+            color: #00FF85;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #404040;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+        }
+
+        .btn-danger {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        .btn-warning {
+            background: #FFD600;
+            color: #0F0F0F;
+        }
+
+        .btn-warning:hover {
+            background: #E6C200;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-indicator.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-indicator.inactive {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .status-indicator.warning {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .status-indicator::before {
+            content: "●";
+            font-size: 8px;
+        }
+
+        .help-text {
+            color: #B0B0B0;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .required {
+            color: #FF4444;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+
+        .data-table th {
+            background: #121212;
+            color: #B0B0B0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .data-table td {
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #121212;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00FF85;
+            transition: width 0.3s ease;
+        }
+
+        .file-upload {
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #00FF85;
+        }
+
+        .file-upload.dragover {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #121212;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: #B0B0B0;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .alert-info {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid #007BFF;
+            color: #007BFF;
+        }
+
+        .alert-warning {
+            background: rgba(255, 214, 0, 0.1);
+            border: 1px solid #FFD600;
+            color: #FFD600;
+        }
+
+        .alert-danger {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 133, 0.1);
+            border: 1px solid #00FF85;
+            color: #00FF85;
+        }
+
+        @media (max-width: 768px) {
+            .data-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-nav {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                    <span class="logo-text">Crane Intelligence</span>
+                </div>
+                <h1 class="page-title">Data Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">Admin User</span>
+                    <div class="user-avatar">AU</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="users.html" class="nav-link">Users</a></li>
+                <li><a href="content.html" class="nav-link">Content</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="settings.html" class="nav-link">Settings</a></li>
+                <li><a href="security.html" class="nav-link">Security</a></li>
+                <li><a href="data.html" class="nav-link active">Data</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="data-container">
+                <!-- Data Overview Stats -->
+                <div class="data-stats">
+                    <div class="stat-card">
+                        <h4>1,247,892</h4>
+                        <p>Total Records</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>2.4 TB</h4>
+                        <p>Storage Used</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>+12.5%</h4>
+                        <p>Data Growth</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>2 min ago</h4>
+                        <p>Last Sync</p>
+                    </div>
+                </div>
+
+                <!-- Data Management Navigation -->
+                <div class="data-nav">
+                    <button class="data-tab active" data-tab="overview">Overview</button>
+                    <button class="data-tab" data-tab="import">Data Import</button>
+                    <button class="data-tab" data-tab="export">Data Export</button>
+                    <button class="data-tab" data-tab="sources">Data Sources</button>
+                    <button class="data-tab" data-tab="cleanup">Data Cleanup</button>
+                    <button class="data-tab" data-tab="backup">Backup & Restore</button>
+                </div>
+
+                <!-- Overview Panel -->
+                <div class="data-panel active" id="overview-panel">
+                    <h3>Data Overview</h3>
+                    <div class="data-form">
+                        <div class="form-section">
+                            <h4>Database Status</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Primary Database</label>
+                                    <div class="status-indicator active">Connected</div>
+                                    <div class="help-text">PostgreSQL - Main application data</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Analytics Database</label>
+                                    <div class="status-indicator active">Connected</div>
+                                    <div class="help-text">MongoDB - Analytics and reporting data</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Cache Status</label>
+                                    <div class="status-indicator active">Active</div>
+                                    <div class="help-text">Redis cache is running</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Search Index</label>
+                                    <div class="status-indicator warning">Rebuilding</div>
+                                    <div class="help-text">Elasticsearch index is being rebuilt</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Storage Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Database Size</label>
+                                    <div>1.8 TB</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                    <div class="help-text">75% of allocated space used</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Backup Size</label>
+                                    <div>2.1 TB</div>
+                                    <div class="help-text">Total backup storage used</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Log Files</label>
+                                    <div>156 MB</div>
+                                    <div class="help-text">Current log file size</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Temp Files</label>
+                                    <div>23 MB</div>
+                                    <div class="help-text">Temporary files size</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Recent Activity</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Records</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2 min ago</td>
+                                        <td>Data Sync</td>
+                                        <td>1,247</td>
+                                        <td><span class="status-indicator active">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>15 min ago</td>
+                                        <td>Backup Created</td>
+                                        <td>1,247,892</td>
+                                        <td><span class="status-indicator active">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 hour ago</td>
+                                        <td>Data Import</td>
+                                        <td>5,432</td>
+                                        <td><span class="status-indicator active">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2 hours ago</td>
+                                        <td>Index Rebuild</td>
+                                        <td>1,247,892</td>
+                                        <td><span class="status-indicator warning">In Progress</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Import Panel -->
+                <div class="data-panel" id="import-panel">
+                    <h3>Data Import</h3>
+                    <div class="data-form">
+                        <div class="form-section">
+                            <h4>File Upload</h4>
+                            <div class="file-upload" id="fileUpload">
+                                <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                                <p>Drag and drop files here or click to browse</p>
+                                <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Supported formats: CSV, JSON, XLSX (Max 100MB)</p>
+                                <input type="file" id="fileInput" multiple accept=".csv,.json,.xlsx" style="display: none;">
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Import Settings</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="importType">Import Type <span class="required">*</span></label>
+                                    <select id="importType" name="import_type" required>
+                                        <option value="replace">Replace existing data</option>
+                                        <option value="append">Append to existing data</option>
+                                        <option value="update">Update existing records</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dataType">Data Type <span class="required">*</span></label>
+                                    <select id="dataType" name="data_type" required>
+                                        <option value="users">Users</option>
+                                        <option value="equipment">Equipment</option>
+                                        <option value="analytics">Analytics</option>
+                                        <option value="reports">Reports</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="validateData" name="validate_data" checked>
+                                <label for="validateData">Validate data before import</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="createBackup" name="create_backup" checked>
+                                <label for="createBackup">Create backup before import</label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Field Mapping</h4>
+                            <div class="form-group">
+                                <label for="mappingFile">Mapping Configuration</label>
+                                <input type="file" id="mappingFile" accept=".json">
+                                <div class="help-text">Upload a JSON file with field mappings (optional)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Export Panel -->
+                <div class="data-panel" id="export-panel">
+                    <h3>Data Export</h3>
+                    <div class="data-form">
+                        <div class="form-section">
+                            <h4>Export Configuration</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="exportDataType">Data Type <span class="required">*</span></label>
+                                    <select id="exportDataType" name="export_data_type" required>
+                                        <option value="all">All Data</option>
+                                        <option value="users">Users Only</option>
+                                        <option value="equipment">Equipment Only</option>
+                                        <option value="analytics">Analytics Only</option>
+                                        <option value="reports">Reports Only</option>
+                                        <option value="custom">Custom Query</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exportFormat">Format <span class="required">*</span></label>
+                                    <select id="exportFormat" name="export_format" required>
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                        <option value="xlsx">Excel</option>
+                                        <option value="xml">XML</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dateFrom">Date From</label>
+                                    <input type="date" id="dateFrom" name="date_from">
+                                </div>
+                                <div class="form-group">
+                                    <label for="dateTo">Date To</label>
+                                    <input type="date" id="dateTo" name="date_to">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Export Options</h4>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="includeMetadata" name="include_metadata" checked>
+                                <label for="includeMetadata">Include metadata</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="compressExport" name="compress_export">
+                                <label for="compressExport">Compress export file</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="emailExport" name="email_export">
+                                <label for="emailExport">Email export when ready</label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Custom Query</h4>
+                            <div class="form-group">
+                                <label for="customQuery">SQL Query</label>
+                                <textarea id="customQuery" name="custom_query" rows="4" placeholder="SELECT * FROM users WHERE created_at > '2024-01-01'"></textarea>
+                                <div class="help-text">Enter a custom SQL query for data export (only for advanced users)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Sources Panel -->
+                <div class="data-panel" id="sources-panel">
+                    <h3>Data Sources</h3>
+                    <div class="data-form">
+                        <div class="form-section">
+                            <h4>Database Connections</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Host</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Primary Database</td>
+                                        <td>PostgreSQL</td>
+                                        <td>db-primary.craneintelligence.com</td>
+                                        <td><span class="status-indicator active">Connected</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Test</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Configure</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Analytics Database</td>
+                                        <td>MongoDB</td>
+                                        <td>analytics-db.craneintelligence.com</td>
+                                        <td><span class="status-indicator active">Connected</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Test</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Configure</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cache Database</td>
+                                        <td>Redis</td>
+                                        <td>cache.craneintelligence.com</td>
+                                        <td><span class="status-indicator active">Connected</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Test</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Configure</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>External APIs</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Endpoint</th>
+                                        <th>Status</th>
+                                        <th>Last Sync</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Market Data API</td>
+                                        <td>api.marketdata.com</td>
+                                        <td><span class="status-indicator active">Active</span></td>
+                                        <td>2 min ago</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Sync</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Configure</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Equipment Registry</td>
+                                        <td>registry.equipment.com</td>
+                                        <td><span class="status-indicator warning">Limited</span></td>
+                                        <td>1 hour ago</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Sync</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Configure</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Add New Data Source</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newSourceName">Source Name <span class="required">*</span></label>
+                                    <input type="text" id="newSourceName" name="new_source_name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newSourceType">Source Type <span class="required">*</span></label>
+                                    <select id="newSourceType" name="new_source_type" required>
+                                        <option value="database">Database</option>
+                                        <option value="api">API</option>
+                                        <option value="file">File Upload</option>
+                                        <option value="webhook">Webhook</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="newSourceUrl">Connection URL/Endpoint</label>
+                                <input type="text" id="newSourceUrl" name="new_source_url" placeholder="https://api.example.com/data">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Cleanup Panel -->
+                <div class="data-panel" id="cleanup-panel">
+                    <h3>Data Cleanup</h3>
+                    <div class="data-form">
+                        <div class="alert alert-info">
+                            <strong>Info:</strong> Data cleanup operations are irreversible. Please review all options carefully before proceeding.
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Duplicate Detection</h4>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="removeDuplicates" name="remove_duplicates">
+                                <label for="removeDuplicates">Remove duplicate records</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="duplicateCriteria">Duplicate Criteria</label>
+                                <select id="duplicateCriteria" name="duplicate_criteria">
+                                    <option value="email">Email address</option>
+                                    <option value="phone">Phone number</option>
+                                    <option value="name_email">Name + Email</option>
+                                    <option value="custom">Custom criteria</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Data Validation</h4>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="validateEmails" name="validate_emails" checked>
+                                <label for="validateEmails">Validate email addresses</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="validatePhones" name="validate_phones" checked>
+                                <label for="validatePhones">Validate phone numbers</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="removeInvalid" name="remove_invalid">
+                                <label for="removeInvalid">Remove invalid records</label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Data Archiving</h4>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="archiveOldRecords" name="archive_old_records">
+                                <label for="archiveOldRecords">Archive records older than specified date</label>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="archiveDate">Archive Date</label>
+                                    <input type="date" id="archiveDate" name="archive_date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="archiveTable">Table to Archive</label>
+                                    <select id="archiveTable" name="archive_table">
+                                        <option value="users">Users</option>
+                                        <option value="equipment">Equipment</option>
+                                        <option value="analytics">Analytics</option>
+                                        <option value="logs">System Logs</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Data Optimization</h4>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="optimizeIndexes" name="optimize_indexes" checked>
+                                <label for="optimizeIndexes">Optimize database indexes</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="vacuumDatabase" name="vacuum_database" checked>
+                                <label for="vacuumDatabase">Vacuum database tables</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="updateStatistics" name="update_statistics" checked>
+                                <label for="updateStatistics">Update query statistics</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup & Restore Panel -->
+                <div class="data-panel" id="backup-panel">
+                    <h3>Backup & Restore</h3>
+                    <div class="data-form">
+                        <div class="form-section">
+                            <h4>Create Backup</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="backupName">Backup Name <span class="required">*</span></label>
+                                    <input type="text" id="backupName" name="backup_name" required placeholder="backup_2024_09_17">
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupType">Backup Type <span class="required">*</span></label>
+                                    <select id="backupType" name="backup_type" required>
+                                        <option value="full">Full Backup</option>
+                                        <option value="incremental">Incremental Backup</option>
+                                        <option value="differential">Differential Backup</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="compressBackup" name="compress_backup" checked>
+                                <label for="compressBackup">Compress backup file</label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="encryptBackup" name="encrypt_backup">
+                                <label for="encryptBackup">Encrypt backup file</label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Existing Backups</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th>Created</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>backup_2024_09_16</td>
+                                        <td>Full</td>
+                                        <td>2.1 TB</td>
+                                        <td>Yesterday</td>
+                                        <td><span class="status-indicator active">Complete</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Download</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Restore</button>
+                                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>backup_2024_09_15</td>
+                                        <td>Incremental</td>
+                                        <td>156 MB</td>
+                                        <td>2 days ago</td>
+                                        <td><span class="status-indicator active">Complete</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Download</button>
+                                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;">Restore</button>
+                                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Restore from Backup</h4>
+                            <div class="form-group">
+                                <label for="restoreBackup">Select Backup to Restore</label>
+                                <select id="restoreBackup" name="restore_backup">
+                                    <option value="">Choose a backup...</option>
+                                    <option value="backup_2024_09_16">backup_2024_09_16 (Full - 2.1 TB)</option>
+                                    <option value="backup_2024_09_15">backup_2024_09_15 (Incremental - 156 MB)</option>
+                                </select>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="confirmRestore" name="confirm_restore">
+                                <label for="confirmRestore">I understand this will overwrite current data</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="executeDataOperation()">Execute Operation</button>
+                    <button class="btn btn-secondary" onclick="previewOperation()">Preview Changes</button>
+                    <button class="btn btn-warning" onclick="scheduleOperation()">Schedule Operation</button>
+                    <button class="btn btn-danger" onclick="cancelOperation()">Cancel</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Data Management Tab Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.data-tab');
+            const panels = document.querySelectorAll('.data-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and panels
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding panel
+                    this.classList.add('active');
+                    document.getElementById(targetTab + '-panel').classList.add('active');
+                });
+            });
+
+            // File upload functionality
+            const fileUpload = document.getElementById('fileUpload');
+            const fileInput = document.getElementById('fileInput');
+
+            fileUpload.addEventListener('click', () => fileInput.click());
+            
+            fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUpload.classList.add('dragover');
+            });
+            
+            fileUpload.addEventListener('dragleave', () => {
+                fileUpload.classList.remove('dragover');
+            });
+            
+            fileUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUpload.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                fileInput.files = files;
+                handleFileUpload(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFileUpload(e.target.files);
+            });
+        });
+
+        function handleFileUpload(files) {
+            console.log('Files selected:', files.length);
+            // Handle file upload logic here
+        }
+
+        function executeDataOperation() {
+            console.log('Executing data operation...');
+            // Implement data operation execution
+        }
+
+        function previewOperation() {
+            console.log('Previewing operation...');
+            // Implement operation preview
+        }
+
+        function scheduleOperation() {
+            console.log('Scheduling operation...');
+            // Implement operation scheduling
+        }
+
+        function cancelOperation() {
+            console.log('Cancelling operation...');
+            // Implement operation cancellation
+        }
+    </script>
+</body>
+</html>

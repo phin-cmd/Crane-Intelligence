@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=3">
+    <link rel="stylesheet" href="css/performance.css?v=1">
+    <style>
+        /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            --transition-slow: 0.35s ease;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 20px 16px !important;
+            }
+            
+            .page-title {
+                font-size: 2rem !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem !important;
+            }
+            
+            .content-section {
+                margin-bottom: 40px !important;
+            }
+            
+            .section-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .section-content {
+                font-size: 0.9rem !important;
+                line-height: 1.5 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .last-updated {
+                padding: 16px !important;
+                font-size: 0.85rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px 12px !important;
+            }
+            
+            .page-title {
+                font-size: 1.5rem !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem !important;
+            }
+            
+            .content-section {
+                margin-bottom: 32px !important;
+            }
+            
+            .section-title {
+                font-size: 1.25rem !important;
+            }
+            
+            .section-content {
+                font-size: 0.85rem !important;
+                line-height: 1.4 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                hyphens: auto !important;
+            }
+            
+            .last-updated {
+                padding: 12px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            /* Footer Mobile Responsive Styles */
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                font-size: 12px !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+                text-align: left !important;
+            }
+            
+            .footer-links {
+                text-align: left !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                text-align: left !important;
+                display: block !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+            }
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #00FF85;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #B0B0B0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .last-updated {
+            background: #1A1A1A;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333333;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .last-updated strong {
+            color: #00FF85;
+        }
+        
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00FF85;
+            padding-bottom: 10px;
+        }
+        
+        .section-content {
+            font-size: 1rem;
+            color: #E0E0E0;
+            margin-bottom: 20px;
+        }
+        
+        .section-content ul {
+            margin-left: 30px;
+            margin-top: 15px;
+        }
+        
+        .section-content li {
+            margin-bottom: 10px;
+        }
+        
+        .highlight-box {
+            background: #1A1A1A;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #333333;
+            margin: 20px 0;
+            border-left: 4px solid #00FF85;
+        }
+        
+        .highlight-box strong {
+            color: #00FF85;
+        }
+        
+        .warning-box {
+            background: #2A1A1A;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #FF4444;
+            margin: 20px 0;
+            border-left: 4px solid #FF4444;
+        }
+        
+        .warning-box strong {
+            color: #FF4444;
+        }
+        
+        .contact-info {
+            background: #1A1A1A;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #333333;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .contact-info h3 {
+            color: #00FF85;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info a {
+            color: #00FF85;
+            text-decoration: none;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ===== HEADER - EXACT MATCH TO HOMEPAGE ===== */
+
+        .user-profile.visible {
+            display: flex !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+            border: 2px solid #00FF85;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #FFFFFF;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1A1A1A;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: #2A2A2A;
+            color: #00FF85;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333;
+            margin: 8px 0;
+        }
+
+        .auth-btn {
+            padding: 8px 16px !important;
+            border-radius: 4px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            border: 1px solid transparent !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .auth-btn.login {
+            color: #FFFFFF !important;
+            background: transparent !important;
+            border: 1px solid #404040 !important;
+        }
+
+        .auth-btn.login:hover {
+            background: #404040 !important;
+            border-color: #404040 !important;
+        }
+
+        .auth-btn.signup {
+            color: #000000 !important;
+            background: #00FF85 !important;
+            border: 1px solid #00FF85 !important;
+        }
+
+        .auth-btn.signup:hover {
+            background: #00CC6A !important;
+            border-color: #00CC6A !important;
+        }
+
+        
+
+
+        .mobile-auth-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF !important;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0 !important;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0 !important;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1001;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #404040;
+            margin: 8px 0;
+        }
+
+        /* Market Ticker */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .newsletter button:hover {
+            background: #00E673;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+        
+        /* ===== HEADER - EXACT MATCH TO HOMEPAGE ===== */
+        body .header {
+            background: #000000 !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: var(--space-md) 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        body .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            align-items: center !important;
+            height: 80px !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            justify-self: start !important;
+            grid-column: 1;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+            grid-column: 2;
+        }
+        
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.2s !important;
+        }
+
+        .nav-link:hover {
+            color: #FFD600 !important;
+        }
+
+        .user-info {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            justify-self: end !important;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .auth-buttons.hidden {
+            display: none !important;
+        }
+
+        .auth-btn {
+            padding: 8px 16px !important;
+            border-radius: 4px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            transition: all 0.2s !important;
+        }
+
+        .auth-btn.login {
+            color: #FFFFFF !important;
+            border: 1px solid #404040 !important;
+            background: transparent !important;
+        }
+
+        .auth-btn.login:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: #FFFFFF !important;
+        }
+
+        body .auth-btn.signup {
+            color: #000000 !important;
+            background: #FFD600 !important;
+            border: 1px solid #FFD600 !important;
+        }
+
+        body .auth-btn.signup:hover {
+            background: #FFE066 !important;
+            border-color: #FFE066 !important;
+        }
+
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+            z-index: 100;
+        }
+
+        .user-profile.visible {
+            display: flex !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+
+
+        body .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #000000 !important;
+            border-bottom: 1px solid #404040;
+            padding: 20px;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 999;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* ===== RESPONSIVE HEADER STYLES ===== */
+        @media (max-width: 768px) {
+            .header-container {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            
+            .auth-buttons {
+                display: none;
+            }
+        }
+        
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+        
+        
+        
+        /* ===== MARKET TICKER RESPONSIVE STYLES ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+        
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            overflow: hidden !important;
+        }
+        
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+        
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .ticker-item {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+        
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .ticker-change.up {
+            color: #00FF85;
+        }
+        
+        .ticker-change.down {
+            color: #FF4444;
+        }
+        
+        /* ===== FOOTER RESPONSIVE STYLES ===== */
+        .footer {
+            background: #0F0F0F !important;
+            border-top: 1px solid #404040 !important;
+            padding: 60px 0 20px !important;
+            margin-top: auto !important;
+        }
+        
+        .footer-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+        }
+        
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr !important;
+            gap: 40px !important;
+            margin-bottom: 40px !important;
+        }
+        
+        .footer-brand {
+            margin-bottom: 20px !important;
+        }
+        
+        .footer-logo-svg {
+            height: 40px !important;
+            width: auto !important;
+        }
+        
+        .footer-desc {
+            color: #B0B0B0 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            margin: 0 !important;
+        }
+        
+        .footer-title {
+            color: #FFFFFF !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            margin-bottom: 20px !important;
+        }
+        
+        .footer-links {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px !important;
+        }
+        
+        .footer-links a {
+            color: #B0B0B0 !important;
+            text-decoration: none !important;
+            font-size: 14px !important;
+            transition: color 0.2s ease !important;
+        }
+        
+        .footer-links a:hover {
+            color: #00FF85 !important;
+        }
+        
+        .newsletter {
+            display: flex !important;
+            gap: 8px !important;
+            margin-top: 16px !important;
+        }
+        
+        .newsletter input {
+            flex: 1 !important;
+            padding: 12px 16px !important;
+            background: #1A1A1A !important;
+            border: 1px solid #404040 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            font-size: 14px !important;
+        }
+        
+        .newsletter button {
+            padding: 12px 20px !important;
+            background: linear-gradient(135deg, #00FF85, #00CC6A) !important;
+            color: #000 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .newsletter button:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359) !important;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #404040 !important;
+            padding-top: 20px !important;
+            text-align: center !important;
+        }
+        
+        .footer-bottom p {
+            color: #B0B0B0 !important;
+            font-size: 12px !important;
+            margin: 0 !important;
+        }
+        
+        /* ===== MOBILE RESPONSIVE OVERRIDES - EXACT MATCH TO HOMEPAGE ===== */
+        @media (max-width: 768px) {
+            html body .header-container {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            html body .nav-menu {
+                display: none !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: block !important;
+                margin-left: auto !important;
+            }
+            
+            
+            .ticker-container {
+                padding: 0 16px !important;
+            }
+            
+            .ticker-content {
+                gap: 20px !important;
+            }
+            
+            .ticker-item {
+                padding: 6px 12px !important;
+            }
+            
+            .ticker-symbol {
+                font-size: 12px !important;
+            }
+            
+            .ticker-price {
+                font-size: 12px !important;
+            }
+            
+            .ticker-change {
+                font-size: 12px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 30px !important;
+                text-align: center !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .footer-links {
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 16px !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .footer-link {
+                font-size: 14px !important;
+                padding: 8px 0 !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .newsletter input {
+                margin-bottom: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .ticker-container {
+                padding: 0 12px !important;
+            }
+            
+            .ticker-content {
+                gap: 16px !important;
+            }
+            
+            .ticker-item {
+                padding: 4px 8px !important;
+            }
+            
+            .ticker-symbol {
+                font-size: 10px !important;
+            }
+            
+            .ticker-price {
+                font-size: 10px !important;
+            }
+            
+            .ticker-change {
+                font-size: 10px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-grid {
+                gap: 20px !important;
+            }
+            
+            .footer-title {
+                font-size: 15px !important;
+                margin-bottom: 14px !important;
+            }
+            
+            .footer-link {
+                font-size: 13px !important;
+                padding: 6px 0 !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=20">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <script>
+        // Authentication and User Management
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    updateUserInterface(null); // Show auth buttons for guest users
+                }
+            } else {
+                updateUserInterface(null); // Show auth buttons for guest users
+            }
+        });
+        
+        // Payment-based subscription tier logic
+        function getSubscriptionTierFromPayment(user) {
+            const subscriptionPlan = user.subscription_plan || {};
+            const monthlyPrice = subscriptionPlan.monthly_price || 0;
+            const yearlyPrice = subscriptionPlan.yearly_price || 0;
+            
+            if (monthlyPrice > 0) {
+                if (monthlyPrice >= 4999) return 'enterprise';
+                else if (monthlyPrice >= 2499) return 'professional';
+                else if (monthlyPrice >= 999) return 'starter';
+                else return 'basic';
+            } else if (yearlyPrice > 0) {
+                if (yearlyPrice >= 59340) return 'enterprise';
+                else if (yearlyPrice >= 25490) return 'professional';
+                else if (yearlyPrice >= 10188) return 'starter';
+                else return 'basic';
+            } else {
+                return 'basic';
+            }
+        }
+        
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'none';
+                    userProfile.style.display = 'flex';
+                    authButtons.classList.remove('visible');
+                    userProfile.classList.add('visible');
+                }
+                
+                // Update user information
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                }
+                
+                if (userRole) {
+                    // Use payment-based tier logic
+                    const tier = getSubscriptionTierFromPayment(user);
+                    const tierNames = {
+                        "basic": "Basic User",
+                        "starter": "Starter User",
+                        "professional": "Professional User",
+                        "enterprise": "Enterprise User"
+                    };
+                    userRole.textContent = tierNames[tier] || 'Basic User';
+                }
+            } else {
+                // Show auth buttons for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'flex';
+                    userProfile.style.display = 'none';
+                    authButtons.classList.add('visible');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.classList.add('show');
+                    dropdown.style.display = 'block';
+                }
+                console.log('Dropdown toggled:', dropdown.classList.contains('show'));
+            } else {
+                console.log('Dropdown element not found');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'homepage.html';
+        }
+        
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Login/Signup Modal Functions
+        function openLoginModal() {
+            window.location.href = 'homepage.html#login';
+        }
+
+        function openSignupModal() {
+            window.location.href = 'homepage.html#signup';
+        }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+            
+            <div class="header-right">
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
+                <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
+            </div>
+            
+            <div class="user-profile" id="userProfile">
+                <div class="user-avatar" onclick="toggleDropdown()">
+                    <span id="userInitials">U</span>
+                </div>
+                <div class="user-info" onclick="toggleDropdown()">
+                    <div class="user-name" id="userDisplayName">User</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+                
+            </div>
+            
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">234.5</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">567.3</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">Terms of Service</h1>
+            <p class="page-subtitle">Terms and conditions for using CRANE INTELLIGENCE services</p>
+        </div>
+        
+        <div class="last-updated">
+            <strong>Last Updated:</strong> December 15, 2024
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">1. Acceptance of Terms</h2>
+            <div class="section-content">
+                <p>By accessing and using CRANE INTELLIGENCE ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">2. Description of Service</h2>
+            <div class="section-content">
+                <p>CRANE INTELLIGENCE provides professional-grade crane valuation, market analysis, and fleet optimization services. Our platform includes:</p>
+                <ul>
+                    <li>Advanced crane valuation engine</li>
+                    <li>Market comparables and trend analysis</li>
+                    <li>Fleet optimization recommendations</li>
+                    <li>Real-time market data and insights</li>
+                    <li>API access for enterprise customers</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">3. User Accounts and Registration</h2>
+            <div class="section-content">
+                <p>To access certain features of the Service, you must register for an account. You agree to:</p>
+                <ul>
+                    <li>Provide accurate, current, and complete information</li>
+                    <li>Maintain and update your account information</li>
+                    <li>Keep your password secure and confidential</li>
+                    <li>Accept responsibility for all activities under your account</li>
+                    <li>Notify us immediately of any unauthorized use</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">4. Subscription Plans and Billing</h2>
+            <div class="section-content">
+                <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px;">Subscription Tiers</h3>
+                <ul>
+                    <li><strong>Basic Plan:</strong> $999/month - Basic valuation and market comparables</li>
+                    <li><strong>Professional Plan:</strong> $1,999/month - Advanced features and API access</li>
+                    <li><strong>Enterprise Plan:</strong> Custom pricing - Full platform access and dedicated support</li>
+                </ul>
+                
+                <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px; margin-top: 30px;">Billing Terms</h3>
+                <ul>
+                    <li>Subscriptions are billed monthly or annually</li>
+                    <li>Payment is due in advance of each billing period</li>
+                    <li>All fees are non-refundable unless otherwise stated</li>
+                    <li>We may change pricing with 30 days' notice</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">5. Acceptable Use Policy</h2>
+            <div class="section-content">
+                <p>You agree not to use the Service to:</p>
+                <ul>
+                    <li>Violate any applicable laws or regulations</li>
+                    <li>Infringe on intellectual property rights</li>
+                    <li>Transmit harmful or malicious code</li>
+                    <li>Attempt to gain unauthorized access to our systems</li>
+                    <li>Interfere with the proper functioning of the Service</li>
+                    <li>Use the Service for any illegal or unauthorized purpose</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>Important:</strong> Violation of this Acceptable Use Policy may result in immediate termination of your account.
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">6. Intellectual Property Rights</h2>
+            <div class="section-content">
+                <p>The Service and its original content, features, and functionality are owned by CRANE INTELLIGENCE and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.</p>
+                <p>You may not:</p>
+                <ul>
+                    <li>Copy, modify, or distribute our proprietary content</li>
+                    <li>Reverse engineer or attempt to extract source code</li>
+                    <li>Create derivative works based on our platform</li>
+                    <li>Remove or alter any proprietary notices</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">7. Data and Privacy</h2>
+            <div class="section-content">
+                <p>Your privacy is important to us. Our collection and use of personal information is governed by our Privacy Policy, which is incorporated into these Terms by reference.</p>
+                <p>You retain ownership of any data you provide to us, and we will not use your data for purposes other than providing the Service unless you explicitly consent.</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">8. Service Availability and Modifications</h2>
+            <div class="section-content">
+                <p>We strive to maintain high service availability but cannot guarantee uninterrupted access. We may:</p>
+                <ul>
+                    <li>Perform scheduled maintenance with advance notice</li>
+                    <li>Modify or discontinue features at our discretion</li>
+                    <li>Suspend service for security or technical reasons</li>
+                    <li>Update the Service to improve functionality</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">9. Limitation of Liability</h2>
+            <div class="section-content">
+                <div class="highlight-box">
+                    <strong>Disclaimer:</strong> The valuation estimates provided by our Service are for informational purposes only and should not be considered as professional financial advice or guarantees of actual market value.
+                </div>
+                <p>To the maximum extent permitted by law, CRANE INTELLIGENCE shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or business opportunities.</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">10. Termination</h2>
+            <div class="section-content">
+                <p>Either party may terminate this agreement at any time:</p>
+                <ul>
+                    <li>You may cancel your subscription through your account settings</li>
+                    <li>We may terminate your account for violation of these Terms</li>
+                    <li>Termination does not relieve you of payment obligations</li>
+                    <li>Upon termination, your access to the Service will cease</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">11. Governing Law and Disputes</h2>
+            <div class="section-content">
+                <p>These Terms shall be governed by and construed in accordance with the laws of the State of California, without regard to conflict of law principles.</p>
+                <p>Any disputes arising from these Terms or your use of the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">12. Changes to Terms</h2>
+            <div class="section-content">
+                <p>We reserve the right to modify these Terms at any time. We will notify you of any material changes by:</p>
+                <ul>
+                    <li>Posting the updated Terms on our website</li>
+                    <li>Sending you an email notification</li>
+                    <li>Displaying a notice on the Service</li>
+                </ul>
+                <p>Your continued use of the Service after changes constitutes acceptance of the new Terms.</p>
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            <h3>Questions About These Terms?</h3>
+            <p>If you have any questions about these Terms of Service, please contact us:</p>
+            <p>
+                <strong>Email:</strong> <a href="mailto:legal@craneintelligence.com">legal@craneintelligence.com</a><br>
+                <strong>Phone:</strong> <a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a><br>
+                <strong>Address:</strong> 123 Technology Drive, San Francisco, CA 94105
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

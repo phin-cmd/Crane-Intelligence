@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Logic - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
+    <style>
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            margin-left: 16px;
+        }
+
+        .core-logic-container {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logic-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logic-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .logic-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .logic-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .logic-description {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .algorithm-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .flow-step {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+        }
+
+        .flow-step {
+            cursor: pointer;
+        }
+
+        .flow-step.active {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(0, 204, 106, 0.1), rgba(0, 204, 106, 0.05));
+        }
+
+        .step-number {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            margin-top: 8px;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .step-inputs {
+            background: var(--hover-bg);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .step-inputs h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .input-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .input-label {
+            color: var(--text-secondary);
+        }
+
+        .input-value {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step-outputs {
+            background: linear-gradient(135deg, rgba(0, 204, 106, 0.1), rgba(0, 204, 106, 0.05));
+            border: 1px solid var(--success-color);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .step-outputs h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--success-color);
+            margin: 0 0 8px 0;
+        }
+
+        .output-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .output-label {
+            color: var(--text-secondary);
+        }
+
+        .output-value {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .formula-box {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .formula-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .formula {
+            background: var(--hover-bg);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .formula-explanation {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .live-demo {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .demo-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-title::before {
+            content: "▶";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .demo-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .demo-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .demo-input-group input,
+        .demo-input-group select {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .demo-input-group input:focus,
+        .demo-input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .demo-results {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .algorithm-controls {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .control-button.secondary {
+            background: var(--secondary-color);
+        }
+
+        .control-button.secondary:hover {
+            background: var(--secondary-hover);
+        }
+
+        .data-flow-diagram {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .diagram-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .diagram-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .diagram-node {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .diagram-arrow {
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-inactive {
+            background: var(--error-color);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .algorithm-complexity {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .complexity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .complexity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .complexity-item:last-child {
+            border-bottom: none;
+        }
+
+        .complexity-label {
+            color: var(--text-secondary);
+        }
+
+        .complexity-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-type {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .result-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .result-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Step Details Modal */
+        .step-details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .step-details-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .source-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .source-section {
+            background: var(--hover-bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .source-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .source-section h3::before {
+            content: "→";
+            margin-right: 8px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .source-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .source-item:last-child {
+            border-bottom: none;
+        }
+
+        .source-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .source-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .source-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .technical-details {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .technical-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+        }
+
+        .tech-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tech-item:last-child {
+            border-bottom: none;
+        }
+
+        .tech-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .tech-value {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Notification animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* New Core Logic Management Styles */
+        .search-filters {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            color: #B0B0B0;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+            border: 1px solid #555555;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+            border-color: #00FF85;
+        }
+
+        .btn-danger {
+            background: #DC3545;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #C82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-edit {
+            background: #007BFF;
+            color: #FFFFFF;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .btn-start {
+            background: #28A745;
+            color: #FFFFFF;
+        }
+
+        .btn-start:hover {
+            background: #218838;
+        }
+
+        .btn-stop {
+            background: #DC3545;
+            color: #FFFFFF;
+        }
+
+        .btn-stop:hover {
+            background: #C82333;
+        }
+
+        .btn-restart {
+            background: #FFC107;
+            color: #000000;
+        }
+
+        .btn-restart:hover {
+            background: #e0a800;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: #28A745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-inactive {
+            background: #6C757D;
+        }
+
+        .status-maintenance {
+            background: #FFC107;
+        }
+
+        .status-error {
+            background: #DC3545;
+        }
+
+        .component-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .component-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .component-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .component-description {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .component-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .component-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .sortable:hover {
+            background: #333333;
+        }
+
+        .sort-indicator {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .sort-indicator.asc::after {
+            content: "↑";
+            color: #00FF85;
+        }
+
+        .sort-indicator.desc::after {
+            content: "↓";
+            color: #00FF85;
+        }
+
+        @media (max-width: 768px) {
+            .search-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .component-actions {
+                flex-direction: column;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .source-details {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .step-details-content {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .core-logic-container {
+                padding: 16px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 16px;
+            }
+            
+            .algorithm-flow {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .demo-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .diagram-flow {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .diagram-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <div class="logo">
+                <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+            </div>
+            <div class="header-title">
+                <h1>Core Logic & Algorithms</h1>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" id="global-search" placeholder="Search users, content, reports..." class="search-input">
+                <button class="search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="notifications">
+                <button class="notification-btn" id="notification-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-badge" id="notification-badge">3</span>
+                </button>
+            </div>
+            <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
+                <div class="profile-avatar">
+                    <div class="avatar-initials">SA</div>
+                </div>
+                <div class="profile-info">
+                    <span class="profile-name" id="admin-name">Super Admin</span>
+                    <span class="profile-role" id="admin-role">Super Administrator</span>
+                </div>
+                <div class="profile-dropdown-btn" id="profile-dropdown-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Results Dropdown -->
+    <div class="search-results-dropdown" id="searchResultsDropdown">
+        <!-- Search results will be populated here -->
+    </div>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="sidebar-nav">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="users.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="content.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                        <span>Content</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="analytics.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10"></path>
+                            <path d="M12 20V4"></path>
+                            <path d="M6 20v-6"></path>
+                        </svg>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="security.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        <span>Security</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="data.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27,6.96 12,12.01 20.73,6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        <span>Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="database.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"></path>
+                            <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"></path>
+                        </svg>
+                        <span>Database</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-users.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Admin Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="core-logic.html" class="nav-link active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                        </svg>
+                        <span>Core Logic</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="dropdown-item" onclick="navigateToProfile()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Profile
+                </div>
+                <div class="dropdown-item" onclick="navigateToSettings()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Settings
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" onclick="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
+                </div>
+            </div>
+
+            <!-- Core Logic Content -->
+            <div class="core-logic-container">
+                <!-- Search and Filters -->
+                <div class="search-filters">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search core logic components..." id="searchInput">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <select class="filter-select" id="componentFilter">
+                        <option value="all">All Components</option>
+                        <option value="data-ingestion">Data Ingestion</option>
+                        <option value="data-normalization">Data Normalization</option>
+                        <option value="feature-extraction">Feature Extraction</option>
+                        <option value="valuation-analysis">Valuation Analysis</option>
+                        <option value="ml-models">ML Models</option>
+                        <option value="algorithms">Algorithms</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="error">Error</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshCoreLogic()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23,4 23,10 17,10"></polyline>
+                            <polyline points="1,20 1,14 7,14"></polyline>
+                            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4L18.36,18.36A9,9,0,0,1,3.51,15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportCoreLogic()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+
+                <!-- Core Logic Components Table -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="logic-title">Core Logic Components</div>
+                            <div class="logic-description">Manage and monitor core logic components and algorithms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="components-table">
+                        <table class="admin-table" id="componentsTable">
+                            <thead>
+                                <tr>
+                                    <th data-sort="name" class="sortable">
+                                        Component
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="type" class="sortable">
+                                        Type
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="status" class="sortable">
+                                        Status
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="uptime" class="sortable">
+                                        Uptime
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="lastRun" class="sortable">
+                                        Last Run
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="componentsTableBody">
+                                <!-- Data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- System Overview -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="logic-title">Crane Intelligence Core System</h2>
+                            <p class="logic-description">Advanced AI-powered crane valuation and market intelligence platform</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">98.7%</div>
+                            <div class="metric-label">Accuracy Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">2.3s</div>
+                            <div class="metric-label">Avg Processing Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">15+</div>
+                            <div class="metric-label">Data Sources</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">50K+</div>
+                            <div class="metric-label">Active Listings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Processing Pipeline -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27,6.96 12,12.01 20.73,6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="logic-title">Data Processing Pipeline</h2>
+                            <p class="logic-description">Real-time data ingestion, normalization, and analysis workflow</p>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-flow">
+                        <div class="flow-step active" onclick="showStepDetails('data-ingestion')">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Data Ingestion</div>
+                            <div class="step-description">Collect crane listings from multiple sources including auction sites, dealers, and manufacturers</div>
+                            <div class="step-inputs">
+                                <h4>Inputs</h4>
+                                <div class="input-item">
+                                    <span class="input-label">Live Scrapers</span>
+                                    <span class="input-value">15 sources</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="input-label">API Feeds</span>
+                                    <span class="input-value">8 endpoints</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="input-label">Manual Entry</span>
+                                    <span class="input-value">User input</span>
+                                </div>
+                            </div>
+                            <div class="step-outputs">
+                                <h4>Outputs</h4>
+                                <div class="output-item">
+                                    <span class="output-label">Raw Data</span>
+                                    <span class="output-value">50K+ records</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-step" onclick="showStepDetails('data-normalization')">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Data Normalization</div>
+                            <div class="step-description">Standardize data formats, clean inconsistencies, and validate information</div>
+                            <div class="step-inputs">
+                                <h4>Inputs</h4>
+                                <div class="input-item">
+                                    <span class="input-label">Raw Listings</span>
+                                    <span class="input-value">50K+ records</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="input-label">Validation Rules</span>
+                                    <span class="input-value">200+ rules</span>
+                                </div>
+                            </div>
+                            <div class="step-outputs">
+                                <h4>Outputs</h4>
+                                <div class="output-item">
+                                    <span class="output-label">Clean Data</span>
+                                    <span class="output-value">45K+ records</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-step" onclick="showStepDetails('feature-extraction')">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Feature Extraction</div>
+                            <div class="step-description">Extract key features and characteristics from crane specifications</div>
+                            <div class="step-inputs">
+                                <h4>Inputs</h4>
+                                <div class="input-item">
+                                    <span class="input-label">Clean Data</span>
+                                    <span class="input-value">45K+ records</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="input-label">ML Models</span>
+                                    <span class="input-value">5 models</span>
+                                </div>
+                            </div>
+                            <div class="step-outputs">
+                                <h4>Outputs</h4>
+                                <div class="output-item">
+                                    <span class="output-label">Features</span>
+                                    <span class="output-value">150+ features</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-step" onclick="showStepDetails('valuation-analysis')">
+                            <div class="step-number">4</div>
+                            <div class="step-title">Valuation Analysis</div>
+                            <div class="step-description">Apply machine learning algorithms to determine accurate market values</div>
+                            <div class="step-inputs">
+                                <h4>Inputs</h4>
+                                <div class="input-item">
+                                    <span class="input-label">Features</span>
+                                    <span class="input-value">150+ features</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="input-label">Market Data</span>
+                                    <span class="input-value">Historical</span>
+                                </div>
+                            </div>
+                            <div class="step-outputs">
+                                <h4>Outputs</h4>
+                                <div class="output-item">
+                                    <span class="output-label">Valuations</span>
+                                    <span class="output-value">45K+ values</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valuation Algorithm -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="logic-title">Valuation Algorithm</h2>
+                            <p class="logic-description">Multi-factor machine learning model for accurate crane valuation</p>
+                        </div>
+                    </div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Core Valuation Formula</div>
+                        <div class="formula">
+                            V = (B × C × M × D × R) + A
+                        </div>
+                        <div class="formula-explanation">
+                            Where:<br>
+                            V = Final Valuation<br>
+                            B = Base Market Value<br>
+                            C = Condition Factor (0.1 - 1.0)<br>
+                            M = Market Multiplier (0.8 - 1.5)<br>
+                            D = Depreciation Factor (0.3 - 1.0)<br>
+                            R = Regional Adjustment (0.7 - 1.3)<br>
+                            A = Additional Features Value
+                        </div>
+                    </div>
+
+                    <div class="algorithm-complexity">
+                        <div class="complexity-title">Algorithm Complexity Analysis</div>
+                        <div class="complexity-item">
+                            <span class="complexity-label">Time Complexity</span>
+                            <span class="complexity-value">O(n log n)</span>
+                        </div>
+                        <div class="complexity-item">
+                            <span class="complexity-label">Space Complexity</span>
+                            <span class="complexity-value">O(n)</span>
+                        </div>
+                        <div class="complexity-item">
+                            <span class="complexity-label">Model Accuracy</span>
+                            <span class="complexity-value">98.7%</span>
+                        </div>
+                        <div class="complexity-item">
+                            <span class="complexity-label">Processing Speed</span>
+                            <span class="complexity-value">2.3s avg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Demo -->
+                <div class="logic-section">
+                    <div class="live-demo">
+                        <div class="demo-title">Live Valuation Demo</div>
+                        <div class="demo-inputs">
+                            <div class="demo-input-group">
+                                <label for="crane-model">Crane Model</label>
+                                <select id="crane-model">
+                                    <option value="grove-gmk5250l">Grove GMK5250L</option>
+                                    <option value="terex-ac500">Terex AC500</option>
+                                    <option value="liebherr-lr1300">Liebherr LR 1300</option>
+                                    <option value="manitowoc-18000">Manitowoc 18000</option>
+                                </select>
+                            </div>
+                            <div class="demo-input-group">
+                                <label for="crane-year">Year</label>
+                                <input type="number" id="crane-year" value="2024" min="1990" max="2024">
+                            </div>
+                            <div class="demo-input-group">
+                                <label for="crane-hours">Hours</label>
+                                <input type="number" id="crane-hours" value="100" min="0" max="50000">
+                            </div>
+                            <div class="demo-input-group">
+                                <label for="crane-condition">Condition</label>
+                                <select id="crane-condition">
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                            <div class="demo-input-group">
+                                <label for="crane-location">Location</label>
+                                <select id="crane-location">
+                                    <option value="northeast">Northeast</option>
+                                    <option value="southeast">Southeast</option>
+                                    <option value="midwest">Midwest</option>
+                                    <option value="west">West</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="algorithm-controls">
+                            <button class="control-button" onclick="runValuation()">Run Valuation</button>
+                            <button class="control-button secondary" onclick="resetDemo()">Reset</button>
+                        </div>
+                        <div class="demo-results" id="demo-results" style="display: none;">
+                            <div class="result-item">
+                                <span class="result-label">Base Market Value</span>
+                                <span class="result-value" id="base-value">$0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Condition Adjustment</span>
+                                <span class="result-value" id="condition-adj">0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Depreciation Factor</span>
+                                <span class="result-value" id="depreciation">0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Regional Adjustment</span>
+                                <span class="result-value" id="regional-adj">0%</span>
+                            </div>
+                            <div class="result-item" style="border-top: 2px solid var(--primary-color); padding-top: 12px;">
+                                <span class="result-label" style="font-size: 18px; font-weight: 700;">Final Valuation</span>
+                                <span class="result-value" id="final-value" style="font-size: 24px; color: var(--success-color);">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Flow Diagram -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27,6.96 12,12.01 20.73,6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="logic-title">System Architecture</h2>
+                            <p class="logic-description">High-level system architecture and data flow</p>
+                        </div>
+                    </div>
+
+                    <div class="data-flow-diagram">
+                        <div class="diagram-title">Data Flow Architecture</div>
+                        <div class="diagram-flow">
+                            <div class="diagram-node">Data Sources</div>
+                            <div class="diagram-arrow">→</div>
+                            <div class="diagram-node">API Gateway</div>
+                            <div class="diagram-arrow">→</div>
+                            <div class="diagram-node">Processing Engine</div>
+                            <div class="diagram-arrow">→</div>
+                            <div class="diagram-node">ML Models</div>
+                            <div class="diagram-arrow">→</div>
+                            <div class="diagram-node">Database</div>
+                            <div class="diagram-arrow">→</div>
+                            <div class="diagram-node">API Response</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="logic-section">
+                    <div class="logic-header">
+                        <div class="logic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12,6 12,12 16,14"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="logic-title">System Status</h2>
+                            <p class="logic-description">Real-time system health and performance metrics</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">
+                                <span class="status-indicator status-active"></span>
+                                Online
+                            </div>
+                            <div class="metric-label">API Status</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">99.9%</div>
+                            <div class="metric-label">Uptime</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">2.1s</div>
+                            <div class="metric-label">Avg Response</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">1,247</div>
+                            <div class="metric-label">Active Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Step Details Modal -->
+    <div class="step-details-modal" id="stepDetailsModal">
+        <div class="step-details-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Step Details</h2>
+                <button class="close-modal" onclick="closeStepDetails()">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Advanced core logic management functionality with real-time database operations
+        let coreLogicComponents = [];
+        let filteredComponents = [];
+        let currentSort = { field: 'name', direction: 'asc' };
+        let currentFilters = { search: '', component: 'all', status: 'all' };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Core logic management page loaded, initializing...');
+            
+            loadCoreLogicComponents();
+            setupEventListeners();
+            setupTableSorting();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    currentFilters.search = e.target.value.toLowerCase();
+                    applyFilters();
+                });
+            }
+
+            // Filter functionality
+            const componentFilter = document.getElementById('componentFilter');
+            if (componentFilter) {
+                componentFilter.addEventListener('change', function(e) {
+                    currentFilters.component = e.target.value;
+                    applyFilters();
+                });
+            }
+
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function(e) {
+                    currentFilters.status = e.target.value;
+                    applyFilters();
+                });
+            }
+        }
+
+        function setupTableSorting() {
+            const sortableHeaders = document.querySelectorAll('.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const field = this.getAttribute('data-sort');
+                    if (field) {
+                        if (currentSort.field === field) {
+                            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            currentSort.field = field;
+                            currentSort.direction = 'asc';
+                        }
+                        sortComponents();
+                        updateSortIndicators();
+                    }
+                });
+            });
+        }
+
+        // Profile dropdown functionality
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function navigateToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function navigateToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_refresh_token');
+            localStorage.removeItem('access_token');
+            window.location.href = '../admin-login.html';
+        }
+
+        async function loadCoreLogicComponents() {
+            let loadingId;
+            try {
+                console.log('Loading core logic components from database...');
+                loadingId = notificationSystem.showLoading('Loading core logic components...');
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/components', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                coreLogicComponents = data.components || data.items || [];
+                console.log('Core logic components loaded from database:', coreLogicComponents.length);
+                
+                // Apply current filters
+                applyFilters();
+                renderComponents();
+                
+                notificationSystem.hideLoading(loadingId);
+                notificationSystem.showSuccess('Components Loaded', `Successfully loaded ${coreLogicComponents.length} core logic components`);
+                
+            } catch (error) {
+                console.error('Error loading core logic components:', error);
+                notificationSystem.hideLoading(loadingId);
+                
+                // Fallback to mock data for demonstration
+                coreLogicComponents = [
+                    {
+                        id: 1,
+                        name: 'Data Ingestion Engine',
+                        type: 'data-ingestion',
+                        status: 'active',
+                        uptime: '99.9%',
+                        lastRun: '2024-01-15T10:30:00Z',
+                        description: 'Collects crane listings from multiple sources including auction sites, dealers, and manufacturers',
+                        metrics: {
+                            recordsProcessed: '50K+',
+                            successRate: '98.7%',
+                            avgProcessingTime: '2.3s'
+                        }
+                    },
+                    {
+                        id: 2,
+                        name: 'Data Normalization Service',
+                        type: 'data-normalization',
+                        status: 'active',
+                        uptime: '99.8%',
+                        lastRun: '2024-01-15T10:25:00Z',
+                        description: 'Standardizes data formats, cleans inconsistencies, and validates information',
+                        metrics: {
+                            recordsProcessed: '45K+',
+                            successRate: '99.1%',
+                            avgProcessingTime: '1.8s'
+                        }
+                    },
+                    {
+                        id: 3,
+                        name: 'Feature Extraction ML',
+                        type: 'feature-extraction',
+                        status: 'active',
+                        uptime: '99.5%',
+                        lastRun: '2024-01-15T10:20:00Z',
+                        description: 'Extracts key features and characteristics from crane specifications using ML models',
+                        metrics: {
+                            featuresExtracted: '150+',
+                            accuracy: '94.2%',
+                            avgProcessingTime: '3.1s'
+                        }
+                    },
+                    {
+                        id: 4,
+                        name: 'Valuation Analysis Engine',
+                        type: 'valuation-analysis',
+                        status: 'active',
+                        uptime: '99.7%',
+                        lastRun: '2024-01-15T10:15:00Z',
+                        description: 'Applies machine learning algorithms to determine accurate market values',
+                        metrics: {
+                            valuationsGenerated: '45K+',
+                            accuracy: '92.8%',
+                            avgProcessingTime: '4.2s'
+                        }
+                    },
+                    {
+                        id: 5,
+                        name: 'ML Model Training',
+                        type: 'ml-models',
+                        status: 'maintenance',
+                        uptime: '95.2%',
+                        lastRun: '2024-01-14T15:30:00Z',
+                        description: 'Trains and updates machine learning models for improved accuracy',
+                        metrics: {
+                            modelsTrained: '5',
+                            accuracy: '96.1%',
+                            avgProcessingTime: '2.5h'
+                        }
+                    },
+                    {
+                        id: 6,
+                        name: 'Algorithm Optimization',
+                        type: 'algorithms',
+                        status: 'inactive',
+                        uptime: '0%',
+                        lastRun: '2024-01-10T09:45:00Z',
+                        description: 'Optimizes algorithms for better performance and accuracy',
+                        metrics: {
+                            optimizationsApplied: '12',
+                            performanceGain: '15.3%',
+                            avgProcessingTime: '1.2h'
+                        }
+                    }
+                ];
+                
+                applyFilters();
+                renderComponents();
+                notificationSystem.showWarning('Using Demo Data', 'Could not connect to database. Using demo data for demonstration.');
+            }
+        }
+
+        function applyFilters() {
+            filteredComponents = coreLogicComponents.filter(component => {
+                const matchesSearch = !currentFilters.search || 
+                    component.name.toLowerCase().includes(currentFilters.search) ||
+                    component.description.toLowerCase().includes(currentFilters.search);
+                
+                const matchesComponent = currentFilters.component === 'all' || 
+                    component.type === currentFilters.component;
+                
+                const matchesStatus = currentFilters.status === 'all' || 
+                    component.status === currentFilters.status;
+                
+                return matchesSearch && matchesComponent && matchesStatus;
+            });
+            
+            sortComponents();
+            renderComponents();
+        }
+
+        function sortComponents() {
+            const components = filteredComponents.length > 0 ? filteredComponents : coreLogicComponents;
+            
+            components.sort((a, b) => {
+                let aValue = a[currentSort.field];
+                let bValue = b[currentSort.field];
+                
+                // Handle different data types
+                if (currentSort.field === 'lastRun') {
+                    aValue = new Date(aValue).getTime();
+                    bValue = new Date(bValue).getTime();
+                } else if (currentSort.field === 'uptime') {
+                    aValue = parseFloat(aValue.replace('%', ''));
+                    bValue = parseFloat(bValue.replace('%', ''));
+                } else {
+                    aValue = String(aValue).toLowerCase();
+                    bValue = String(bValue).toLowerCase();
+                }
+                
+                if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function updateSortIndicators() {
+            const sortableHeaders = document.querySelectorAll('.sortable');
+            sortableHeaders.forEach(header => {
+                const indicator = header.querySelector('.sort-indicator');
+                const field = header.getAttribute('data-sort');
+                
+                if (field === currentSort.field) {
+                    indicator.className = `sort-indicator ${currentSort.direction}`;
+                } else {
+                    indicator.className = 'sort-indicator';
+                }
+            });
+        }
+
+        function renderComponents() {
+            const tbody = document.getElementById('componentsTableBody');
+            if (!tbody) return;
+            
+            const components = filteredComponents.length > 0 ? filteredComponents : coreLogicComponents;
+            
+            tbody.innerHTML = components.map(component => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #00FF85, #00CC6A); display: flex; align-items: center; justify-content: center; color: #0F0F0F; font-weight: 700; font-size: 16px;">
+                                ${component.name.charAt(0)}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #FFFFFF;">${component.name}</div>
+                                <div style="font-size: 12px; color: #B0B0B0;">${component.description.substring(0, 60)}...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="role-badge ${component.type}">${formatComponentType(component.type)}</span></td>
+                    <td>
+                        <div class="component-status">
+                            <span class="status-indicator status-${component.status}"></span>
+                            <span style="text-transform: capitalize;">${component.status}</span>
+                        </div>
+                    </td>
+                    <td>${component.uptime}</td>
+                    <td>${formatLastRun(component.lastRun)}</td>
+                    <td>
+                        <div class="component-actions">
+                            <button class="btn-sm btn-edit" onclick="editComponent(${component.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="btn-sm btn-start" onclick="startComponent(${component.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5,3 19,12 5,21"></polygon>
+                                </svg>
+                                Start
+                            </button>
+                            <button class="btn-sm btn-stop" onclick="stopComponent(${component.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="6" y="4" width="4" height="16"></rect>
+                                    <rect x="14" y="4" width="4" height="16"></rect>
+                                </svg>
+                                Stop
+                            </button>
+                            <button class="btn-sm btn-restart" onclick="restartComponent(${component.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23,4 23,10 17,10"></polyline>
+                                    <polyline points="1,20 1,14 7,14"></polyline>
+                                    <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4L18.36,18.36A9,9,0,0,1,3.51,15"></path>
+                                </svg>
+                                Restart
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatComponentType(type) {
+            const typeMap = {
+                'data-ingestion': 'Data Ingestion',
+                'data-normalization': 'Data Normalization',
+                'feature-extraction': 'Feature Extraction',
+                'valuation-analysis': 'Valuation Analysis',
+                'ml-models': 'ML Models',
+                'algorithms': 'Algorithms'
+            };
+            return typeMap[type] || type;
+        }
+
+        function formatLastRun(lastRun) {
+            if (!lastRun) return 'Never';
+            const date = new Date(lastRun);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        // Component Management Functions
+        async function editComponent(componentId) {
+            try {
+                const component = coreLogicComponents.find(c => c.id === componentId);
+                if (!component) return;
+                
+                notificationSystem.showInfo('Edit Component', `Edit functionality for ${component.name} component`);
+                
+            } catch (error) {
+                adminNotifications.handleApiError(error, 'Edit Component');
+            }
+        }
+
+        async function startComponent(componentId) {
+            try {
+                const component = coreLogicComponents.find(c => c.id === componentId);
+                if (!component) return;
+                
+                const confirmed = await notificationSystem.confirm(
+                    'Start Component',
+                    `Are you sure you want to start ${component.name}?`,
+                    { confirmText: 'Start' }
+                );
+                
+                if (!confirmed) return;
+                
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Starting component...');
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                component.status = 'active';
+                component.uptime = '99.9%';
+                component.lastRun = new Date().toISOString();
+                applyFilters();
+                renderComponents();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.showSuccess('Component Started', `${component.name} started successfully`);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Start Component');
+            }
+        }
+
+        async function stopComponent(componentId) {
+            try {
+                const component = coreLogicComponents.find(c => c.id === componentId);
+                if (!component) return;
+                
+                const confirmed = await notificationSystem.confirmDangerous(
+                    'Stop Component',
+                    `Are you sure you want to stop ${component.name}? This may affect system functionality.`,
+                    { confirmText: 'Stop', type: 'danger' }
+                );
+                
+                if (!confirmed) return;
+                
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Stopping component...');
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/stop`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                component.status = 'inactive';
+                component.uptime = '0%';
+                applyFilters();
+                renderComponents();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.showSuccess('Component Stopped', `${component.name} stopped successfully`);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Stop Component');
+            }
+        }
+
+        async function restartComponent(componentId) {
+            try {
+                const component = coreLogicComponents.find(c => c.id === componentId);
+                if (!component) return;
+                
+                const confirmed = await notificationSystem.confirm(
+                    'Restart Component',
+                    `Are you sure you want to restart ${component.name}?`,
+                    { confirmText: 'Restart' }
+                );
+                
+                if (!confirmed) return;
+                
+                let loadingId;
+                loadingId = notificationSystem.showLoading('Restarting component...');
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/core-logic/components/${componentId}/restart`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                component.status = 'active';
+                component.uptime = '99.9%';
+                component.lastRun = new Date().toISOString();
+                applyFilters();
+                renderComponents();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.showSuccess('Component Restarted', `${component.name} restarted successfully`);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Restart Component');
+            }
+        }
+
+        async function refreshCoreLogic() {
+            await loadCoreLogicComponents();
+        }
+
+        async function exportCoreLogic() {
+            let loadingId;
+            try {
+                loadingId = notificationSystem.showLoading('Exporting core logic data...');
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/core-logic/export', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `core-logic-export-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.dataExported('Core Logic');
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Export Core Logic');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profile = document.querySelector('.admin-profile');
+            
+            if (dropdown && profile) {
+                if (!profile.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // Live demo functionality
+        function runValuation() {
+            const model = document.getElementById('crane-model').value;
+            const year = parseInt(document.getElementById('crane-year').value);
+            const hours = parseInt(document.getElementById('crane-hours').value);
+            const condition = document.getElementById('crane-condition').value;
+            const location = document.getElementById('crane-location').value;
+
+            // Simulate valuation calculation
+            const baseValues = {
+                'grove-gmk5250l': 1800000,
+                'terex-ac500': 1500000,
+                'liebherr-lr1300': 1600000,
+                'manitowoc-18000': 1200000
+            };
+
+            const conditionFactors = {
+                'excellent': 1.0,
+                'good': 0.85,
+                'fair': 0.7,
+                'poor': 0.5
+            };
+
+            const regionalFactors = {
+                'northeast': 1.1,
+                'southeast': 0.95,
+                'midwest': 1.0,
+                'west': 1.05
+            };
+
+            const baseValue = baseValues[model];
+            const age = 2024 - year;
+            const depreciationRate = Math.min(age * 0.05, 0.7); // Max 70% depreciation
+            const hoursDepreciation = Math.min(hours * 0.0001, 0.3); // Max 30% for hours
+            
+            const conditionFactor = conditionFactors[condition];
+            const regionalFactor = regionalFactors[location];
+            const totalDepreciation = depreciationRate + hoursDepreciation;
+            
+            const finalValue = baseValue * conditionFactor * regionalFactor * (1 - totalDepreciation);
+
+            // Update results
+            document.getElementById('base-value').textContent = '$' + baseValue.toLocaleString();
+            document.getElementById('condition-adj').textContent = ((conditionFactor - 1) * 100).toFixed(1) + '%';
+            document.getElementById('depreciation').textContent = (totalDepreciation * 100).toFixed(1) + '%';
+            document.getElementById('regional-adj').textContent = ((regionalFactor - 1) * 100).toFixed(1) + '%';
+            document.getElementById('final-value').textContent = '$' + Math.round(finalValue).toLocaleString();
+
+            // Show results
+            document.getElementById('demo-results').style.display = 'block';
+
+            // Animate the flow steps
+            const steps = document.querySelectorAll('.flow-step');
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.classList.add('active');
+                }, index * 500);
+            });
+        }
+
+        function resetDemo() {
+            document.getElementById('crane-year').value = 2024;
+            document.getElementById('crane-hours').value = 100;
+            document.getElementById('crane-condition').value = 'excellent';
+            document.getElementById('crane-location').value = 'northeast';
+            document.getElementById('demo-results').style.display = 'none';
+            
+            // Reset flow steps
+            const steps = document.querySelectorAll('.flow-step');
+            steps.forEach(step => {
+                step.classList.remove('active');
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has Super Admin permissions
+            const userRole = localStorage.getItem('userRole') || 'super-admin';
+            if (userRole !== 'super-admin') {
+                alert('Access denied. Super Admin privileges required.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Animate metrics on load
+            const metricValues = document.querySelectorAll('.metric-value');
+            metricValues.forEach(metric => {
+                const finalValue = metric.textContent;
+                if (finalValue.includes('%') || finalValue.includes('s') || finalValue.includes('K')) {
+                    animateValue(metric, 0, parseFloat(finalValue), 2000);
+                }
+            });
+        });
+
+        function animateValue(element, start, end, duration) {
+            const startTime = performance.now();
+            const isPercentage = element.textContent.includes('%');
+            const isSeconds = element.textContent.includes('s');
+            const isThousands = element.textContent.includes('K');
+            
+            function updateValue(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = start + (end - start) * progress;
+                
+                if (isPercentage) {
+                    element.textContent = current.toFixed(1) + '%';
+                } else if (isSeconds) {
+                    element.textContent = current.toFixed(1) + 's';
+                } else if (isThousands) {
+                    element.textContent = Math.round(current) + 'K+';
+                } else {
+                    element.textContent = Math.round(current).toLocaleString();
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateValue);
+                }
+            }
+            
+            requestAnimationFrame(updateValue);
+        }
+
+        // Global search functionality
+        function performGlobalSearch(query) {
+            if (!query.trim()) {
+                clearSearchResults();
+                return;
+            }
+
+            // Simulate search across different sections
+            const searchResults = [
+                { type: 'Algorithm', name: 'Valuation Algorithm', description: 'Core ML model for crane valuation', section: 'Core Logic' },
+                { type: 'Data Source', name: 'Auction Sites', status: 'Active', section: 'Data' },
+                { type: 'User', name: 'Super Admin', role: 'Super Administrator', section: 'Admin Users' },
+                { type: 'System', name: 'Data Pipeline', status: 'Running', section: 'Core Logic' }
+            ].filter(item => 
+                item.name.toLowerCase().includes(query.toLowerCase()) ||
+                item.description?.toLowerCase().includes(query.toLowerCase()) ||
+                item.status?.toLowerCase().includes(query.toLowerCase()) ||
+                item.role?.toLowerCase().includes(query.toLowerCase())
+            );
+
+            displaySearchResults(searchResults);
+        }
+
+        function displaySearchResults(results) {
+            const dropdown = document.querySelector('.search-results-dropdown');
+            if (!dropdown) return;
+
+            if (results.length === 0) {
+                dropdown.innerHTML = '<div class="search-result-item">No results found</div>';
+            } else {
+                dropdown.innerHTML = results.map(result => `
+                    <div class="search-result-item" onclick="navigateToResult('${result.section}')">
+                        <div class="result-type">${result.type}</div>
+                        <div class="result-name">${result.name}</div>
+                        <div class="result-details">${result.description || result.status || result.role || ''}</div>
+                    </div>
+                `).join('');
+            }
+
+            dropdown.style.display = 'block';
+        }
+
+        function clearSearchResults() {
+            const dropdown = document.querySelector('.search-results-dropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function navigateToResult(section) {
+            const sectionMap = {
+                'Core Logic': 'core-logic.html',
+                'Data': 'data.html',
+                'Admin Users': 'admin-users.html',
+                'Users': 'users.html',
+                'Analytics': 'analytics.html',
+                'Content': 'content.html',
+                'Settings': 'settings.html',
+                'Security': 'security.html',
+                'Database': 'database.html'
+            };
+
+            if (sectionMap[section]) {
+                window.location.href = sectionMap[section];
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+
+            // Set background color based on type
+            const colors = {
+                success: '#10B981',
+                error: '#EF4444',
+                warning: '#F59E0B',
+                info: '#3B82F6'
+            };
+            notification.style.backgroundColor = colors[type] || colors.info;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global search functionality
+            const globalSearch = document.getElementById('global-search');
+            if (globalSearch) {
+                globalSearch.addEventListener('input', function() {
+                    performGlobalSearch(this.value);
+                });
+            }
+
+            // Search button functionality
+            const searchBtn = document.querySelector('.search-btn');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() {
+                    const searchValue = globalSearch.value;
+                    performGlobalSearch(searchValue);
+                });
+            }
+
+            // Notification button functionality
+            const notificationBtn = document.getElementById('notification-btn');
+            if (notificationBtn) {
+                notificationBtn.addEventListener('click', function() {
+                    showNotification('You have 3 new notifications', 'info');
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(event) {
+                const searchContainer = document.querySelector('.search-container');
+                const dropdown = document.querySelector('.search-results-dropdown');
+                
+                if (searchContainer && dropdown && !searchContainer.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+
+        // Step Details Modal Functions
+        function showStepDetails(stepId) {
+            const modal = document.getElementById('stepDetailsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            const stepData = getStepData(stepId);
+            
+            modalTitle.textContent = stepData.title;
+            modalContent.innerHTML = generateStepDetailsHTML(stepData);
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeStepDetails() {
+            const modal = document.getElementById('stepDetailsModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function getStepData(stepId) {
+            const stepData = {
+                'data-ingestion': {
+                    title: 'Data Ingestion - Detailed Sources',
+                    description: 'Comprehensive data collection from multiple sources including auction sites, dealers, and manufacturers',
+                    inputs: [
+                        {
+                            name: 'Live Scrapers',
+                            count: '15 sources',
+                            sources: [
+                                { name: 'CraneTrader.com', description: 'Primary auction site for crane listings', status: 'Active' },
+                                { name: 'MachineryTrader.com', description: 'Heavy equipment marketplace', status: 'Active' },
+                                { name: 'IronPlanet.com', description: 'Online auction platform', status: 'Active' },
+                                { name: 'RitchieBros.com', description: 'Industrial auction house', status: 'Active' },
+                                { name: 'CraneNetwork.com', description: 'Crane-specific marketplace', status: 'Active' }
+                            ]
+                        },
+                        {
+                            name: 'API Feeds',
+                            count: '8 endpoints',
+                            sources: [
+                                { name: 'Caterpillar API', description: 'Official CAT equipment data', status: 'Active' },
+                                { name: 'Liebherr API', description: 'Liebherr crane specifications', status: 'Active' },
+                                { name: 'Terex API', description: 'Terex equipment database', status: 'Active' },
+                                { name: 'Manitowoc API', description: 'Manitowoc crane data', status: 'Active' }
+                            ]
+                        },
+                        {
+                            name: 'Manual Entry',
+                            count: 'User input',
+                            sources: [
+                                { name: 'Admin Portal', description: 'Manual crane entry system', status: 'Active' },
+                                { name: 'Bulk Upload', description: 'CSV/Excel import system', status: 'Active' }
+                            ]
+                        }
+                    ],
+                    outputs: [
+                        { name: 'Raw Data', count: '50K+ records', description: 'Unprocessed crane listings with metadata' }
+                    ],
+                    technical: [
+                        { label: 'Data Volume', value: '50,000+ records/day' },
+                        { label: 'Update Frequency', value: 'Real-time' },
+                        { label: 'Data Format', value: 'JSON, XML, CSV' },
+                        { label: 'Storage', value: 'MongoDB Cluster' },
+                        { label: 'Processing Time', value: '2.3s average' }
+                    ]
+                },
+                'data-normalization': {
+                    title: 'Data Normalization - Processing Rules',
+                    description: 'Standardize data formats, clean inconsistencies, and validate information using automated rules',
+                    inputs: [
+                        {
+                            name: 'Raw Listings',
+                            count: '50K+ records',
+                            sources: [
+                                { name: 'From Data Ingestion', description: 'Raw crane data from all sources', status: 'Active' }
+                            ]
+                        },
+                        {
+                            name: 'Validation Rules',
+                            count: '200+ rules',
+                            sources: [
+                                { name: 'Data Type Validation', description: 'Ensure correct data types for all fields', status: 'Active' },
+                                { name: 'Range Validation', description: 'Validate numerical ranges for crane specs', status: 'Active' },
+                                { name: 'Format Standardization', description: 'Standardize date, price, and text formats', status: 'Active' },
+                                { name: 'Duplicate Detection', description: 'Identify and merge duplicate listings', status: 'Active' }
+                            ]
+                        }
+                    ],
+                    outputs: [
+                        { name: 'Clean Data', count: '45K+ records', description: 'Validated and standardized crane data' }
+                    ],
+                    technical: [
+                        { label: 'Processing Rules', value: '200+ validation rules' },
+                        { label: 'Data Quality', value: '98.7% accuracy' },
+                        { label: 'Processing Time', value: '1.8s average' },
+                        { label: 'Error Rate', value: '1.3% rejected' },
+                        { label: 'Storage', value: 'PostgreSQL Database' }
+                    ]
+                },
+                'feature-extraction': {
+                    title: 'Feature Extraction - ML Models',
+                    description: 'Extract key features and characteristics from crane specifications using machine learning models',
+                    inputs: [
+                        {
+                            name: 'Clean Data',
+                            count: '45K+ records',
+                            sources: [
+                                { name: 'From Data Normalization', description: 'Validated crane data', status: 'Active' }
+                            ]
+                        },
+                        {
+                            name: 'ML Models',
+                            count: '5 models',
+                            sources: [
+                                { name: 'Crane Type Classifier', description: 'Classify crane types (Mobile, Tower, etc.)', status: 'Active' },
+                                { name: 'Specification Extractor', description: 'Extract technical specifications', status: 'Active' },
+                                { name: 'Condition Analyzer', description: 'Analyze crane condition from images', status: 'Active' },
+                                { name: 'Market Segmenter', description: 'Segment by market categories', status: 'Active' },
+                                { name: 'Price Predictor', description: 'Predict market value ranges', status: 'Active' }
+                            ]
+                        }
+                    ],
+                    outputs: [
+                        { name: 'Features', count: '150+ features', description: 'Extracted features for ML analysis' }
+                    ],
+                    technical: [
+                        { label: 'ML Models', value: '5 active models' },
+                        { label: 'Feature Count', value: '150+ extracted features' },
+                        { label: 'Processing Time', value: '3.2s average' },
+                        { label: 'Accuracy', value: '96.8% feature accuracy' },
+                        { label: 'Storage', value: 'Feature Store (Redis)' }
+                    ]
+                },
+                'valuation-analysis': {
+                    title: 'Valuation Analysis - Market Intelligence',
+                    description: 'Apply machine learning algorithms to determine accurate market values using historical data',
+                    inputs: [
+                        {
+                            name: 'Features',
+                            count: '150+ features',
+                            sources: [
+                                { name: 'From Feature Extraction', description: 'ML-extracted crane features', status: 'Active' }
+                            ]
+                        },
+                        {
+                            name: 'Market Data',
+                            count: 'Historical',
+                            sources: [
+                                { name: 'Historical Sales Data', description: 'Past 5 years of crane sales', status: 'Active' },
+                                { name: 'Market Trends', description: 'Regional market trends and patterns', status: 'Active' },
+                                { name: 'Economic Indicators', description: 'Economic factors affecting crane values', status: 'Active' },
+                                { name: 'Seasonal Data', description: 'Seasonal variations in crane values', status: 'Active' }
+                            ]
+                        }
+                    ],
+                    outputs: [
+                        { name: 'Valuations', count: '45K+ values', description: 'Accurate market valuations for all cranes' }
+                    ],
+                    technical: [
+                        { label: 'Algorithm', value: 'Ensemble ML Model' },
+                        { label: 'Accuracy', value: '98.7% valuation accuracy' },
+                        { label: 'Processing Time', value: '2.1s average' },
+                        { label: 'Market Coverage', value: 'Global markets' },
+                        { label: 'Update Frequency', value: 'Daily' }
+                    ]
+                }
+            };
+            
+            return stepData[stepId] || stepData['data-ingestion'];
+        }
+
+        function generateStepDetailsHTML(stepData) {
+            return `
+                <div class="source-details">
+                    <div class="source-section">
+                        <h3>Input Sources</h3>
+                        ${stepData.inputs.map(input => `
+                            <div class="source-item">
+                                <div>
+                                    <div class="source-name">${input.name}</div>
+                                    <div class="source-description">${input.count}</div>
+                                </div>
+                                <span class="source-count">${input.sources.length} sources</span>
+                            </div>
+                            ${input.sources.map(source => `
+                                <div class="source-item" style="margin-left: 16px; padding-left: 16px; border-left: 2px solid var(--primary-color);">
+                                    <div>
+                                        <div class="source-name">${source.name}</div>
+                                        <div class="source-description">${source.description}</div>
+                                    </div>
+                                    <span style="color: var(--success-color); font-size: 12px;">${source.status}</span>
+                                </div>
+                            `).join('')}
+                        `).join('')}
+                    </div>
+                    
+                    <div class="source-section">
+                        <h3>Output Results</h3>
+                        ${stepData.outputs.map(output => `
+                            <div class="source-item">
+                                <div>
+                                    <div class="source-name">${output.name}</div>
+                                    <div class="source-description">${output.description}</div>
+                                </div>
+                                <span class="source-count">${output.count}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="technical-details">
+                    <h3>Technical Specifications</h3>
+                    ${stepData.technical.map(tech => `
+                        <div class="tech-item">
+                            <span class="tech-label">${tech.label}</span>
+                            <span class="tech-value">${tech.value}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('stepDetailsModal');
+            if (event.target === modal) {
+                closeStepDetails();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeStepDetails();
+            }
+        });
+    </script>
+</body>
+</html>

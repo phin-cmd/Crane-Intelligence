@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal Login - Crane Intelligence</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+        }
+
+        .login-container {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid #404040;
+            border-radius: 16px;
+            padding: 48px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            position: relative;
+            padding: 0 12px;
+        }
+        
+        .logo-text::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(180deg, #FFD600 0%, #FFC107 100%);
+            border-radius: 2px;
+        }
+        
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(180deg, #00FF85 0%, #00CC6A 100%);
+            border-radius: 2px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 8px;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD600, #FFC107);
+            color: #0F0F0F;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #E0E0E0;
+        }
+
+        .form-input {
+            background: #121212;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FFD600;
+            box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #666666;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #B0B0B0;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: #FFFFFF;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: -8px 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #FFD600;
+        }
+
+        .checkbox-group label {
+            font-size: 14px;
+            color: #B0B0B0;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            font-size: 14px;
+            color: #FFD600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-password:hover {
+            color: #FFC107;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #FFD600, #FFC107);
+            color: #0F0F0F;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .login-button:hover {
+            background: linear-gradient(135deg, #FFC107, #FFB300);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(255, 214, 0, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            background: #404040;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(255, 214, 0, 0.1);
+            border: 1px solid #FFD600;
+            color: #FFD600;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #404040;
+            border-top: 2px solid #FFD600;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #404040;
+        }
+
+        .login-footer p {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 8px;
+        }
+
+        .back-to-website {
+            color: #FFD600;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-to-website:hover {
+            color: #FFC107;
+        }
+
+        .security-notice {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid #007BFF;
+            color: #007BFF;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .security-notice svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 32px 24px;
+            }
+
+            .login-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                <span class="logo-text">CRANE INTELLIGENCE</span>
+            </div>
+            <h1 class="login-title">Admin Login</h1>
+            <p class="login-subtitle">Sign in to access the admin panel</p>
+            <span class="admin-badge">Administrator Access</span>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="admin@craneintelligence.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+                <a href="reset-password.html" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-button" id="loginButton">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <span id="buttonText">Sign In to Admin Portal</span>
+            </button>
+        </form>
+
+        <div class="security-notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            This is a secure admin portal. All access is logged and monitored.
+        </div>
+
+        <div class="login-footer">
+            <p>Need help accessing the admin portal?</p>
+            <a href="mailto:admin@craneintelligence.com" class="back-to-website">Contact System Administrator</a>
+            <br><br>
+            <a href="homepage.html" class="back-to-website">← Back to Main Website</a>
+        </div>
+    </div>
+
+    <script>
+        // Password toggle functionality
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
+            }
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Show loading state
+            const loginButton = document.getElementById('loginButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const buttonText = document.getElementById('buttonText');
+            
+            loginButton.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            buttonText.textContent = 'Signing In...';
+            
+            // Hide any previous messages
+            hideMessages();
+            
+            try {
+                // Determine API base URL based on environment
+                const apiBaseUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:8003' 
+                    : window.location.origin;
+                
+                const response = await fetch(`${apiBaseUrl}/api/v1/admin/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.access_token) {
+                    // Store authentication data
+                    localStorage.setItem('admin_token', data.access_token);
+                    localStorage.setItem('admin_refresh_token', data.refresh_token);
+                    localStorage.setItem('admin_user', JSON.stringify(data.user));
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('rememberMe', 'true');
+                    }
+                    
+                    // Show success message
+                    showSuccess('Login successful! Redirecting to admin dashboard...');
+                    
+                    // Redirect to admin dashboard
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard.html';
+                    }, 1500);
+                    
+                } else {
+                    // Show error message
+                    showError(data.detail || data.message || 'Invalid credentials. Please try again.');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                // Reset button state
+                loginButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+                buttonText.textContent = 'Sign In to Admin Portal';
+            }
+        });
+
+        // Message display functions
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const adminToken = localStorage.getItem('admin_token');
+            if (adminToken) {
+                // User is already logged in, redirect to dashboard
+                window.location.href = '/admin/dashboard.html';
+            }
+        });
+
+        // Demo credentials section
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add demo credentials display
+            const loginForm = document.querySelector('.login-form');
+            if (loginForm) {
+                const demoSection = document.createElement('div');
+                demoSection.style.cssText = 'margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 214, 0, 0.2); border-radius: 8px;';
+                demoSection.innerHTML = `
+                    <div style="font-size: 12px; font-weight: 600; color: #FFD600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Demo Credentials</div>
+                    <div style="font-size: 13px; color: #B0B0B0; line-height: 1.6;">
+                        <div><strong style="color: #FFFFFF;">Email:</strong> admin@craneintelligence.com</div>
+                        <div><strong style="color: #FFFFFF;">Password:</strong> admin123</div>
+                    </div>
+                `;
+                loginForm.parentNode.insertBefore(demoSection, loginForm.nextSibling);
+            }
+        });
+    </script>
+</body>
+</html>

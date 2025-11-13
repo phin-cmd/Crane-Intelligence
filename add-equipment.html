@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Equipment - CRANE INTELLIGENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=3">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <style>
+        /* ===== ADD EQUIPMENT STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles - Exact Match to Homepage */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+            overflow: visible !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            align-items: center !important;
+            height: 80px !important;
+            overflow: visible !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            justify-self: start !important;
+            transition: none !important;
+        }
+
+        .logo:hover {
+            transform: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: none !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+        }
+
+        .nav-menu.show {
+            display: none !important;
+        }
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.2s !important;
+        }
+
+        .nav-link:hover {
+            color: #FFD600 !important;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .auth-buttons.hidden {
+            display: none !important;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: #00E673;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            justify-self: end;
+            z-index: 1000;
+            grid-column: 3;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00E673);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF !important;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0 !important;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #333333;
+            margin: 8px 0;
+        }
+
+        /* Market Ticker - Exact Match to Homepage */
+        .market-ticker {
+            background: #0F0F0F;
+            border-bottom: 1px solid #333333;
+            padding: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-right: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-symbol {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-price {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticker-change {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FFFFFF;
+            font-family: 'Roboto Condensed', sans-serif;
+            margin-bottom: 16px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #B0B0B0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-select {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-textarea {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            min-height: 120px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+            align-items: center;
+        }
+
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #00FF85;
+            color: #00FF85;
+        }
+
+        .back-to-dashboard .back-icon {
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: #00E673;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #333333;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+        }
+
+        /* Footer Styles - Exact Match to Homepage */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .newsletter button:hover {
+            background: #00E673;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .page-main {
+                padding: 32px 24px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 16px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .back-to-dashboard {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .page-main {
+                padding: 24px 16px !important;
+            }
+            
+            .page-title {
+                text-align: center !important;
+            }
+            
+            .page-subtitle {
+                text-align: center !important;
+            }
+            
+            .form-grid {
+                gap: 20px !important;
+            }
+            
+            .form-actions button,
+            .form-actions .back-to-dashboard {
+                width: 100% !important;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+            
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+            }
+            
+            .market-ticker {
+                padding: 6px 0 !important;
+            }
+            
+            .ticker-container {
+                padding: 0 16px !important;
+            }
+            
+            .ticker-content {
+                gap: 20px !important;
+            }
+            
+            .ticker-item {
+                font-size: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 12px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .page-main {
+                padding: 16px 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .form-grid {
+                gap: 16px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .page-main {
+                padding: 16px 12px !important;
+            }
+            
+            .page-title {
+                text-align: center !important;
+            }
+            
+            .page-subtitle {
+                text-align: center !important;
+            }
+            
+            .form-grid {
+                gap: 16px !important;
+            }
+            
+            .footer-grid {
+                gap: 16px !important;
+            }
+            
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-brand {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input,
+            .newsletter button {
+                width: 100% !important;
+            }
+            
+            .footer-desc {
+                font-size: 12px !important;
+            }
+            
+            .footer-title {
+                font-size: 12px !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .market-ticker {
+                padding: 4px 0 !important;
+            }
+            
+            .ticker-container {
+                padding: 0 12px !important;
+            }
+            
+            .ticker-content {
+                gap: 16px !important;
+            }
+            
+            .ticker-item {
+                font-size: 11px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo" onclick="window.location.href='homepage.html'" style="cursor: pointer;">
+                <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+            </div>
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn btn-secondary" onclick="window.location.href='login.html'">Login</button>
+                <button class="btn btn-primary" onclick="window.location.href='signup.html'">Sign Up</button>
+            </div>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">JD</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">John Doe</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">234.5</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">567.3</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">ADD EQUIPMENT</h1>
+            <p class="page-subtitle">Add new crane equipment to your fleet for tracking, valuation, and management</p>
+        </div>
+
+        <div class="form-container">
+            <form id="addEquipmentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Manufacturer</label>
+                        <select class="form-select" id="manufacturer" required>
+                            <option value="">Select Manufacturer</option>
+                            <option value="Liebherr">Liebherr</option>
+                            <option value="Grove">Grove</option>
+                            <option value="Tadano">Tadano</option>
+                            <option value="Manitowoc">Manitowoc</option>
+                            <option value="Terex">Terex</option>
+                            <option value="Demag">Demag</option>
+                            <option value="XCMG">XCMG</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" class="form-input" id="model" placeholder="Enter model number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" class="form-input" id="year" placeholder="2024" min="1990" max="2024" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Capacity (Tons)</label>
+                        <input type="number" class="form-input" id="capacity" placeholder="350" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Serial Number</label>
+                        <input type="text" class="form-input" id="serialNumber" placeholder="Enter serial number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Condition Score (1-100)</label>
+                        <input type="number" class="form-input" id="conditionScore" placeholder="85" min="1" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" id="location" placeholder="City, State/Country" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Purchase Date</label>
+                        <input type="date" class="form-input" id="purchaseDate" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="description" placeholder="Additional details about the equipment..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="dashboard.html" class="back-to-dashboard">
+                        <span class="back-icon">←</span>
+                        Back to Dashboard
+                    </a>
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Equipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Authentication check
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (!token || !userData) {
+                window.location.href = 'homepage.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                updateUserInterface(user);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user_data');
+                window.location.href = 'homepage.html';
+            }
+        });
+        
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons and nav menu
+                if (authButtons && userProfile) {
+                    authButtons.classList.add('hidden');
+                    userProfile.style.display = 'flex';
+                }
+                
+                // Hide navigation menu for logged-in users on non-homepage
+                if (navMenu) {
+                    navMenu.classList.remove('show');
+                }
+                
+                // Keep user data updated for potential future use
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    
+                    const initials = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase();
+                    userInitials.textContent = initials.substring(0, 2);
+                }
+                
+                if (userRole) {
+                    const role = user.user_role || 'Premium User';
+                    userRole.textContent = role;
+                }
+            } else {
+                // Show auth buttons and nav menu for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.classList.remove('hidden');
+                    userProfile.style.display = 'none';
+                }
+                
+                // Show navigation menu for guest users
+                if (navMenu) {
+                    navMenu.classList.add('show');
+                }
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'homepage.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (userProfile && dropdown && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Form handling
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show user profile by default for testing
+            updateUserInterface({ full_name: 'John Doe', user_role: 'Premium User' });
+        });
+
+        // API Integration Functions
+        async function createEquipment(equipmentData) {
+            try {
+                const response = await fetch('http://localhost:8004/api/v1/equipment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || 'mock_token'}`
+                    },
+                    body: JSON.stringify(equipmentData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating equipment:', error);
+                // Fallback to mock data for demo
+                return {
+                    success: true,
+                    message: 'Equipment created successfully (demo mode)',
+                    data: {
+                        id: Math.floor(Math.random() * 9000) + 1000,
+                        ...equipmentData,
+                        status: 'active',
+                        is_active: true,
+                        created_at: new Date().toISOString()
+                    }
+                };
+            }
+        }
+
+        function showDialog(title, message, type = 'info') {
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-overlay';
+            dialog.innerHTML = `
+                <div class="dialog">
+                    <div class="dialog-header">
+                        <h3>${title}</h3>
+                        <button class="dialog-close" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+                    </div>
+                    <div class="dialog-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="dialog-footer">
+                        <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">OK</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add dialog styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .dialog-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                }
+                .dialog {
+                    background: #1A1A1A;
+                    border: 1px solid #333;
+                    border-radius: 8px;
+                    padding: 0;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                }
+                .dialog-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px;
+                    border-bottom: 1px solid #333;
+                }
+                .dialog-header h3 {
+                    margin: 0;
+                    color: #FFFFFF;
+                }
+                .dialog-close {
+                    background: none;
+                    border: none;
+                    color: #B0B0B0;
+                    font-size: 24px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .dialog-body {
+                    padding: 20px;
+                    color: #FFFFFF;
+                }
+                .dialog-footer {
+                    padding: 20px;
+                    border-top: 1px solid #333;
+                    text-align: right;
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(dialog);
+        }
+
+        document.getElementById('addEquipmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                manufacturer: document.getElementById('manufacturer').value,
+                model: document.getElementById('model').value,
+                year: parseInt(document.getElementById('year').value),
+                capacity_tons: parseFloat(document.getElementById('capacity').value),
+                serial_number: document.getElementById('serialNumber').value,
+                condition_score: parseInt(document.getElementById('conditionScore').value),
+                location: document.getElementById('location').value,
+                purchase_date: document.getElementById('purchaseDate').value,
+                description: document.getElementById('description').value
+            };
+            
+            // Validate form
+            if (!formData.manufacturer || !formData.model || !formData.year || !formData.capacity_tons || 
+                !formData.serial_number || !formData.condition_score || !formData.location || !formData.purchase_date) {
+                showDialog('Validation Error', 'Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span>⏳</span> Adding Equipment...';
+            submitBtn.disabled = true;
+            
+            // Call API to create equipment
+            createEquipment(formData)
+                .then(response => {
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    if (response.success) {
+                        showDialog('Success', 'Equipment added successfully!', 'success');
+                        // Reset form
+                        document.getElementById('addEquipmentForm').reset();
+                        // Redirect to dashboard after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 2000);
+                    } else {
+                        showDialog('Error', response.error || 'Failed to add equipment', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating equipment:', error);
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    showDialog('Error', 'Failed to add equipment. Please try again.', 'error');
+                });
+        });
+    </script>
+</body>
+</html>

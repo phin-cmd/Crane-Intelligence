@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports - Crane Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #00ff9d;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #00ff9d;
+        }
+
+        .back-link {
+            color: #00ff9d;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .reports-section {
+            background: #1a1e2a;
+            border: 1px solid #2a2e3a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #0a0e1a;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a0a0a0;
+            border-bottom: 1px solid #2a2e3a;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #2a2e3a;
+        }
+
+        tbody tr:hover {
+            background: #0a0e1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #f0ad4e;
+            color: #ffffff;
+        }
+
+        .status-review {
+            background: #337ab7;
+            color: #ffffff;
+        }
+
+        .status-delivered {
+            background: #5cb85c;
+            color: #ffffff;
+        }
+
+        .status-rejected {
+            background: #d9534f;
+            color: #ffffff;
+        }
+
+        .download-btn {
+            background: #00ff9d;
+            color: #0a0e1a;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: #00e68a;
+        }
+
+        .download-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .purchase-btn {
+            background: #00ff9d;
+            color: #0a0e1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .purchase-btn:hover {
+            background: #00e68a;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 My FMV Reports</h1>
+            <a href="/homepage.html" class="back-link">← Back to Homepage</a>
+        </div>
+
+        <div class="reports-section">
+            <div id="reports-container">
+                <div class="loading">Loading your reports...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/unified-auth.js"></script>
+    <script>
+        const API_BASE = '/api/v1';
+
+        // Wait for unified-auth.js to load
+        async function initPage() {
+            // Wait a bit for unified-auth.js to initialize
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Check if user is logged in by checking localStorage
+            const userEmail = localStorage.getItem('userEmail');
+            
+            if (!userEmail) {
+                // Try to get from session storage
+                const sessionEmail = sessionStorage.getItem('userEmail');
+                if (!sessionEmail) {
+                    console.log('No user email found, showing all reports for demo');
+                    // For demo purposes, show all reports if no email is found
+                    // In production, you would redirect to login
+                }
+            }
+            
+            loadReports(userEmail || sessionEmail);
+        }
+
+        async function loadReports(userEmail) {
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/pending`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reports');
+                }
+                
+                const allReports = await response.json();
+                
+                // Filter reports by user email if available
+                let userReports = allReports;
+                if (userEmail) {
+                    userReports = allReports.filter(report => 
+                        report.client_email && report.client_email.toLowerCase() === userEmail.toLowerCase()
+                    );
+                }
+                
+                const container = document.getElementById('reports-container');
+                
+                if (userReports.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📄</div>
+                            <p>You haven't purchased any FMV reports yet.</p>
+                            <a href="/fmv-purchase.html" class="purchase-btn">Purchase Your First Report</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Report ID</th>
+                                <th>Crane</th>
+                                <th>Date Purchased</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${userReports.map(report => `
+                                <tr>
+                                    <td>#${report.id}</td>
+                                    <td>${report.make} ${report.model} (${report.year})</td>
+                                    <td>${new Date(report.created_at).toLocaleDateString()}</td>
+                                    <td>$${report.amount_paid.toLocaleString()}</td>
+                                    <td><span class="status-badge status-${report.status.toLowerCase()}">${report.status.toUpperCase()}</span></td>
+                                    <td>
+                                        ${report.status.toLowerCase() === 'delivered' 
+                                            ? `<a href="${report.pdf_path || '#'}" class="download-btn" download>📥 Download PDF</a>`
+                                            : `<button class="download-btn" disabled>Pending Review</button>`
+                                        }
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <a href="/fmv-purchase.html" class="purchase-btn">Purchase Another Report</a>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                document.getElementById('reports-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Error loading reports. Please refresh the page.</p>
+                        <p style="font-size: 12px; margin-top: 10px; color: #666;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize page when DOM is loaded
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

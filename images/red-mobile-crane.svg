@@ -1,0 +1,58 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#1a1a1a"/>
+  
+  <!-- Red Mobile Crane -->
+  <!-- Chassis/Base -->
+  <rect x="80" y="200" width="240" height="40" fill="#FF4444" rx="5"/>
+  
+  <!-- Wheels -->
+  <circle cx="100" cy="240" r="20" fill="#333333"/>
+  <circle cx="100" cy="240" r="12" fill="#555555"/>
+  <circle cx="150" cy="240" r="20" fill="#333333"/>
+  <circle cx="150" cy="240" r="12" fill="#555555"/>
+  <circle cx="250" cy="240" r="20" fill="#333333"/>
+  <circle cx="250" cy="240" r="12" fill="#555555"/>
+  <circle cx="300" cy="240" r="20" fill="#333333"/>
+  <circle cx="300" cy="240" r="12" fill="#555555"/>
+  
+  <!-- Driver's Cabin -->
+  <rect x="280" y="180" width="40" height="20" fill="#FF4444" rx="3"/>
+  <rect x="285" y="185" width="30" height="10" fill="#333333" rx="2"/>
+  
+  <!-- Rotating Platform -->
+  <circle cx="200" cy="220" r="30" fill="#CC3333"/>
+  
+  <!-- Main Boom (Telescopic) -->
+  <rect x="170" y="100" width="8" height="120" fill="#FF4444" rx="4"/>
+  <rect x="178" y="100" width="8" height="120" fill="#CC3333" rx="4"/>
+  <rect x="186" y="100" width="8" height="120" fill="#AA2222" rx="4"/>
+  
+  <!-- Boom Extension -->
+  <rect x="150" y="80" width="6" height="40" fill="#FF4444" rx="3"/>
+  <rect x="156" y="80" width="6" height="40" fill="#CC3333" rx="3"/>
+  
+  <!-- Hydraulic Cylinders -->
+  <rect x="190" y="150" width="4" height="60" fill="#333333" rx="2"/>
+  <rect x="200" y="150" width="4" height="60" fill="#333333" rx="2"/>
+  
+  <!-- Hook Assembly -->
+  <line x1="156" y1="80" x2="156" y2="60" stroke="#333333" stroke-width="2"/>
+  <path d="M 150 60 L 156 50 L 162 60 L 156 65 Z" fill="#333333"/>
+  
+  <!-- Counterweight -->
+  <rect x="120" y="200" width="40" height="20" fill="#666666" rx="3"/>
+  
+  <!-- Outriggers -->
+  <rect x="60" y="210" width="20" height="4" fill="#555555" rx="2"/>
+  <rect x="320" y="210" width="20" height="4" fill="#555555" rx="2"/>
+  
+  <!-- Subtle background texture -->
+  <defs>
+    <pattern id="noise" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#1a1a1a"/>
+      <circle cx="2" cy="2" r="0.5" fill="#222222" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#noise)"/>
+</svg>

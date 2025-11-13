@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Subscription - Crane Intelligence</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #a0a0a0;
+        }
+
+        .billing-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .billing-toggle button {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            color: #e0e0e0;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .billing-toggle button.active {
+            background: #00ff88;
+            color: #0a0e27;
+            border-color: #00ff88;
+        }
+
+        .billing-toggle button:hover {
+            border-color: #00ff88;
+        }
+
+        .save-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .pricing-card.popular {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #00ff88;
+            color: #0a0e27;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tier-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .tier-description {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+
+        .tier-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .tier-price span {
+            font-size: 20px;
+            color: #a0a0a0;
+        }
+
+        .tier-period {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 25px;
+        }
+
+        .tier-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .tier-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tier-features li:last-child {
+            border-bottom: none;
+        }
+
+        .tier-features li::before {
+            content: '✓';
+            color: #00ff88;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .select-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e27;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .select-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-plan {
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #00ff88;
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Upgrade Your Subscription</h1>
+            <p>Choose the perfect plan for your crane valuation needs</p>
+        </div>
+
+        <div class="billing-toggle">
+            <button id="monthlyBtn" class="active" onclick="toggleBilling('monthly')">Monthly</button>
+            <button id="yearlyBtn" onclick="toggleBilling('yearly')">
+                Yearly <span class="save-badge">SAVE 17%</span>
+            </button>
+        </div>
+
+        <div id="pricingContainer" class="pricing-grid">
+            <div class="loading">Loading subscription plans...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://craneintelligence.tech/api/v1';
+        let currentBilling = 'monthly';
+        let tiers = [];
+        let currentUserTier = null;
+
+        // Get auth token from localStorage
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Fetch subscription tiers
+        async function fetchTiers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/subscriptions/tiers`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch tiers');
+
+                const data = await response.json();
+                tiers = data.tiers || [];
+                
+                // Get current user subscription
+                await getCurrentSubscription();
+                
+                renderTiers();
+            } catch (error) {
+                console.error('Error fetching tiers:', error);
+                document.getElementById('pricingContainer').innerHTML = `
+                    <div class="error">
+                        Failed to load subscription plans. Please try again later.
+                    </div>
+                `;
+            }
+        }
+
+        // Get current user subscription
+        async function getCurrentSubscription() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUserTier = data.subscription_tier_id;
+                }
+            } catch (error) {
+                console.error('Error fetching current subscription:', error);
+            }
+        }
+
+        // Toggle billing period
+        function toggleBilling(period) {
+            currentBilling = period;
+            document.getElementById('monthlyBtn').classList.toggle('active', period === 'monthly');
+            document.getElementById('yearlyBtn').classList.toggle('active', period === 'yearly');
+            renderTiers();
+        }
+
+        // Render pricing tiers
+        function renderTiers() {
+            const container = document.getElementById('pricingContainer');
+            
+            if (tiers.length === 0) {
+                container.innerHTML = '<div class="loading">No subscription plans available</div>';
+                return;
+            }
+
+            container.innerHTML = tiers.map(tier => {
+                const price = currentBilling === 'monthly' ? tier.price_monthly : tier.price_yearly;
+                const isCurrentPlan = tier.id === currentUserTier;
+                const isPopular = tier.name === 'Professional';
+                
+                return `
+                    <div class="pricing-card ${isPopular ? 'popular' : ''}">
+                        ${isPopular ? '<div class="popular-badge">POPULAR</div>' : ''}
+                        
+                        <div class="tier-name">${tier.name}</div>
+                        <div class="tier-description">${tier.description || ''}</div>
+                        
+                        <div class="tier-price">
+                            $${price}
+                            <span>/${currentBilling === 'monthly' ? 'mo' : 'yr'}</span>
+                        </div>
+                        <div class="tier-period">
+                            ${currentBilling === 'yearly' ? 'Billed annually' : 'Billed monthly'}
+                        </div>
+                        
+                        <ul class="tier-features">
+                            <li>${tier.valuation_limit === -1 ? 'Unlimited' : tier.valuation_limit} valuations per month</li>
+                            <li>${tier.name === 'Free' ? 'Basic' : 'Advanced'} valuation tools</li>
+                            <li>${tier.name === 'Free' ? 'Community' : 'Priority'} support</li>
+                            ${tier.name !== 'Free' ? '<li>Export to PDF</li>' : ''}
+                            ${tier.name === 'Enterprise' ? '<li>Custom integrations</li>' : ''}
+                            ${tier.name === 'Enterprise' ? '<li>Dedicated account manager</li>' : ''}
+                        </ul>
+                        
+                        <button 
+                            class="select-btn ${isCurrentPlan ? 'current-plan' : ''}" 
+                            onclick="selectPlan(${tier.id}, '${currentBilling}')"
+                            ${isCurrentPlan ? 'disabled' : ''}
+                        >
+                            ${isCurrentPlan ? 'Current Plan' : tier.name === 'Free' ? 'Downgrade' : 'Upgrade to ' + tier.name}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Select a plan and initiate checkout
+        async function selectPlan(tierId, billingInterval) {
+            try {
+                const token = getAuthToken();
+                if (!token) {
+                    window.location.href = '/homepage.html';
+                    return;
+                }
+
+                // Show loading state
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Processing...';
+                button.disabled = true;
+
+                // Create checkout session
+                const response = await fetch(`${API_BASE_URL}/payments/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tier_id: tierId,
+                        billing_interval: billingInterval
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+
+                // Redirect to Stripe Checkout
+                window.location.href = data.checkout_url;
+
+            } catch (error) {
+                console.error('Error selecting plan:', error);
+                alert('Failed to process your request. Please try again.');
+                
+                // Reset button
+                event.target.textContent = originalText;
+                event.target.disabled = false;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/homepage.html';
+                return;
+            }
+            
+            fetchTiers();
+        });
+    </script>
+</body>
+</html>
+

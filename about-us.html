@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 20px 16px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 16px;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-section {
+                margin-bottom: 40px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-content {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            /* Tablet Layout - 2 columns side by side */
+            .footer-container {
+                padding: 0 16px !important;
+            }
+            
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 30px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .footer-links {
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 16px !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .footer-links a {
+                font-size: 14px !important;
+                padding: 8px 0 !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .newsletter input {
+                margin-bottom: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 12px;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .content-section {
+                margin-bottom: 32px;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .section-content {
+                font-size: 0.85rem;
+                line-height: 1.4;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+            
+            /* Mobile Layout - Single column stack */
+            .footer-container {
+                padding: 0 12px !important;
+            }
+            
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            .footer-desc {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                font-size: 12px !important;
+            }
+            
+            .footer-links {
+                align-items: center !important;
+            }
+            
+            .footer-title {
+                font-size: 15px !important;
+                margin-bottom: 14px !important;
+                text-align: center !important;
+            }
+            
+            .footer-links a {
+                font-size: 13px !important;
+                padding: 6px 0 !important;
+                text-align: center !important;
+            }
+            
+            .footer-bottom {
+                font-size: 11px !important;
+            }
+            
+            .footer-logo-svg {
+                height: 40px !important;
+            }
+            
+            .newsletter {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+            }
+            
+            .newsletter input {
+                margin-bottom: 12px !important;
+                width: 100% !important;
+            }
+            
+            .newsletter button {
+                width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            /* Small Mobile Layout - Single column stack */
+            .footer-container {
+                padding: 0 8px !important;
+            }
+            
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            
+            .footer-grid > div {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            .footer-title {
+                font-size: 14px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .footer-links a {
+                font-size: 12px !important;
+                padding: 4px 0 !important;
+            }
+            
+            .footer-desc {
+                font-size: 11px !important;
+            }
+            
+            .footer-newsletter-desc {
+                font-size: 11px !important;
+            }
+            
+            .newsletter input {
+                font-size: 12px !important;
+                padding: 8px !important;
+            }
+            
+            .newsletter button {
+                font-size: 12px !important;
+                padding: 8px 12px !important;
+            }
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #00FF85;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #B0B0B0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content-section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section-content {
+            font-size: 1.1rem;
+            color: #B0B0B0;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+            justify-content: center;
+        }
+        
+        .team-member {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .team-member:hover {
+            border-color: #00FF85;
+            transform: translateY(-5px);
+        }
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* Header styles are now handled by unified-header.css */
+
+        /* ===== MARKET TICKER - EXACT MATCH TO HOMEPAGE ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--spacing-xl) !important;
+            overflow: hidden !important;
+        }
+
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        /* ===== FOOTER STYLES - RADICAL RESPONSIVE APPROACH ===== */
+        .footer {
+            background: #1A1A1A !important;
+            color: #FFFFFF !important;
+            padding: 60px 0 30px !important;
+            margin-top: auto !important;
+            border-top: 1px solid #404040 !important;
+            width: 100% !important;
+            display: block !important;
+        }
+
+        .footer-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 20px !important;
+            width: 100% !important;
+            display: block !important;
+        }
+
+        /* Default Mobile Layout - Single Column Stack */
+        .footer-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 30px !important;
+            margin-bottom: 32px !important;
+            width: 100% !important;
+        }
+        
+        .footer-grid > div {
+            display: block !important;
+            width: 100% !important;
+        }
+        
+        /* Large Desktop - 4 columns side by side */
+        @media (min-width: 1200px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 50px !important;
+            }
+        }
+        
+        /* Desktop - 4 columns side by side */
+        @media (min-width: 769px) and (max-width: 1199px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 40px !important;
+            }
+        }
+        
+        /* Tablet - 2 columns side by side */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .footer-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 30px !important;
+            }
+        }
+        
+        /* Mobile - Single column stack (default) */
+        @media (max-width: 480px) {
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
+        }
+        
+        /* Force single column for all mobile devices */
+        @media (max-width: 768px) {
+            .footer-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+            }
+            
+            .footer-grid > div {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
+        }
+
+        .footer-brand {
+            display: flex !important;
+            align-items: flex-start !important;
+            margin-bottom: 20px !important;
+        }
+
+        .footer-logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 16px !important;
+            color: #FFFFFF !important;
+            line-height: 1.6 !important;
+            max-width: 100% !important;
+            margin-top: 16px !important;
+        }
+
+        .footer-title {
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            color: #FFFFFF !important;
+            margin-bottom: 16px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            display: block !important;
+            visibility: visible !important;
+            width: 100% !important;
+        }
+
+        .footer-links {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px !important;
+        }
+
+        .footer-links a {
+            color: #CCCCCC !important;
+            text-decoration: none !important;
+            font-size: 16px !important;
+            transition: color 0.3s ease !important;
+            display: block !important;
+            margin-bottom: 8px !important;
+            width: 100% !important;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85 !important;
+        }
+
+        .footer-newsletter-desc {
+            font-size: 16px !important;
+            color: #FFFFFF !important;
+            margin-bottom: 16px !important;
+            line-height: 1.5 !important;
+        }
+
+        .newsletter {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+
+        .newsletter input {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: #2A2A2A !important;
+            border: 1px solid #CCCCCC !important;
+            border-radius: 6px !important;
+            color: #FFFFFF !important;
+            font-size: 16px !important;
+            box-sizing: border-box !important;
+        }
+
+        .newsletter input::placeholder {
+            color: #CCCCCC !important;
+        }
+
+        .newsletter button {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: #00FF66 !important;
+            color: #1A1A1A !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            cursor: pointer !important;
+            transition: background 0.3s ease !important;
+        }
+
+        .newsletter button:hover {
+            background: #00CC55 !important;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #404040 !important;
+            padding-top: 24px !important;
+            text-align: center !important;
+        }
+
+        .footer-bottom p {
+            font-size: 14px !important;
+            color: #FFFFFF !important;
+            margin: 0 !important;
+            line-height: 1.5 !important;
+        }
+
+        /* ===== MODAL STYLES ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #1A1A1A;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 30px 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: #B0B0B0;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #FFFFFF;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0F0F0F;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-input::placeholder {
+            color: #808080;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 12px;
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background: #00CC6A;
+        }
+
+        .form-submit:disabled {
+            background: #404040;
+            cursor: not-allowed;
+        }
+
+        .form-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .form-link {
+            color: #00FF85;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .form-link:hover {
+            color: #00CC6A;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #404040;
+            border-top: 2px solid #00FF85;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .member-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: #404040;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #00FF85;
+        }
+        
+        .member-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+        
+        .member-role {
+            font-size: 1rem;
+            color: #00FF85;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .member-bio {
+            font-size: 0.9rem;
+            color: #B0B0B0;
+            line-height: 1.6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 30px;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00FF85;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #B0B0B0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+            padding: 60px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #000000;
+            color: #00FF85;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="about-us.html" class="nav-link active">ABOUT</a>
+                <a href="contact.html" class="nav-link">CONTACT</a>
+            </nav>
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
+                <button class="auth-btn signup" onclick="window.location.href='signup.html'">Sign Up</button>
+            </div>
+            
+            <div class="user-profile" id="userProfile">
+                <div class="user-avatar" onclick="toggleDropdown()">
+                    <span id="userInitials">U</span>
+                </div>
+                <div class="user-info" onclick="toggleDropdown()">
+                    <div class="user-name" id="userDisplayName">User</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="report-generation.html" class="dropdown-item">
+                        <span class="dropdown-icon">📈</span>
+                        Generate Report
+                    </a>
+                    <a href="profile.html" class="dropdown-item">
+                        <span class="dropdown-icon">👤</span>
+                        Profile
+                    </a>
+                    <a href="settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">667.8</span>
+                    <span class="ticker-change down">-1.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">NA-CRANE</span>
+                    <span class="ticker-price">762.1</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">EU-CRANE</span>
+                    <span class="ticker-price">639.8</span>
+                    <span class="ticker-change up">+2.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AS-CRANE</span>
+                    <span class="ticker-price">749.2</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">523.4</span>
+                    <span class="ticker-change up">+0.8%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">About Us</h1>
+            <p class="page-subtitle">
+                Revolutionizing crane valuation and market analysis through cutting-edge technology and industry expertise
+            </p>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="content-section">
+            <h2 class="section-title">Our Mission</h2>
+            <div class="section-content">
+                <p>
+                    At Crane Intelligence, we're transforming the heavy equipment industry by providing 
+                    data-driven insights, accurate valuations, and comprehensive market analysis for crane 
+                    professionals worldwide. Our platform combines advanced analytics, real-time market data, 
+                    and industry expertise to deliver unprecedented value to our clients.
+                </p>
+                <p>
+                    We believe that every crane transaction should be backed by reliable data, transparent 
+                    analysis, and professional insights. Our mission is to democratize access to high-quality 
+                    market intelligence, enabling better decision-making and fairer valuations across the industry.
+                </p>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">10,000+</div>
+                <div class="stat-label">Crane Listings</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">$2.5B+</div>
+                <div class="stat-label">Equipment Valued</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99.5%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="content-section">
+            <h2 class="section-title">Our Values</h2>
+            <div class="section-content">
+                <p>
+                    <strong>Innovation:</strong> We continuously push the boundaries of what's possible in 
+                    equipment valuation and market analysis, leveraging the latest technologies and methodologies.
+                </p>
+                <p>
+                    <strong>Transparency:</strong> We believe in open, honest communication and provide clear, 
+                    understandable insights that our clients can trust and act upon.
+                </p>
+                <p>
+                    <strong>Excellence:</strong> We maintain the highest standards in everything we do, from 
+                    data quality to customer service, ensuring our clients receive the best possible experience.
+                </p>
+                <p>
+                    <strong>Collaboration:</strong> We work closely with industry professionals, manufacturers, 
+                    and dealers to ensure our platform meets real-world needs and challenges.
+                </p>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="content-section">
+            <h2 class="section-title">Our Team</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-photo">👨‍💼</div>
+                    <div class="member-name">Phin Generelly</div>
+                    <div class="member-role">Founder & CEO</div>
+                    <div class="member-bio">
+                        Technology leader specializing in AI, machine learning, and data analytics. 
+                        Responsible for building the cutting-edge platform that powers our insights.
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="member-photo">👩‍💻</div>
+                    <div class="member-name">Ranjith Gopalakrishnan</div>
+                    <div class="member-role">CTO & Cofounder</div>
+                    <div class="member-bio">
+                        Industry veteran with 15+ years in heavy equipment and construction technology. 
+                        Passionate about leveraging data to solve real-world problems in the crane industry.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Section -->
+        <div class="content-section">
+            <h2 class="section-title">Our Technology</h2>
+            <div class="section-content">
+                <p>
+                    Our platform is built on a foundation of advanced technologies including artificial intelligence, 
+                    machine learning, and real-time data processing. We utilize proprietary algorithms that analyze 
+                    thousands of data points to provide accurate valuations and market insights.
+                </p>
+                <p>
+                    Our Bloomberg Terminal-style interface provides professionals with the tools they need to make 
+                    informed decisions, while our comprehensive API enables seamless integration with existing workflows 
+                    and systems.
+                </p>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2 class="cta-title">Ready to Transform Your Business?</h2>
+            <p class="cta-text">
+                Join hundreds of industry professionals who trust Crane Intelligence for their equipment valuation and market analysis needs.
+            </p>
+            <a href="signup.html" class="cta-button">Get Started Today</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="security.html">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p class="footer-newsletter-desc">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Login to Your Account</h2>
+                <span class="close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="error-message" id="loginErrorMessage"></div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail" class="form-label">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input type="password" id="loginPassword" name="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="form-submit" id="loginSubmitBtn">Login</button>
+                    <div class="loading" id="loginLoading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </form>
+                <div class="form-links">
+                    <a href="#" class="form-link" onclick="closeLoginModal(); window.location.href='signup.html'">Don't have an account? Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple market ticker animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const ticker = document.querySelector('.ticker-content');
+            if (ticker) {
+                ticker.style.animation = 'scroll 30s linear infinite';
+            }
+        });
+
+        // Modal functions
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Clear form
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginErrorMessage').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                closeLoginModal();
+            }
+        }
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorMessage = document.getElementById('loginErrorMessage');
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            const loading = document.getElementById('loginLoading');
+            
+            // Clear previous errors
+            errorMessage.style.display = 'none';
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('http://localhost:8004/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store tokens
+                    localStorage.setItem('access_token', result.data.tokens.access_token);
+                    localStorage.setItem('refresh_token', result.data.tokens.refresh_token);
+                    localStorage.setItem('user_data', JSON.stringify(result.data.user));
+                    
+                    // Update UI immediately to show user profile
+                    updateUserInterface(result.data.user);
+                    
+                    // Close modal
+                    closeLoginModal();
+                    
+                    // Show success message
+                    showDialog(
+                        'Login Successful', 
+                        'Welcome back! You are now logged in.',
+                        'success'
+                    );
+                } else {
+                    errorMessage.textContent = result.error || 'Login failed. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Network error. Please check your connection and try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Authentication and UI management functions
+        function checkAuthStatus() {
+            const accessToken = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (accessToken && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    updateUserInterface(user);
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    updateUserInterface(null);
+                }
+            } else {
+                updateUserInterface(null);
+            }
+        }
+
+        function updateUserInterface(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userInitials = document.getElementById('userInitials');
+            const userRole = document.getElementById('userRole');
+            
+            if (user) {
+                // Show user profile for logged-in users, hide auth buttons
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'none';
+                    userProfile.style.display = 'flex';
+                    authButtons.classList.remove('visible');
+                    userProfile.classList.add('visible');
+                }
+                
+                // Update user information
+                if (userDisplayName && userInitials) {
+                    const fullName = user.full_name || user.email || 'User';
+                    userDisplayName.textContent = fullName;
+                    userInitials.textContent = fullName.charAt(0).toUpperCase();
+                }
+                
+                if (userRole) {
+                    userRole.textContent = user.user_role || 'Premium User';
+                }
+            } else {
+                // Show auth buttons for guest users, hide user profile
+                if (authButtons && userProfile) {
+                    authButtons.style.display = 'flex';
+                    userProfile.style.display = 'none';
+                    authButtons.classList.add('visible');
+                    userProfile.classList.remove('visible');
+                }
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function logout() {
+            // Clear stored data
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            
+            // Update UI
+            updateUserInterface(null);
+            
+            // Show logout message
+            showDialog(
+                'Logged Out', 
+                'You have been successfully logged out.',
+                'success'
+            );
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.getElementById('userProfile');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+                const arrow = document.querySelector('.dropdown-arrow');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Dialog functions
+        function showDialog(title, message, type = 'info') {
+            // Create dialog overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'dialog-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+
+            // Create dialog box
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.style.cssText = `
+                background: #1A1A1A;
+                border: 1px solid #333;
+                border-radius: 8px;
+                padding: 24px;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            `;
+
+            // Set icon and colors based on type
+            let icon = 'ℹ️';
+            let titleColor = '#FFFFFF';
+            if (type === 'success') {
+                icon = '✅';
+                titleColor = '#00FF85';
+            } else if (type === 'error') {
+                icon = '❌';
+                titleColor = '#FF4444';
+            }
+
+            dialog.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 16px;">${icon}</div>
+                <h3 style="color: ${titleColor}; margin: 0 0 12px 0; font-size: 20px; font-weight: 600;">${title}</h3>
+                <p style="color: #B0B0B0; margin: 0 0 20px 0; line-height: 1.5;">${message}</p>
+                <button onclick="this.closest('.dialog-overlay').remove()" style="
+                    background: #00FF85;
+                    color: #0F0F0F;
+                    border: none;
+                    padding: 10px 24px;
+                    border-radius: 4px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">OK</button>
+            `;
+
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            // Auto-remove after 3 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

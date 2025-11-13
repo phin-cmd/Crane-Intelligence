@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sources - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <style>
+        /* Data Sources Specific Styles */
+        .data-sources-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .data-sources-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #404040;
+            padding-bottom: 16px;
+        }
+
+        .data-sources-tab {
+            background: transparent;
+            border: 1px solid #404040;
+            color: #B0B0B0;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .data-sources-tab:hover {
+            background: #2A2A2A;
+            color: #FFFFFF;
+        }
+
+        .data-sources-tab.active {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        .data-sources-panel {
+            display: none;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .data-sources-panel.active {
+            display: block;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h3 {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .source-card {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .source-card:hover {
+            border-color: #404040;
+            background: #1A1A1A;
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .source-header h4 {
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-badge.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .status-badge.warning {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .source-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-item .label {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-item .value {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .source-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+        }
+
+        .btn-danger {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        .btn-warning {
+            background: #FFD600;
+            color: #0F0F0F;
+        }
+
+        .btn-warning:hover {
+            background: #E6C200;
+        }
+
+        .add-source-form {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .required {
+            color: #FF4444;
+        }
+
+        .help-text {
+            color: #B0B0B0;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .quality-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .metric-header h4 {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .metric-score {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .metric-score.good {
+            color: #00FF85;
+        }
+
+        .metric-score.warning {
+            color: #FFD600;
+        }
+
+        .metric-score.bad {
+            color: #FF4444;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00FF85;
+            transition: width 0.3s ease;
+        }
+
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .job-item {
+            background: #121212;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .job-info h4 {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+
+        .job-info p {
+            color: #B0B0B0;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .job-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .job-status.running {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .job-status.completed {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007BFF;
+        }
+
+        .job-status.failed {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .job-status.pending {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-sources-nav {
+                flex-wrap: wrap;
+            }
+            
+            .source-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                    <span class="logo-text">Crane Intelligence</span>
+                </div>
+                <h1 class="page-title">Data Sources</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">Admin User</span>
+                    <div class="user-avatar">AU</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="users.html" class="nav-link">Users</a></li>
+                <li><a href="content.html" class="nav-link">Content</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="settings.html" class="nav-link">Settings</a></li>
+                <li><a href="security.html" class="nav-link">Security</a></li>
+                <li><a href="data.html" class="nav-link">Data</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="data-sources-container">
+                <!-- Data Sources Navigation -->
+                <div class="data-sources-nav">
+                    <button class="data-sources-tab active" data-tab="sources">Data Sources</button>
+                    <button class="data-sources-tab" data-tab="quality">Data Quality</button>
+                    <button class="data-sources-tab" data-tab="jobs">Background Jobs</button>
+                    <button class="data-sources-tab" data-tab="database">Database</button>
+                    <button class="data-sources-tab" data-tab="pipeline">Data Pipeline</button>
+                </div>
+
+                <!-- Data Sources Panel -->
+                <div class="data-sources-panel active" id="sources-panel">
+                    <div class="panel-header">
+                        <h3>Data Sources</h3>
+                        <button class="btn btn-primary" onclick="showAddSourceForm()">Add Data Source</button>
+                    </div>
+
+                    <!-- Market Data API Source -->
+                    <div class="source-card">
+                        <div class="source-header">
+                            <h4>Market Data API</h4>
+                            <span class="status-badge active">ACTIVE</span>
+                        </div>
+                        <div class="source-details">
+                            <div class="detail-item">
+                                <span class="label">Type</span>
+                                <span class="value">REST API</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Endpoint</span>
+                                <span class="value">https://api.marketdata.com/v1</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Last Sync</span>
+                                <span class="value">2 hours ago</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Records</span>
+                                <span class="value">15,420</span>
+                            </div>
+                        </div>
+                        <div class="source-actions">
+                            <button class="btn btn-secondary">Edit</button>
+                            <button class="btn btn-primary">Sync Now</button>
+                            <button class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+
+                    <!-- Crane Database Source -->
+                    <div class="source-card">
+                        <div class="source-header">
+                            <h4>Crane Database</h4>
+                            <span class="status-badge active">ACTIVE</span>
+                        </div>
+                        <div class="source-details">
+                            <div class="detail-item">
+                                <span class="label">Type</span>
+                                <span class="value">Database</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Connection</span>
+                                <span class="value">PostgreSQL</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Last Sync</span>
+                                <span class="value">1 hour ago</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Records</span>
+                                <span class="value">8,750</span>
+                            </div>
+                        </div>
+                        <div class="source-actions">
+                            <button class="btn btn-secondary">Edit</button>
+                            <button class="btn btn-primary">Sync Now</button>
+                            <button class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Source -->
+                    <div class="source-card">
+                        <div class="source-header">
+                            <h4>File Upload</h4>
+                            <span class="status-badge error">ERROR</span>
+                        </div>
+                        <div class="source-details">
+                            <div class="detail-item">
+                                <span class="label">Type</span>
+                                <span class="value">File Feed</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">File</span>
+                                <span class="value">crane_data.csv</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Last Sync</span>
+                                <span class="value">Failed</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Error</span>
+                                <span class="value">File not found</span>
+                            </div>
+                        </div>
+                        <div class="source-actions">
+                            <button class="btn btn-secondary">Edit</button>
+                            <button class="btn btn-primary">Retry</button>
+                            <button class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+
+                    <!-- Add New Data Source Form -->
+                    <div class="add-source-form" id="addSourceForm" style="display: none;">
+                        <h4>Add New Data Source</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sourceName">Source Name <span class="required">*</span></label>
+                                <input type="text" id="sourceName" name="source_name" required placeholder="Enter source name">
+                            </div>
+                            <div class="form-group">
+                                <label for="sourceType">Source Type <span class="required">*</span></label>
+                                <select id="sourceType" name="source_type" required>
+                                    <option value="">Select type...</option>
+                                    <option value="database">Database</option>
+                                    <option value="api">REST API</option>
+                                    <option value="file">File Upload</option>
+                                    <option value="webhook">Webhook</option>
+                                    <option value="ftp">FTP/SFTP</option>
+                                    <option value="s3">AWS S3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sourceUrl">Connection URL/Endpoint</label>
+                                <input type="text" id="sourceUrl" name="source_url" placeholder="https://api.example.com/data">
+                            </div>
+                            <div class="form-group">
+                                <label for="sourceAuth">Authentication</label>
+                                <select id="sourceAuth" name="source_auth">
+                                    <option value="none">None</option>
+                                    <option value="api_key">API Key</option>
+                                    <option value="basic">Basic Auth</option>
+                                    <option value="oauth">OAuth 2.0</option>
+                                    <option value="jwt">JWT Token</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceDescription">Description</label>
+                            <textarea id="sourceDescription" name="source_description" rows="2" placeholder="Brief description of this data source"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="createDataSource()">Create Source</button>
+                            <button class="btn btn-secondary" onclick="hideAddSourceForm()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Quality Panel -->
+                <div class="data-sources-panel" id="quality-panel">
+                    <div class="panel-header">
+                        <h3>Data Quality Metrics</h3>
+                        <button class="btn btn-primary" onclick="runQualityCheck()">Run Quality Check</button>
+                    </div>
+                    
+                    <div class="quality-metrics">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Overall Quality Score</h4>
+                                <span class="metric-score good">95%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Accuracy</h4>
+                                <span class="metric-score good">98%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 98%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Completeness</h4>
+                                <span class="metric-score good">92%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Consistency</h4>
+                                <span class="metric-score warning">87%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 87%; background: #FFD600;"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Timeliness</h4>
+                                <span class="metric-score good">94%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 94%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Validity</h4>
+                                <span class="metric-score good">96%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 96%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background Jobs Panel -->
+                <div class="data-sources-panel" id="jobs-panel">
+                    <div class="panel-header">
+                        <h3>Background Jobs</h3>
+                        <button class="btn btn-primary" onclick="createJob()">Create Job</button>
+                    </div>
+                    
+                    <div class="job-list">
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Sync - Market API</h4>
+                                <p>Syncing market data from external API</p>
+                            </div>
+                            <div class="job-status running">Running</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Database Backup</h4>
+                                <p>Creating full database backup</p>
+                            </div>
+                            <div class="job-status completed">Completed</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Quality Check</h4>
+                                <p>Running data quality validation</p>
+                            </div>
+                            <div class="job-status failed">Failed</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Index Rebuild</h4>
+                                <p>Rebuilding search indexes</p>
+                            </div>
+                            <div class="job-status pending">Pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Panel -->
+                <div class="data-sources-panel" id="database-panel">
+                    <div class="panel-header">
+                        <h3>Database Management</h3>
+                        <button class="btn btn-primary" onclick="optimizeDatabase()">Optimize Database</button>
+                    </div>
+                    
+                    <div class="quality-metrics">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Database Size</h4>
+                                <span class="metric-score good">1.8 TB</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                            <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">75% of allocated space used</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Connection Pool</h4>
+                                <span class="metric-score good">45/100</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%"></div>
+                            </div>
+                            <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Active connections</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h4>Query Performance</h4>
+                                <span class="metric-score good">2.3ms</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%"></div>
+                            </div>
+                            <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;">Average query time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Pipeline Panel -->
+                <div class="data-sources-panel" id="pipeline-panel">
+                    <div class="panel-header">
+                        <h3>Data Pipeline</h3>
+                        <button class="btn btn-primary" onclick="startPipeline()">Start Pipeline</button>
+                    </div>
+                    
+                    <div class="job-list">
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Ingestion</h4>
+                                <p>Collecting data from various sources</p>
+                            </div>
+                            <div class="job-status running">Running</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Processing</h4>
+                                <p>Cleaning and transforming data</p>
+                            </div>
+                            <div class="job-status running">Running</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Storage</h4>
+                                <p>Storing processed data</p>
+                            </div>
+                            <div class="job-status pending">Pending</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-info">
+                                <h4>Data Analysis</h4>
+                                <p>Generating insights and reports</p>
+                            </div>
+                            <div class="job-status pending">Pending</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Data Sources Tab Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.data-sources-tab');
+            const panels = document.querySelectorAll('.data-sources-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and panels
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding panel
+                    this.classList.add('active');
+                    document.getElementById(targetTab + '-panel').classList.add('active');
+                });
+            });
+        });
+
+        function showAddSourceForm() {
+            document.getElementById('addSourceForm').style.display = 'block';
+        }
+
+        function hideAddSourceForm() {
+            document.getElementById('addSourceForm').style.display = 'none';
+        }
+
+        function createDataSource() {
+            console.log('Creating data source...');
+            // Implement data source creation
+            hideAddSourceForm();
+        }
+
+        function runQualityCheck() {
+            console.log('Running quality check...');
+            // Implement quality check
+        }
+
+        function createJob() {
+            console.log('Creating background job...');
+            // Implement job creation
+        }
+
+        function optimizeDatabase() {
+            console.log('Optimizing database...');
+            // Implement database optimization
+        }
+
+        function startPipeline() {
+            console.log('Starting data pipeline...');
+            // Implement pipeline start
+        }
+    </script>
+</body>
+</html>

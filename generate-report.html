@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Report - CRANE INTELLIGENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <style>
+        /* ===== UNIFORM MARKET TICKER DESIGN ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            overflow: hidden !important;
+        }
+
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scroll 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+
+        .ticker-price {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .ticker-change {
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        /* COMPREHENSIVE ANTI-FLICKERING CSS */
+        * {
+            transition: none !important;
+            
+        }
+        
+        /* Prevent all visual updates that cause flickering */
+        .ticker-content {
+            animation: scroll 30s linear infinite !important;
+            will-change: transform !important;
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+            animation: scroll 30s linear infinite !important;
+        }
+        .metric-value, .chart-container, .data-card, .live-data, .market-data {
+            transition: none !important;
+            
+            
+        }
+        
+        /* Disable hover effects that might cause flickering */
+        *:hover {
+            transition: none !important;
+        }
+        
+        /* Prevent layout shifts */
+        .ticker-card, .metric-item, .dashboard-metric {
+            min-height: 1.2em;
+            overflow: hidden;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --accent-blue: #007BFF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            height: 80px !important;
+            position: relative !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            transition: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00FF85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            color: #B0B0B0;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #FFFFFF;
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #404040;
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #404040;
+            margin: 8px 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 40px;
+        }
+
+        .report-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .report-card {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .report-card:hover {
+            border-color: #00FF85;
+            transform: translateY(-2px);
+        }
+
+        .report-card.selected {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .report-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .report-description {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 16px;
+        }
+
+        .report-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-features li {
+            font-size: 12px;
+            color: #B0B0B0;
+            margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .report-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00FF85;
+        }
+
+        .form-container {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-select {
+            padding: 12px 16px;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .form-checkbox input {
+            width: 16px;
+            height: 16px;
+            accent-color: #00FF85;
+        }
+
+        .form-checkbox label {
+            font-size: 14px;
+            color: #FFFFFF;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: #00E676;
+        }
+
+        .btn-secondary {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 60px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand-section {
+            flex: 2;
+        }
+
+        .footer-links-section {
+            flex: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-bar {
+            width: 4px;
+            height: 40px;
+            background: #FFA500;
+            border-radius: 2px;
+        }
+
+        .footer-logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo-sub {
+            font-size: 16px;
+            font-weight: 400;
+            color: #FFFFFF;
+            line-height: 1;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .footer-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .footer-newsletter-text {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .footer-newsletter {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-email-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .footer-email-input::placeholder {
+            color: #808080;
+        }
+
+        .footer-subscribe-btn {
+            padding: 12px 24px;
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .footer-subscribe-btn:hover {
+            background: #00E676;
+        }
+
+        .footer-bottom {
+            margin-top: 32px;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: #333333;
+            margin-bottom: 20px;
+        }
+
+        .footer-copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .report-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <!-- Unified Header CSS -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <!-- Unified Authentication System -->
+    <script src="/js/unified-auth.js" defer></script>
+    <script src="js/anti-flickering.js"></script>
+    <link rel="stylesheet" href="css/optimized-ticker.css">
+    <script src="js/optimized-ticker.js"></script>
+  </head>
+<body>
+    <!-- Header -->
+        <!-- Unified Header -->
+    <header class="header">
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="/homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+
+            <!-- Navigation Menu (visible on homepage, hidden on other pages when logged in) -->
+            <nav class="nav-menu" id="navMenu">
+                <a href="/homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="/homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="/homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="/homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+
+            <!-- Right Side: Auth Buttons OR User Profile -->
+            <div class="header-right">
+                <!-- Login/Signup Buttons (shown when NOT logged in) -->
+                <div class="auth-buttons" id="authButtons" style="display: none;">
+                    <a href="/login.html" class="auth-btn login">Login</a>
+                    <a href="/signup.html" class="auth-btn signup">Sign Up</a>
+                </div>
+
+                <!-- User Profile Dropdown (shown when logged in) -->
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <div class="user-avatar">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userDisplayName">User Name</div>
+                        <div class="user-role" id="userRole">Free User</div>
+                    </div>
+                    <span class="dropdown-arrow">▼</span>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/dashboard.html" class="dropdown-item">
+                            <span class="dropdown-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="/valuation-terminal.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚡</span>
+                            Valuation Terminal
+                        </a>
+                        <a href="/account-settings.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" data-action="logout">
+                            <span class="dropdown-icon">🚪</span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">GENERATE REPORT</h1>
+        <p class="page-subtitle">Create comprehensive reports for your crane fleet and market analysis</p>
+
+        <div class="report-options">
+            <div class="report-card" data-type="fleet">
+                <div class="report-icon">📊</div>
+                <h3 class="report-title">Fleet Overview Report</h3>
+                <p class="report-description">Comprehensive analysis of your entire crane fleet</p>
+                <ul class="report-features">
+                    <li>Fleet valuation summary</li>
+                    <li>Equipment condition analysis</li>
+                    <li>Maintenance recommendations</li>
+                    <li>Market comparison</li>
+                </ul>
+            </div>
+            <div class="report-card" data-type="valuation">
+                <div class="report-icon">💰</div>
+                <h3 class="report-title">Valuation Report</h3>
+                <p class="report-description">Detailed valuation analysis for specific equipment</p>
+                <ul class="report-features">
+                    <li>Individual crane valuations</li>
+                    <li>Market price comparisons</li>
+                    <li>Depreciation analysis</li>
+                    <li>Investment recommendations</li>
+                </ul>
+            </div>
+            <div class="report-card" data-type="market">
+                <div class="report-icon">📈</div>
+                <h3 class="report-title">Market Analysis Report</h3>
+                <p class="report-description">Industry trends and market insights</p>
+                <ul class="report-features">
+                    <li>Market trend analysis</li>
+                    <li>Regional performance</li>
+                    <li>Price forecasting</li>
+                    <li>Investment opportunities</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="reportForm">
+                <div class="form-section">
+                    <h3 class="section-title">Report Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" name="reportType" required>
+                                <option value="">Select Report Type</option>
+                                <option value="fleet">Fleet Overview Report</option>
+                                <option value="valuation">Valuation Report</option>
+                                <option value="market">Market Analysis Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date Range</label>
+                            <select class="form-select" name="dateRange" required>
+                                <option value="">Select Date Range</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="90d">Last 90 Days</option>
+                                <option value="1y">Last Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" name="format" required>
+                                <option value="">Select Format</option>
+                                <option value="pdf">PDF Document</option>
+                                <option value="excel">Excel Spreadsheet</option>
+                                <option value="csv">CSV Data</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" name="email" placeholder="Enter email address" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Report Options</h3>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeCharts" name="includeCharts" checked>
+                        <label for="includeCharts">Include Charts and Graphs</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeRecommendations" name="includeRecommendations" checked>
+                        <label for="includeRecommendations">Include Recommendations</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeMarketData" name="includeMarketData">
+                        <label for="includeMarketData">Include Market Data</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeHistoricalData" name="includeHistoricalData">
+                        <label for="includeHistoricalData">Include Historical Data</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="generateBtn">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand-section">
+                    <div class="footer-logo">
+                        <div class="footer-logo-bar"></div>
+                        <div class="footer-logo-text">
+                            <div class="footer-logo-main">CRANE</div>
+                            <div class="footer-logo-sub">INTELLIGENCE</div>
+                        </div>
+                    </div>
+                    <p class="footer-description">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+                
+                <div class="footer-links-section">
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="about-us.html">About Us</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="blog.html">Blog</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Legal & Support</h4>
+                        <ul class="footer-links">
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                            <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                            <li><a href="security.html">Security</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-section-title">Stay Updated</h4>
+                        <p class="footer-newsletter-text">Get the latest insights and market analysis delivered to your inbox</p>
+                        <div class="footer-newsletter">
+                            <input type="email" placeholder="Enter your email" class="footer-email-input">
+                            <button class="footer-subscribe-btn">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-divider"></div>
+                <p class="footer-copyright">&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Report card selection
+        document.querySelectorAll('.report-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.report-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Update the report type select
+                const reportType = this.dataset.type;
+                const select = document.querySelector('select[name="reportType"]');
+                select.value = reportType;
+            });
+        });
+
+        // User Profile Dropdown
+        function toggleDropdown() {
+            const dropdown = document.getElementById("userDropdown");
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("user_data");
+            window.location.href = "homepage.html";
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function(event) {
+            const dropdown = document.getElementById("userDropdown");
+            const userProfile = document.getElementById("userProfile");
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+
+        // Authentication check
+        window.addEventListener("load", function() {
+            const token = localStorage.getItem("access_token");
+            const userData = localStorage.getItem("user_data");
+            
+            if (!token) {
+                window.location.href = "homepage.html";
+                return;
+            }
+            
+            // Update user interface with stored data
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    const userDisplayName = document.getElementById("userDisplayName");
+                    const userInitials = document.getElementById("userInitials");
+                    const userRole = document.getElementById("userRole");
+                    
+                    if (userDisplayName) userDisplayName.textContent = user.username || user.email || "User";
+                    if (userInitials) {
+                        const name = user.username || user.email || "User";
+                        userInitials.textContent = name.charAt(0).toUpperCase() + (name.split(' ')[1] ? name.split(' ')[1].charAt(0).toUpperCase() : name.charAt(1).toUpperCase());
+                    }
+                    if (userRole) userRole.textContent = user.role || "Premium User";
+                } catch (e) {
+                    console.log("Error parsing user data:", e);
+                }
+            }
+        });
+
+        // Form submission
+        document.getElementById("reportForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const generateBtn = document.getElementById("generateBtn");
+            const originalText = generateBtn.textContent;
+            
+            generateBtn.textContent = "Generating...";
+            generateBtn.disabled = true;
+            
+            // Simulate report generation
+            // setTimeout(// DISABLED to prevent flickering // () => {
+                generateBtn.textContent = "Report Generated!";
+                generateBtn.style.background = "#00E676";
+                
+                // setTimeout(// DISABLED to prevent flickering // () => {
+                    generateBtn.textContent = originalText;
+                    generateBtn.disabled = false;
+                    generateBtn.style.background = "#00FF85";
+                }, 2000);
+            }, 3000);
+        });
+    </script>
+    <script src="/js/auto-init-auth.js"></script>
+    <script src="js/api-client.js"></script>
+</body>
+</html>

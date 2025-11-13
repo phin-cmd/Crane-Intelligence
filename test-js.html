@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Test</title>
+</head>
+<body>
+    <h1>JavaScript Test</h1>
+    <div id="testValue">--</div>
+    <button onclick="testFunction()">Test Button</button>
+    <script>
+        function testFunction() {
+            console.log('Test function called');
+            document.getElementById('testValue').textContent = 'JavaScript works!';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            setTimeout(function() {
+                console.log('Auto-testing...');
+                testFunction();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

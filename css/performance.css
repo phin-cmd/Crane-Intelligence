@@ -1,0 +1,208 @@
+/* Crane Intelligence - Performance Optimizations */
+
+/* Critical CSS for above-the-fold content */
+.hero-section {
+    contain: layout style paint;
+}
+
+.header-container {
+    contain: layout style;
+}
+
+/* Image optimization */
+img {
+    max-width: 100%;
+    height: auto;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Lazy loading for images */
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+img[loading="lazy"].loaded {
+    opacity: 1;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* GPU acceleration for animations */
+.btn, .nav-link, .mobile-menu-toggle {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* Focus management for accessibility */
+*:focus {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--accent-green);
+    color: var(--primary-charcoal);
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 10000;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* Print optimizations */
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+    
+    .header-container,
+    .mobile-menu,
+    .footer {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --text-primary: #FFFFFF;
+        --text-secondary: #FFFFFF;
+        --border-color: #FFFFFF;
+        --accent-green: #00FF00;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #FFFFFF;
+        --text-secondary: #B0B0B0;
+        --background: #0F0F0F;
+    }
+}
+
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+    :root {
+        --text-primary: #000000;
+        --text-secondary: #666666;
+        --background: #FFFFFF;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+    
+    .nav-link:hover {
+        background-color: transparent;
+    }
+}
+
+/* Landscape orientation optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Portrait orientation optimizations */
+@media (orientation: portrait) {
+    .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Critical resource hints */
+.link-preload {
+    rel: preload;
+    as: style;
+}
+
+/* Font display optimization */
+@font-face {
+    font-family: 'Inter';
+    font-display: swap;
+}
+
+/* Container queries for modern browsers */
+@supports (container-type: inline-size) {
+    .responsive-container {
+        container-type: inline-size;
+    }
+    
+    @container (min-width: 768px) {
+        .responsive-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+}
+
+/* Fallbacks for older browsers */
+@supports not (display: grid) {
+    .features-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .feature-card {
+        flex: 1 1 300px;
+        margin: 10px;
+    }
+}
+
+/* Performance monitoring */
+.performance-observer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    display: none;
+}
+
+.performance-observer.show {
+    display: block;
+}

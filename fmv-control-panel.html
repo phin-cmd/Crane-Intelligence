@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMV Control Panel - Crane Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #00ff9d;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #00ff9d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1e2a;
+            border: 1px solid #2a2e3a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ff9d;
+        }
+
+        .reports-section {
+            background: #1a1e2a;
+            border: 1px solid #2a2e3a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: #6c757d;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6268;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #0a0e1a;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a0a0a0;
+            border-bottom: 1px solid #2a2e3a;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #2a2e3a;
+        }
+
+        tbody tr:hover {
+            background: #0a0e1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #f0ad4e;
+            color: #ffffff;
+        }
+
+        .status-review {
+            background: #337ab7;
+            color: #ffffff;
+        }
+
+        .status-delivered {
+            background: #5cb85c;
+            color: #ffffff;
+        }
+
+        .status-rejected {
+            background: #d9534f;
+            color: #ffffff;
+        }
+
+        .action-btn {
+            background: #337ab7;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: #2e6da4;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0a0e1a;
+            border: 2px solid #00ff9d;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2a2e3a;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            color: #00ff9d;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #ffffff;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            background: #1a1e2a;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .valuation-section {
+            background: #1a1e2a;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .valuation-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #00ff9d;
+        }
+
+        .notes-section {
+            margin-bottom: 20px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 100px;
+            background: #1a1e2a;
+            border: 1px solid #2a2e3a;
+            border-radius: 4px;
+            padding: 12px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #00ff9d;
+            color: #0a0e1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #00e68a;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #d9534f;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-danger:hover {
+            background: #d43f3a;
+        }
+
+        .btn-warning {
+            background: #f0ad4e;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-warning:hover {
+            background: #eea236;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ FMV Control Panel</h1>
+            <div>
+                <a href="/admin/" style="color: #00ff9d; text-decoration: none; margin-right: 20px;">← Back to Admin</a>
+                <a href="/homepage.html" style="color: #00ff9d; text-decoration: none;">← Back to Homepage</a>
+            </div>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value" id="stat-pending">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">In Review</div>
+                <div class="stat-value" id="stat-review">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Delivered</div>
+                <div class="stat-value" id="stat-delivered">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rejected</div>
+                <div class="stat-value" id="stat-rejected">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="stat-revenue">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Processing Time</div>
+                <div class="stat-value" id="stat-time">--</div>
+            </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="reports-section">
+            <div class="section-header">
+                <h2 class="section-title">Pending Reports</h2>
+                <button class="refresh-btn" onclick="loadReports()">🔄 Refresh</button>
+            </div>
+
+            <div id="reports-container">
+                <div class="loading">Loading reports...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Report Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div id="modal-body">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentReport = null;
+
+        // Load stats and reports on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadReports();
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadStats();
+                loadReports();
+            }, 30000);
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('stat-pending').textContent = stats.pending;
+                document.getElementById('stat-review').textContent = stats.in_review;
+                document.getElementById('stat-delivered').textContent = stats.delivered;
+                document.getElementById('stat-rejected').textContent = stats.rejected;
+                document.getElementById('stat-revenue').textContent = `$${stats.total_revenue.toLocaleString()}`;
+                document.getElementById('stat-time').textContent = stats.avg_processing_time 
+                    ? `${stats.avg_processing_time.toFixed(1)}h` 
+                    : '--';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadReports() {
+            console.log('[FMV] Loading reports...');
+            try {
+                console.log('[FMV] Fetching from:', `${API_BASE}/fmv-control/pending`);
+                const response = await fetch(`${API_BASE}/fmv-control/pending`);
+                console.log('[FMV] Response status:', response.status);
+                const reports = await response.json();
+                console.log('[FMV] Reports received:', reports);
+                
+                const container = document.getElementById('reports-container');
+                
+                if (reports.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>No pending reports</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Crane</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${reports.map(report => `
+                                <tr>
+                                    <td>#${report.id}</td>
+                                    <td>${report.client_email}</td>
+                                    <td>${report.make} ${report.model} (${report.year})</td>
+                                    <td>${new Date(report.created_at).toLocaleDateString()}</td>
+                                    <td>$${report.amount_paid.toLocaleString()}</td>
+                                    <td><span class="status-badge status-${report.status}">${report.status.toUpperCase()}</span></td>
+                                    <td><button class="action-btn" onclick="viewReport(${report.id})">Review</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('[FMV] Error loading reports:', error);
+                console.error('[FMV] Error stack:', error.stack);
+                document.getElementById('reports-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Error loading reports: ${error.message}</p>
+                        <p style="font-size: 12px; color: #666;">Check console for details</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function viewReport(reportId) {
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/${reportId}`);
+                currentReport = await response.json();
+                
+                const modalBody = document.getElementById('modal-body');
+                modalBody.innerHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Client Name</div>
+                            <div class="detail-value">${currentReport.client_name || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Client Email</div>
+                            <div class="detail-value">${currentReport.client_email}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Make</div>
+                            <div class="detail-value">${currentReport.make}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Model</div>
+                            <div class="detail-value">${currentReport.model}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Year</div>
+                            <div class="detail-value">${currentReport.year}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Hours</div>
+                            <div class="detail-value">${currentReport.hours || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tonnage</div>
+                            <div class="detail-value">${currentReport.tonnage || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Asking Price</div>
+                            <div class="detail-value">$${currentReport.asking_price ? currentReport.asking_price.toLocaleString() : 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <div class="valuation-section">
+                        <div class="valuation-title">Valuation Data</div>
+                        <div id="valuation-data">
+                            ${currentReport.valuation_data 
+                                ? `<pre style="color: #00ff9d; font-size: 14px;">${JSON.stringify(currentReport.valuation_data, null, 2)}</pre>`
+                                : '<p style="color: #a0a0a0;">No valuation data yet. Click "Run Valuation" to generate.</p>'
+                            }
+                        </div>
+                    </div>
+
+                    <div class="notes-section">
+                        <div class="detail-label">Internal Notes</div>
+                        <textarea class="notes-textarea" id="report-notes" placeholder="Add internal notes...">${currentReport.notes || ''}</textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        ${!currentReport.valuation_data ? `
+                            <button class="btn-warning" onclick="runValuation()">▶️ Run Valuation</button>
+                        ` : ''}
+                        ${currentReport.valuation_data && currentReport.status !== 'delivered' ? `
+                            <button class="btn-primary" onclick="approveReport()">✅ Approve</button>
+                            <button class="btn-danger" onclick="rejectReport()">❌ Reject</button>
+                        ` : ''}
+                        <button class="btn-secondary" onclick="closeModal()">Close</button>
+                    </div>
+                `;
+                
+                document.getElementById('reportModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading report details:', error);
+                alert('Error loading report details. Please try again.');
+            }
+        }
+
+        async function runValuation() {
+            if (!currentReport) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/run-valuation/${currentReport.id}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Valuation completed successfully!');
+                    viewReport(currentReport.id); // Reload the modal
+                    loadStats(); // Refresh stats
+                } else {
+                    alert(`Error: ${result.detail}`);
+                }
+            } catch (error) {
+                console.error('Error running valuation:', error);
+                alert('Error running valuation. Please try again.');
+            }
+        }
+
+        async function approveReport() {
+            if (!currentReport) return;
+            
+            if (!confirm('Are you sure you want to approve this report? The PDF will be generated and sent to the client.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/approve/${currentReport.id}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✅ Report approved and sent to ${currentReport.client_email}!`);
+                    closeModal();
+                    loadReports();
+                    loadStats();
+                } else {
+                    alert(`Error: ${result.detail}`);
+                }
+            } catch (error) {
+                console.error('Error approving report:', error);
+                alert('Error approving report. Please try again.');
+            }
+        }
+
+        async function rejectReport() {
+            if (!currentReport) return;
+            
+            const reason = prompt('Please enter the rejection reason:');
+            if (!reason) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/fmv-control/reject/${currentReport.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Report rejected successfully.');
+                    closeModal();
+                    loadReports();
+                    loadStats();
+                } else {
+                    alert(`Error: ${result.detail}`);
+                }
+            } catch (error) {
+                console.error('Error rejecting report:', error);
+                alert('Error rejecting report. Please try again.');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.remove('active');
+            currentReport = null;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'reportModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

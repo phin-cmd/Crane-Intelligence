@@ -1,0 +1,118 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f9fa"/>
+  
+  <!-- Sky gradient -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="craneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#374151;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="boomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF5330;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#skyGradient)"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="550" width="800" height="50" fill="#6b7280"/>
+  
+  <!-- Grove GMK5250L Mobile Crane -->
+  
+  <!-- Main Chassis (Red) -->
+  <rect x="200" y="450" width="400" height="100" fill="url(#redGradient)" rx="10"/>
+  
+  <!-- Driver's Cab (Red) -->
+  <rect x="250" y="400" width="120" height="50" fill="url(#redGradient)" rx="5"/>
+  <rect x="260" y="410" width="100" height="30" fill="#1e40af" rx="3"/>
+  
+  <!-- GROVE Logo on Cab -->
+  <text x="310" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2937">GROVE</text>
+  
+  <!-- Wheels (5 axles) -->
+  <circle cx="220" cy="550" r="18" fill="#374151"/>
+  <circle cx="280" cy="550" r="18" fill="#374151"/>
+  <circle cx="340" cy="550" r="18" fill="#374151"/>
+  <circle cx="400" cy="550" r="18" fill="#374151"/>
+  <circle cx="460" cy="550" r="18" fill="#374151"/>
+  <circle cx="520" cy="550" r="18" fill="#374151"/>
+  
+  <!-- Wheel Hubs (Red) -->
+  <circle cx="220" cy="550" r="12" fill="url(#redGradient)"/>
+  <circle cx="280" cy="550" r="12" fill="url(#redGradient)"/>
+  <circle cx="340" cy="550" r="12" fill="url(#redGradient)"/>
+  <circle cx="400" cy="550" r="12" fill="url(#redGradient)"/>
+  <circle cx="460" cy="550" r="12" fill="url(#redGradient)"/>
+  <circle cx="520" cy="550" r="12" fill="url(#redGradient)"/>
+  
+  <!-- Superstructure (Red) -->
+  <rect x="350" y="350" width="200" height="100" fill="url(#redGradient)" rx="8"/>
+  
+  <!-- GMK5250L Model Text -->
+  <text x="450" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1f2937">GMK5250L</text>
+  
+  <!-- Operator's Cab (Red) -->
+  <rect x="480" y="320" width="60" height="30" fill="url(#redGradient)" rx="3"/>
+  <rect x="485" y="325" width="50" height="20" fill="#1e40af" rx="2"/>
+  
+  <!-- Main Boom (Red) -->
+  <rect x="450" y="300" width="250" height="25" fill="url(#boomGradient)" rx="12"/>
+  
+  <!-- Boom Sections (Telescopic) -->
+  <rect x="700" y="305" width="200" height="15" fill="url(#boomGradient)" rx="7"/>
+  <rect x="900" y="308" width="150" height="9" fill="url(#boomGradient)" rx="4"/>
+  
+  <!-- Boom Head (Grey with Red/White Chevrons) -->
+  <rect x="1050" y="300" width="40" height="25" fill="#6b7280" rx="5"/>
+  <polygon points="1050,300 1070,300 1060,315" fill="#dc2626"/>
+  <polygon points="1070,300 1090,300 1080,315" fill="#ffffff"/>
+  
+  <!-- Hook Block (Red/White Chevrons) -->
+  <rect x="1060" y="325" width="20" height="15" fill="#dc2626" rx="3"/>
+  <rect x="1065" y="330" width="10" height="5" fill="#ffffff" rx="1"/>
+  
+  <!-- Hoist Ropes -->
+  <line x1="1070" y1="340" x2="1070" y2="400" stroke="#374151" stroke-width="2"/>
+  <line x1="1065" y1="340" x2="1065" y2="400" stroke="#374151" stroke-width="2"/>
+  <line x1="1075" y1="340" x2="1075" y2="400" stroke="#374151" stroke-width="2"/>
+  
+  <!-- Load (Building Block) -->
+  <rect x="1050" y="400" width="40" height="30" fill="#dc2626" rx="3"/>
+  <rect x="1055" y="405" width="30" height="20" fill="#ffffff" rx="2"/>
+  
+  <!-- Outriggers (Red/White Chevrons) -->
+  <rect x="180" y="460" width="20" height="80" fill="#dc2626" rx="3"/>
+  <rect x="600" y="460" width="20" height="80" fill="#dc2626" rx="3"/>
+  <polygon points="180,460 200,460 190,475" fill="#ffffff"/>
+  <polygon points="600,460 620,460 610,475" fill="#ffffff"/>
+  
+  <!-- Counterweight -->
+  <rect x="320" y="420" width="30" height="80" fill="#dc2626" rx="3"/>
+  
+  <!-- Safety Lights -->
+  <circle cx="280" cy="400" r="3" fill="#dc2626"/>
+  <circle cx="520" cy="320" r="3" fill="#dc2626"/>
+  
+  <!-- Hydraulic Lines -->
+  <line x1="450" y1="350" x2="700" y2="300" stroke="#374151" stroke-width="2"/>
+  <line x1="450" y1="360" x2="700" y2="310" stroke="#374151" stroke-width="2"/>
+  
+  <!-- Construction Site Elements -->
+  <rect x="50" y="500" width="80" height="50" fill="#6b7280" rx="3"/>
+  <rect x="150" y="480" width="40" height="70" fill="#6b7280" rx="3"/>
+  <rect x="650" y="520" width="60" height="30" fill="#6b7280" rx="3"/>
+  
+  <!-- Professional Text -->
+  <text x="400" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#374151">Professional Grove GMK5250L Mobile Crane</text>
+</svg>

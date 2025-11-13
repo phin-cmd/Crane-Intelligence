@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Analytics - CRANE INTELLIGENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        /* ===== ADVANCED ANALYTICS STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: 16px 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            align-items: center !important;
+            height: 80px !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            justify-self: start !important;
+            transition: none !important;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+        }
+
+        .mobile-menu-toggle {
+            display: none !important;
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 20px;
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-top: none;
+            padding: var(--space-md);
+            flex-direction: column;
+            gap: var(--space-md);
+            z-index: 1000;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFD600 !important;
+        }
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.2s !important;
+        }
+
+        .nav-link:hover {
+            color: #FFD600 !important;
+        }
+
+        .nav-link.active {
+            color: #00FF85 !important;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            justify-self: end;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #FFD600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #0F0F0F;
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00FF85, #FFD600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #B0B0B0;
+            font-weight: 400;
+        }
+
+        /* Live Ticker */
+        .live-ticker {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .ticker-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00FF85;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00FF85;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .ticker-content {
+            display: flex;
+            gap: 32px;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+
+        .ticker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+            padding: 12px;
+            background: #121212;
+            border-radius: 8px;
+            border: 1px solid #333333;
+        }
+
+        .ticker-label {
+            font-size: 0.85rem;
+            color: #B0B0B0;
+            margin-bottom: 4px;
+        }
+
+        .ticker-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ticker-change {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .ticker-change.positive {
+            color: #00FF85;
+        }
+
+        .ticker-change.negative {
+            color: #FF4444;
+        }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .analytics-card {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #404040;
+            background: #121212;
+            color: #B0B0B0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 16px;
+        }
+
+        .chart-container canvas {
+            max-height: 100%;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .control-btn {
+            padding: 6px 12px;
+            border: 1px solid #404040;
+            background: #121212;
+            color: #B0B0B0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .control-btn.active {
+            background: #00FF85;
+            color: #0F0F0F;
+            border-color: #00FF85;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #B0B0B0;
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive {
+            color: #00FF85;
+        }
+
+        .kpi-change.negative {
+            color: #FF4444;
+        }
+
+        /* Real-time Data Table */
+        .data-table-container {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #404040;
+            background: #121212;
+            color: #FFFFFF;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+
+        .data-table th {
+            background: #121212;
+            color: #B0B0B0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+        }
+
+        .data-table td {
+            color: #FFFFFF;
+        }
+
+        .data-table tr:hover {
+            background: #121212;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-badge.warning {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .status-badge.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px;
+                flex-direction: row;
+                height: 80px;
+                gap: 16px;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: block !important;
+                margin-left: auto;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ticker-content {
+                gap: 16px;
+            }
+
+            .ticker-item {
+                min-width: 100px;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #B0B0B0;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #404040;
+            border-top: 2px solid #00FF85;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+            <div class="user-profile" id="userProfile" onclick="toggleDropdown()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">JD</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">John Doe</div>
+                    <div class="user-role" id="userRole">Premium User</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">234.5</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">567.3</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Advanced Analytics</h1>
+            <p class="page-subtitle">Real-time market intelligence and comprehensive data analysis</p>
+        </div>
+
+        <!-- Live Ticker -->
+        <div class="live-ticker">
+            <div class="ticker-header">
+                <h3 class="ticker-title">
+                    <span class="live-indicator"></span>
+                    Live Market Data
+                </h3>
+                <div class="ticker-controls">
+                    <button class="control-btn" onclick="toggleTicker()">Pause</button>
+                </div>
+            </div>
+            <div class="ticker-content" id="tickerContent">
+                <!-- Ticker items will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value" id="totalCranes">1,247</div>
+                <div class="kpi-label">Total Cranes Tracked</div>
+                <div class="kpi-change positive">+12.5%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="avgValue">$2.4M</div>
+                <div class="kpi-label">Average Value</div>
+                <div class="kpi-change positive">+8.2%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="marketGrowth">15.3%</div>
+                <div class="kpi-label">Market Growth</div>
+                <div class="kpi-change positive">+2.1%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="activeUsers">892</div>
+                <div class="kpi-label">Active Users</div>
+                <div class="kpi-change positive">+5.7%</div>
+            </div>
+        </div>
+
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+            <!-- Market Trends Chart -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <h3 class="card-title">Market Trends</h3>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="exportChart('marketTrends')" title="Export">📊</button>
+                        <button class="action-btn" onclick="fullscreenChart('marketTrends')" title="Fullscreen">⛶</button>
+                    </div>
+                </div>
+                <div class="chart-controls">
+                    <button class="control-btn active" onclick="setTimeRange('1D')">1D</button>
+                    <button class="control-btn" onclick="setTimeRange('1W')">1W</button>
+                    <button class="control-btn" onclick="setTimeRange('1M')">1M</button>
+                    <button class="control-btn" onclick="setTimeRange('1Y')">1Y</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketTrendsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Equipment Distribution -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <h3 class="card-title">Equipment Distribution</h3>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="exportChart('equipmentDist')" title="Export">📊</button>
+                        <button class="action-btn" onclick="fullscreenChart('equipmentDist')" title="Fullscreen">⛶</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="equipmentDistChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Regional Analysis -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <h3 class="card-title">Regional Analysis</h3>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="exportChart('regionalAnalysis')" title="Export">📊</button>
+                        <button class="action-btn" onclick="fullscreenChart('regionalAnalysis')" title="Fullscreen">⛶</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="regionalAnalysisChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <h3 class="card-title">Performance Metrics</h3>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="exportChart('performanceMetrics')" title="Export">📊</button>
+                        <button class="action-btn" onclick="fullscreenChart('performanceMetrics')" title="Fullscreen">⛶</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceMetricsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Data Table -->
+        <div class="data-table-container">
+            <div class="table-header">
+                <h3 class="table-title">Live Equipment Data</h3>
+                <div class="table-filters">
+                    <select class="filter-select" id="regionFilter">
+                        <option value="">All Regions</option>
+                        <option value="North America">North America</option>
+                        <option value="Europe">Europe</option>
+                        <option value="Asia">Asia</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="Mobile Crane">Mobile Crane</option>
+                        <option value="Tower Crane">Tower Crane</option>
+                        <option value="Crawler Crane">Crawler Crane</option>
+                        <option value="Overhead Crane">Overhead Crane</option>
+                    </select>
+                    <button class="control-btn" onclick="refreshData()">Refresh</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="equipmentTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Model</th>
+                            <th>Location</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                            <th>Last Update</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipmentTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global variables
+        let charts = {};
+        let tickerInterval;
+        let dataRefreshInterval;
+        let isTickerPaused = false;
+
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (mobileMenu && mobileMenuToggle) {
+                mobileMenu.classList.toggle('active');
+                const isActive = mobileMenu.classList.contains('active');
+                
+                // Update hamburger icon
+                const icon = mobileMenuToggle.querySelector('svg');
+                if (isActive) {
+                    icon.innerHTML = `
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    `;
+                } else {
+                    icon.innerHTML = `
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    `;
+                }
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle event listener
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            }
+            
+            initializeTicker();
+            initializeCharts();
+            loadEquipmentData();
+            startDataRefresh();
+        });
+
+        // Live Ticker Functions
+        function initializeTicker() {
+            const tickerData = [
+                { label: 'Total Cranes', value: '1,247', change: '+12.5%', positive: true },
+                { label: 'Avg Value', value: '$2.4M', change: '+8.2%', positive: true },
+                { label: 'Market Cap', value: '$2.98B', change: '+15.3%', positive: true },
+                { label: 'Active Users', value: '892', change: '+5.7%', positive: true },
+                { label: 'API Calls', value: '14.2K', change: '+23.1%', positive: true },
+                { label: 'Response Time', value: '147ms', change: '-12.3%', positive: true },
+                { label: 'Uptime', value: '99.9%', change: '+0.1%', positive: true },
+                { label: 'Data Points', value: '2.1M', change: '+18.7%', positive: true }
+            ];
+
+            renderTickerItems(tickerData);
+            startTickerAnimation();
+        }
+
+        function renderTickerItems(data) {
+            const container = document.getElementById('tickerContent');
+            container.innerHTML = '';
+
+            data.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'ticker-item';
+                itemElement.innerHTML = `
+                    <div class="ticker-label">${item.label}</div>
+                    <div class="ticker-value">${item.value}</div>
+                    <div class="ticker-change ${item.positive ? 'positive' : 'negative'}">${item.change}</div>
+                `;
+                container.appendChild(itemElement);
+            });
+        }
+
+        function startTickerAnimation() {
+            if (isTickerPaused) return;
+            
+            const container = document.getElementById('tickerContent');
+            const items = container.querySelectorAll('.ticker-item');
+            
+            items.forEach((item, index) => {
+                // Add random variation to values
+                const valueElement = item.querySelector('.ticker-value');
+                const changeElement = item.querySelector('.ticker-change');
+                
+                // Simulate real-time updates
+                if (Math.random() > 0.7) {
+                    valueElement.style.color = '#00FF85';
+                    setTimeout(() => {
+                        valueElement.style.color = '#FFFFFF';
+                    }, 1000);
+                }
+            });
+        }
+
+        function toggleTicker() {
+            isTickerPaused = !isTickerPaused;
+            const button = event.target;
+            button.textContent = isTickerPaused ? 'Resume' : 'Pause';
+            
+            if (!isTickerPaused) {
+                startTickerAnimation();
+            }
+        }
+
+        // Chart Functions
+        function initializeCharts() {
+            initializeMarketTrendsChart();
+            initializeEquipmentDistChart();
+            initializeRegionalAnalysisChart();
+            initializePerformanceMetricsChart();
+        }
+
+        function initializeMarketTrendsChart() {
+            const ctx = document.getElementById('marketTrendsChart').getContext('2d');
+            
+            charts.marketTrends = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels('1D'),
+                    datasets: [{
+                        label: 'Crane Values',
+                        data: generateMarketData('1D'),
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Market Index',
+                        data: generateMarketData('1D', 0.8),
+                        borderColor: '#FFD600',
+                        backgroundColor: 'rgba(255, 214, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#B0B0B0'
+                            },
+                            grid: {
+                                color: '#333333'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#B0B0B0',
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: '#333333'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function initializeEquipmentDistChart() {
+            const ctx = document.getElementById('equipmentDistChart').getContext('2d');
+            
+            charts.equipmentDist = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Mobile Cranes', 'Tower Cranes', 'Crawler Cranes', 'Overhead Cranes', 'Other'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            '#00FF85',
+                            '#FFD600',
+                            '#FF4444',
+                            '#00BFFF',
+                            '#FF69B4'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#FFFFFF',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeRegionalAnalysisChart() {
+            const ctx = document.getElementById('regionalAnalysisChart').getContext('2d');
+            
+            charts.regionalAnalysis = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['North America', 'Europe', 'Asia', 'South America', 'Africa', 'Oceania'],
+                    datasets: [{
+                        label: 'Crane Count',
+                        data: [450, 320, 280, 120, 45, 32],
+                        backgroundColor: '#00FF85',
+                        borderColor: '#00FF85',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#B0B0B0'
+                            },
+                            grid: {
+                                color: '#333333'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#B0B0B0'
+                            },
+                            grid: {
+                                color: '#333333'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializePerformanceMetricsChart() {
+            const ctx = document.getElementById('performanceMetricsChart').getContext('2d');
+            
+            charts.performanceMetrics = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Accuracy', 'Speed', 'Reliability', 'Coverage', 'User Satisfaction', 'Data Quality'],
+                    datasets: [{
+                        label: 'Current Performance',
+                        data: [85, 92, 88, 76, 90, 94],
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.2)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Target Performance',
+                        data: [90, 95, 90, 85, 95, 95],
+                        borderColor: '#FFD600',
+                        backgroundColor: 'rgba(255, 214, 0, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            ticks: {
+                                color: '#B0B0B0'
+                            },
+                            grid: {
+                                color: '#333333'
+                            },
+                            pointLabels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Data Generation Functions
+        function generateTimeLabels(range) {
+            const now = new Date();
+            const labels = [];
+            
+            switch(range) {
+                case '1D':
+                    for (let i = 23; i >= 0; i--) {
+                        const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+                        labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+                    }
+                    break;
+                case '1W':
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                    }
+                    break;
+                case '1M':
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                    }
+                    break;
+                case '1Y':
+                    for (let i = 11; i >= 0; i--) {
+                        const date = new Date(now.getTime() - i * 30 * 24 * 60 * 60 * 1000);
+                        labels.push(date.toLocaleDateString('en-US', { month: 'short' }));
+                    }
+                    break;
+            }
+            
+            return labels;
+        }
+
+        function generateMarketData(range, multiplier = 1) {
+            const baseValue = 2000000;
+            const data = [];
+            const points = range === '1D' ? 24 : range === '1W' ? 7 : range === '1M' ? 30 : 12;
+            
+            for (let i = 0; i < points; i++) {
+                const variation = (Math.random() - 0.5) * 0.2;
+                const trend = Math.sin(i / points * Math.PI) * 0.1;
+                const value = baseValue * (1 + variation + trend) * multiplier;
+                data.push(Math.round(value));
+            }
+            
+            return data;
+        }
+
+        // Equipment Data Functions
+        function loadEquipmentData() {
+            const equipmentData = generateEquipmentData();
+            renderEquipmentTable(equipmentData);
+        }
+
+        function generateEquipmentData() {
+            const types = ['Mobile Crane', 'Tower Crane', 'Crawler Crane', 'Overhead Crane'];
+            const regions = ['North America', 'Europe', 'Asia', 'South America', 'Africa', 'Oceania'];
+            const statuses = ['Active', 'Maintenance', 'Idle', 'Sold'];
+            const models = ['GMK5250L', 'LTM1120', 'AC500-2', 'CC2800', 'RT9150E'];
+            
+            const data = [];
+            for (let i = 1; i <= 50; i++) {
+                data.push({
+                    id: `CRN-${String(i).padStart(4, '0')}`,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    model: models[Math.floor(Math.random() * models.length)],
+                    location: regions[Math.floor(Math.random() * regions.length)],
+                    value: Math.floor(Math.random() * 5000000) + 500000,
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    lastUpdate: new Date(Date.now() - Math.random() * 86400000).toLocaleString()
+                });
+            }
+            
+            return data;
+        }
+
+        function renderEquipmentTable(data) {
+            const tbody = document.getElementById('equipmentTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.type}</td>
+                    <td>${item.model}</td>
+                    <td>${item.location}</td>
+                    <td>$${(item.value / 1000000).toFixed(1)}M</td>
+                    <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                    <td>${item.lastUpdate}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Control Functions
+        function setTimeRange(range) {
+            // Update active button
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update market trends chart
+            if (charts.marketTrends) {
+                charts.marketTrends.data.labels = generateTimeLabels(range);
+                charts.marketTrends.data.datasets[0].data = generateMarketData(range);
+                charts.marketTrends.data.datasets[1].data = generateMarketData(range, 0.8);
+                charts.marketTrends.update();
+            }
+        }
+
+        function refreshData() {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Refreshing...';
+            button.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                loadEquipmentData();
+                updateKPIs();
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 1000);
+        }
+
+        function updateKPIs() {
+            // Update KPI values with slight variations
+            const kpis = ['totalCranes', 'avgValue', 'marketGrowth', 'activeUsers'];
+            kpis.forEach(id => {
+                const element = document.getElementById(id);
+                const currentValue = element.textContent;
+                // Add small random variation
+                if (Math.random() > 0.5) {
+                    element.style.color = '#00FF85';
+                    setTimeout(() => {
+                        element.style.color = '#FFFFFF';
+                    }, 1000);
+                }
+            });
+        }
+
+        function exportChart(chartName) {
+            if (charts[chartName]) {
+                const link = document.createElement('a');
+                link.download = `${chartName}-chart.png`;
+                link.href = charts[chartName].toBase64Image();
+                link.click();
+            }
+        }
+
+        function fullscreenChart(chartName) {
+            // Implement fullscreen functionality
+            console.log(`Fullscreen chart: ${chartName}`);
+        }
+
+        // Auto-refresh data
+        function startDataRefresh() {
+            dataRefreshInterval = setInterval(() => {
+                if (!isTickerPaused) {
+                    updateKPIs();
+                    // Update ticker with new data
+                    startTickerAnimation();
+                }
+            }, 5000); // Refresh every 5 seconds
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (tickerInterval) clearInterval(tickerInterval);
+            if (dataRefreshInterval) clearInterval(dataRefreshInterval);
+        });
+    </script>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

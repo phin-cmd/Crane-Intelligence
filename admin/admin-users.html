@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Users - Crane Intelligence Admin [FIXED]</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js?v=2024"></script>
+    <script src="js/admin-notifications.js?v=2024"></script>
+    <style>
+        /* Profile Dropdown Styles */
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .admin-profile:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .avatar-initials {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0F0F0F;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .profile-dropdown-btn {
+            display: flex;
+            align-items: center;
+            color: #B0B0B0;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-profile:hover .profile-dropdown-btn {
+            transform: translateY(1px);
+        }
+
+        .profile-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block !important;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #333333 !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item svg {
+            color: #666666 !important;
+            flex-shrink: 0;
+        }
+
+        .dropdown-item span {
+            color: #333333 !important;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eeeeee;
+            margin: 4px 0;
+        }
+
+        /* Admin Users Specific Styles */
+        .admin-users-container {
+            padding: 24px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .add-admin-btn {
+            background: #00FF85;
+            color: #0F0F0F;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-admin-btn:hover {
+            background: #00CC6A;
+        }
+
+        .admin-users-table {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #2A2A2A;
+            padding: 20px 24px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .table-content {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            padding: 16px 24px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #404040;
+        }
+
+        .admin-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #333333;
+            color: #E0E0E0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover {
+            background: #2A2A2A;
+        }
+
+        .admin-table tr:nth-child(even) {
+            background: #1F1F1F;
+        }
+
+        .admin-table tr:nth-child(even):hover {
+            background: #2A2A2A;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-badge.inactive {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .status-badge::before {
+            content: "●";
+            font-size: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-badge.super-admin {
+            background: rgba(255, 0, 255, 0.2);
+            color: #FF00FF;
+        }
+
+        .role-badge.admin {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .role-badge.manager {
+            background: rgba(255, 165, 0, 0.2);
+            color: #FFA500;
+        }
+
+        .role-badge.sales {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007BFF;
+        }
+
+        .role-badge.support {
+            background: rgba(128, 0, 128, 0.2);
+            color: #800080;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .btn-edit:hover {
+            background: #555555;
+        }
+
+        .btn-delete {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-delete:hover {
+            background: #CC3333;
+        }
+
+        .btn-suspend {
+            background: #FFD600;
+            color: #0F0F0F;
+        }
+
+        .btn-suspend:hover {
+            background: #E6C200;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-input {
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .filter-select {
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        /* Role Management Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            margin: 5% auto;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #B0B0B0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: #FFFFFF;
+        }
+
+        .role-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .role-option:hover {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.05);
+        }
+
+        .role-option.selected {
+            border-color: #00FF85;
+            background: rgba(0, 255, 133, 0.1);
+        }
+
+        .role-option input[type="radio"] {
+            margin: 0;
+            accent-color: #00FF85;
+        }
+
+        .role-info {
+            flex: 1;
+        }
+
+        .role-name {
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .role-description {
+            font-size: 14px;
+            color: #B0B0B0;
+        }
+
+        .role-level {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        /* New Admin Users Management Styles */
+        .search-filters {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            border: 1px solid #333333;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            color: #B0B0B0;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 2px rgba(0, 255, 133, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: #FFFFFF;
+            border: 1px solid #555555;
+        }
+
+        .btn-secondary:hover {
+            background: #555555;
+            border-color: #00FF85;
+        }
+
+        .btn-danger {
+            background: #DC3545;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #C82333;
+            transform: translateY(-1px);
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .sortable:hover {
+            background: #333333;
+        }
+
+        .sort-indicator {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .sort-indicator.asc::after {
+            content: "↑";
+            color: #00FF85;
+        }
+
+        .sort-indicator.desc::after {
+            content: "↓";
+            color: #00FF85;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-edit {
+            background: #007BFF;
+            color: #FFFFFF;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .btn-suspend {
+            background: #FFC107;
+            color: #000000;
+        }
+
+        .btn-suspend:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete {
+            background: #DC3545;
+            color: #FFFFFF;
+        }
+
+        .btn-delete:hover {
+            background: #C82333;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #0F0F0F;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .search-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #404040;
+        }
+
+        /* Create User Modal Styles */
+        .create-user-modal {
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .create-user-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #FFFFFF;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 16px;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .password-strength.weak {
+            color: #FF4444;
+        }
+
+        .password-strength.medium {
+            color: #FFC107;
+        }
+
+        .password-strength.strong {
+            color: #00FF85;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #404040;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-modal-primary {
+            background: #00FF85;
+            color: #0F0F0F;
+        }
+
+        .btn-modal-primary:hover {
+            background: #00CC6A;
+        }
+
+        .btn-modal-secondary {
+            background: #404040;
+            color: #FFFFFF;
+        }
+
+        .btn-modal-secondary:hover {
+            background: #555555;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
+                </div>
+                <h1 class="page-title">Admin Users</h1>
+            </div>
+            <div class="header-right">
+                <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
+                    <div class="profile-avatar">
+                        <div class="avatar-initials">AU</div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">Admin User</div>
+                        <div class="profile-role">Administrator</div>
+                    </div>
+                    <div class="profile-dropdown-btn">
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="navigateToProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="navigateToSettings()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="users.html" class="nav-link">Users</a></li>
+                <li><a href="content.html" class="nav-link">Content</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="settings.html" class="nav-link">Settings</a></li>
+                <li><a href="security.html" class="nav-link">Security</a></li>
+                <li><a href="data.html" class="nav-link">Data</a></li>
+                <li><a href="database.html" class="nav-link">Database</a></li>
+                <li><a href="admin-users.html" class="nav-link active">Admin Users</a></li>
+                <li><a href="core-logic.html" class="nav-link">Core Logic</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-users-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">Admin Users Management</h1>
+                    <button class="add-admin-btn" onclick="addAdminUser()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Admin User
+                    </button>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="search-filters">
+                    <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search admin users..." id="searchInput">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <select class="filter-select" id="roleFilter">
+                        <option value="all">All Roles</option>
+                        <option value="super-admin">Super Admin</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="sales">Sales</option>
+                        <option value="support">Support</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshAdminUsers()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23,4 23,10 17,10"></polyline>
+                            <polyline points="1,20 1,14 7,14"></polyline>
+                            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4L18.36,18.36A9,9,0,0,1,3.51,15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openCreateUserModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Create Admin User
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportAdminUsers()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+
+                <!-- Admin Users Table -->
+                <div class="admin-users-table">
+                    <div class="table-header">
+                        <h3 class="table-title">Admin Portal Users</h3>
+                    </div>
+                    <div class="table-content">
+                        <table class="admin-table" id="adminUsersTable">
+                            <thead>
+                                <tr>
+                                    <th data-sort="name" class="sortable">
+                                        User
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="role" class="sortable">
+                                        Role
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="status" class="sortable">
+                                        Status
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="lastLogin" class="sortable">
+                                        Last Login
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th data-sort="created" class="sortable">
+                                        Created
+                                        <span class="sort-indicator"></span>
+                                    </th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersTableBody">
+                                <!-- Data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Role Management Modal -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Select User Role</h3>
+                <button class="close-modal" onclick="closeRoleModal()">&times;</button>
+            </div>
+            <div class="role-selection">
+                <div class="role-option" onclick="selectRole('super-admin')">
+                    <input type="radio" name="userRole" value="super-admin" id="role-super-admin">
+                    <div class="role-info">
+                        <div class="role-name">Super Admin</div>
+                        <div class="role-description">Full system access, can manage all users and settings</div>
+                        <div class="role-level">Level 5 - Highest Authority</div>
+                    </div>
+                </div>
+                <div class="role-option" onclick="selectRole('admin')">
+                    <input type="radio" name="userRole" value="admin" id="role-admin">
+                    <div class="role-info">
+                        <div class="role-name">Admin</div>
+                        <div class="role-description">Full access to most features, limited system configuration</div>
+                        <div class="role-level">Level 4 - High Authority</div>
+                    </div>
+                </div>
+                <div class="role-option" onclick="selectRole('manager')">
+                    <input type="radio" name="userRole" value="manager" id="role-manager">
+                    <div class="role-info">
+                        <div class="role-name">Manager</div>
+                        <div class="role-description">User management, content oversight, limited analytics</div>
+                        <div class="role-level">Level 3 - Management Authority</div>
+                    </div>
+                </div>
+                <div class="role-option" onclick="selectRole('sales')">
+                    <input type="radio" name="userRole" value="sales" id="role-sales">
+                    <div class="role-info">
+                        <div class="role-name">Sales</div>
+                        <div class="role-description">User management, analytics access, limited content view</div>
+                        <div class="role-level">Level 2 - Sales Authority</div>
+                    </div>
+                </div>
+                <div class="role-option" onclick="selectRole('support')">
+                    <input type="radio" name="userRole" value="support" id="role-support">
+                    <div class="role-info">
+                        <div class="role-name">Support</div>
+                        <div class="role-description">Basic user management, limited content access</div>
+                        <div class="role-level">Level 1 - Support Authority</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-secondary" onclick="closeRoleModal()">Cancel</button>
+                <button class="btn-modal btn-modal-primary" onclick="saveUserRole()">Save Role</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content create-user-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Admin User</h3>
+                <button class="close-modal" onclick="closeCreateUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm" class="create-user-form">
+                    <div class="form-group">
+                        <label for="newUserName">Full Name *</label>
+                        <input type="text" id="newUserName" name="name" required placeholder="Enter full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserEmail">Email Address *</label>
+                        <input type="email" id="newUserEmail" name="email" required placeholder="Enter email address">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserPassword">Password *</label>
+                        <input type="password" id="newUserPassword" name="password" required placeholder="Enter password">
+                        <div class="password-strength" id="passwordStrength"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserConfirmPassword">Confirm Password *</label>
+                        <input type="password" id="newUserConfirmPassword" name="confirmPassword" required placeholder="Confirm password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserRole">Role *</label>
+                        <select id="newUserRole" name="role" required>
+                            <option value="">Select a role</option>
+                            <option value="super-admin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="sales">Sales</option>
+                            <option value="support">Support</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserStatus">Status</label>
+                        <select id="newUserStatus" name="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserCompany">Company (Optional)</label>
+                        <input type="text" id="newUserCompany" name="company" placeholder="Enter company name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserNotes">Notes (Optional)</label>
+                        <textarea id="newUserNotes" name="notes" placeholder="Add any additional notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createAdminUser()">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Access Control Script -->
+    <script src="js/access-control.js"></script>
+
+    <script>
+        // Advanced admin users management functionality with real-time database operations
+        let adminUsers = [];
+        let filteredAdminUsers = [];
+        let currentSort = { field: 'name', direction: 'asc' };
+        let currentFilters = { search: '', role: 'all', status: 'all' };
+        let currentEditingUserId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin users management page loaded, initializing...');
+            
+            loadAdminUsers();
+            setupEventListeners();
+            setupTableSorting();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    currentFilters.search = e.target.value.toLowerCase();
+                    applyFilters();
+                });
+            }
+
+            // Filter functionality
+            const roleFilter = document.getElementById('roleFilter');
+            if (roleFilter) {
+                roleFilter.addEventListener('change', function(e) {
+                    currentFilters.role = e.target.value;
+                    applyFilters();
+                });
+            }
+
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function(e) {
+                    currentFilters.status = e.target.value;
+                    applyFilters();
+                });
+            }
+        }
+
+        function setupTableSorting() {
+            const sortableHeaders = document.querySelectorAll('.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const field = this.getAttribute('data-sort');
+                    if (field) {
+                        if (currentSort.field === field) {
+                            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            currentSort.field = field;
+                            currentSort.direction = 'asc';
+                        }
+                        sortAdminUsers();
+                        updateSortIndicators();
+                    }
+                });
+            });
+        }
+
+        // Profile Dropdown Functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function navigateToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function navigateToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function logout() {
+            // Clear any stored authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('access_token');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+
+        async function loadAdminUsers() {
+            let loadingId;
+            try {
+                console.log('Loading admin users from database...');
+                loadingId = notificationSystem.showLoading('Loading admin users...');
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                adminUsers = data.users || data.items || [];
+                console.log('Admin users loaded from database:', adminUsers.length);
+                
+                // Apply current filters
+                applyFilters();
+                renderAdminUsers();
+                
+                notificationSystem.hideLoading(loadingId);
+                notificationSystem.showSuccess('Admin Users Loaded', `Successfully loaded ${adminUsers.length} admin users`);
+                
+            } catch (error) {
+                console.error('Error loading admin users:', error);
+                notificationSystem.hideLoading(loadingId);
+                
+                // Fallback to mock data for demonstration
+                adminUsers = [
+                    {
+                        id: 1,
+                        name: 'Admin User',
+                        email: 'admin@craneintelligence.com',
+                        role: 'super-admin',
+                        status: 'active',
+                        lastLogin: '2024-01-15T10:30:00Z',
+                        createdAt: '2024-01-01T00:00:00Z',
+                        avatar: 'AU'
+                    },
+                    {
+                        id: 2,
+                        name: 'Sarah Mitchell',
+                        email: 'sarah.mitchell@craneintelligence.com',
+                        role: 'admin',
+                        status: 'active',
+                        lastLogin: '2024-01-14T09:45:00Z',
+                        createdAt: '2024-01-02T00:00:00Z',
+                        avatar: 'SM'
+                    },
+                    {
+                        id: 3,
+                        name: 'Michael Johnson',
+                        email: 'michael.johnson@craneintelligence.com',
+                        role: 'manager',
+                        status: 'active',
+                        lastLogin: '2024-01-15T07:30:00Z',
+                        createdAt: '2024-01-03T00:00:00Z',
+                        avatar: 'MJ'
+                    },
+                    {
+                        id: 4,
+                        name: 'Lisa Smith',
+                        email: 'lisa.smith@craneintelligence.com',
+                        role: 'sales',
+                        status: 'active',
+                        lastLogin: '2024-01-15T11:45:00Z',
+                        createdAt: '2024-01-04T00:00:00Z',
+                        avatar: 'LS'
+                    },
+                    {
+                        id: 5,
+                        name: 'Robert Wilson',
+                        email: 'robert.wilson@craneintelligence.com',
+                        role: 'support',
+                        status: 'active',
+                        lastLogin: '2024-01-15T08:20:00Z',
+                        createdAt: '2024-01-05T00:00:00Z',
+                        avatar: 'RW'
+                    },
+                    {
+                        id: 6,
+                        name: 'Emily Chen',
+                        email: 'emily.chen@craneintelligence.com',
+                        role: 'support',
+                        status: 'inactive',
+                        lastLogin: '2024-01-08T15:30:00Z',
+                        createdAt: '2024-01-06T00:00:00Z',
+                        avatar: 'EC'
+                    }
+                ];
+                
+                applyFilters();
+                renderAdminUsers();
+                notificationSystem.showWarning('Using Demo Data', 'Could not connect to database. Using demo data for demonstration.');
+            }
+        }
+
+        function applyFilters() {
+            filteredAdminUsers = adminUsers.filter(user => {
+                const matchesSearch = !currentFilters.search || 
+                    user.name.toLowerCase().includes(currentFilters.search) ||
+                    user.email.toLowerCase().includes(currentFilters.search);
+                
+                const matchesRole = currentFilters.role === 'all' || 
+                    user.role === currentFilters.role;
+                
+                const matchesStatus = currentFilters.status === 'all' || 
+                    user.status === currentFilters.status;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            sortAdminUsers();
+            renderAdminUsers();
+        }
+
+        function sortAdminUsers() {
+            const users = filteredAdminUsers.length > 0 ? filteredAdminUsers : adminUsers;
+            
+            users.sort((a, b) => {
+                let aValue = a[currentSort.field];
+                let bValue = b[currentSort.field];
+                
+                // Handle different data types
+                if (currentSort.field === 'lastLogin' || currentSort.field === 'createdAt') {
+                    aValue = new Date(aValue).getTime();
+                    bValue = new Date(bValue).getTime();
+                } else {
+                    aValue = String(aValue).toLowerCase();
+                    bValue = String(bValue).toLowerCase();
+                }
+                
+                if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function updateSortIndicators() {
+            const sortableHeaders = document.querySelectorAll('.sortable');
+            sortableHeaders.forEach(header => {
+                const indicator = header.querySelector('.sort-indicator');
+                const field = header.getAttribute('data-sort');
+                
+                if (field === currentSort.field) {
+                    indicator.className = `sort-indicator ${currentSort.direction}`;
+                } else {
+                    indicator.className = 'sort-indicator';
+                }
+            });
+        }
+
+        function renderAdminUsers() {
+            const tbody = document.getElementById('adminUsersTableBody');
+            if (!tbody) return;
+            
+            const users = filteredAdminUsers.length > 0 ? filteredAdminUsers : adminUsers;
+            
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="user-avatar">${user.avatar}</div>
+                            <div>
+                                <div style="font-weight: 600; color: #FFFFFF;">${user.name}</div>
+                                <div style="font-size: 12px; color: #B0B0B0;">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="role-badge ${user.role}">${formatRole(user.role)}</span></td>
+                    <td><span class="status-badge ${user.status}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span></td>
+                    <td>${formatLastLogin(user.lastLogin)}</td>
+                    <td>${formatDate(user.createdAt)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-sm btn-edit" onclick="editAdminUser(${user.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="btn-sm btn-suspend" onclick="suspendAdminUser(${user.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                                ${user.status === 'active' ? 'Suspend' : 'Activate'}
+                            </button>
+                            <button class="btn-sm btn-delete" onclick="deleteAdminUser(${user.id})">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3,6 5,6 21,6"></polyline>
+                                    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatRole(role) {
+            const roleMap = {
+                'super-admin': 'Super Admin',
+                'admin': 'Admin',
+                'manager': 'Manager',
+                'sales': 'Sales',
+                'support': 'Support'
+            };
+            return roleMap[role] || role;
+        }
+
+        function formatLastLogin(lastLogin) {
+            if (!lastLogin) return 'Never';
+            const date = new Date(lastLogin);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profile = document.querySelector('.admin-profile');
+            
+            if (!profile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Admin User Management Functions
+        async function addAdminUser() {
+            let loadingId;
+            try {
+                const name = prompt('Enter admin user name:');
+                if (!name) return;
+                
+                const email = prompt('Enter admin user email:');
+                if (!email) return;
+                
+                loadingId = notificationSystem.showLoading('Adding admin user...');
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        role: 'support',
+                        status: 'active'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const newUser = await response.json();
+                adminUsers.push(newUser);
+                applyFilters();
+                renderAdminUsers();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.userCreated(name);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Add Admin User');
+            }
+        }
+
+        async function editAdminUser(userId) {
+            try {
+                const user = adminUsers.find(u => u.id === userId);
+                if (!user) return;
+                
+            currentEditingUserId = userId;
+            openRoleModal();
+                
+            } catch (error) {
+                adminNotifications.handleApiError(error, 'Edit Admin User');
+            }
+        }
+
+        async function suspendAdminUser(userId) {
+            let loadingId;
+            try {
+                const user = adminUsers.find(u => u.id === userId);
+                if (!user) return;
+                
+                const action = user.status === 'active' ? 'suspend' : 'activate';
+                const confirmed = await notificationSystem.confirm(
+                    `${action.charAt(0).toUpperCase() + action.slice(1)} Admin User`,
+                    `Are you sure you want to ${action} ${user.name}?`,
+                    { confirmText: action.charAt(0).toUpperCase() + action.slice(1) }
+                );
+                
+                if (!confirmed) return;
+                
+                loadingId = notificationSystem.showLoading(`${action.charAt(0).toUpperCase() + action.slice(1)}ing admin user...`);
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    },
+                    body: JSON.stringify({
+                        status: user.status === 'active' ? 'inactive' : 'active'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                user.status = user.status === 'active' ? 'inactive' : 'active';
+                applyFilters();
+                renderAdminUsers();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.userUpdated(user.name);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Suspend Admin User');
+            }
+        }
+
+        async function deleteAdminUser(userId) {
+            let loadingId;
+            try {
+                const user = adminUsers.find(u => u.id === userId);
+                if (!user) return;
+                
+                const confirmed = await notificationSystem.confirmDangerous(
+                    'Delete Admin User',
+                    `Are you sure you want to delete ${user.name}? This action cannot be undone.`,
+                    { confirmText: 'Delete', type: 'danger' }
+                );
+                
+                if (!confirmed) return;
+                
+                loadingId = notificationSystem.showLoading('Deleting admin user...');
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                adminUsers = adminUsers.filter(u => u.id !== userId);
+                applyFilters();
+                renderAdminUsers();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.userDeleted(user.name);
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Delete Admin User');
+            }
+        }
+
+        // Role Management Modal Functions
+        function openRoleModal() {
+            document.getElementById('roleModal').style.display = 'block';
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').style.display = 'none';
+            currentEditingUserId = null;
+        }
+
+        function selectRole(role) {
+            // Clear all selections
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select the clicked option
+            event.currentTarget.classList.add('selected');
+            document.getElementById(`role-${role}`).checked = true;
+        }
+
+        async function saveUserRole() {
+            let loadingId;
+            try {
+            const selectedRole = document.querySelector('input[name="userRole"]:checked');
+            if (!selectedRole) {
+                    notificationSystem.showError('No Role Selected', 'Please select a role.');
+                return;
+            }
+
+                const role = selectedRole.value;
+                loadingId = notificationSystem.showLoading('Updating user role...');
+                
+                const response = await fetch(`http://localhost:8003/api/v1/admin/admin-users/${currentEditingUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    },
+                    body: JSON.stringify({ role })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const user = adminUsers.find(u => u.id === currentEditingUserId);
+                if (user) {
+                    user.role = role;
+                    applyFilters();
+                    renderAdminUsers();
+                }
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.userUpdated(user.name);
+            closeRoleModal();
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Update User Role');
+            }
+        }
+
+        async function refreshAdminUsers() {
+            await loadAdminUsers();
+        }
+
+        // Create User Modal Functions
+        function openCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Reset form
+            document.getElementById('createUserForm').reset();
+            document.getElementById('passwordStrength').innerHTML = '';
+            
+            // Add password strength checker
+            const passwordInput = document.getElementById('newUserPassword');
+            passwordInput.addEventListener('input', checkPasswordStrength);
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newUserPassword').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = [];
+            
+            if (password.length >= 8) strength++;
+            else feedback.push('at least 8 characters');
+            
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('lowercase letters');
+            
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('uppercase letters');
+            
+            if (/[0-9]/.test(password)) strength++;
+            else feedback.push('numbers');
+            
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            else feedback.push('special characters');
+            
+            if (strength < 3) {
+                strengthDiv.innerHTML = `<span class="weak">Weak password. Add: ${feedback.join(', ')}</span>`;
+            } else if (strength < 4) {
+                strengthDiv.innerHTML = `<span class="medium">Medium password. Add: ${feedback.join(', ')}</span>`;
+            } else {
+                strengthDiv.innerHTML = '<span class="strong">Strong password!</span>';
+            }
+        }
+
+        async function createAdminUser() {
+            let loadingId;
+            try {
+                const form = document.getElementById('createUserForm');
+                const formData = new FormData(form);
+                
+                // Validate form
+                const name = formData.get('name').trim();
+                const email = formData.get('email').trim();
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+                const role = formData.get('role');
+                const status = formData.get('status');
+                const company = formData.get('company').trim();
+                const notes = formData.get('notes').trim();
+                
+                // Validation
+                if (!name || !email || !password || !role) {
+                    notificationSystem.showError('Validation Error', 'Please fill in all required fields');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    notificationSystem.showError('Password Mismatch', 'Passwords do not match');
+                    return;
+                }
+                
+                if (password.length < 8) {
+                    notificationSystem.showError('Weak Password', 'Password must be at least 8 characters long');
+                    return;
+                }
+                
+                // Check if email already exists
+                const existingUser = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                if (existingUser) {
+                    notificationSystem.showError('Email Exists', 'An admin user with this email already exists');
+                    return;
+                }
+                
+                loadingId = notificationSystem.showLoading('Creating admin user...');
+                
+                const userData = {
+                    name,
+                    email,
+                    password,
+                    role,
+                    status,
+                    company: company || null,
+                    notes: notes || null
+                };
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Admin user created:', data);
+                
+                // Add to local array
+                const newUser = {
+                    id: data.user?.id || Date.now(),
+                    name,
+                    email,
+                    role,
+                    status,
+                    lastLogin: null,
+                    createdAt: new Date().toISOString(),
+                    avatar: name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                    company: company || null,
+                    notes: notes || null
+                };
+                
+                adminUsers.unshift(newUser);
+                applyFilters();
+                renderAdminUsers();
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.userCreated(name);
+                closeCreateUserModal();
+                
+            } catch (error) {
+                console.error('Error creating admin user:', error);
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Create Admin User');
+            }
+        }
+
+        async function exportAdminUsers() {
+            let loadingId;
+            try {
+                loadingId = notificationSystem.showLoading('Exporting admin users...');
+                
+                const response = await fetch('http://localhost:8003/api/v1/admin/admin-users/export', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `admin-users-export-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.dataExported('Admin Users');
+                
+            } catch (error) {
+                notificationSystem.hideLoading(loadingId);
+                adminNotifications.handleApiError(error, 'Export Admin Users');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('roleModal');
+            if (event.target === modal) {
+                closeRoleModal();
+            }
+        }
+
+        // Search and Filter Functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterTable();
+        });
+
+        document.getElementById('roleFilter').addEventListener('change', function() {
+            filterTable();
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            filterTable();
+        });
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('#adminUsersTableBody tr');
+
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const role = row.cells[1].textContent.toLowerCase();
+                const status = row.cells[2].textContent.toLowerCase();
+
+                const matchesSearch = name.includes(searchTerm);
+                const matchesRole = !roleFilter || role.includes(roleFilter);
+                const matchesStatus = !statusFilter || status.includes(statusFilter);
+
+                if (matchesSearch && matchesRole && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

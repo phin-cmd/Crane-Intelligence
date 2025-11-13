@@ -1,0 +1,4259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Your FMV Report - Crane Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Bloomberg Terminal Style Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-condensed: 'Roboto Condensed', 'Inter', sans-serif;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 80px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            --transition-slow: 0.35s ease;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== HEADER - EXACT MATCH TO HOMEPAGE ===== */
+        .header {
+            background: #1A1A1A !important;
+            border-bottom: 1px solid #404040 !important;
+            padding: var(--space-md) 0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: none !important;
+            overflow: visible !important;
+        }
+
+        .header-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            align-items: center !important;
+            height: 80px !important;
+            overflow: visible !important;
+        }
+
+        .logo {
+            display: flex !important;
+            align-items: center !important;
+            justify-self: start !important;
+            grid-column: 1;
+        }
+
+        .logo-svg {
+            height: 60px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .nav-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            justify-self: center !important;
+            grid-column: 2;
+        }
+
+
+        .nav-link {
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            letter-spacing: 0.5px !important;
+            transition: color 0.3s ease !important;
+        }
+
+        .nav-link:hover {
+            color: #00FF85 !important;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .auth-buttons.hidden {
+            display: none !important;
+        }
+
+        .user-profile {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            justify-self: end;
+            grid-column: 3;
+            padding-right: 0;
+            margin-right: 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .user-profile.visible {
+            display: flex !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #B0B0B0;
+            line-height: 1.2;
+        }
+
+        .dropdown-arrow {
+            color: #B0B0B0;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-profile:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+            color: #00FF85;
+        }
+
+        .dropdown-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* ===== BLOOMBERG TERMINAL STYLE CHARTS ===== */
+        .bloomberg-chart {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            margin: 16px 0;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .chart-title {
+            color: #00FF85;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-timeframe {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .chart-grid.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .mini-chart {
+            height: 120px;
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #B0B0B0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .price-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .price-up {
+            color: #00FF85;
+        }
+
+        .price-down {
+            color: #FF4444;
+        }
+
+        .price-neutral {
+            color: #B0B0B0;
+        }
+
+        .market-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .market-data-item {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .market-data-label {
+            font-size: 12px;
+            color: #B0B0B0;
+            margin-bottom: 4px;
+        }
+
+        .market-data-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .market-data-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* ===== MARKET TICKER - EXACT MATCH TO HOMEPAGE ===== */
+        .market-ticker {
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 var(--space-xl) !important;
+            overflow: hidden !important;
+        }
+
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: 40px 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 20px;
+            color: #B0B0B0;
+            font-weight: 400;
+        }
+
+        /* ===== BLOOMBERG-STYLE FORM ===== */
+        .report-form-container {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00FF85;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #00FF85;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: var(--font-primary);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00FF85;
+        }
+
+        .checkbox-item label {
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 133, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+            border-color: #00FF85;
+        }
+
+        .btn-load-sample {
+            background: linear-gradient(135deg, #FFD600, #FFA500);
+            color: #000000;
+        }
+
+        .btn-load-sample:hover {
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 214, 0, 0.3);
+        }
+
+        /* ===== REPORT PREVIEW ===== */
+        .report-preview {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .preview-content {
+            background: #0F0F0F;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 24px;
+            min-height: 400px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #B0B0B0;
+            white-space: pre-wrap;
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #404040;
+            border-top: 4px solid #00FF85;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== FOOTER - EXACT MATCH TO HOMEPAGE ===== */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* ===== DIALOG BOXES ===== */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .dialog-overlay.show {
+            display: flex;
+        }
+
+        .dialog-box {
+            background: #1A1A1A;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialog-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .dialog-icon.success {
+            color: #00FF85;
+        }
+
+        .dialog-icon.error {
+            color: #FF4444;
+        }
+
+        .dialog-icon.info {
+            color: #FFD600;
+        }
+
+        .dialog-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 16px;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .dialog-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .dialog-btn-primary {
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+        }
+
+        .dialog-btn-primary:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359);
+            transform: translateY(-2px);
+        }
+
+        .dialog-btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .dialog-btn-secondary:hover {
+            background: #404040;
+            border-color: #00FF85;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .header-container {
+                padding: 0 24px !important;
+            }
+            
+            .container {
+                padding: 0 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 16px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 16px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 50px !important;
+            }
+            
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .market-ticker {
+                height: 28px;
+            }
+
+            .ticker-item {
+                min-width: 120px;
+                padding: var(--space-xs) var(--space-sm);
+            }
+
+            .ticker-symbol {
+                font-size: 9px;
+            }
+
+            .ticker-price {
+                font-size: 10px;
+            }
+
+            .ticker-change {
+                font-size: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 12px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                height: 80px !important;
+                gap: 12px !important;
+            }
+            
+            .nav-menu {
+                display: none !important;
+            }
+            
+            .auth-buttons {
+                display: none !important;
+            }
+            
+            .user-profile {
+                display: flex !important;
+                gap: 6px !important;
+            }
+            
+            .user-info {
+                display: none !important;
+            }
+            
+            .dropdown-arrow {
+                display: none !important;
+            }
+            
+            .user-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            
+            .logo-svg {
+                height: 45px !important;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .form-grid {
+                gap: 16px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                padding: 12px 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+            
+            .action-buttons {
+                gap: 8px;
+            }
+        }
+
+        /* Newsletter styling to match homepage */
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter input::placeholder {
+            color: #808080;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter button:hover {
+            background: #00CC6A;
+            transform: translateY(-1px);
+        }
+    
+        /* Report Type Selection Styles */
+        .report-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .report-type-card {
+            background: #1E1E1E;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .report-type-card:hover {
+            border-color: #00FF88;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .report-type-card.featured {
+            border-color: #00FF88;
+            background: linear-gradient(135deg, #1E1E1E 0%, #1A2A1E 100%);
+        }
+
+        .report-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #00FF88;
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .report-type-header {
+            margin-bottom: 25px;
+        }
+
+        .report-type-header h3 {
+            font-size: 24px;
+            color: #00FF88;
+            margin-bottom: 10px;
+        }
+
+        .report-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .report-features {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+
+        .report-features li {
+            padding: 12px 0;
+            color: #B0B0B0;
+            font-size: 15px;
+            border-bottom: 1px solid #2A2A2A;
+        }
+
+        .report-features li:last-child {
+            border-bottom: none;
+        }
+
+        .select-report-btn {
+            width: 100%;
+            padding: 15px;
+            background: #00FF88;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .select-report-btn:hover {
+            background: #00DD77;
+            transform: scale(1.05);
+        }
+
+        .report-type-card.selected {
+            border-color: #00FF88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .report-type-card.selected .select-report-btn {
+            background: #00DD77;
+        }
+
+        /* Stripe Payment Modal Overlay */
+        .ci-stripe-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .ci-stripe-container {
+            background: #1A1A1A;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 50px rgba(0, 255, 136, 0.2);
+            border: 1px solid #00FF88;
+        }
+
+        .ci-stripe-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #00FF88;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 10001;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .ci-stripe-close:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .ci-stripe-header {
+            padding: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .ci-stripe-header h2 {
+            color: #00FF88;
+            font-size: 24px;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+        }
+
+        .ci-plan-summary {
+            background: #2A2A2A;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .ci-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #E0E0E0;
+            font-size: 14px;
+        }
+
+        .ci-summary-total {
+            border-top: 1px solid #00FF88;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #00FF88;
+        }
+
+        .ci-stripe-body {
+            padding: 30px;
+        }
+
+        .ci-payment-section {
+            margin-bottom: 20px;
+        }
+
+        .ci-stripe-label {
+            display: block;
+            color: #00FF88;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .ci-payment-element {
+            min-height: 100px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .ci-form-group {
+            margin-bottom: 15px;
+        }
+
+        .ci-stripe-input {
+            width: 100%;
+            padding: 12px;
+            background: #2A2A2A;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #E0E0E0;
+            font-size: 14px;
+        }
+
+        .ci-stripe-input:focus {
+            outline: none;
+            border-color: #00FF88;
+        }
+
+        .ci-stripe-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #333;
+        }
+
+        .ci-stripe-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ci-stripe-btn-primary {
+            background: #00FF88;
+            color: #0A0A0A;
+            border: none;
+        }
+
+        .ci-stripe-btn-primary:hover:not(:disabled) {
+            background: #00DD77;
+            transform: translateY(-2px);
+        }
+
+        .ci-stripe-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ci-stripe-btn-secondary {
+            background: transparent;
+            color: #E0E0E0;
+            border: 1px solid #444;
+        }
+
+        .ci-stripe-btn-secondary:hover {
+            border-color: #00FF88;
+            color: #00FF88;
+        }
+
+        .ci-payment-errors {
+            color: #FF4444;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Input field styles */
+        .ci-input-group {
+            margin-bottom: 15px;
+        }
+        
+        .ci-input-field {
+            width: 100%;
+            padding: 12px;
+            background: #2A2A2A !important;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #E0E0E0 !important;
+            font-size: 14px;
+        }
+        
+        .ci-input-field:focus {
+            outline: none;
+            border-color: #00FF88;
+        }
+        
+        /* Button styles */
+        .ci-btn-pay {
+            width: 100%;
+            padding: 18px;
+            background: #00FF88;
+            color: #0A0A0A;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .ci-btn-pay:hover:not(:disabled) {
+            background: #00DD77;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+        
+        .ci-btn-pay:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .ci-btn-cancel {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            color: #E0E0E0;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ci-btn-cancel:hover {
+            border-color: #00FF88;
+            color: #00FF88;
+        }
+        
+        .ci-security-badge {
+            width: 100%;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+    </style>
+    <!-- Unified Header CSS -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <!-- Unified Authentication System -->
+    <script src="/js/unified-auth.js" defer></script>
+      <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <!-- Header -->
+        <!-- Unified Header -->
+    <header class="header">
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="/homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+
+            <!-- Navigation Menu (visible on homepage, hidden on other pages when logged in) -->
+            <nav class="nav-menu" id="navMenu">
+                <a href="/homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="/homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="/homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="/homepage.html#contact" class="nav-link">CONTACT</a>
+            </nav>
+
+            <!-- Right Side: Auth Buttons OR User Profile -->
+            <div class="header-right">
+                <!-- Login/Signup Buttons (shown when NOT logged in) -->
+                <div class="auth-buttons" id="authButtons" style="display: none;">
+                    <a href="/login.html" class="auth-btn login">Login</a>
+                    <a href="/signup.html" class="auth-btn signup">Sign Up</a>
+                </div>
+
+                <!-- User Profile Dropdown (shown when logged in) -->
+                <div class="user-profile" id="userProfile" style="display: flex;">
+                    <div class="user-avatar">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userDisplayName">User Name</div>
+                        <div class="user-role" id="userRole"><span id="subscriptionTier">Free</span> • <span id="subscriptionValuations">0/0</span></div>
+                    </div>
+                    <span class="dropdown-arrow">▼</span>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/dashboard.html" class="dropdown-item">
+                            <span class="dropdown-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="/valuation-terminal.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚡</span>
+                            Valuation Terminal
+                        </a>
+                        <a href="/report-generation.html" class="dropdown-item">
+                            <span class="dropdown-icon">📄</span>
+                            FMV Reports
+                        </a>
+                        <a href="/account-settings.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" data-action="logout">
+                            <span class="dropdown-icon">🚪</span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Live Market Data Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Grove GMK5250L</span>
+                    <span class="ticker-price">$2.1M</span>
+                    <span class="ticker-change up">+2.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Liebherr LTM1350</span>
+                    <span class="ticker-price">$2.4M</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Tadano ATF400G</span>
+                    <span class="ticker-price">$2.6M</span>
+                    <span class="ticker-change up">+3.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Manitowoc MLC300</span>
+                    <span class="ticker-price">$1.8M</span>
+                    <span class="ticker-change up">+0.9%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Terex AC350</span>
+                    <span class="ticker-price">$2.2M</span>
+                    <span class="ticker-change up">+2.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG QY25K5</span>
+                    <span class="ticker-price">$1.5M</span>
+                    <span class="ticker-change down">-0.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Kato NK-500E</span>
+                    <span class="ticker-price">$1.9M</span>
+                    <span class="ticker-change up">+1.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">Kobelco CKE2500</span>
+                    <span class="ticker-price">$2.0M</span>
+                    <span class="ticker-change up">+2.7%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Get Your Certified FMV Report</h1>
+                <p class="page-subtitle">Professional crane valuation delivered within 24-48 hours</p>
+            </div>
+
+            <!-- Report Generation Form -->
+            <div class="report-form-container">
+                <form id="reportForm">
+                                        <!-- Equipment Information Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Equipment Information</h2>
+                        <div class="form-grid">
+                            <!-- Row 1 -->
+                            <div class="form-group">
+                                <label class="form-label">Manufacturer *</label>
+                                <select class="form-select" id="manufacturer" required>
+                                    <option value="">Select Manufacturer</option>
+                                    <option value="Liebherr">Liebherr (49 models)</option>
+                                    <option value="Grove">Grove (25 models)</option>
+                                    <option value="Manitowoc">Manitowoc (15 models)</option>
+                                    <option value="Tadano">Tadano (15 models)</option>
+                                    <option value="Sany">Sany (12 models)</option>
+                                    <option value="Kobelco">Kobelco (30 models)</option>
+                                    <option value="Link-Belt">Link-Belt (39 models)</option>
+                                    <option value="Terex">Terex (3 models)</option>
+                                    <option value="XCMG">XCMG (3 models)</option>
+                                    <option value="Zoomlion">Zoomlion (2 models)</option>
+                                    <option value="HSC">HSC (2 models)</option>
+                                    <option value="Kato">Kato (3 models)</option>
+                                    <option value="IHI">IHI (2 models)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Model *</label>
+                                <select class="form-select" id="model" required>
+                                    <option value="">Select Model</option>
+                                    <!-- Models will be populated dynamically based on manufacturer selection -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Year *</label>
+                                <input type="number" class="form-input" id="year" placeholder="2023" min="1990" max="2025" required>
+                            </div>
+                            
+                            <!-- Row 2 -->
+                            <div class="form-group">
+                                <label class="form-label">Capacity (Tons) *</label>
+                                <input type="number" class="form-input" id="capacity" placeholder="500" min="1" max="2000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Operating Hours *</label>
+                                <input type="number" class="form-input" id="operatingHours" placeholder="3700" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Mileage</label>
+                                <input type="number" class="form-input" id="mileage" placeholder="25000" min="0">
+                            </div>
+                            
+                            <!-- Row 3 -->
+                            <div class="form-group">
+                                <label class="form-label">Crane Type *</label>
+                                <select class="form-select" id="craneType" required>
+                                    <option value="">Select Crane Type</option>
+                                    <option value="Crawler Crane">Crawler Crane</option>
+                                    <option value="All-Terrain Crane">All-Terrain Crane</option>
+                                    <option value="Rough Terrain Crane">Rough Terrain Crane</option>
+                                    <option value="Truck-Mounted Crane">Truck-Mounted Crane</option>
+                                    <option value="Telescopic Crawler Crane">Telescopic Crawler Crane</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Boom Length (meters)</label>
+                                <input type="number" class="form-input" id="boomLength" placeholder="60" step="0.1" min="0">
+                                <small style="color: #888; font-size: 0.85em;">Typical: 20-80m for mobile cranes</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Region *</label>
+                                <select class="form-select" id="region" required>
+                                    <option value="">Select Region</option>
+                                    <option value="North America">North America</option>
+                                    <option value="Europe">Europe</option>
+                                    <option value="Asia Pacific">Asia Pacific</option>
+                                    <option value="Middle East">Middle East</option>
+                                    <option value="Africa">Africa</option>
+                                    <option value="South America">South America</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Row 4 - Boom Package Details -->
+                            <div class="form-group">
+                                <label class="form-label">Jib Included</label>
+                                <select class="form-select" id="jibIncluded">
+                                    <option value="no">No</option>
+                                    <option value="yes">Yes - Standard Jib</option>
+                                    <option value="luffing">Yes - Luffing Jib</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Jib Length (ft)</label>
+                                <input type="number" class="form-input" id="jibLength" placeholder="100" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Asking Price (Optional)</label>
+                                <input type="text" class="form-input" id="askingPrice" placeholder="$3,500,000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Type Selection -->
+                    <div class="form-section">
+                        <h2 class="section-title">Select Report Type</h2>
+                        <div class="report-type-grid">
+                            <div class="report-type-card" data-type="standard">
+                                <div class="report-type-header">
+                                    <h3>Standard Report</h3>
+                                    <div class="report-price">$999</div>
+                                </div>
+                                <ul class="report-features">
+                                    <li>✓ Fair Market Value Analysis</li>
+                                    <li>✓ 5 Comparable Sales</li>
+                                    <li>✓ Market Trend Analysis</li>
+                                    <li>✓ 24-48 Hour Delivery</li>
+                                    <li>✓ PDF Report</li>
+                                </ul>
+                                <button class="select-report-btn" data-price="99900">Select Standard</button>
+                            </div>
+                            <div class="report-type-card featured" data-type="enhanced">
+                                <div class="report-badge">RECOMMENDED</div>
+                                <div class="report-type-header">
+                                    <h3>Enhanced Report</h3>
+                                    <div class="report-price">$1,499</div>
+                                </div>
+                                <ul class="report-features">
+                                    <li>✓ Everything in Standard</li>
+                                    <li>✓ 10 Comparable Sales</li>
+                                    <li>✓ Depreciation Analysis</li>
+                                    <li>✓ Regional Market Insights</li>
+                                    <li>✓ Investment Recommendations</li>
+                                </ul>
+                                <button class="select-report-btn" data-price="149900">Select Enhanced</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Options Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Report Options</h2>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeCharts" checked>
+                                <label for="includeCharts">Include Charts & Visualizations</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeComparables" checked>
+                                <label for="includeComparables">Include Comparable Sales</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeFinance" checked>
+                                <label for="includeFinance">Include Finance Scenarios</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeMarket" checked>
+                                <label for="includeMarket">Include Market Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeRisk" checked>
+                                <label for="includeRisk">Include Risk Assessment</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-load-sample" onclick="loadSampleData()">
+                            <span>📊</span> Load Sample Data
+                        </button>
+                        <button type="button" class="btn btn-primary" id="purchaseReportBtn" onclick="purchaseReport()">
+                            <span>💳</span> Purchase Report - $999
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                            <span>🔄</span> Clear Form
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+                            <span>←</span> Back to Dashboard
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your professional report...</p>
+            </div>
+
+            <!-- Report Preview -->
+            <div class="report-preview" id="reportPreview" style="display: none;">
+                <div class="preview-header">
+                    <h3 class="preview-title">Bloomberg Terminal Report</h3>
+                    <div class="preview-actions">
+                        <button class="btn btn-primary btn-small" onclick="downloadReport()">
+                            <span>📄</span> Download PDF
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="shareReport()">
+                            <span>📤</span> Share
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Bloomberg Terminal Style Report Content -->
+                <div class="bloomberg-report" id="bloombergReport">
+                    <!-- Market Overview Charts -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">EQUIPMENT VALUATION TREND</span>
+                            <span class="chart-timeframe">LIVE DATA</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="valuationTrendChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #00FF85;"></div>
+                                <span>Current Valuation</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FFD600;"></div>
+                                <span>Market Average</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FF4444;"></div>
+                                <span>Risk Threshold</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Data Grid -->
+                    <div class="market-data-grid">
+                        <div class="market-data-item">
+                            <div class="market-data-label">Current Value</div>
+                            <div class="market-data-value price-up">$2,100,000</div>
+                            <div class="market-data-change price-up">+5.2%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Market Cap</div>
+                            <div class="market-data-value">$2,850,000</div>
+                            <div class="market-data-change price-up">+2.1%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Volume</div>
+                            <div class="market-data-value">847</div>
+                            <div class="market-data-change price-neutral">0.0%</div>
+                        </div>
+                        <div class="market-data-item">
+                            <div class="market-data-label">Risk Score</div>
+                            <div class="market-data-value price-down">Low</div>
+                            <div class="market-data-change price-up">-12.5%</div>
+                        </div>
+                    </div>
+
+                    <!-- Comparative Analysis Charts -->
+                    <div class="chart-grid">
+                        <div class="bloomberg-chart">
+                            <div class="chart-header">
+                                <span class="chart-title">PRICE COMPARISON</span>
+                                <span class="chart-timeframe">6M</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="priceComparisonChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bloomberg-chart">
+                            <div class="chart-header">
+                                <span class="chart-title">MARKET ACTIVITY</span>
+                                <span class="chart-timeframe">30D</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="marketActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Analysis Chart -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">RISK ASSESSMENT MATRIX</span>
+                            <span class="chart-timeframe">REAL-TIME</span>
+                        </div>
+                        <div class="chart-container">
+                            <div id="riskMatrixChart"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Charts Grid -->
+                    <div class="chart-grid">
+                        <div class="mini-chart">
+                            <div class="chart-title">DEPRECIATION CURVE</div>
+                            <canvas id="depreciationChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">UTILIZATION RATE</div>
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">MAINTENANCE COST</div>
+                            <canvas id="maintenanceChart"></canvas>
+                        </div>
+                        <div class="mini-chart">
+                            <div class="chart-title">RESALE VALUE</div>
+                            <canvas id="resaleChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Financial Scenarios Chart -->
+                    <div class="bloomberg-chart">
+                        <div class="chart-header">
+                            <span class="chart-title">FINANCING SCENARIOS</span>
+                            <span class="chart-timeframe">PROJECTED</span>
+                        </div>
+                        <div class="chart-container">
+                            <div id="financingScenariosChart"></div>
+                        </div>
+                    </div>
+
+                    <!-- Raw Data Display -->
+                    <div class="preview-content" id="previewContent" style="display: none;">
+                        <!-- Raw JSON data will be displayed here for debugging -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dialog Boxes -->
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog-box">
+            <div class="dialog-icon" id="dialogIcon">ℹ️</div>
+            <div class="dialog-title" id="dialogTitle">Title</div>
+            <div class="dialog-message" id="dialogMessage">Message</div>
+            <div class="dialog-buttons">
+                <button class="dialog-btn dialog-btn-primary" id="dialogOkBtn" onclick="closeDialog()">OK</button>
+                <button class="dialog-btn dialog-btn-secondary" id="dialogCancelBtn" onclick="closeDialog()" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication functions handled by unified-auth.js
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const userInfo = document.querySelector('.user-info');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+            if (userInfo) {
+                userInfo.classList.toggle('active');
+            }
+        }
+
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (dropdown && userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'homepage.html';
+        }
+
+        function checkAuthStatus() {
+            const accessToken = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (accessToken && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    }
+            } else {
+                }
+        }
+
+        // Dialog functions
+        function showDialog(title, message, type = 'info', showCancel = false) {
+            const overlay = document.getElementById('dialogOverlay');
+            const icon = document.getElementById('dialogIcon');
+            const titleEl = document.getElementById('dialogTitle');
+            const messageEl = document.getElementById('dialogMessage');
+            const cancelBtn = document.getElementById('dialogCancelBtn');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            // Set icon and color based on type
+            if (type === 'success') {
+                icon.textContent = '✅';
+                icon.className = 'dialog-icon success';
+            } else if (type === 'error') {
+                icon.textContent = '❌';
+                icon.className = 'dialog-icon error';
+            } else {
+                icon.textContent = 'ℹ️';
+                icon.className = 'dialog-icon info';
+            }
+            
+            // Show/hide cancel button
+            cancelBtn.style.display = showCancel ? 'block' : 'none';
+            
+            overlay.classList.add('show');
+        }
+
+        function closeDialog() {
+            const overlay = document.getElementById('dialogOverlay');
+            overlay.classList.remove('show');
+        }
+
+        // Report generation functions
+        function loadSampleData() {
+            document.getElementById('manufacturer').value = 'Grove';
+            document.getElementById('model').value = 'GMK5250L';
+            document.getElementById('year').value = '2020';
+            document.getElementById('capacity').value = '250';
+            document.getElementById('operatingHours').value = '5000';
+            document.getElementById('region').value = 'North America';
+            document.getElementById('estimatedValue').value = '2100000';
+        }
+
+        function clearForm() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('reportPreview').style.display = 'none';
+        }
+
+        async function generateReport() {
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            
+            // Get selected sections
+            const sections = [];
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                sections.push(checkbox.id);
+            });
+
+            const reportData = {
+                template: "bloomberg_valuation",
+                valuation_data: {
+                    manufacturer: document.getElementById('manufacturer').value,
+                    model: document.getElementById('model').value,
+                    year: parseInt(document.getElementById('year').value) || new Date().getFullYear(),
+                    capacity_tons: parseFloat(document.getElementById('capacity').value) || 0,
+                    hours: parseInt(document.getElementById('operatingHours').value) || 0,
+                    region: document.getElementById('region').value,
+                    estimated_value: parseFloat(document.getElementById('estimatedValue').value) || 0,
+                    confidence_score: 0.85,
+                    age_factor: parseFloat(document.getElementById('ageFactor').value) || 0.88,
+                    condition_score: parseFloat(document.getElementById('conditionScore').value) || 0.85,
+                    market_demand: "High",
+                    risk_score: "Low"
+                },
+                include_charts: document.getElementById('includeCharts').checked,
+                include_comps: document.getElementById('includeComparables').checked,
+                include_finance_scenarios: document.getElementById('includeFinance').checked,
+                include_market_analysis: document.getElementById('includeMarket').checked,
+                include_risk_assessment: document.getElementById('includeRisk').checked
+            };
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('reportPreview').style.display = 'none';
+
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                const userData = localStorage.getItem('user_data');
+                
+                console.log('Auth Debug:', {
+                    accessToken: accessToken ? 'Present' : 'Missing',
+                    userData: userData ? 'Present' : 'Missing',
+                    tokenLength: accessToken ? accessToken.length : 0
+                });
+                
+                if (!accessToken) {
+                    showDialog(
+                        'Authentication Required', 
+                        'Please login to generate reports. You will be redirected to the login page.',
+                        'error'
+                    );
+                    setTimeout(() => {
+                        window.location.href = 'homepage.html';
+                    }, 2000);
+                    return;
+                }
+
+                // Try to connect to backend first, fallback to mock if unavailable
+                let useMockResponse = true;
+                
+                try {
+                    // Test backend connection
+                    const testResponse = await fetch('http://localhost:8003/api/v1/reports/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify(reportData),
+                        signal: AbortSignal.timeout(5000) // 5 second timeout
+                    });
+                    
+                    if (testResponse.ok) {
+                        const result = await testResponse.json();
+                        if (result.success) {
+                            // Display preview
+                            document.getElementById('previewContent').textContent = JSON.stringify(result, null, 2);
+                            document.getElementById('reportPreview').style.display = 'block';
+                            
+                            // Initialize Bloomberg terminal charts
+                            initializeChartsOnReportGeneration();
+                            
+                            // Show success dialog
+                            showDialog(
+                                'Report Generated Successfully!', 
+                                `Your Bloomberg-style report has been generated with ID: ${result.report_id}`,
+                                'success'
+                            );
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Backend not available, using mock response:', error.message);
+                    useMockResponse = true;
+                }
+
+                // Use mock response if backend is unavailable
+                if (useMockResponse) {
+                    console.log('Using mock response for demo purposes');
+                    // Show info dialog about using mock data
+                    showDialog(
+                        'Demo Mode', 
+                        'Backend server is not available. Using demo data for report generation.',
+                        'info'
+                    );
+                }
+
+                // Mock response for demo purposes
+                const mockResult = {
+                    success: true,
+                    report_id: `report_${Date.now()}`,
+                    report_url: `/reports/report_${Date.now()}`,
+                    generated_at: new Date().toISOString(),
+                    message: "Report generated successfully",
+                    pdf_url: `/api/v1/reports/download/report_${Date.now()}`,
+                    data: {
+                        report_id: `report_${Date.now()}`,
+                        generated_at: new Date().toISOString(),
+                        template: reportData.template,
+                        valuation_data: reportData.valuation_data,
+                        options: {
+                            include_charts: reportData.include_charts,
+                            include_comps: reportData.include_comps,
+                            include_finance_scenarios: reportData.include_finance_scenarios,
+                            include_market_analysis: reportData.include_market_analysis,
+                            include_risk_assessment: reportData.include_risk_assessment
+                        },
+                        kpi_metrics: {
+                            estimated_value: reportData.valuation_data.estimated_value,
+                            value_per_ton: reportData.valuation_data.estimated_value / reportData.valuation_data.capacity_tons,
+                            age_factor: reportData.valuation_data.age_factor,
+                            condition_score: reportData.valuation_data.condition_score,
+                            confidence_score: reportData.valuation_data.confidence_score
+                        },
+                        comparable_sales: [
+                            {
+                                manufacturer: reportData.valuation_data.manufacturer,
+                                model: `${reportData.valuation_data.model} (Similar)`,
+                                year: reportData.valuation_data.year - 1,
+                                price: reportData.valuation_data.estimated_value * 0.95,
+                                location: reportData.valuation_data.region
+                            },
+                            {
+                                manufacturer: reportData.valuation_data.manufacturer,
+                                model: `${reportData.valuation_data.model} (Newer)`,
+                                year: reportData.valuation_data.year + 1,
+                                price: reportData.valuation_data.estimated_value * 1.15,
+                                location: reportData.valuation_data.region
+                            }
+                        ],
+                        finance_scenarios: [
+                            {
+                                scenario: "Conservative",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.008,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 1.48,
+                                roi: 12.5
+                            },
+                            {
+                                scenario: "Moderate",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.012,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 1.72,
+                                roi: 18.3
+                            },
+                            {
+                                scenario: "Aggressive",
+                                monthly_payment: reportData.valuation_data.estimated_value * 0.018,
+                                total_cost_5yr: reportData.valuation_data.estimated_value * 2.08,
+                                roi: 25.7
+                            }
+                        ],
+                        market_analysis: {
+                            demand_level: "High",
+                            market_trend: "Growing",
+                            regional_factors: `Strong demand in ${reportData.valuation_data.region}`,
+                            price_trend: "Stable to increasing"
+                        },
+                        risk_assessment: {
+                            overall_risk: "Low",
+                            market_risk: "Low",
+                            operational_risk: "Medium",
+                            financial_risk: "Low"
+                        }
+                    }
+                };
+                
+                // Display preview
+                document.getElementById('previewContent').textContent = JSON.stringify(mockResult, null, 2);
+                document.getElementById('reportPreview').style.display = 'block';
+                
+                // Initialize Bloomberg terminal charts
+                initializeChartsOnReportGeneration();
+                
+                // Show success dialog
+                showDialog(
+                    'Report Generated Successfully!', 
+                    `Your Bloomberg-style report has been generated with ID: ${mockResult.report_id}`,
+                    'success'
+                );
+                
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showDialog(
+                    'Report Generation Failed', 
+                    error.message || 'An unexpected error occurred while generating the report.',
+                    'error'
+                );
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function downloadReport() {
+            const reportContent = document.getElementById('previewContent').textContent;
+            if (reportContent && reportContent.includes('report_id')) {
+                try {
+                    const reportData = JSON.parse(reportContent);
+                    
+                    // Show loading dialog
+                    showDialog(
+                        'Generating PDF', 
+                        'Please wait while we generate your PDF report...',
+                        'info'
+                    );
+                    
+                    // Generate PDF from report data
+                    generatePDFReport(reportData);
+                    
+                } catch (error) {
+                    console.error('Error parsing report data:', error);
+                    showDialog(
+                        'Report Download', 
+                        'No report data available for download.',
+                        'info'
+                    );
+                }
+            } else {
+                showDialog(
+                    'Report Download', 
+                    'Please generate a report first.',
+                    'info'
+                );
+            }
+        }
+
+        // Function to capture charts as images
+        async function captureChartsForPDF() {
+            const charts = {};
+            
+            try {
+                // Capture main charts
+                const chartElements = [
+                    'valuationTrendChart',
+                    'priceComparisonChart', 
+                    'marketActivityChart',
+                    'riskMatrixChart',
+                    'financingScenariosChart'
+                ];
+                
+                for (const chartId of chartElements) {
+                    const element = document.getElementById(chartId);
+                    if (element) {
+                        console.log(`Capturing chart: ${chartId}`);
+                        const canvas = await html2canvas(element, {
+                            backgroundColor: '#0F0F0F',
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true
+                        });
+                        charts[chartId] = canvas.toDataURL('image/png');
+                    }
+                }
+                
+                // Capture mini charts
+                const miniChartElements = [
+                    'depreciationChart',
+                    'utilizationChart',
+                    'maintenanceChart',
+                    'resaleChart'
+                ];
+                
+                for (const chartId of miniChartElements) {
+                    const element = document.getElementById(chartId);
+                    if (element) {
+                        console.log(`Capturing mini chart: ${chartId}`);
+                        const canvas = await html2canvas(element, {
+                            backgroundColor: '#0F0F0F',
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true
+                        });
+                        charts[chartId] = canvas.toDataURL('image/png');
+                    }
+                }
+                
+                console.log('All charts captured successfully');
+                return charts;
+            } catch (error) {
+                console.error('Error capturing charts:', error);
+                return {};
+            }
+        }
+
+        async function generatePDFReport(reportData) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Capture charts first
+                console.log('Capturing Bloomberg terminal charts...');
+                const chartImages = await captureChartsForPDF();
+                
+                // Set up colors
+                const primaryColor = '#00FF85';
+                const darkColor = '#1A1A1A';
+                const textColor = '#333333';
+                const lightGray = '#666666';
+                
+                let yPosition = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                
+                // Header
+                doc.setFillColor(26, 26, 26);
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('CRANE INTELLIGENCE', margin, 20);
+                
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Valuation Report', margin, 28);
+                
+                yPosition = 45;
+                
+                // Report ID and Date
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Report ID: ${reportData.data.report_id}`, margin, yPosition);
+                doc.text(`Generated: ${new Date(reportData.data.generated_at).toLocaleDateString()}`, pageWidth - margin - 50, yPosition);
+                yPosition += 15;
+                
+                // Line separator
+                doc.setDrawColor(0, 255, 133);
+                doc.setLineWidth(0.5);
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+                
+                // Crane Specifications Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Crane Specifications', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const specs = reportData.data.valuation_data;
+                doc.text(`Capacity: ${specs.capacity_tons} tons`, margin, yPosition);
+                doc.text(`Operating Hours: ${specs.hours.toLocaleString()} hours`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Region: ${specs.region}`, margin, yPosition);
+                doc.text(`Condition Score: ${specs.condition_score}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Valuation Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Valuation Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const valuation = reportData.data.kpi_metrics;
+                doc.text(`Estimated Value: $${valuation.estimated_value.toLocaleString()}`, margin, yPosition);
+                doc.text(`Value per Ton: $${valuation.value_per_ton.toLocaleString()}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Age Factor: ${(valuation.age_factor * 100).toFixed(1)}%`, margin, yPosition);
+                doc.text(`Confidence Score: ${(valuation.confidence_score * 100).toFixed(1)}%`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Risk Assessment Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Risk Assessment', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const risk = reportData.data.risk_assessment;
+                doc.text(`Overall Risk: ${risk.overall_risk}`, margin, yPosition);
+                doc.text(`Market Risk: ${risk.market_risk}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Operational Risk: ${risk.operational_risk}`, margin, yPosition);
+                doc.text(`Financial Risk: ${risk.financial_risk}`, margin + 70, yPosition);
+                yPosition += 15;
+                
+                // Market Analysis Section
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                doc.setTextColor(0, 255, 133);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Market Analysis', margin + 5, yPosition + 6);
+                yPosition += 15;
+                
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const market = reportData.data.market_analysis;
+                doc.text(`Demand Level: ${market.demand_level}`, margin, yPosition);
+                doc.text(`Market Trend: ${market.market_trend}`, margin + 70, yPosition);
+                yPosition += 6;
+                doc.text(`Regional Factors: ${market.regional_factors}`, margin, yPosition);
+                yPosition += 6;
+                doc.text(`Price Trend: ${market.price_trend}`, margin, yPosition);
+                yPosition += 20;
+                
+                // Bloomberg Terminal Charts Section
+                if (Object.keys(chartImages).length > 0) {
+                    // New page for charts
+                    doc.addPage();
+                    yPosition = 20;
+                    
+                    // Charts Section Header
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(margin, yPosition, contentWidth, 8, 'F');
+                    doc.setTextColor(0, 255, 133);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Bloomberg Terminal Charts & Analytics', margin + 5, yPosition + 6);
+                    yPosition += 15;
+                    
+                    // Main Valuation Trend Chart
+                    if (chartImages.valuationTrendChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Equipment Valuation Trend', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 60;
+                        doc.addImage(chartImages.valuationTrendChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                    
+                    // Price Comparison and Market Activity Charts (side by side)
+                    if (chartImages.priceComparisonChart || chartImages.marketActivityChart) {
+                        const chartWidth = (contentWidth - 10) / 2;
+                        const chartHeight = 50;
+                        
+                        if (chartImages.priceComparisonChart) {
+                            doc.setFontSize(10);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('Price Comparison', margin, yPosition);
+                            yPosition += 5;
+                            doc.addImage(chartImages.priceComparisonChart, 'PNG', margin, yPosition, chartWidth, chartHeight);
+                        }
+                        
+                        if (chartImages.marketActivityChart) {
+                            doc.setFontSize(10);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('Market Activity', margin + chartWidth + 10, yPosition - 5);
+                            doc.addImage(chartImages.marketActivityChart, 'PNG', margin + chartWidth + 10, yPosition, chartWidth, chartHeight);
+                        }
+                        
+                        yPosition += chartHeight + 15;
+                    }
+                    
+                    // Risk Matrix Chart
+                    if (chartImages.riskMatrixChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Risk Assessment Matrix', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 60;
+                        doc.addImage(chartImages.riskMatrixChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                    
+                    // Mini Charts Grid
+                    const miniCharts = [
+                        { id: 'depreciationChart', title: 'Depreciation Curve' },
+                        { id: 'utilizationChart', title: 'Utilization Rate' },
+                        { id: 'maintenanceChart', title: 'Maintenance Cost' },
+                        { id: 'resaleChart', title: 'Resale Value' }
+                    ];
+                    
+                    const miniChartWidth = (contentWidth - 15) / 2;
+                    const miniChartHeight = 40;
+                    let miniChartRow = 0;
+                    
+                    for (const chart of miniCharts) {
+                        if (chartImages[chart.id]) {
+                            const xPos = margin + (miniChartRow % 2) * (miniChartWidth + 10);
+                            const yPos = yPosition + Math.floor(miniChartRow / 2) * (miniChartHeight + 20);
+                            
+                            doc.setFontSize(9);
+                            doc.setTextColor(textColor);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(chart.title, xPos, yPos);
+                            
+                            doc.addImage(chartImages[chart.id], 'PNG', xPos, yPos + 3, miniChartWidth, miniChartHeight);
+                            
+                            miniChartRow++;
+                        }
+                    }
+                    
+                    yPosition += Math.ceil(miniCharts.length / 2) * (miniChartHeight + 20) + 10;
+                    
+                    // Financing Scenarios Chart
+                    if (chartImages.financingScenariosChart) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Financing Scenarios Comparison', margin, yPosition);
+                        yPosition += 8;
+                        
+                        const imgWidth = contentWidth;
+                        const imgHeight = 50;
+                        doc.addImage(chartImages.financingScenariosChart, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                }
+                
+                // Footer
+                yPosition = doc.internal.pageSize.getHeight() - 20;
+                doc.setTextColor(lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('This report was generated by Crane Intelligence Platform', margin, yPosition);
+                doc.text('For questions or support: support@craneintelligence.com', margin, yPosition + 5);
+                
+                // Download the PDF
+                const fileName = `crane_report_${reportData.data.report_id}.pdf`;
+                doc.save(fileName);
+                
+                // Close loading dialog and show success
+                setTimeout(() => {
+                    showDialog(
+                        'Report Downloaded', 
+                        'Your PDF report has been downloaded successfully!',
+                        'success'
+                    );
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showDialog(
+                    'PDF Generation Error', 
+                    'Failed to generate PDF. Please try again.',
+                    'error'
+                );
+            }
+        }
+
+        function shareReport() {
+            // Placeholder for sharing functionality
+            showDialog(
+                'Share Report', 
+                'Share functionality will be implemented in a future update',
+                'info'
+            );
+        }
+
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            
+            // If not authenticated, redirect to homepage
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                showDialog(
+                    'Authentication Required', 
+                    'Please login to access the report generation page.',
+                    'error'
+                );
+                setTimeout(() => {
+                    window.location.href = 'homepage.html';
+                }, 2000);
+            }
+        });
+
+        // Form submission
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateReport();
+        });
+
+        // ===== BLOOMBERG TERMINAL CHART FUNCTIONS =====
+        
+        // Initialize all Bloomberg terminal charts
+        function initializeBloombergCharts() {
+            console.log('Starting Bloomberg chart initialization...');
+            
+            // Check if libraries are loaded
+            if (!checkChartLibraries()) {
+                console.error('Chart libraries not loaded, retrying in 2 seconds...');
+                setTimeout(() => {
+                    initializeBloombergCharts();
+                }, 2000);
+                return;
+            }
+            
+            try {
+                console.log('Creating valuation trend chart...');
+                createValuationTrendChart();
+                
+                console.log('Creating price comparison chart...');
+                createPriceComparisonChart();
+                
+                console.log('Creating market activity chart...');
+                createMarketActivityChart();
+                
+                console.log('Creating risk matrix chart...');
+                createRiskMatrixChart();
+                
+                console.log('Creating mini charts...');
+                createDepreciationChart();
+                createUtilizationChart();
+                createMaintenanceChart();
+                createResaleChart();
+                
+                console.log('Creating financing scenarios chart...');
+                createFinancingScenariosChart();
+                
+                console.log('All Bloomberg charts initialized successfully!');
+            } catch (error) {
+                console.error('Error initializing Bloomberg charts:', error);
+            }
+        }
+
+        // Main valuation trend chart
+        function createValuationTrendChart() {
+            const ctx = document.getElementById('valuationTrendChart');
+            if (!ctx) {
+                console.error('valuationTrendChart canvas element not found');
+                return;
+            }
+
+            console.log('Creating valuation trend chart with context:', ctx);
+            
+            try {
+                new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Current Valuation',
+                        data: [1800000, 1850000, 1920000, 1980000, 2050000, 2100000, 2080000, 2120000, 2149900, 2100000, 2180000, 2200000],
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Market Average',
+                        data: [1750000, 1780000, 1820000, 1850000, 1880000, 1900000, 1920000, 1950000, 1980000, 2000000, 2020000, 2050000],
+                        borderColor: '#FFD600',
+                        backgroundColor: 'rgba(255, 214, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    }, {
+                        label: 'Risk Threshold',
+                        data: [1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000],
+                        borderColor: '#FF4444',
+                        backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                },
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 3,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating valuation trend chart:', error);
+        }
+
+        // Price comparison chart
+        function createPriceComparisonChart() {
+            const ctx = document.getElementById('priceComparisonChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Grove GMK5250L', 'Liebherr LTM 1300', 'Terex AC 500-2', 'Manitowoc 2250', 'Kato NK-500E'],
+                    datasets: [{
+                        label: 'Price ($)',
+                        data: [2100000, 1950000, 2200000, 1850000, 2050000],
+                        backgroundColor: [
+                            '#00FF85',
+                            '#FFD600',
+                            '#FF4444',
+                            '#00CC6A',
+                            '#FF6B35'
+                        ],
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono'
+                                },
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Market activity chart
+        function createMarketActivityChart() {
+            const ctx = document.getElementById('marketActivityChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active Listings', 'Recent Sales', 'Auction Results', 'Pending Deals'],
+                    datasets: [{
+                        data: [35, 28, 22, 15],
+                        backgroundColor: [
+                            '#00FF85',
+                            '#FFD600',
+                            '#FF4444',
+                            '#00CC6A'
+                        ],
+                        borderColor: '#0F0F0F',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#B0B0B0',
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Risk matrix chart using Plotly
+        function createRiskMatrixChart() {
+            const data = [{
+                x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                y: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                z: [
+                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                    [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1],
+                    [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+                    [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3],
+                    [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4],
+                    [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+                    [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6],
+                    [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
+                    [0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8],
+                    [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+                ],
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#00FF85'],
+                    [0.5, '#FFD600'],
+                    [1, '#FF4444']
+                ]
+            }];
+
+            const layout = {
+                title: {
+                    text: 'Risk vs Return Matrix',
+                    font: { color: '#00FF85', size: 14 }
+                },
+                xaxis: {
+                    title: 'Risk Level',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                yaxis: {
+                    title: 'Return Potential',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                plot_bgcolor: '#0F0F0F',
+                paper_bgcolor: '#0F0F0F',
+                font: { family: 'JetBrains Mono', color: '#B0B0B0' }
+            };
+
+            Plotly.newPlot('riskMatrixChart', data, layout, {responsive: true});
+        }
+
+        // Mini charts
+        function createDepreciationChart() {
+            const ctx = document.getElementById('depreciationChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                    datasets: [{
+                        data: [100, 95, 88, 80, 70, 60, 50, 40, 30, 25, 20],
+                        borderColor: '#00FF85',
+                        backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createUtilizationChart() {
+            const ctx = document.getElementById('utilizationChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        data: [85, 92, 78, 88],
+                        backgroundColor: '#FFD600',
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createMaintenanceChart() {
+            const ctx = document.getElementById('maintenanceChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        data: [14990, 18000, 12000, 22000, 19000, 16000],
+                        borderColor: '#FF4444',
+                        backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createResaleChart() {
+            const ctx = document.getElementById('resaleChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1Y', '2Y', '3Y', '4Y', '5Y'],
+                    datasets: [{
+                        data: [95, 88, 80, 70, 60],
+                        backgroundColor: '#00CC6A',
+                        borderColor: '#333333',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        },
+                        y: {
+                            grid: { color: '#333333' },
+                            ticks: { color: '#B0B0B0', font: { family: 'JetBrains Mono', size: 8 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Financing scenarios chart
+        function createFinancingScenariosChart() {
+            const data = [{
+                x: ['Cash Purchase', 'Bank Loan 5%', 'Lease 3Y', 'Lease 5Y', 'Rent-to-Own'],
+                y: [2100000, 2200000, 1950000, 2050000, 2300000],
+                type: 'bar',
+                marker: {
+                    color: ['#00FF85', '#FFD600', '#FF4444', '#00CC6A', '#FF6B35']
+                }
+            }];
+
+            const layout = {
+                title: {
+                    text: 'Financing Options Comparison',
+                    font: { color: '#00FF85', size: 14 }
+                },
+                xaxis: {
+                    title: 'Financing Option',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                yaxis: {
+                    title: 'Total Cost ($)',
+                    color: '#B0B0B0',
+                    gridcolor: '#333333'
+                },
+                plot_bgcolor: '#0F0F0F',
+                paper_bgcolor: '#0F0F0F',
+                font: { family: 'JetBrains Mono', color: '#B0B0B0' }
+            };
+
+            Plotly.newPlot('financingScenariosChart', data, layout, {responsive: true});
+        }
+
+        // Initialize charts when report is generated
+        function initializeChartsOnReportGeneration() {
+            // Wait for DOM to be ready and libraries to load
+            setTimeout(() => {
+                console.log('Initializing Bloomberg charts...');
+                if (checkChartLibraries()) {
+                    initializeBloombergCharts();
+                } else {
+                    console.log('Chart libraries not ready, retrying...');
+                    setTimeout(() => {
+                        initializeChartsOnReportGeneration();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        // Check if chart libraries are loaded
+        function checkChartLibraries() {
+            const chartJsLoaded = typeof Chart !== 'undefined';
+            const plotlyLoaded = typeof Plotly !== 'undefined';
+            const d3Loaded = typeof d3 !== 'undefined';
+            
+            console.log('Chart libraries status:', {
+                ChartJS: chartJsLoaded,
+                Plotly: plotlyLoaded,
+                D3: d3Loaded
+            });
+            
+            return chartJsLoaded && plotlyLoaded;
+        }
+    </script>
+    <script src="/js/auto-init-auth.js"></script>
+
+    <script>
+    let selectedReportType = 'standard';
+    let selectedPrice = 999;
+
+    // Report type selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportCards = document.querySelectorAll('.report-type-card');
+        const selectBtns = document.querySelectorAll('.select-report-btn');
+        const purchaseBtn = document.getElementById('purchaseReportBtn');
+
+        if (selectBtns.length > 0) {
+            selectBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const card = this.closest('.report-type-card');
+                    const type = card.dataset.type;
+                    const price = this.dataset.price;
+
+                    // Remove selected class from all cards
+                    reportCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // Add selected class to clicked card
+                    card.classList.add('selected');
+
+                    // Update selected values
+                    selectedReportType = type;
+                    selectedPrice = price;
+
+                    // Update purchase button
+                    if (purchaseBtn) {
+                        purchaseBtn.textContent = `💳 Purchase ${type.charAt(0).toUpperCase() + type.slice(1)} Report - $${(price / 100).toLocaleString()}`;
+                    }
+                });
+            });
+
+            // Select standard by default
+            if (reportCards.length > 0) {
+                reportCards[0].classList.add('selected');
+            }
+        }
+    });
+
+    function purchaseReport() {
+        alert(`Processing ${selectedReportType} report purchase for $${selectedPrice}\n\nPayment integration coming soon!`);
+    }
+    </script>
+
+    <script>
+// ============================================================================
+// CRANE DATABASE - Manufacturer Models and Specifications
+// ============================================================================
+
+// Initialize window objects
+window.manufacturerModels = window.manufacturerModels || {};
+window.craneDatabase = window.craneDatabase || {};
+
+// Liebherr Models and Database
+window.manufacturerModels['Liebherr'] = ["LTM 1025", "LTM 1030-2.1", "LTM 1040-2.1", "LTM 1050-3.1", "LTM 1060-3.1", "LTM 1070-4.2", "LTM 1080-2", "LTM 1090-4.2", "LTM 1100-5.2", "LTM 1110-5.1", "LTM 1120-4.1", "LTM 1130-5.1", "LTM 1160-5.2", "LTM 1200-5.1", "LTM 1220-5.2", "LTM 1230-5.1", "LTM 1250-6.1", "LTM 1300-6.2", "LTM 1350-6.1", "LTM 1400-7.1", "LTM 1450-8.1", "LTM 1499-8.1", "LTM 1650-8.1", "LTM 1750-9.1", "LTM 11200-9.1", "LTC 1045-3.1", "LTC 1050-3.1", "LRT 1090-2.1", "LRT 1100-2.1", "LTR 1040", "LTR 1060", "LTR 1100", "LTR 1220", "LR 1100", "LR 1160", "LR 1200", "LR 1250", "LR 1280", "LR 1300.1 SX", "LR 1350/1", "LR 1400/2", "LR 1499", "LR 1600/2", "LR 1700-1.0", "LR 1750/2", "LR 1800-1.0", "LR 11350", "LR 13000", "LG 1750"];
+window.craneDatabase['Liebherr'] = [{"model": "LTM 1025", "capacity": 25, "type": "All-Terrain Crane", "boomLength": 30}, {"model": "LTM 1030-2.1", "capacity": 30, "type": "All-Terrain Crane", "boomLength": 35}, {"model": "LTM 1040-2.1", "capacity": 40, "type": "All-Terrain Crane", "boomLength": 35}, {"model": "LTM 1050-3.1", "capacity": 50, "type": "All-Terrain Crane", "boomLength": 40}, {"model": "LTM 1060-3.1", "capacity": 60, "type": "All-Terrain Crane", "boomLength": 48}, {"model": "LTM 1070-4.2", "capacity": 70, "type": "All-Terrain Crane", "boomLength": 50}, {"model": "LTM 1080-2", "capacity": 80, "type": "All-Terrain Crane", "boomLength": 50}, {"model": "LTM 1090-4.2", "capacity": 90, "type": "All-Terrain Crane", "boomLength": 52}, {"model": "LTM 1100-5.2", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 52}, {"model": "LTM 1110-5.1", "capacity": 110, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1120-4.1", "capacity": 120, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1130-5.1", "capacity": 130, "type": "All-Terrain Crane", "boomLength": 60}, {"model": "LTM 1160-5.2", "capacity": 160, "type": "All-Terrain Crane", "boomLength": 62}, {"model": "LTM 1200-5.1", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 72}, {"model": "LTM 1220-5.2", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1230-5.1", "capacity": 230, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1250-6.1", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 72}, {"model": "LTM 1300-6.2", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 78}, {"model": "LTM 1350-6.1", "capacity": 350, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1400-7.1", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1450-8.1", "capacity": 450, "type": "All-Terrain Crane", "boomLength": 85}, {"model": "LTM 1499-8.1", "capacity": 500, "type": "All-Terrain Crane", "boomLength": 84}, {"model": "LTM 1650-8.1", "capacity": 650, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTM 1750-9.1", "capacity": 750, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTM 11200-9.1", "capacity": 1200, "type": "All-Terrain Crane", "boomLength": 100}, {"model": "LTC 1045-3.1", "capacity": 45, "type": "City Crane", "boomLength": 36}, {"model": "LTC 1050-3.1", "capacity": 50, "type": "City Crane", "boomLength": 30}, {"model": "LRT 1090-2.1", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 50}, {"model": "LRT 1100-2.1", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 52}, {"model": "LTR 1040", "capacity": 40, "type": "Telescopic Crawler Crane", "boomLength": 40}, {"model": "LTR 1060", "capacity": 60, "type": "Telescopic Crawler Crane", "boomLength": 48}, {"model": "LTR 1100", "capacity": 100, "type": "Telescopic Crawler Crane", "boomLength": 52}, {"model": "LTR 1220", "capacity": 220, "type": "Telescopic Crawler Crane", "boomLength": 60}, {"model": "LR 1100", "capacity": 100, "type": "Crawler Crane", "boomLength": 78}, {"model": "LR 1160", "capacity": 160, "type": "Crawler Crane", "boomLength": 81}, {"model": "LR 1200", "capacity": 200, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1250", "capacity": 250, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1280", "capacity": 280, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1300.1 SX", "capacity": 300, "type": "Crawler Crane", "boomLength": 102}, {"model": "LR 1350/1", "capacity": 350, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1400/2", "capacity": 400, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1499", "capacity": 500, "type": "Crawler Crane", "boomLength": 126}, {"model": "LR 1600/2", "capacity": 600, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1700-1.0", "capacity": 700, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1750/2", "capacity": 750, "type": "Crawler Crane", "boomLength": 147}, {"model": "LR 1800-1.0", "capacity": 800, "type": "Crawler Crane", "boomLength": 168}, {"model": "LR 11350", "capacity": 1350, "type": "Crawler Crane", "boomLength": 198}, {"model": "LR 13000", "capacity": 3000, "type": "Crawler Crane", "boomLength": 246}, {"model": "LG 1750", "capacity": 750, "type": "Gantry Crane", "boomLength": 120}];
+
+// Grove Models and Database
+window.manufacturerModels['Grove'] = ["GMK5250L", "GMK5150L", "GMK5200", "GMK6300L", "GMK6400", "GMK7450", "RT540E", "RT550E", "RT555E", "RT560E", "RT765E-2", "RT770E", "RT775E", "RT780E", "RT890E", "RT9130E-2", "GRT8100", "GRT8120", "GRT655", "GRT880", "GMK3050-2", "GMK3060", "GMK4080-1", "GMK4100L-1", "GMK5130-2"];
+window.craneDatabase['Grove'] = [{"model": "GMK5250L", "capacity": 250, "type": "All-Terrain Crane", "boomLength": 200}, {"model": "GMK5150L", "capacity": 150, "type": "All-Terrain Crane", "boomLength": 180}, {"model": "GMK5200", "capacity": 200, "type": "All-Terrain Crane", "boomLength": 190}, {"model": "GMK6300L", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 220}, {"model": "GMK6400", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 240}, {"model": "GMK7450", "capacity": 450, "type": "All-Terrain Crane", "boomLength": 260}, {"model": "RT540E", "capacity": 40, "type": "Rough Terrain Crane", "boomLength": 110}, {"model": "RT550E", "capacity": 50, "type": "Rough Terrain Crane", "boomLength": 120}, {"model": "RT555E", "capacity": 55, "type": "Rough Terrain Crane", "boomLength": 125}, {"model": "RT560E", "capacity": 60, "type": "Rough Terrain Crane", "boomLength": 130}, {"model": "RT765E-2", "capacity": 65, "type": "Rough Terrain Crane", "boomLength": 135}, {"model": "RT770E", "capacity": 70, "type": "Rough Terrain Crane", "boomLength": 140}, {"model": "RT775E", "capacity": 75, "type": "Rough Terrain Crane", "boomLength": 145}, {"model": "RT780E", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 150}, {"model": "RT890E", "capacity": 90, "type": "Rough Terrain Crane", "boomLength": 155}, {"model": "RT9130E-2", "capacity": 130, "type": "Rough Terrain Crane", "boomLength": 175}, {"model": "GRT8100", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 160}, {"model": "GRT8120", "capacity": 120, "type": "Rough Terrain Crane", "boomLength": 170}, {"model": "GRT655", "capacity": 55, "type": "Rough Terrain Crane", "boomLength": 125}, {"model": "GRT880", "capacity": 80, "type": "Rough Terrain Crane", "boomLength": 150}, {"model": "GMK3050-2", "capacity": 50, "type": "All-Terrain Crane", "boomLength": 130}, {"model": "GMK3060", "capacity": 60, "type": "All-Terrain Crane", "boomLength": 140}, {"model": "GMK4080-1", "capacity": 80, "type": "All-Terrain Crane", "boomLength": 150}, {"model": "GMK4100L-1", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 160}, {"model": "GMK5130-2", "capacity": 130, "type": "All-Terrain Crane", "boomLength": 170}];
+
+// Tadano, Manitowoc, Sany, Kobelco, Link-Belt, Terex, Zoomlion models
+window.manufacturerModels['Tadano'] = ["GR-550XL", "GR-1000XLL", "TR-250M", "AR-2000M", "GR-750XL", "ATF 110G-5", "TR-500XL", "GR-1600XL", "GR-300EX", "ATF 400G-6", "TR-800M", "GR-1000XL", "AR-5500M", "GR-350XL", "GR-500EX"];
+window.craneDatabase['Tadano'] = [{"model": "ATF 400G-6", "capacity": 400, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "ATF 220G-5", "capacity": 220, "type": "All-Terrain Crane", "boomLength": 197}, {"model": "ATF 110G-5", "capacity": 120, "type": "All-Terrain Crane", "boomLength": 171}, {"model": "GR-1000XL", "capacity": 100, "type": "Rough Terrain Crane", "boomLength": 154}];
+
+window.manufacturerModels['Manitowoc'] = ["18000", "MLC300", "MLC650", "MLC100-1", "MLC165", "999", "2250", "4100W", "4600S", "16000", "21000", "31000", "MLC100", "MLC150", "MLC200"];
+window.craneDatabase['Manitowoc'] = [{"model": "18000", "capacity": 550, "type": "Crawler Crane", "boomLength": 320}, {"model": "MLC300", "capacity": 300, "type": "Crawler Crane", "boomLength": 220}, {"model": "MLC650", "capacity": 650, "type": "Crawler Crane", "boomLength": 350}];
+
+window.manufacturerModels['Sany'] = ["SCC8500", "SCC4000E", "SCC6500A", "SCC1000A", "SCC2500A", "SAC1800", "SAC2200", "SAC3000", "SAC4000", "STC250", "STC500", "STC750"];
+window.craneDatabase['Sany'] = [{"model": "SCC8500", "capacity": 850, "type": "Crawler Crane", "boomLength": 440}, {"model": "SAC3000", "capacity": 300, "type": "All-Terrain Crane", "boomLength": 230}];
+
+window.manufacturerModels['Kobelco'] = ["CK1600G", "CKE1350G", "BMS800", "CK2500", "CK2750G-2", "CK1100G", "CK1600", "CKE2500G-2", "CKE4000", "CK800"];
+window.craneDatabase['Kobelco'] = [{"model": "CK1600G", "capacity": 160, "type": "Crawler Crane", "boomLength": 250}, {"model": "CKE4000", "capacity": 400, "type": "Crawler Crane", "boomLength": 344}];
+
+window.manufacturerModels['Link-Belt'] = ["HTC-8675", "HTC-86100", "HTC-3140", "HTC-86110", "HTC-86155", "RTC-80100", "RTC-80130", "RTC-8090", "ATC-3210", "ATC-3275"];
+window.craneDatabase['Link-Belt'] = [{"model": "HTC-8675", "capacity": 75, "type": "Truck Crane", "boomLength": 127}, {"model": "ATC-3275", "capacity": 275, "type": "All Terrain", "boomLength": 223}];
+
+window.manufacturerModels['Terex'] = ["AC 100/4L", "Demag AC 100-4L", "AC 250-1"];
+window.craneDatabase['Terex'] = [{"model": "AC 100/4L", "capacity": 100, "type": "All-Terrain Crane", "boomLength": 140}];
+
+window.manufacturerModels['XCMG'] = ["XGC88000", "XGC55000", "XGC28000"];
+window.craneDatabase['XCMG'] = [{"model": "XGC88000", "capacity": 4000, "type": "Crawler Crane", "boomLength": 450}];
+
+window.manufacturerModels['Zoomlion'] = ["QY70V", "QY100V"];
+window.craneDatabase['Zoomlion'] = [{"model": "QY70V", "capacity": 70, "type": "All-Terrain Crane", "boomLength": 128}];
+
+window.manufacturerModels['HSC'] = ["HSC 60", "HSC 120"];
+window.craneDatabase['HSC'] = [{"model": "HSC 60", "capacity": 60, "type": "Crawler Crane", "boomLength": 150}];
+
+window.manufacturerModels['Kato'] = ["NK-500E-V", "NK-750E", "NK-1000"];
+window.craneDatabase['Kato'] = [{"model": "NK-500E-V", "capacity": 50, "type": "Rough Terrain Crane", "boomLength": 120}];
+
+window.manufacturerModels['IHI'] = ["CCH500-3", "CCH800-5"];
+window.craneDatabase['IHI'] = [{"model": "CCH500-3", "capacity": 50, "type": "Crawler Crane", "boomLength": 140}];
+
+console.log("✅ Crane database loaded:", Object.keys(window.manufacturerModels).length, "manufacturers");
+
+// ============================================================================
+// MANUFACTURER → MODEL CASCADE LOGIC
+// ============================================================================
+
+function updateModelOptions(manufacturer) {
+    const modelSelect = document.getElementById('model');
+    
+    if (!manufacturer || manufacturer === '') {
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        return;
+    }
+    
+    const models = window.manufacturerModels[manufacturer];
+    
+    if (models && models.length > 0) {
+        let options = '<option value="">Select Model</option>';
+        models.forEach(model => {
+            options += `<option value="${model}">${model}</option>`;
+        });
+        modelSelect.innerHTML = options;
+        console.log(`✅ Populated ${models.length} models for ${manufacturer}`);
+    } else {
+        modelSelect.innerHTML = '<option value="">No models available</option>';
+    }
+}
+
+// ============================================================================
+// AUTO-FILL CRANE SPECIFICATIONS
+// ============================================================================
+
+function autofillCraneSpecs(manufacturer, model) {
+    if (!manufacturer || !model) return;
+    
+    const specs = getCraneSpecifications(manufacturer, model);
+    
+    if (specs) {
+        // Fill capacity
+        const capacityInput = document.getElementById('capacity');
+        if (capacityInput && specs.capacity) {
+            capacityInput.value = specs.capacity;
+            capacityInput.style.borderColor = '#00FF88';
+            setTimeout(() => { capacityInput.style.borderColor = ''; }, 2000);
+        }
+        
+        // Fill crane type
+        const craneTypeSelect = document.getElementById('craneType');
+        if (craneTypeSelect && specs.type) {
+            craneTypeSelect.value = specs.type;
+            craneTypeSelect.style.borderColor = '#00FF88';
+            setTimeout(() => { craneTypeSelect.style.borderColor = ''; }, 2000);
+        }
+        
+        // Fill boom length
+        const boomLengthInput = document.getElementById('boomLength');
+        if (boomLengthInput && specs.boomLength) {
+            boomLengthInput.value = specs.boomLength;
+            boomLengthInput.style.borderColor = '#00FF88';
+            setTimeout(() => { boomLengthInput.style.borderColor = ''; }, 2000);
+        }
+        
+        console.log(`✅ Auto-filled specs for ${manufacturer} ${model}`);
+    }
+}
+
+function getCraneSpecifications(manufacturer, model) {
+    const manufacturerSpecs = window.craneDatabase[manufacturer];
+    if (!manufacturerSpecs) return null;
+    
+    return manufacturerSpecs.find(spec => spec.model === model);
+}
+
+// ============================================================================
+// LOAD SAMPLE DATA
+// ============================================================================
+
+function loadSampleData() {
+    // Sample data
+    document.getElementById('manufacturer').value = 'Liebherr';
+    updateModelOptions('Liebherr');
+    
+    setTimeout(() => {
+        document.getElementById('model').value = 'LTM 1499-8.1';
+        document.getElementById('year').value = '2020';
+        document.getElementById('capacity').value = '500';
+        document.getElementById('operatingHours').value = '5000';
+        document.getElementById('mileage').value = '25000';
+        document.getElementById('craneType').value = 'All-Terrain Crane';
+        document.getElementById('boomLength').value = '84';
+        document.getElementById('region').value = 'North America';
+        document.getElementById('jibIncluded').value = 'no';
+        document.getElementById('jibLength').value = '';
+        document.getElementById('askingPrice').value = '$3,500,000';
+        
+        console.log('✅ Sample data loaded');
+        alert('Sample data loaded successfully!');
+    }, 100);
+}
+
+// ============================================================================
+// CLEAR FORM
+// ============================================================================
+
+function clearForm() {
+    document.getElementById('reportForm').reset();
+    document.getElementById('model').innerHTML = '<option value="">Select Model</option>';
+    console.log('✅ Form cleared');
+}
+
+// ============================================================================
+// PURCHASE REPORT
+// ============================================================================
+
+function purchaseReport() {
+    // Validate required fields
+    const manufacturer = document.getElementById('manufacturer').value;
+    const model = document.getElementById('model').value;
+    const year = document.getElementById('year').value;
+    const capacity = document.getElementById('capacity').value;
+    const operatingHours = document.getElementById('operatingHours').value;
+    const craneType = document.getElementById('craneType').value;
+    const region = document.getElementById('region').value;
+    
+    if (!manufacturer || !model || !year || !capacity || !operatingHours || !craneType || !region) {
+        alert('Please fill in all required fields (marked with *)');
+        return;
+    }
+    
+    // Get selected report type
+    const selectedCard = document.querySelector('.report-type-card.selected');
+    const reportType = selectedCard ? selectedCard.dataset.type : 'standard';
+    const price = selectedCard ? selectedCard.querySelector('.select-report-btn').dataset.price : '999';
+    
+    alert(`Proceeding to checkout for ${reportType} report ($${price})\n\nCrane: ${manufacturer} ${model}\nYear: ${year}\nCapacity: ${capacity} tons`);
+    
+    // In production, this would redirect to payment page
+    console.log('Purchase initiated:', {manufacturer, model, year, capacity, reportType, price});
+}
+
+// ============================================================================
+// REPORT TYPE SELECTION
+// ============================================================================
+
+function setupReportTypeSelection() {
+    const reportCards = document.querySelectorAll('.report-type-card');
+    const purchaseBtn = document.getElementById('purchaseReportBtn');
+    
+    reportCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            reportCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            
+            // Update purchase button
+            const reportType = this.dataset.type;
+            const price = this.querySelector('.select-report-btn').dataset.price;
+            
+            if (reportType === 'enhanced') {
+                purchaseBtn.textContent = `💳 Purchase Enhanced Report - $${(price / 100).toLocaleString()}`;
+            } else {
+                purchaseBtn.textContent = `💳 Purchase Report - $${(price / 100).toLocaleString()}`;
+            }
+            
+            console.log(`Selected ${reportType} report ($${price})`);
+        });
+    });
+}
+
+// ============================================================================
+// INITIALIZE ON PAGE LOAD
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Report Generation Page - Initializing...');
+    
+    // Setup manufacturer change listener
+    const manufacturerSelect = document.getElementById('manufacturer');
+    if (manufacturerSelect) {
+        manufacturerSelect.addEventListener('change', function() {
+            const manufacturer = this.value;
+            updateModelOptions(manufacturer);
+        });
+        console.log('✅ Manufacturer listener attached');
+    }
+    
+    // Setup model change listener
+    const modelSelect = document.getElementById('model');
+    if (modelSelect) {
+        modelSelect.addEventListener('change', function() {
+            const manufacturer = document.getElementById('manufacturer').value;
+            const model = this.value;
+            autofillCraneSpecs(manufacturer, model);
+        });
+        console.log('✅ Model listener attached');
+    }
+    
+    // Setup report type selection
+    setupReportTypeSelection();
+    
+    // Setup button listeners
+    const loadSampleBtn = document.getElementById('loadSampleBtn');
+    if (loadSampleBtn) {
+        loadSampleBtn.addEventListener('click', loadSampleData);
+        console.log('✅ Load Sample Data button attached');
+    }
+    
+    const clearFormBtn = document.getElementById('clearFormBtn');
+    if (clearFormBtn) {
+        clearFormBtn.addEventListener('click', clearForm);
+        console.log('✅ Clear Form button attached');
+    }
+    
+    const purchaseBtn = document.getElementById('purchaseReportBtn');
+    if (purchaseBtn) {
+        purchaseBtn.addEventListener('click', purchaseReport);
+        console.log('✅ Purchase Report button attached');
+    }
+    
+    // Load draft if continuing from dashboard
+    loadDraftIfExists();
+    
+    // Setup auto-save for drafts
+    setupAutoSaveDraft();
+    
+    console.log('✅ Report Generation Page - Ready!');
+});
+
+// ============================================================================
+// DRAFT SAVING FUNCTIONALITY
+// ============================================================================
+
+function loadDraftIfExists() {
+    const continueDraftId = localStorage.getItem('continue_draft');
+    if (continueDraftId) {
+        console.log('📋 Loading draft:', continueDraftId);
+        
+        try {
+            const drafts = JSON.parse(localStorage.getItem('fmv_draft_reports') || '[]');
+            const draft = drafts.find(d => d.id === continueDraftId);
+            
+            if (draft && draft.crane_data) {
+                // Populate form with draft data
+                const data = draft.crane_data;
+                
+                if (data.manufacturer) document.getElementById('manufacturer').value = data.manufacturer;
+                if (data.model) {
+                    updateModelOptions(data.manufacturer);
+                    setTimeout(() => {
+                        document.getElementById('model').value = data.model;
+                    }, 100);
+                }
+                if (data.year) document.getElementById('year').value = data.year;
+                if (data.capacity) document.getElementById('capacity').value = data.capacity;
+                if (data.region) document.getElementById('region').value = data.region;
+                if (data.crane_type) document.getElementById('crane_type').value = data.crane_type;
+                if (data.operating_hours) document.getElementById('operating_hours').value = data.operating_hours;
+                if (data.mileage) document.getElementById('mileage').value = data.mileage;
+                if (data.boom_length) document.getElementById('boom_length').value = data.boom_length;
+                if (data.jib_included) document.getElementById('jib_included').value = data.jib_included;
+                if (data.jib_length) document.getElementById('jib_length').value = data.jib_length;
+                if (data.asking_price) document.getElementById('asking_price').value = data.asking_price;
+                
+                // Select report type
+                if (draft.report_type) {
+                    const reportCard = document.querySelector(`[data-report-type="${draft.report_type}"]`);
+                    if (reportCard) {
+                        reportCard.click();
+                    }
+                }
+                
+                console.log('✅ Draft loaded successfully');
+                showNotification('Draft loaded! Continue where you left off.', 'success');
+            }
+            
+            // Clear the continue flag
+            localStorage.removeItem('continue_draft');
+        } catch (error) {
+            console.error('Error loading draft:', error);
+        }
+    }
+}
+
+function setupAutoSaveDraft() {
+    // Auto-save draft every 30 seconds
+    let autoSaveInterval = setInterval(saveDraft, 30000);
+    
+    // Save draft when user leaves the page
+    window.addEventListener('beforeunload', function() {
+        saveDraft();
+        clearInterval(autoSaveInterval);
+    });
+    
+    console.log('✅ Auto-save draft enabled (every 30 seconds)');
+}
+
+function saveDraft() {
+    try {
+        // Get form data
+        const manufacturer = document.getElementById('manufacturer')?.value;
+        const model = document.getElementById('model')?.value;
+        
+        // Only save if at least manufacturer and model are filled
+        if (!manufacturer || !model) {
+            return;
+        }
+        
+        const craneData = {
+            manufacturer: manufacturer,
+            model: model,
+            year: document.getElementById('year')?.value || '',
+            capacity: document.getElementById('capacity')?.value || '',
+            region: document.getElementById('region')?.value || '',
+            crane_type: document.getElementById('crane_type')?.value || '',
+            operating_hours: document.getElementById('operating_hours')?.value || '',
+            mileage: document.getElementById('mileage')?.value || '',
+            boom_length: document.getElementById('boom_length')?.value || '',
+            jib_included: document.getElementById('jib_included')?.value || '',
+            jib_length: document.getElementById('jib_length')?.value || '',
+            asking_price: document.getElementById('asking_price')?.value || ''
+        };
+        
+        // Get selected report type
+        const selectedCard = document.querySelector('.ci-report-card.selected');
+        const reportType = selectedCard?.getAttribute('data-report-type') || 'standard';
+        
+        // Create draft object
+        const draft = {
+            id: 'draft_' + Date.now(),
+            report_type: reportType,
+            crane_data: craneData,
+            saved_at: new Date().toISOString(),
+            status: 'draft'
+        };
+        
+        // Load existing drafts
+        let drafts = JSON.parse(localStorage.getItem('fmv_draft_reports') || '[]');
+        
+        // Check if a similar draft already exists (same manufacturer and model)
+        const existingIndex = drafts.findIndex(d => 
+            d.crane_data.manufacturer === manufacturer && 
+            d.crane_data.model === model &&
+            d.status === 'draft'
+        );
+        
+        if (existingIndex >= 0) {
+            // Update existing draft
+            drafts[existingIndex] = { ...drafts[existingIndex], ...draft, id: drafts[existingIndex].id };
+            console.log('📝 Updated existing draft');
+        } else {
+            // Add new draft
+            drafts.push(draft);
+            console.log('📝 Saved new draft');
+        }
+        
+        // Keep only last 10 drafts
+        if (drafts.length > 10) {
+            drafts = drafts.slice(-10);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('fmv_draft_reports', JSON.stringify(drafts));
+    } catch (error) {
+        console.error('Error saving draft:', error);
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Simple notification function
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#00FF88' : '#1A1A1A'};
+        color: ${type === 'success' ? '#000' : '#FFF'};
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: Inter, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s';
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+    
+
+// ========== FMV REPORT STRIPE PAYMENT SYSTEM ==========
+let stripe = null;
+let elements = null;
+let paymentElement = null;
+let selectedReport = null;
+
+async function initializeStripe() {
+    try {
+        // Wait for Stripe.js to load
+        if (typeof Stripe === 'undefined') {
+            console.log('⏳ Waiting for Stripe.js to load...');
+            await new Promise(resolve => {
+                const checkStripe = setInterval(() => {
+                    if (typeof Stripe !== 'undefined') {
+                        clearInterval(checkStripe);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+        
+        const response = await fetch('/api/v1/config/public');
+        const config = await response.json();
+        if (config.stripe_publishable_key) {
+            stripe = Stripe(config.stripe_publishable_key);
+            window.stripe = stripe; // Make stripe globally accessible
+            console.log('✅ Stripe initialized');
+        } else {
+            console.error('❌ No Stripe publishable key found');
+        }
+    } catch (error) {
+        console.error('❌ Stripe initialization failed:', error);
+    }
+}
+
+function closeStripeModal() {
+    document.getElementById('stripePaymentModal').style.display = 'none';
+    // Clean up payment element
+    if (paymentElement) {
+        paymentElement.unmount();
+        paymentElement = null;
+    }
+    elements = null;
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+function showPaymentSuccessModal(details) {
+    // Close payment modal
+    closeStripeModal();
+    
+    // Format currency
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount / 100);
+    };
+    
+    // Format date
+    const formatDate = (date) => {
+        return new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    };
+    
+    // Populate success modal
+    document.getElementById('success-transaction-id').textContent = details.transactionId || 'N/A';
+    document.getElementById('success-payment-intent').textContent = details.paymentIntentId || 'N/A';
+    document.getElementById('success-report-type').textContent = details.reportType || 'N/A';
+    document.getElementById('success-crane-model').textContent = details.craneModel || 'N/A';
+    document.getElementById('success-payment-date').textContent = formatDate(new Date());
+    document.getElementById('success-amount').textContent = formatCurrency(details.amount);
+    
+    // Show success modal
+    document.getElementById('successModal').style.display = 'flex';
+}
+
+// Modified purchaseReport function to open Stripe modal
+window.purchaseReport = async function() {
+    // Validate required fields
+    const manufacturer = document.getElementById('manufacturer').value;
+    const model = document.getElementById('model').value;
+    const year = document.getElementById('year').value;
+    const capacity = document.getElementById('capacity').value;
+    const operatingHours = document.getElementById('operatingHours').value;
+    const region = document.getElementById('region').value;
+    
+    if (!manufacturer || manufacturer === 'Select Manufacturer') {
+        alert('❌ Please select a manufacturer');
+        return;
+    }
+    if (!model || model === 'Select Model') {
+        alert('❌ Please select a model');
+        return;
+    }
+    if (!year) {
+        alert('❌ Please enter the year');
+        return;
+    }
+    if (!capacity) {
+        alert('❌ Please enter the capacity');
+        return;
+    }
+    if (!operatingHours) {
+        alert('❌ Please enter operating hours');
+        return;
+    }
+    if (!region || region === 'Select Region') {
+        alert('❌ Please select a region');
+        return;
+    }
+    
+    // Get selected report type
+    const reportType = document.querySelector('.report-type-card.selected')?.dataset.type || 'standard';
+    const reportPrice = document.querySelector('.report-type-card.selected')?.querySelector('.select-report-btn')?.dataset.price || '99900';
+    const reportName = reportType === 'enhanced' ? 'Enhanced Report' : 'Standard Report';
+    const priceDisplay = reportType === 'enhanced' ? '$1,499' : '$999';
+    
+    selectedReport = {
+        type: reportType,
+        name: reportName,
+        price: priceDisplay,
+        amount: parseInt(reportPrice), // in cents
+        crane: {
+            manufacturer,
+            model,
+            year,
+            capacity,
+            operatingHours,
+            region
+        }
+    };
+    
+    // Update modal with report details
+    document.getElementById('selectedReportName').textContent = reportName;
+    document.getElementById('selectedCraneInfo').textContent = `${manufacturer} ${model} (${year})`;
+    document.getElementById('selectedReportPrice').textContent = priceDisplay;
+    
+    // Pre-fill email from localStorage
+    const userEmail = localStorage.getItem('user_email') || '';
+    if (userEmail) {
+        document.getElementById('receiptEmail').value = userEmail;
+    }
+    
+    // Show modal
+    document.getElementById('stripePaymentModal').style.display = 'flex';
+    
+    // Initialize Stripe Payment Element
+    requestAnimationFrame(async () => {
+        if (!stripe) {
+            console.log('⏳ Stripe not ready, initializing...');
+            await initializeStripe();
+        }
+        
+        if (stripe) {
+            // Unmount existing payment element if it exists
+            if (paymentElement) {
+                console.log('🔄 Unmounting existing Payment Element');
+                paymentElement.unmount();
+                paymentElement = null;
+            }
+            
+            console.log('💳 Creating Payment Element for amount:', selectedReport.amount, 'cents');
+            
+            elements = stripe.elements({
+                mode: 'payment',
+                amount: selectedReport.amount,
+                currency: 'usd',
+                appearance: {
+                    theme: 'night',
+                    variables: {
+                        colorPrimary: '#00FF88',
+                        colorBackground: '#1A1A1A',
+                        colorText: '#FFFFFF',
+                        colorDanger: '#FF4444',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                        borderRadius: '4px'
+                    }
+                }
+            });
+            
+            if (!elements) {
+                console.error('❌ Failed to create Stripe Elements');
+                alert('Failed to initialize payment form. Please refresh and try again.');
+                return;
+            }
+            
+            paymentElement = elements.create('payment', {
+                layout: {
+                    type: 'tabs',
+                    defaultCollapsed: false
+                },
+                paymentMethodOrder: ['card', 'us_bank_account'],
+                wallets: {
+                    applePay: 'auto',
+                    googlePay: 'auto'
+                }
+            });
+            
+            // Clear loading indicator
+            const loadingDiv = document.getElementById('payment-loading');
+            if (loadingDiv) loadingDiv.remove();
+            
+            // Check if paymentElement was created successfully
+            if (!paymentElement) {
+                console.error('❌ Payment Element creation failed');
+                const displayError = document.getElementById('payment-errors');
+                if (displayError) {
+                    displayError.textContent = 'Failed to create payment form. Please try again.';
+                }
+                return;
+            }
+            
+            paymentElement.mount('#payment-element').then(() => {
+                console.log('✅ Payment Element mounted');
+            }).catch((error) => {
+                console.error('❌ Payment Element mount failed:', error);
+                const displayError = document.getElementById('payment-errors');
+                if (displayError) {
+                    displayError.textContent = 'Failed to load payment form. Please refresh and try again.';
+                }
+            });
+            
+            paymentElement.on('change', (event) => {
+                const displayError = document.getElementById('payment-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        }
+    });
+};
+
+// Handle payment submission
+document.addEventListener('DOMContentLoaded', () => {
+    const submitButton = document.getElementById('submitPayment');
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+            if (!stripe || !elements) {
+                alert('❌ Payment system not ready. Please try again.');
+                return;
+            }
+            
+            const cardholderName = document.getElementById('cardholderName').value;
+            const receiptEmail = document.getElementById('receiptEmail').value;
+            
+            if (!cardholderName) {
+                alert('❌ Please enter cardholder name');
+                return;
+            }
+            if (!receiptEmail) {
+                alert('❌ Please enter email for receipt');
+                return;
+            }
+            
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span style="animation: spin 1s linear infinite;">⏳</span> Processing...';
+            
+            try {
+                // Step 1: Submit payment element
+                const {error: submitError} = await elements.submit();
+                if (submitError) {
+                    throw new Error(submitError.message);
+                }
+                
+                // Step 2: Create payment intent
+                const token = localStorage.getItem('access_token') || localStorage.getItem('crane_auth_token');
+                const response = await fetch('/api/v1/payments/create-fmv-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        report_type: selectedReport.type,
+                        amount: selectedReport.amount,
+                        crane_data: selectedReport.crane,
+                        cardholder_name: cardholderName,
+                        receipt_email: receiptEmail
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Payment failed');
+                }
+                
+                const {client_secret, transaction_id} = await response.json();
+                
+                // Step 3: Confirm payment
+                const {error, paymentIntent} = await stripe.confirmPayment({
+                    elements,
+                    clientSecret: client_secret,
+                    confirmParams: {
+                        return_url: window.location.origin + '/report-generation.html'
+                    },
+                    redirect: 'if_required'
+                });
+                
+                if (error) {
+                    throw new Error(error.message);
+                }
+                
+                // Payment successful - show success modal
+                if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    // Confirm payment in database
+                    try {
+                        await fetch("/api/v1/payments/confirm-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ payment_intent_id: paymentIntent.id })
+                        });
+                    } catch (err) {
+                        console.error("Failed to confirm payment:", err);
+                    }
+                    
+                    showPaymentSuccessModal({
+                        transactionId: transaction_id,
+                        paymentIntentId: paymentIntent.id,
+                        amount: paymentIntent.amount,
+                        reportType: selectedReportType,
+                        craneModel: document.getElementById('manufacturer').value + ' ' + document.getElementById('model').value + ' (' + document.getElementById('year').value + ')'
+                    });
+                }
+                
+            } catch (error) {
+                console.error('❌ Payment failed:', error);
+                alert('❌ Payment failed: ' + error.message);
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PROCESS PAYMENT';
+            }
+        });
+    }
+});
+
+// Handle payment redirect on page load
+window.addEventListener('load', async () => {
+    // Check if we're returning from a payment redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectStatus = urlParams.get('redirect_status');
+    const paymentIntentId = urlParams.get('payment_intent');
+    const transactionId = urlParams.get('tx');
+    const clientSecret = urlParams.get('payment_intent_client_secret');
+    
+    // Initialize Stripe first
+    await initializeStripe();
+    
+    if (redirectStatus === 'succeeded' && paymentIntentId && clientSecret) {
+        // Payment succeeded - retrieve the PaymentIntent to get details
+        try {
+            console.log('🔄 Retrieving payment intent after redirect...');
+            
+            // Wait a bit for Stripe to be fully ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            if (window.stripe) {
+                const { paymentIntent } = await window.stripe.retrievePaymentIntent(clientSecret);
+                
+                console.log('✅ Payment intent retrieved:', paymentIntent);
+                
+                if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    // Clear URL parameters
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    
+                    // Confirm payment in database
+                    try {
+                        await fetch("/api/v1/payments/confirm-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ payment_intent_id: paymentIntent.id })
+                        });
+                    } catch (err) {
+                        console.error("Failed to confirm payment:", err);
+                    }
+                    
+                    // Show success modal
+                    showPaymentSuccessModal({
+                        transactionId: transactionId || 'N/A',
+                        paymentIntentId: paymentIntent.id,
+                        amount: paymentIntent.amount,
+                        reportType: paymentIntent.metadata?.report_type || 'FMV Report',
+                        craneModel: `${paymentIntent.metadata?.crane_manufacturer || 'N/A'} ${paymentIntent.metadata?.crane_model || ''} (${paymentIntent.metadata?.crane_year || ''})`
+                    });
+                }
+            } else {
+                console.error('❌ Stripe not initialized');
+            }
+        } catch (error) {
+            console.error('❌ Error retrieving payment intent:', error);
+        }
+    }
+});
+
+</script>
+
+<!-- Stripe Payment Modal for FMV Report Purchase -->
+<div id="stripePaymentModal" class="ci-stripe-modal" style="display: none;">
+    <div class="ci-stripe-container">
+        <button class="ci-stripe-close" onclick="closeStripeModal()" aria-label="Close">&times;</button>
+        
+        <div class="ci-stripe-header">
+            <h2>COMPLETE PURCHASE</h2>
+            <div class="ci-plan-summary">
+                <div class="ci-summary-row">
+                    <span class="ci-summary-label">Report Type</span>
+                    <span class="ci-summary-value" id="selectedReportName"></span>
+                </div>
+                <div class="ci-summary-row">
+                    <span class="ci-summary-label">Crane</span>
+                    <span class="ci-summary-value" id="selectedCraneInfo"></span>
+                </div>
+                <div class="ci-summary-row ci-summary-total">
+                    <span class="ci-summary-label">Total</span>
+                    <span class="ci-summary-value" id="selectedReportPrice"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ci-stripe-body">
+            <!-- Payment Method Selection -->
+            <div class="ci-payment-section">
+                <label class="ci-stripe-label">PAYMENT METHOD</label>
+                <div id="payment-element" class="ci-payment-element" style="min-height: 100px; padding: 20px; background: #2A2A2A; border-radius: 4px; margin-bottom: 15px;">
+                    <div id="payment-loading" style="text-align: center; color: #00FF88;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="2" style="animation: spin 1s linear infinite;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <p style="margin-top: 10px; font-size: 14px;">Loading payment methods...</p>
+                    </div>
+                </div>
+                <style>
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                </style>
+                <div id="payment-errors" class="ci-payment-errors"></div>
+            </div>
+            
+            <!-- Cardholder Name -->
+            <div class="ci-input-group">
+                <label class="ci-stripe-label">CARDHOLDER NAME</label>
+                <input type="text" id="cardholderName" class="ci-input-field" placeholder="John Doe" required>
+            </div>
+            
+            <!-- Email for Receipt -->
+            <div class="ci-input-group">
+                <label class="ci-stripe-label">EMAIL FOR RECEIPT</label>
+                <input type="email" id="receiptEmail" class="ci-input-field" placeholder="john@company.com" required>
+            </div>
+        </div>
+        
+        <div class="ci-stripe-footer">
+            <button id="submitPayment" class="ci-btn-pay">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                PROCESS PAYMENT
+            </button>
+            <p class="ci-security-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                </svg>
+                Powered by Stripe • PCI DSS Level 1 Certified
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="ci-stripe-modal" style="display: none;">
+    <div class="ci-stripe-container" style="max-width: 600px;">
+        <button class="ci-stripe-close" onclick="closeSuccessModal()" aria-label="Close">&times;</button>
+        
+        <div class="ci-stripe-header" style="text-align: center;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #00FF88; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px;">✓</div>
+            <h2 style="color: #00FF88; margin-bottom: 10px;">PAYMENT SUCCESSFUL!</h2>
+            <p style="color: #888; font-size: 14px;">Your FMV report request has been received</p>
+        </div>
+        
+        <div class="ci-plan-summary" style="margin-top: 30px;">
+            <div class="ci-summary-row">
+                <span class="ci-summary-label">Transaction ID</span>
+                <span class="ci-summary-value" id="success-transaction-id">-</span>
+            </div>
+            <div class="ci-summary-row">
+                <span class="ci-summary-label">Payment Intent</span>
+                <span class="ci-summary-value" id="success-payment-intent">-</span>
+            </div>
+            <div class="ci-summary-row">
+                <span class="ci-summary-label">Report Type</span>
+                <span class="ci-summary-value" id="success-report-type">-</span>
+            </div>
+            <div class="ci-summary-row">
+                <span class="ci-summary-label">Crane Model</span>
+                <span class="ci-summary-value" id="success-crane-model">-</span>
+            </div>
+            <div class="ci-summary-row">
+                <span class="ci-summary-label">Payment Date</span>
+                <span class="ci-summary-value" id="success-payment-date">-</span>
+            </div>
+            <div class="ci-summary-row" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #00FF88;">
+                <span class="ci-summary-label" style="color: #00FF88; font-size: 18px; font-weight: 600;">Amount Paid</span>
+                <span class="ci-summary-value" style="color: #00FF88; font-size: 24px;" id="success-amount">-</span>
+            </div>
+        </div>
+        
+        <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid #00FF88; border-radius: 8px; padding: 20px; margin: 30px 0;">
+            <h3 style="color: #00FF88; margin-bottom: 10px; font-size: 16px;">📧 What's Next?</h3>
+            <p style="color: #ccc; line-height: 1.6; font-size: 14px; margin: 0;">
+                A receipt has been sent to your email address. Our team will begin working on your FMV report immediately. 
+                You can expect to receive your comprehensive report within <strong>24-48 hours</strong>.
+            </p>
+        </div>
+        
+        <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid #00FF88; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+            <h3 style="color: #00FF88; margin-bottom: 10px; font-size: 16px;">📊 Track Your Report</h3>
+            <p style="color: #ccc; line-height: 1.6; font-size: 14px; margin: 0;">
+                You can track the status of your report request in your dashboard. We'll notify you via email when your report is ready for download.
+            </p>
+        </div>
+        
+        <div class="ci-stripe-footer" style="display: flex; gap: 15px;">
+            <button onclick="window.location.href='/dashboard.html'" class="ci-btn-pay" style="flex: 1;">
+                📊 GO TO DASHBOARD
+            </button>
+            <button onclick="closeSuccessModal(); window.location.reload();" class="ci-btn-pay" style="flex: 1; background: transparent; color: #00FF88; border: 2px solid #00FF88;">
+                📄 ORDER ANOTHER REPORT
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

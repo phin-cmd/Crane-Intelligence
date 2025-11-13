@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Paywall Test - Crane Intelligence</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #00ff41;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #1a1f3a;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #00ff41;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #00ff41;
+            border-bottom: 1px solid #00ff41;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .status.success {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+        }
+        .status.error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+        }
+        button {
+            background: #00ff41;
+            color: #0a0e27;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #00cc33;
+        }
+        pre {
+            background: #000;
+            color: #00ff41;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .link {
+            color: #00ff41;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔒 Paywall System Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. Backend API Tests</h2>
+        <button onclick="testConfigAPI()">Test Config API</button>
+        <button onclick="testPlansAPI()">Test Plans API</button>
+        <button onclick="testPaywallAPI()">Test Paywall API</button>
+        <div id="apiResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Frontend Code Verification</h2>
+        <button onclick="testFrontendCode()">Check Paywall Functions</button>
+        <div id="frontendResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Cache Status</h2>
+        <p>Current timestamp: <strong id="timestamp"></strong></p>
+        <p>Valuation Terminal URL with cache buster:</p>
+        <p><a href="https://craneintelligence.tech/valuation-terminal.html?nocache=<?php echo time(); ?>" target="_blank" class="link" id="cacheBusterLink">Open Valuation Terminal (No Cache)</a></p>
+        <button onclick="updateCacheBuster()">Generate New Cache Buster</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Instructions</h2>
+        <ol style="line-height: 1.8;">
+            <li>Click all test buttons above to verify backend is working</li>
+            <li>Click "Open Valuation Terminal (No Cache)" to load the latest version</li>
+            <li>In the valuation terminal, open Developer Tools (F12) → Console tab</li>
+            <li>Click "LOAD SAMPLE DATA" then "VALUE CRANE"</li>
+            <li>You should see console logs: "🔒 Checking paywall access..."</li>
+            <li>Paywall overlay should appear for Basic users</li>
+        </ol>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        
+        function updateCacheBuster() {
+            const timestamp = Date.now();
+            const link = document.getElementById('cacheBusterLink');
+            link.href = `https://craneintelligence.tech/valuation-terminal.html?nocache=${timestamp}`;
+            document.getElementById('timestamp').textContent = new Date().toISOString();
+        }
+        
+        async function testConfigAPI() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing /api/v1/config/public...</p>';
+            
+            try {
+                const response = await fetch('https://craneintelligence.tech/api/v1/config/public');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ Config API Working<br>
+                        Stripe Key: ${data.stripe_publishable_key.substring(0, 30)}...<br>
+                        Paywall Enabled: ${data.enable_paywall}<br>
+                        Tier Limits: Basic=${data.tier_limits.basic}, Starter=${data.tier_limits.starter}, Pro=${data.tier_limits.professional}
+                    </div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testPlansAPI() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing /api/v1/payments/plans...</p>';
+            
+            try {
+                const response = await fetch('https://craneintelligence.tech/api/v1/payments/plans');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ Plans API Working<br>
+                        Plans Found: ${data.plans.length}<br>
+                        ${data.plans.map(p => `${p.name}: ${p.price_display} (${p.valuation_limit} valuations)`).join('<br>')}
+                    </div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testPaywallAPI() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing /api/v1/paywall/check-access...</p>';
+            
+            try {
+                const response = await fetch('https://craneintelligence.tech/api/v1/paywall/check-access');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ Paywall API Working<br>
+                        Response: ${data.detail || JSON.stringify(data)}
+                    </div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testFrontendCode() {
+            const resultsDiv = document.getElementById('frontendResults');
+            resultsDiv.innerHTML = '<p>Checking valuation terminal HTML...</p>';
+            
+            try {
+                const response = await fetch(`https://craneintelligence.tech/valuation-terminal.html?nocache=${Date.now()}`);
+                const html = await response.text();
+                
+                const hasPaywallOverlay = html.includes('id="paywallOverlay"');
+                const hasCheckFunction = html.includes('checkPaywallAccess');
+                const hasShowFunction = html.includes('showPaywallOverlay');
+                const hasStripeModal = html.includes('stripePaymentModal');
+                const hasPaywallIntegration = html.includes('STEP 1: Check paywall access');
+                
+                resultsDiv.innerHTML = `
+                    <div class="status ${hasPaywallOverlay && hasCheckFunction && hasShowFunction ? 'success' : 'error'}">
+                        ${hasPaywallOverlay ? '✅' : '❌'} Paywall Overlay HTML<br>
+                        ${hasCheckFunction ? '✅' : '❌'} checkPaywallAccess() function<br>
+                        ${hasShowFunction ? '✅' : '❌'} showPaywallOverlay() function<br>
+                        ${hasStripeModal ? '✅' : '❌'} Stripe Payment Modal<br>
+                        ${hasPaywallIntegration ? '✅' : '❌'} Paywall Integration in performDirectValuation()<br>
+                        <br>
+                        <strong>All paywall components are ${hasPaywallOverlay && hasCheckFunction && hasShowFunction && hasPaywallIntegration ? 'PRESENT ✅' : 'MISSING ❌'}</strong>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            testConfigAPI();
+            setTimeout(() => testFrontendCode(), 1000);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Crane Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css?v=3">
+    <link rel="stylesheet" href="css/performance.css?v=1">
+    <link rel="stylesheet" href="css/unified-header.css">
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <script src="/js/unified-auth-utils.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #B0B0B0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #2A2A2A;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #B0B0B0;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: #FFFFFF;
+        }
+
+        .tab.active {
+            color: #00FF85;
+            border-bottom-color: #00FF85;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .settings-card {
+            background: #1A1A1A;
+            border: 1px solid #2A2A2A;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-top: 4px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #0F0F0F;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #00FF85;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #00CC6A;
+        }
+
+        .btn-secondary {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            border: 1px solid #404040;
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+        }
+
+        .btn-danger {
+            background: #FF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #CC0000;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #404040;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #00FF85;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #2A2A2A;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: #B0B0B0;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 133, 0.1);
+            border: 1px solid #00FF85;
+            color: #00FF85;
+        }
+
+        .alert-error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+        }
+
+        .alert-warning {
+            background: rgba(255, 214, 0, 0.1);
+            border: 1px solid #FFD600;
+            color: #FFD600;
+        }
+
+        /* Subscription Info */
+        .subscription-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .subscription-free {
+            background: rgba(176, 176, 176, 0.1);
+            color: #B0B0B0;
+        }
+
+        .subscription-starter {
+            background: rgba(0, 255, 133, 0.1);
+            color: #00FF85;
+        }
+
+        .subscription-professional {
+            background: rgba(255, 214, 0, 0.1);
+            color: #FFD600;
+        }
+
+        .subscription-enterprise {
+            background: rgba(255, 68, 68, 0.1);
+            color: #FF4444;
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            background: rgba(255, 68, 68, 0.05);
+            border: 1px solid #FF4444;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .danger-zone-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FF4444;
+            margin-bottom: 12px;
+        }
+
+        .danger-zone-description {
+            font-size: 14px;
+            color: #B0B0B0;
+            margin-bottom: 16px;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #B0B0B0;
+        }
+
+        /* Market Ticker Styles */
+        .market-ticker {
+            background: #1A1A1A !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid #404040 !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            display: block !important;
+            height: auto !important;
+        }
+
+        .ticker-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            overflow: hidden !important;
+        }
+
+        .ticker-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 40px !important;
+            animation: scrollHorizontal 30s linear infinite !important;
+            white-space: nowrap !important;
+        }
+
+        @keyframes scrollHorizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFD600;
+            text-transform: uppercase;
+        }
+
+        .ticker-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .ticker-change {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .ticker-change.up {
+            color: #00FF85;
+        }
+
+        .ticker-change.down {
+            color: #FF4444;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #0F0F0F;
+            border-top: 1px solid #333333;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 32px;
+        }
+
+        .footer-brand {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 16px !important;
+        }
+
+        .footer-logo-svg {
+            height: 50px !important;
+            width: auto !important;
+            filter: brightness(1.2) contrast(1.2) !important;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #B0B0B0;
+            line-height: 1.5;
+            max-width: 320px;
+            margin-bottom: 20px;
+        }
+
+        .footer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #B0B0B0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #00FF85;
+        }
+
+        .newsletter {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #404040;
+            color: #FFFFFF;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+
+        .newsletter input:focus {
+            outline: none;
+            border-color: #00FF85;
+        }
+
+        .newsletter button {
+            background: #00FF85;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333333;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+                </a>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="homepage.html#features" class="nav-link">FEATURES</a>
+                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
+                <a href="homepage.html#about" class="nav-link">ABOUT</a>
+                <a href="contact.html" class="nav-link">CONTACT</a>
+            </nav>
+            
+            
+            <div class="header-right">
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
+                <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
+            </div>
+            
+            <div class="user-profile-wrapper">
+                <div class="user-profile" id="userProfile" onclick="toggleDropdown(event)">
+                    <div class="user-avatar">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userDisplayName">User</div>
+                        <div class="user-role" id="userRole"><span id="subscriptionTier">Free</span> • <span id="subscriptionValuations">0/0</span></div>
+                    </div>
+                    <div class="dropdown-arrow">▼</div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="valuation_terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </header>
+
+    <!-- Market Ticker -->
+    <div class="market-ticker">
+        <div class="ticker-container">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-symbol">XCMG</span>
+                    <span class="ticker-price">467.8</span>
+                    <span class="ticker-change down">-0.4%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">MANITEX</span>
+                    <span class="ticker-price">757.8</span>
+                    <span class="ticker-change up">+1.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AMERICAN</span>
+                    <span class="ticker-price">732.9</span>
+                    <span class="ticker-change down">-1.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">SHUTTLELIFT</span>
+                    <span class="ticker-price">683.4</span>
+                    <span class="ticker-change up">+2.2%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GALION</span>
+                    <span class="ticker-price">709.8</span>
+                    <span class="ticker-change down">-0.5%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">DEMAG</span>
+                    <span class="ticker-price">667.8</span>
+                    <span class="ticker-change down">-1.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">NA-CRANE</span>
+                    <span class="ticker-price">762.1</span>
+                    <span class="ticker-change up">+1.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">EU-CRANE</span>
+                    <span class="ticker-price">639.8</span>
+                    <span class="ticker-change up">+2.1%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">AS-CRANE</span>
+                    <span class="ticker-price">749.2</span>
+                    <span class="ticker-change down">-0.7%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">TEREX</span>
+                    <span class="ticker-price">523.4</span>
+                    <span class="ticker-change up">+0.8%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">LIEBHERR</span>
+                    <span class="ticker-price">891.2</span>
+                    <span class="ticker-change down">-0.3%</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">GROVE</span>
+                    <span class="ticker-price">645.7</span>
+                    <span class="ticker-change up">+1.5%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Account Settings</h1>
+            <p class="page-subtitle">Manage your account preferences and settings</p>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profile')">Profile</button>
+            <button class="tab" onclick="switchTab('subscription')">Subscription</button>
+            <button class="tab" onclick="switchTab('email')">Email Settings</button>
+            <button class="tab" onclick="switchTab('notifications')">Notifications</button>
+            <button class="tab" onclick="switchTab('security')">Security</button>
+            <button class="tab" onclick="switchTab('billing')">Billing History</button>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="profileTab" class="tab-content active">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Personal Information</h2>
+                        <p class="card-subtitle">Update your personal details</p>
+                    </div>
+                </div>
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="fullName" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="email" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" class="form-input" id="companyName" placeholder="Acme Corporation">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="+1 (555) 123-4567">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-input" id="address" placeholder="123 Main St, City, State, ZIP">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Subscription Tab -->
+        <div id="subscriptionTab" class="tab-content">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Current Subscription</h2>
+                        <p class="card-subtitle">Manage your subscription plan</p>
+                    </div>
+                </div>
+                <div id="subscriptionInfo" class="loading">Loading subscription details...</div>
+            </div>
+        </div>
+
+        <!-- Email Settings Tab -->
+        <div id="emailTab" class="tab-content">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Email Preferences</h2>
+                        <p class="card-subtitle">Control which emails you receive</p>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Marketing Emails</div>
+                        <div class="setting-description">Receive updates about new features and promotions</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailMarketing" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Valuation Reports</div>
+                        <div class="setting-description">Get notified when valuation reports are ready</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailReports" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Account Activity</div>
+                        <div class="setting-description">Receive alerts about account security and changes</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailSecurity" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button onclick="saveEmailSettings()" class="btn btn-primary" style="margin-top: 20px;">Save Preferences</button>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notificationsTab" class="tab-content">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Notification Settings</h2>
+                        <p class="card-subtitle">Manage how you receive notifications</p>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Browser Notifications</div>
+                        <div class="setting-description">Show desktop notifications for important updates</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifBrowser">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Market Alerts</div>
+                        <div class="setting-description">Get notified about significant market changes</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifMarket" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Price Alerts</div>
+                        <div class="setting-description">Receive alerts when equipment prices change significantly</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifPrice" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button onclick="saveNotificationSettings()" class="btn btn-primary" style="margin-top: 20px;">Save Preferences</button>
+            </div>
+        </div>
+
+        <!-- Security Tab -->
+        <div id="securityTab" class="tab-content">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Change Password</h2>
+                        <p class="card-subtitle">Update your account password</p>
+                    </div>
+                </div>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-input" id="currentPassword" placeholder="Enter current password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-input" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
+
+            <div class="danger-zone">
+                <h3 class="danger-zone-title">⚠️ Danger Zone</h3>
+                <p class="danger-zone-description">Once you delete your account, there is no going back. Please be certain.</p>
+                <button onclick="confirmDeleteAccount()" class="btn btn-danger">Delete Account</button>
+            </div>
+        </div>
+
+        <!-- Billing History Tab -->
+        <div id="billingTab" class="tab-content">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Billing History</h2>
+                        <p class="card-subtitle">View your past invoices and payments</p>
+                    </div>
+                </div>
+                <div id="invoicesContainer" class="loading">Loading invoices...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'https://craneintelligence.tech/api/v1';
+        let currentTab = 'profile';
+
+        // Get auth token
+        function getAuthToken() {
+            return localStorage.getItem('access_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            currentTab = tabName;
+
+            if (tabName === 'profile') {
+                document.getElementById('profileTab').classList.add('active');
+                loadProfile();
+            } else if (tabName === 'subscription') {
+                document.getElementById('subscriptionTab').classList.add('active');
+                loadSubscription();
+            } else if (tabName === 'email') {
+                document.getElementById('emailTab').classList.add('active');
+            } else if (tabName === 'notifications') {
+                document.getElementById('notificationsTab').classList.add('active');
+            } else if (tabName === 'security') {
+                document.getElementById('securityTab').classList.add('active');
+            } else if (tabName === 'billing') {
+                document.getElementById('billingTab').classList.add('active');
+                loadInvoices();
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span>${type === 'success' ? '✓' : type === 'error' ? '✗' : '⚠'}</span>
+                <span>${message}</span>
+            `;
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Load profile
+        async function loadProfile() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+                
+                if (userData.full_name) {
+                    document.getElementById('fullName').value = userData.full_name;
+                }
+                if (userData.email) {
+                    document.getElementById('email').value = userData.email;
+                }
+                if (userData.company_name) {
+                    document.getElementById('companyName').value = userData.company_name;
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Load subscription
+        async function loadSubscription() {
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/users/subscription`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com'
+                    }
+                });
+
+                const container = document.getElementById('subscriptionInfo');
+
+                if (!response.ok) {
+                    // No active subscription
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+                            <h3 style="font-size: 20px; margin-bottom: 8px;">No Active Subscription</h3>
+                            <p style="color: #B0B0B0; margin-bottom: 24px;">You're currently on the Free plan</p>
+                            <button class="btn btn-primary" onclick="window.location.href='/valuation_terminal.html'">
+                                Upgrade Now
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('✅ Subscription data:', data);
+
+                const tierClass = `subscription-${data.tier}`;
+                const tierName = data.tier_name;
+                const valuationsUsed = data.valuations_used || 0;
+                const valuationsLimit = data.valuations_limit;
+                const valuationsRemaining = data.valuations_remaining;
+                const daysRemaining = data.days_remaining || 0;
+
+                // Calculate usage percentage
+                let usagePercentage = 0;
+                let usageColor = '#00FF85';
+                if (valuationsLimit > 0) {
+                    usagePercentage = (valuationsUsed / valuationsLimit) * 100;
+                    if (usagePercentage >= 90) usageColor = '#FF4444';
+                    else if (usagePercentage >= 70) usageColor = '#FFA500';
+                }
+
+                // Format valuation limit display
+                let limitDisplay = valuationsLimit === -1 ? 'Unlimited' : valuationsLimit;
+                let remainingDisplay = valuationsLimit === -1 ? 'Unlimited' : valuationsRemaining;
+
+                container.innerHTML = `
+                    <div style="margin-bottom: 24px;">
+                        <span class="subscription-badge ${tierClass}">${tierName}</span>
+                        <span style="margin-left: 12px; padding: 4px 12px; background: ${data.status === 'active' ? '#00FF8520' : '#FF444420'}; color: ${data.status === 'active' ? '#00FF85' : '#FF4444'}; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                            ${data.status.toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <!-- Valuation Usage Card -->
+                    <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin: 0;">Valuation Usage</h3>
+                            <span style="font-size: 20px; font-weight: 700; color: ${usageColor};">${valuationsUsed} / ${limitDisplay}</span>
+                        </div>
+                        ${valuationsLimit > 0 ? `
+                        <div style="width: 100%; height: 8px; background: #2A2A2A; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${usagePercentage}%; height: 100%; background: ${usageColor}; transition: width 0.3s ease;"></div>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #B0B0B0;">
+                            <span>${remainingDisplay} valuations remaining</span>
+                            <span>${daysRemaining} days left</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Subscription Details Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 11px; color: #B0B0B0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Start Date</div>
+                            <div style="font-size: 15px; font-weight: 600; color: #FFFFFF;">${data.subscription_start ? new Date(data.subscription_start).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 11px; color: #B0B0B0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Renewal Date</div>
+                            <div style="font-size: 15px; font-weight: 600; color: #FFFFFF;">${data.subscription_end ? new Date(data.subscription_end).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 11px; color: #B0B0B0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Days Remaining</div>
+                            <div style="font-size: 15px; font-weight: 600; color: ${daysRemaining < 7 ? '#FFA500' : '#FFFFFF'};">${daysRemaining} days</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" onclick="window.location.href='/valuation_terminal.html'" style="flex: 1;">
+                            📊 Run Valuation
+                        </button>
+                        <button class="btn btn-secondary" onclick="openSubscriptionModal()" style="flex: 1; background: #2A2A2A; border: 1px solid #3A3A3A;">
+                            ⬆️ Upgrade Plan
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading subscription:', error);
+                document.getElementById('subscriptionInfo').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #FF4444;">
+                        ❌ Failed to load subscription details
+                        <br><small style="color: #B0B0B0; margin-top: 8px; display: block;">${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Load invoices/receipts
+        async function loadInvoices() {
+            const container = document.getElementById('invoicesContainer');
+            
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/users/invoices`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load receipts');
+                }
+                
+                const data = await response.json(); const receipts = data.invoices || data;
+                console.log('✅ Receipts loaded:', receipts);
+                
+                if (!receipts || receipts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #B0B0B0;">
+                            📦 No payment history yet
+                            <p style="margin-top: 12px; font-size: 14px;">Your receipts and invoices will appear here after your first payment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Create receipts table
+                let tableHTML = `
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #2A2A2A;">
+                                    <th style="padding: 12px; text-align: left; font-size: 12px; color: #B0B0B0; font-weight: 600; text-transform: uppercase;">Date</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 12px; color: #B0B0B0; font-weight: 600; text-transform: uppercase;">Description</th>
+                                    <th style="padding: 12px; text-align: right; font-size: 12px; color: #B0B0B0; font-weight: 600; text-transform: uppercase;">Amount</th>
+                                    <th style="padding: 12px; text-align: center; font-size: 12px; color: #B0B0B0; font-weight: 600; text-transform: uppercase;">Status</th>
+                                    <th style="padding: 12px; text-align: center; font-size: 12px; color: #B0B0B0; font-weight: 600; text-transform: uppercase;">Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                receipts.forEach(receipt => {
+                    const date = new Date(receipt.created_at).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    const amount = `$${receipt.amount.toFixed(2)}`;
+                    const statusColor = receipt.status === 'succeeded' ? '#00FF85' : '#FFA500';
+                    const statusText = receipt.status === 'succeeded' ? 'Paid' : receipt.status;
+                    
+                    tableHTML += `
+                        <tr style="border-bottom: 1px solid #1A1A1A;">
+                            <td style="padding: 16px; font-size: 14px; color: #FFFFFF;">${date}</td>
+                            <td style="padding: 16px; font-size: 14px; color: #FFFFFF;">${receipt.description}</td>
+                            <td style="padding: 16px; font-size: 14px; color: #FFFFFF; text-align: right; font-weight: 600;">${amount}</td>
+                            <td style="padding: 16px; text-align: center;">
+                                <span style="padding: 4px 12px; background: ${statusColor}20; color: ${statusColor}; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                    ${statusText.toUpperCase()}
+                                </span>
+                            </td>
+                            <td style="padding: 16px; text-align: center;">
+                                <button onclick="downloadReceiptPDF(${receipt.id}, '${receipt.description}', ${receipt.amount}, '${date}')" 
+                                    style="background: #00FF85; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                                    📎 Download PDF
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                container.innerHTML = tableHTML;
+                
+            } catch (error) {
+                console.error('Error loading receipts:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #FF4444;">
+                        ❌ Failed to load payment history
+                        <br><small style="color: #B0B0B0; margin-top: 8px; display: block;">${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Download receipt PDF
+        async function downloadReceiptPDF(transactionId, description, amount, date) {
+            try {
+                console.log('Downloading receipt PDF...', { transactionId, description, amount, date });
+                
+                // Extract plan name from description
+                const planName = description.includes('Professional') ? 'Professional Plan' : 
+                                description.includes('Starter') ? 'Starter Plan' : 'Subscription';
+                
+                // Determine billing cycle from description or amount
+                const billingCycle = amount > 2000 ? 'monthly' : 'monthly'; // Default to monthly
+                
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/payments/generate-receipt-pdf`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        transaction_id: `txn_${transactionId}`,
+                        plan_name: planName,
+                        amount: amount,
+                        date: date,
+                        billing_cycle: billingCycle
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate receipt PDF');
+                }
+                
+                // Download the PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `crane-intelligence-receipt-${transactionId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('✅ Receipt downloaded successfully');
+                showAlert('Receipt downloaded successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error downloading receipt:', error);
+                showAlert('Failed to download receipt. Please try again.', 'error');
+            }
+        }
+
+        // Save email settings
+        function saveEmailSettings() {
+            const settings = {
+                marketing: document.getElementById('emailMarketing').checked,
+                reports: document.getElementById('emailReports').checked,
+                security: document.getElementById('emailSecurity').checked
+            };
+            
+            localStorage.setItem('emailSettings', JSON.stringify(settings));
+            showAlert('Email preferences saved successfully', 'success');
+        }
+
+        // Save notification settings
+        function saveNotificationSettings() {
+            const settings = {
+                browser: document.getElementById('notifBrowser').checked,
+                market: document.getElementById('notifMarket').checked,
+                price: document.getElementById('notifPrice').checked
+            };
+            
+            localStorage.setItem('notificationSettings', JSON.stringify(settings));
+            showAlert('Notification preferences saved successfully', 'success');
+        }
+
+        // Confirm delete account
+        function confirmDeleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                if (confirm('This will permanently delete all your data. Are you absolutely sure?')) {
+                    deleteAccount();
+                }
+            }
+        }
+
+        // Delete account
+        async function deleteAccount() {
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/auth/delete-account`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com'
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Account deleted successfully', 'success');
+                    setTimeout(() => {
+                        logout();
+                    }, 2000);
+                } else {
+                    showAlert('Failed to delete account', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                showAlert('Failed to delete account', 'error');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/homepage.html';
+        }
+
+        // Toggle dropdown
+        function toggleDropdown(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const wrapper = document.querySelector('.user-profile-wrapper');
+            
+            if (dropdown && wrapper && !wrapper.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Placeholder functions for modal operations (not needed on this page since it requires auth)
+        function openLoginModal() {
+            window.location.href = '/homepage.html';
+        }
+
+        function openSignupModal() {
+            window.location.href = '/homepage.html';
+        }
+
+        // Profile form submit
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                full_name: document.getElementById('fullName').value,
+                company_name: document.getElementById('companyName').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+
+            // Update localStorage
+            const currentData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            localStorage.setItem('user_data', JSON.stringify({...currentData, ...userData}));
+            
+            showAlert('Profile updated successfully', 'success');
+        });
+
+        // Password form submit
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showAlert('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Password updated successfully', 'success');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.message || 'Failed to update password', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating password:', error);
+                showAlert('Failed to update password', 'error');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/homepage.html';
+                return;
+            }
+
+            // Update user tier display using payment-based logic
+            const userRole = document.getElementById("userRole");
+            if (userRole) {
+                // Get user data from localStorage
+                const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+                
+                // Payment-based tier calculation
+                function getSubscriptionTierFromPayment(userData) {
+                    const subscriptionPlan = userData.subscription_plan || {};
+                    const monthlyPrice = subscriptionPlan.monthly_price || 0;
+                    const yearlyPrice = subscriptionPlan.yearly_price || 0;
+                    
+                    if (monthlyPrice > 0) {
+                        if (monthlyPrice >= 4999) return 'enterprise';
+                        else if (monthlyPrice >= 2499) return 'professional';
+                        else if (monthlyPrice >= 999) return 'starter';
+                        else return 'basic';
+                    } else if (yearlyPrice > 0) {
+                        if (yearlyPrice >= 59340) return 'enterprise';
+                        else if (yearlyPrice >= 25490) return 'professional';
+                        else if (yearlyPrice >= 10188) return 'starter';
+                        else return 'basic';
+                    } else {
+                        return 'basic';
+                    }
+                }
+                
+                const tierNames = {
+                    "basic": "Basic User",
+                    "starter": "Starter User",
+                    "professional": "Professional User",
+                    "enterprise": "Enterprise User"
+                };
+                
+                const tier = getSubscriptionTierFromPayment(userData);
+                const tierName = tierNames[tier] || "Basic User";
+                userRole.textContent = tierName;
+                console.log("✅ Account Settings - Payment-based tier:", tierName, "(monthly_price:", userData.subscription_plan?.monthly_price, ")");
+            }
+            loadProfile();
+        });
+        
+        // Show/hide auth buttons vs user profile based on login state
+        function showUserDropdown(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (authButtons && userProfile) {
+                authButtons.style.display = 'none';
+                userProfile.style.display = 'flex';
+            }
+        }
+        
+        function showAuthButtons() {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (authButtons && userProfile) {
+                authButtons.style.display = 'flex';
+                userProfile.style.display = 'none';
+            }
+        }
+        
+        // Check auth state on page load
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            showUserDropdown({});
+        } else {
+            showAuthButtons();
+        }
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                    </div>
+                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about-us.html" target="_blank">About Us</a></li>
+                        <li><a href="contact.html" target="_blank">Contact</a></li>
+                        <li><a href="blog.html" target="_blank">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
+                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
+                        <li><a href="security.html" target="_blank">Security</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Stay Updated</h4>
+                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                    <div class="newsletter">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Subscription Tier Modal -->
+    <div id="subscriptionTierModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: #0A0A0A; border: 1px solid #2A2A2A; border-radius: 12px; max-width: 1200px; width: 95%; max-height: 95vh; overflow-y: auto; position: relative;">
+            <button onclick="closeSubscriptionModal()" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: #B0B0B0; font-size: 32px; cursor: pointer; z-index: 1; line-height: 1;">&times;</button>
+            
+            <div style="padding: 40px 20px;">
+                <h2 style="font-size: 32px; font-weight: 700; color: #FFFFFF; margin-bottom: 12px; text-align: center;">UPGRADE YOUR PLAN</h2>
+                <p style="color: #B0B0B0; text-align: center; margin-bottom: 32px;">Choose the plan that fits your needs</p>
+                
+                <!-- Billing Toggle -->
+                <div style="display: flex; justify-content: center; margin-bottom: 40px; gap: 0;">
+                    <button id="monthlyToggle" onclick="switchBilling('monthly')" style="padding: 12px 32px; background: #00FF85; color: #000000; border: 2px solid #00FF85; border-radius: 8px 0 0 8px; font-weight: 700; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                        MONTHLY
+                    </button>
+                    <button id="yearlyToggle" onclick="switchBilling('yearly')" style="padding: 12px 32px; background: #2A2A2A; color: #B0B0B0; border: 2px solid #3A3A3A; border-radius: 0 8px 8px 0; font-weight: 700; cursor: pointer; font-size: 14px; position: relative; transition: all 0.3s;">
+                        YEARLY
+                        <span style="position: absolute; top: -8px; right: -8px; background: #00FF85; color: #000000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">SAVE 10%</span>
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto;">
+                    <!-- Starter Plan -->
+                    <div style="background: #1A1A1A; border: 2px solid #2A2A2A; border-radius: 8px; padding: 32px; position: relative; display: flex; flex-direction: column;">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 24px; text-align: center;">STARTER</h3>
+                        <div style="text-align: center; margin-bottom: 32px;">
+                            <div id="starterPrice" style="font-size: 48px; font-weight: 700; color: #00FF85; line-height: 1;">$999</div>
+                            <div id="starterPeriod" style="color: #B0B0B0; margin-top: 8px; font-size: 14px;">PER MONTH</div>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 32px 0; flex-grow: 1;">
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">9 valuations per month</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Basic market data access</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Standard risk assessment</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Email support</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">PDF reports</li>
+                            <li style="color: #666666; margin-bottom: 16px; font-size: 14px;">No bulk upload</li>
+                        </ul>
+                        <button id="starterButton" onclick="selectPlan('starter', 'monthly')" style="width: 100%; padding: 16px; background: transparent; color: #00FF85; border: 2px solid #00FF85; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                            CURRENT PLAN
+                        </button>
+                    </div>
+                    
+                    <!-- Professional Plan -->
+                    <div style="background: #1A1A1A; border: 2px solid #00FF85; border-radius: 8px; padding: 32px; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(0, 255, 133, 0.2);">
+                        <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #00FF85; color: #000000; padding: 6px 20px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap;">MOST POPULAR</div>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 24px; text-align: center;">PROFESSIONAL</h3>
+                        <div style="text-align: center; margin-bottom: 32px;">
+                            <div id="professionalPrice" style="font-size: 48px; font-weight: 700; color: #00FF85; line-height: 1;">$2,499</div>
+                            <div id="professionalPeriod" style="color: #B0B0B0; margin-top: 8px; font-size: 14px;">PER MONTH</div>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 32px 0; flex-grow: 1;">
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">30 valuations per month</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Real-time market data</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Advanced analytics</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">API access</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Priority support</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Custom reports</li>
+                            <li style="color: #666666; margin-bottom: 16px; font-size: 14px;">No bulk upload</li>
+                        </ul>
+                        <button id="professionalButton" onclick="selectPlan('professional', 'monthly')" style="width: 100%; padding: 16px; background: #00FF85; color: #000000; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                            UPGRADE TO PROFESSIONAL
+                        </button>
+                    </div>
+                    
+                    <!-- Enterprise Plan -->
+                    <div style="background: #1A1A1A; border: 2px solid #2A2A2A; border-radius: 8px; padding: 32px; position: relative; display: flex; flex-direction: column;">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 24px; text-align: center;">ENTERPRISE</h3>
+                        <div style="text-align: center; margin-bottom: 32px;">
+                            <div style="font-size: 48px; font-weight: 700; color: #00FF85; line-height: 1;">Custom</div>
+                            <div style="color: #B0B0B0; margin-top: 8px; font-size: 14px;">CONTACT SALES</div>
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 32px 0; flex-grow: 1;">
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Unlimited valuations</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Bulk upload enabled</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Dedicated terminal</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">Custom integrations</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">White-label options</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">24/7 phone support</li>
+                            <li style="color: #E0E0E0; margin-bottom: 16px; font-size: 14px;">On-premise deployment</li>
+                        </ul>
+                        <button onclick="contactSales()" style="width: 100%; padding: 16px; background: transparent; color: #00FF85; border: 2px solid #00FF85; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                            CONTACT SALES
+                        </button>
+                    </div>
+                </div>
+                
+                <p style="text-align: center; color: #B0B0B0; margin-top: 40px; font-size: 13px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Secure payment processing • Cancel anytime
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stripe Payment Modal -->
+    <div id="stripePaymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10001; align-items: center; justify-content: center;">
+        <div style="background: #1A1A1A; border: 2px solid #00FF85; border-radius: 12px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div style="padding: 20px 30px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: #FFFFFF; margin: 0;">Complete Payment</h2>
+                <button onclick="closePaymentModal()" style="background: none; border: none; color: #fff; font-size: 32px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="padding: 30px;">
+                <!-- Payment Summary -->
+                <div style="background: #0a0a0a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #00ff88;">
+                    <h3 style="color: #00ff88; margin: 0 0 15px 0;">Order Summary</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #888;">Plan:</span>
+                        <span id="paymentPlanName" style="color: #fff; font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #888;">Billing:</span>
+                        <span id="paymentBillingCycle" style="color: #fff; font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 1px solid #333; margin-top: 15px;">
+                        <span style="color: #00ff88; font-size: 18px; font-weight: bold;">Total:</span>
+                        <span id="paymentAmount" style="color: #00ff88; font-size: 24px; font-weight: bold;"></span>
+                    </div>
+                </div>
+
+                <!-- Stripe Payment Element -->
+                <div id="payment-element" style="margin-bottom: 20px;">
+                    <!-- Stripe will inject the payment form here -->
+                </div>
+
+                <!-- Error Message -->
+                <div id="payment-error" style="color: #ff4444; margin-top: 10px; display: none;"></div>
+            </div>
+
+            <div style="padding: 20px 30px; background: #0a0a0a; border-top: 1px solid #333;">
+                <button id="submit-payment" onclick="handlePaymentSubmit()" style="width: 100%; padding: 15px; background: #00ff88; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px;">
+                    CONFIRM PAYMENT
+                </button>
+                <button onclick="closePaymentModal()" style="width: 100%; padding: 15px; background: #333; color: #fff; border: 1px solid #00ff88; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">
+                    CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Success Modal -->
+    <div id="paymentSuccessModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10002; align-items: center; justify-content: center;">
+        <div style="background: #1A1A1A; border: 2px solid #00FF85; border-radius: 12px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div style="padding: 30px; text-align: center;">
+                <!-- Success Icon -->
+                <div style="width: 80px; height: 80px; background: #00FF85; border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                
+                <!-- Success Message -->
+                <h2 style="color: #FFFFFF; font-size: 28px; font-weight: 700; margin-bottom: 12px;">Payment Successful!</h2>
+                <p style="color: #B0B0B0; font-size: 16px; margin-bottom: 32px;">Your subscription has been upgraded successfully.</p>
+                
+                <!-- Receipt Details -->
+                <div id="receiptDetails" style="background: #0A0A0A; border: 1px solid #333; border-radius: 8px; padding: 24px; margin-bottom: 24px; text-align: left;">
+                    <!-- Receipt content will be inserted here -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div id="receiptActions" style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <!-- Download button will be inserted here -->
+                </div>
+                
+                <!-- Close Button -->
+                <button onclick="closePaymentSuccessModal()" style="width: 100%; padding: 16px; background: #00FF85; color: #000000; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 16px;">
+                    CONTINUE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        let currentBilling = 'monthly';
+        
+        function openSubscriptionModal() {
+            const modal = document.getElementById('subscriptionTierModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                switchBilling('monthly'); // Default to monthly
+            }
+        }
+        
+        function closeSubscriptionModal() {
+            const modal = document.getElementById('subscriptionTierModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function switchBilling(type) {
+            currentBilling = type;
+            const monthlyBtn = document.getElementById('monthlyToggle');
+            const yearlyBtn = document.getElementById('yearlyToggle');
+            const starterPrice = document.getElementById('starterPrice');
+            const starterPeriod = document.getElementById('starterPeriod');
+            const professionalPrice = document.getElementById('professionalPrice');
+            const professionalPeriod = document.getElementById('professionalPeriod');
+            const starterButton = document.getElementById('starterButton');
+            const professionalButton = document.getElementById('professionalButton');
+            
+            if (type === 'monthly') {
+                // Update toggle buttons
+                monthlyBtn.style.background = '#00FF85';
+                monthlyBtn.style.color = '#000000';
+                monthlyBtn.style.border = '2px solid #00FF85';
+                yearlyBtn.style.background = '#2A2A2A';
+                yearlyBtn.style.color = '#B0B0B0';
+                yearlyBtn.style.border = '2px solid #3A3A3A';
+                
+                // Update prices
+                starterPrice.textContent = '$999';
+                starterPeriod.textContent = 'PER MONTH';
+                professionalPrice.textContent = '$2,499';
+                professionalPeriod.textContent = 'PER MONTH';
+                
+                // Update button onclick
+                starterButton.setAttribute('onclick', "selectPlan('starter', 'monthly')");
+                professionalButton.setAttribute('onclick', "selectPlan('professional', 'monthly')");
+            } else {
+                // Update toggle buttons
+                yearlyBtn.style.background = '#00FF85';
+                yearlyBtn.style.color = '#000000';
+                yearlyBtn.style.border = '2px solid #00FF85';
+                monthlyBtn.style.background = '#2A2A2A';
+                monthlyBtn.style.color = '#B0B0B0';
+                monthlyBtn.style.border = '2px solid #3A3A3A';
+                
+                // Update prices
+                starterPrice.textContent = '$10,799';
+                starterPeriod.textContent = 'PER YEAR';
+                professionalPrice.textContent = '$26,999';
+                professionalPeriod.textContent = 'PER YEAR';
+                
+                // Update button onclick
+                starterButton.setAttribute('onclick', "selectPlan('starter', 'yearly')");
+                professionalButton.setAttribute('onclick', "selectPlan('professional', 'yearly')");
+            }
+        }
+        
+        async function selectPlan(planType, billing) {
+            // Store selected plan data
+            window.selectedPlanData = {
+                plan: planType,
+                billing: billing,
+                amount: billing === 'monthly' ? 
+                    (planType === 'starter' ? 999 : 2499) : 
+                    (planType === 'starter' ? 10799 : 26999)
+            };
+
+            // Update payment summary
+            document.getElementById('paymentPlanName').textContent = planType.charAt(0).toUpperCase() + planType.slice(1) + ' Plan';
+            document.getElementById('paymentBillingCycle').textContent = billing.charAt(0).toUpperCase() + billing.slice(1);
+            document.getElementById('paymentAmount').textContent = `$${window.selectedPlanData.amount.toLocaleString()}`;
+
+            // Close subscription modal
+            closeSubscriptionModal();
+
+            try {
+                // Get auth token
+                const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+                
+                // Create payment intent
+                // Convert amount to cents (backend expects cents)
+                const amountInCents = window.selectedPlanData.amount * 100;
+                
+                const response = await fetch('/api/v1/payments/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`, 'x-user-email': localStorage.getItem('user_email') || 'test@test.com'
+                    },
+                    body: JSON.stringify({
+                        plan_id: planType,
+                        amount: amountInCents
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || errorData.message || 'Failed to create payment intent');
+                }
+
+                const data = await response.json();
+                
+                if (!data.client_secret) {
+                    throw new Error('Failed to create payment intent');
+                }
+                
+                // Store payment intent ID and plan ID for later confirmation
+                window.currentPaymentIntentId = data.payment_intent_id;
+                window.selectedPlanId = planType;
+                console.log('✅ Payment intent created:', { paymentIntentId: data.payment_intent_id, planId: planType });
+
+                // Initialize Stripe Elements
+                console.log('Initializing Stripe...', { clientSecret: data.client_secret });
+                if (!window.stripe) {
+                    // Fetch Stripe publishable key from backend config
+                    const configResponse = await fetch('/api/v1/config/public');
+                    const config = await configResponse.json();
+                    if (!config.stripe_publishable_key) {
+                        throw new Error('Stripe publishable key not found in config');
+                    }
+                    window.stripe = Stripe(config.stripe_publishable_key);
+                    console.log('✅ Stripe initialized with key:', config.stripe_publishable_key.substring(0, 20) + '...');
+                }
+                
+                window.stripeElements = window.stripe.elements({
+                    clientSecret: data.client_secret
+                });
+
+                // Show payment modal first
+                document.getElementById('stripePaymentModal').style.display = 'flex';
+                
+                // Wait a bit for modal to render, then mount payment element
+                setTimeout(() => {
+                    try {
+                        const paymentElement = window.stripeElements.create('payment');
+                        paymentElement.mount('#payment-element');
+                        console.log('✅ Payment element mounted successfully');
+                    } catch (mountError) {
+                        console.error('❌ Error mounting payment element:', mountError);
+                        alert('Failed to load payment form. Please try again.');
+                        closePaymentModal();
+                    }
+                }, 100);
+
+            } catch (error) {
+                console.error('Error creating payment intent:', error);
+                alert('Failed to initialize payment. Please try again.');
+            }
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('stripePaymentModal').style.display = 'none';
+            // Unmount payment element if it exists
+            if (window.stripeElements) {
+                window.stripeElements = null;
+            }
+        }
+
+        async function handlePaymentSubmit() {
+            const submitBtn = document.getElementById('submit-payment');
+            const errorDiv = document.getElementById('payment-error');
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'PROCESSING...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const { error } = await window.stripe.confirmPayment({
+                    elements: window.stripeElements,
+                    redirect: 'if_required',
+                    confirmParams: {
+                        return_url: window.location.href,
+                    },
+                });
+
+                if (error) {
+                    // Show error
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'CONFIRM PAYMENT';
+                } else {
+                    // Payment succeeded with Stripe, now confirm with backend
+                    console.log('✅ Stripe payment confirmed, updating subscription...');
+                    
+                    try {
+                        // Get payment details
+                        const planName = document.getElementById('paymentPlanName').textContent;
+                        const billingCycle = document.getElementById('paymentBillingCycle').textContent.toLowerCase();
+                        const amount = document.getElementById('paymentAmount').textContent.replace('$', '').replace(',', '');
+                        
+                        // Confirm payment with backend to update subscription
+                        const confirmResponse = await fetch('/api/v1/payments/confirm-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify({
+                                payment_intent_id: window.currentPaymentIntentId,
+                                plan_id: window.selectedPlanId,
+                                billing_cycle: billingCycle
+                            })
+                        });
+                        
+                        if (!confirmResponse.ok) {
+                            throw new Error('Failed to confirm payment with backend');
+                        }
+                        
+                        const confirmData = await confirmResponse.json();
+                        console.log('✅ Backend confirmation successful:', confirmData);
+                        
+                        // Close payment modal
+                        closePaymentModal();
+                        
+                        // Show enhanced success modal with receipt
+                        showPaymentSuccessModal(planName, amount, billingCycle);
+                        
+                    } catch (backendError) {
+                        console.error('❌ Backend confirmation failed:', backendError);
+                        errorDiv.textContent = 'Payment succeeded but failed to update subscription. Please contact support.';
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'CONFIRM PAYMENT';
+                    }
+                }
+            } catch (err) {
+                console.error('Payment error:', err);
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'CONFIRM PAYMENT';
+            }
+        }
+
+        function contactSales() {
+            // Redirect to contact page
+            window.location.href = '/contact.html?subject=Enterprise%20Plan%20Inquiry';
+        }
+        
+        // Show payment success modal with receipt details
+        function showPaymentSuccessModal(planName, amount, billingCycle) {
+            const modal = document.getElementById('paymentSuccessModal');
+            const receiptDetails = document.getElementById('receiptDetails');
+            const receiptActions = document.getElementById('receiptActions');
+            
+            // Generate transaction ID (in real scenario, this comes from Stripe)
+            const transactionId = 'pi_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const receiptDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // Build receipt details HTML
+            receiptDetails.innerHTML = `
+                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #333;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #888; font-size: 14px;">Receipt Number:</span>
+                        <span style="color: #FFF; font-size: 14px; font-family: monospace;">${transactionId.substring(0, 20)}...</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #888; font-size: 14px;">Date:</span>
+                        <span style="color: #FFF; font-size: 14px;">${receiptDate}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #888; font-size: 14px;">Payment Method:</span>
+                        <span style="color: #FFF; font-size: 14px;">Card ending in ••••</span>
+                    </div>
+                </div>
+                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #333;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #888; font-size: 14px;">Plan:</span>
+                        <span style="color: #FFF; font-size: 14px; font-weight: 600;">${planName}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #888; font-size: 14px;">Billing Cycle:</span>
+                        <span style="color: #FFF; font-size: 14px;">${billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)}</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #00FF85; font-size: 18px; font-weight: 700;">Total Paid:</span>
+                    <span style="color: #00FF85; font-size: 24px; font-weight: 700;">$${parseFloat(amount).toFixed(2)}</span>
+                </div>
+            `;
+            
+            // Build action buttons
+            receiptActions.innerHTML = `
+                <button onclick="downloadReceipt('${transactionId}', '${planName}', '${amount}', '${receiptDate}', '${billingCycle}')" style="flex: 1; background: #2A2A2A; color: #00FF85; border: 1px solid #00FF85; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                    📄 Download PDF Receipt
+                </button>
+            `;
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+        
+        // Close payment success modal
+        function closePaymentSuccessModal() {
+            const modal = document.getElementById('paymentSuccessModal');
+            modal.style.display = 'none';
+            
+            // Reload page to show updated subscription
+            window.location.reload();
+        }
+        
+        // Download receipt as PDF
+        window.downloadReceipt = async function(transactionId, planName, amount, date, billingCycle) {
+            try {
+                console.log('Downloading receipt PDF...');
+                
+                // Get user email from localStorage
+                const userEmail = localStorage.getItem('user_email') || 'customer@example.com';
+                
+                // Call backend API to generate PDF
+                const response = await fetch('/api/v1/payments/generate-receipt-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({
+                        transaction_id: transactionId,
+                        plan_name: planName,
+                        amount: parseFloat(amount),
+                        date: date,
+                        billing_cycle: billingCycle,
+                        customer_email: userEmail
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `crane-intelligence-receipt-${transactionId.substring(0, 10)}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    console.log('✅ Receipt downloaded successfully');
+                } else {
+                    console.error('Failed to generate receipt PDF');
+                    alert('Failed to generate receipt. Please contact support.');
+                }
+            } catch (error) {
+                console.error('Error downloading receipt:', error);
+                alert('Failed to download receipt. Please try again later.');
+            }
+        };
+        
+        // Close modal when clicking outside
+        document.getElementById('subscriptionTierModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSubscriptionModal();
+            }
+        });
+        
+        document.getElementById('paymentSuccessModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePaymentSuccessModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
+

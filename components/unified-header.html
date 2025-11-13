@@ -1,0 +1,188 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED HEADER COMPONENT ===== -->
+<!-- Include this header in all pages for consistent authentication UI -->
+
+<header class="header">
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="logo">
+            <a href="/homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+                <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+            </a>
+        </div>
+
+        <!-- Navigation Menu (visible on homepage, hidden on other pages when logged in) -->
+        <nav class="nav-menu" id="navMenu">
+            <a href="/homepage.html#features" class="nav-link">FEATURES</a>
+            <a href="/homepage.html#pricing" class="nav-link">PRICING</a>
+            <a href="/homepage.html#about" class="nav-link">ABOUT</a>
+            <a href="/homepage.html#contact" class="nav-link">CONTACT</a>
+        </nav>
+
+        <!-- Right side: Auth Buttons OR User Profile -->
+        <div class="header-right">
+            <!-- Auth Buttons (shown when user is NOT logged in) -->
+            <div class="auth-buttons" id="authButtons" style="display: none;">
+                <a href="/login.html" class="auth-btn login">Login</a>
+                <a href="/signup.html" class="auth-btn signup">Sign Up</a>
+            </div>
+
+            <!-- User Profile Dropdown (shown when user IS logged in) -->
+            <div class="user-profile" id="userProfile" style="display: none;">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">U</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userDisplayName">User Name</div>
+                    <div class="user-role" id="userRole">Free User</div>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+                
+                <!-- Dropdown Menu -->
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/dashboard.html" class="dropdown-item">
+                        <span class="dropdown-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="/valuation-terminal.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚡</span>
+                        Valuation Terminal
+                    </a>
+                    <a href="/account-settings.html" class="dropdown-item">
+                        <span class="dropdown-icon">⚙️</span>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" data-action="logout">
+                        <span class="dropdown-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Market Ticker (optional - include on pages where needed) -->
+<div class="market-ticker" id="marketTicker" style="display: none;">
+    <div class="ticker-container">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-symbol">XCMG</span>
+                <span class="ticker-price">467.8</span>
+                <span class="ticker-change down">-0.4%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">MANITEX</span>
+                <span class="ticker-price">757.8</span>
+                <span class="ticker-change up">+1.3%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">LIEBHERR</span>
+                <span class="ticker-price">567.3</span>
+                <span class="ticker-change up">+3.1%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">TEREX</span>
+                <span class="ticker-price">234.5</span>
+                <span class="ticker-change down">-0.7%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Ensure dropdown divider is visible */
+.dropdown-divider {
+    height: 1px;
+    background: #333333;
+    margin: 8px 0;
+}
+
+/* Market Ticker Styles */
+.market-ticker {
+    background: #0F0F0F;
+    border-bottom: 1px solid #333333;
+    padding: 8px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.ticker-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.ticker-content {
+    display: flex;
+    animation: scroll 30s linear infinite;
+    white-space: nowrap;
+    gap: 32px;
+}
+
+.ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ticker-symbol {
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ticker-price {
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.ticker-change {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ticker-change.up {
+    color: #00FF85;
+}
+
+.ticker-change.down {
+    color: #FF4444;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ticker-container {
+        padding: 0 16px;
+    }
+    
+    .ticker-item {
+        gap: 8px;
+    }
+    
+    .ticker-symbol,
+    .ticker-price,
+    .ticker-change {
+        font-size: 10px;
+    }
+}
+</style>
+
+<script>
+// Show market ticker on specific pages
+if (document.getElementById('marketTicker')) {
+    const tickerPages = ['dashboard.html', 'market-analysis.html', 'valuation-terminal.html'];
+    const currentPage = window.location.pathname.split('/').pop();
+    if (tickerPages.includes(currentPage)) {
+        document.getElementById('marketTicker').style.display = 'block';
+    }
+}
+</script>
+

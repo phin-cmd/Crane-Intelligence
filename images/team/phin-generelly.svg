@@ -1,0 +1,13 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f8f9fa"/>
+  
+  <!-- Avatar Circle -->
+  <circle cx="150" cy="150" r="120" fill="linear-gradient(135deg, #fbbf24, #dc2626)"/>
+  
+  <!-- Initials -->
+  <text x="150" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white">PG</text>
+  
+  <!-- Professional styling -->
+  <circle cx="150" cy="150" r="120" fill="none" stroke="white" stroke-width="4"/>
+</svg>
