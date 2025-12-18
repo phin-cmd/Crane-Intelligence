@@ -25,98 +25,72 @@
             
             <!-- Spot Check Tier -->
             <div class="pricing-card" data-tier="spot_check">
-                <h3 class="pricing-title">Spot Check</h3>
-                <div class="pricing-price">Request-Based</div>
-                <div class="pricing-period">per valuation</div>
+                <h3 class="pricing-title">Spot Check — $250</h3>
+                <div class="pricing-price">$250</div>
+                <div class="pricing-period">Internal FMV Snapshot</div>
                 <ul class="pricing-features">
-                    <li>✓ Quick internal estimates</li>
-                    <li>✓ 1 crane</li>
-                    <li>✓ 1-page email summary</li>
-                    <li>✓ FMV range estimate</li>
-                    <li>✓ 2–3 comparables</li>
-                    <li>✓ 24-hour turnaround</li>
+                    <li>FMV range estimate</li>
+                    <li>Up to 5 cranes</li>
+                    <li>2–3 comparables per crane</li>
+                    <li>1-page summary per unit</li>
+                    <li>24-hour turnaround</li>
+                    <li style="color:#FFB800;">Internal use only • Not a formal appraisal • No scores or signature</li>
                 </ul>
-                <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">Submit Request</button>
+                <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">
+                    Get Spot Check
+                </button>
+                <button class="pricing-cta" style="margin-top:8px;" onclick="window.open('/samples/spot-check-sample.html','_blank')">
+                    View Sample
+                </button>
+                <div style="margin-top:8px;font-size:12px;color:#B0B0B0;">
+                    For internal price checks. Need a value to share externally? Choose Professional.
+                </div>
             </div>
             
             <!-- Professional Tier -->
             <div class="pricing-card featured" data-tier="professional">
                 <div class="pricing-badge">Most Popular</div>
-                <h3 class="pricing-title">Professional</h3>
-                <div class="pricing-price">Request-Based</div>
-                <div class="pricing-period">per valuation</div>
+                <h3 class="pricing-title">Professional — $995</h3>
+                <div class="pricing-price">$995</div>
+                <div class="pricing-period">Defensible Valuation Report</div>
                 <ul class="pricing-features">
-                    <li>✓ 1 crane</li>
-                    <li>✓ 3–5 page PDF</li>
-                    <li>✓ 5+ verified comps</li>
-                    <li>✓ Deal & Wear Scores</li>
-                    <li>✓ Regional commentary</li>
-                    <li>✓ Signed by analyst</li>
-                    <li>✓ 24-hour turnaround</li>
+                    <li>1 crane</li>
+                    <li>3–5 page PDF</li>
+                    <li>5+ verified comparables</li>
+                    <li>Deal &amp; Wear Scores</li>
+                    <li>Regional market commentary</li>
+                    <li>Analyst-signed</li>
                 </ul>
-                <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">Submit Request</button>
+                <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">
+                    Order Professional
+                </button>
+                <button class="pricing-cta" style="margin-top:8px;" onclick="window.open('/samples/professional-sample.html','_blank')">
+                    View Sample
+                </button>
             </div>
-        </div>
         
         <!-- Fleet Valuation Section -->
-        <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #333333;">
-            <div class="section-header">
-                <h2 class="section-title">Fleet Valuation</h2>
-                <p class="section-subtitle">Multi-unit valuation reports for fleet operators</p>
-            </div>
-            
-            <div class="pricing-card featured" style="max-width: 600px; margin: 40px auto;" data-tier="fleet_valuation">
-                <div class="pricing-badge">Fleet Option</div>
-                <h3 class="pricing-title">Fleet Valuation</h3>
-                <div class="pricing-price">Tiered Pricing</div>
-                <div class="pricing-period">Based on units</div>
-                <ul class="pricing-features">
-                    <li>✓ 2–50 cranes supported</li>
-                    <li>✓ Multi-unit PDF (one page per crane)</li>
-                    <li>✓ Fleet total summary</li>
-                    <li>✓ CSV upload support</li>
-                    <li>✓ Market overview</li>
-                    <li>✓ 24 hour turnaround</li>
-                </ul>
-                
-                <!-- Tiered Fleet Pricing Table -->
-                <div style="margin: 24px 0; padding: 20px; background: rgba(0, 255, 133, 0.05); border-radius: 8px; border: 1px solid rgba(0, 255, 133, 0.2);">
-                    <h4 style="color: #00FF85; font-size: 14px; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; text-align: center;">Tiered Fleet Pricing Model</h4>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid rgba(0, 255, 133, 0.3);">
-                                <th style="padding: 8px; text-align: left; color: #00FF85; font-weight: 600;">Units</th>
-                                <th style="padding: 8px; text-align: right; color: #00FF85; font-weight: 600;">Price</th>
-                                <th style="padding: 8px; text-align: right; color: #00FF85; font-weight: 600;">Per-Crane Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                                <td style="padding: 8px; color: #B0B0B0;">1–5</td>
-                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$1,495</td>
-                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$299</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                                <td style="padding: 8px; color: #B0B0B0;">6–10</td>
-                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$2,495</td>
-                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$249</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                                <td style="padding: 8px; color: #B0B0B0;">11–25</td>
-                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$4,995</td>
-                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$199</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; color: #B0B0B0;">26–50</td>
-                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$7,995</td>
-                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">~$159</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">Submit Fleet Request</button>
-            </div>
+        <div class="pricing-card featured" style="max-width: 600px; margin: 40px auto;" data-tier="fleet_valuation">
+            <div class="pricing-badge">Fleet Option</div>
+            <h3 class="pricing-title">Fleet Valuation — from $1,495</h3>
+            <div class="pricing-price">from $1,495</div>
+            <div class="pricing-period">2–50 cranes • Tiered pricing</div>
+            <ul class="pricing-features">
+                <li>2–50 cranes</li>
+                <li>One page per crane</li>
+                <li>Fleet FMV summary</li>
+                <li>Deal &amp; Wear Scores</li>
+                <li>CSV upload</li>
+                <li>36–72 hour turnaround</li>
+            </ul>
+            <!-- Keep your existing tier table (1–5, 6–10, etc.) here -->
+            <!-- ... existing table markup ... -->
+            <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">
+                Submit Fleet Request
+            </button>
+            <button class="pricing-cta" style="margin-top:8px;" onclick="window.open('/samples/fleet-sample.html','_blank')">
+                View Sample
+            </button>
         </div>
     </div>
 </section>

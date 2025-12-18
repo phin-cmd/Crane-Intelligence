@@ -228,11 +228,11 @@
             } else if (p.amount && p.amount > 0) {
                 amount = parseFloat(p.amount) / 100; // Convert from cents to dollars
             } else if (p.payment_intent_id && p.payment_status === 'succeeded') {
-                // Estimate from report type if amount is missing
-                if (p.report_type === 'spot_check') amount = 495;
-                else if (p.report_type === 'professional') amount = 995;
-                else if (p.report_type === 'fleet_valuation') amount = 495;
-            }
+    // Estimate from report type if amount is missing
+    if (p.report_type === 'spot_check') amount = 250;
+    else if (p.report_type === 'professional') amount = 995;
+    else if (p.report_type === 'fleet_valuation') amount = 1495; // from $1,495
+}
             return amount;
         }
 

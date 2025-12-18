@@ -15,6 +15,7 @@ from ..models.user import User
 from ..schemas.fmv_report import (
     FMVReportCreate, StatusTransition, FMVReportUpdate, FleetPricingRequest
 )
+from ..services.fmv_pricing_config import get_base_price_dollars
 
 logger = logging.getLogger(__name__)
 
@@ -251,23 +252,22 @@ class FMVReportService:
             from ..services.fmv_email_service import FMVEmailService
             email_service = FMVEmailService()
             
-            # Get report type and amount
+                        # Get report type and amount (centralized pricing)
             report_type = report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type)
-            amount = 0
-            if report_type == 'spot_check':
-                amount = 495.00
-            elif report_type == 'professional':
-                amount = 995.00
-            elif report_type == 'fleet_valuation':
-                # Use tiered pricing
-                if report.unit_count and report.unit_count <= 5:
-                    amount = 1495.00
-                elif report.unit_count and report.unit_count <= 10:
-                    amount = 2495.00
-                elif report.unit_count and report.unit_count <= 25:
-                    amount = 4995.00
+            try:
+                if report_type == 'fleet_valuation':
+                    amount = get_base_price_dollars(report_type, unit_count=report.unit_count or 1)
                 else:
-                    amount = 7995.00
+                    amount = get_base_price_dollars(report_type)
+            except Exception:
+                # Fallback to legacy defaults if pricing config is unavailable
+                if report_type == 'spot_check':
+                    amount = 250.00
+                elif report_type == 'professional':
+                    amount = 995.00
+                elif report_type == 'fleet_valuation':
+                    # Fall back to lowest fleet tier
+                    amount = 1495.00
             
             # Use draft reminder notification as the ONLY initial email
             email_service.send_draft_reminder_notification(

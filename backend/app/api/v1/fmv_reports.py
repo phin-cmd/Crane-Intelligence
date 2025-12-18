@@ -713,20 +713,22 @@ async def submit_fmv_report(
                 
                 # Determine report price based on type
                 report_type_value = report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type)
-                if report_type_value == 'spot_check':
-                    amount = 495.00
-                elif report_type_value == 'professional':
-                    amount = 995.00
-                elif report_type_value == 'fleet_valuation':
-                    # Use fleet pricing if available
-                    # Note: FMVReportService is already imported at top of file
-                    fleet_service = FMVReportService(db)
-                    if report.fleet_pricing_tier:
-                        amount = fleet_service.calculate_fleet_price(report.fleet_pricing_tier)
+                try:
+                    from ...services.fmv_pricing_config import get_base_price_dollars
+                    if report_type_value == 'fleet_valuation':
+                        amount = get_base_price_dollars(report_type_value, unit_count=report.unit_count or 1)
                     else:
-                        amount = 1495.00  # Default tier 1-5
-                else:
-                    amount = 995.00  # Default (professional)
+                        amount = get_base_price_dollars(report_type_value)
+                except Exception:
+                    # Fallback if pricing config unavailable
+                    if report_type_value == 'spot_check':
+                        amount = 250.00
+                    elif report_type_value == 'professional':
+                        amount = 995.00
+                    elif report_type_value == 'fleet_valuation':
+                        amount = 1495.00
+                    else:
+                        amount = 995.00
                 
                 # Send DRAFT reminder email
                 email_result = email_service.send_draft_reminder_notification(

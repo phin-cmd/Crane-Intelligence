@@ -186,13 +186,21 @@ class FMVEmailService:
             # Calculate amount based on report type
             amount = report_data.get('amount', 0)
             if not amount:
-                # Default amounts if not provided
-                if report_type == 'spot_check':
-                    amount = 495.00
-                elif report_type == 'professional':
-                    amount = 995.00
-                elif report_type == 'fleet_valuation':
-                    amount = 1495.00  # Default to tier 1-5
+                # Default amounts if not provided (centralized pricing)
+                try:
+                    from .fmv_pricing_config import get_base_price_dollars
+                    if report_type == 'fleet_valuation':
+                        amount = get_base_price_dollars(report_type, unit_count=report_data.get('unit_count') or 1)
+                    else:
+                        amount = get_base_price_dollars(report_type)
+                except Exception:
+                    # Fallback to safe legacy defaults if pricing config is unavailable
+                    if report_type == 'spot_check':
+                        amount = 250.00
+                    elif report_type == 'professional':
+                        amount = 995.00
+                    elif report_type == 'fleet_valuation':
+                        amount = 1495.00  # Default to tier 1-5
             
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
