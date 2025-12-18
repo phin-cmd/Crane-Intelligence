@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; font-size: 14px; }
+        .user-table tr:hover { background: #2A2A2A; }
+        .action-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .action-badge.create { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .action-badge.update { background: rgba(255, 214, 0, 0.2); color: #FFD600; }
+        .action-badge.delete { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+        .action-badge.view { background: rgba(0, 191, 255, 0.2); color: #00BFFF; }
+        .action-badge.login { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .action-badge.logout { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+        .filter-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-controls select, .filter-controls input { padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .filter-controls select:focus, .filter-controls input:focus { border-color: #FFD600; outline: none; }
+        .stats-card { background: #1A1A1A; border: 1px solid #333333; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+        .stats-card h4 { color: #FFFFFF; margin-bottom: 12px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #FFD600; }
+        .stat-label { font-size: 12px; color: #B0B0B0; text-transform: uppercase; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>Audit Logs</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="exportCSV()">Export CSV</button>
+                        <button class="btn btn-primary btn-sm" onclick="exportJSON()">Export JSON</button>
+                        <button class="btn btn-secondary btn-sm" onclick="loadStats()">View Statistics</button>
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="stats-card" id="stats-card" style="display: none;">
+                    <h4>Audit Log Statistics (Last 30 Days)</h4>
+                    <div class="stats-grid" id="stats-grid"></div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-controls">
+                    <select id="action-filter">
+                        <option value="">All Actions</option>
+                        <option value="create">Create</option>
+                        <option value="update">Update</option>
+                        <option value="delete">Delete</option>
+                        <option value="view">View</option>
+                        <option value="login">Login</option>
+                        <option value="logout">Logout</option>
+                    </select>
+                    <select id="resource-type-filter">
+                        <option value="">All Resource Types</option>
+                        <option value="user">User</option>
+                        <option value="admin_user">Admin User</option>
+                        <option value="crane">Crane</option>
+                        <option value="valuation">Valuation</option>
+                        <option value="fmv_report">FMV Report</option>
+                        <option value="payment">Payment</option>
+                        <option value="subscription">Subscription</option>
+                    </select>
+                    <input type="date" id="start-date-filter" placeholder="Start Date">
+                    <input type="date" id="end-date-filter" placeholder="End Date">
+                    <input type="text" id="admin-filter" placeholder="Filter by Admin Email">
+                    <button class="btn btn-primary btn-sm" onclick="applyFilters()">Apply Filters</button>
+                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+                </div>
+
+                <!-- Audit Logs Table -->
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Admin</th>
+                                <th>Action</th>
+                                <th>Resource</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-logs-table-body">
+                            <tr><td colspan="7" class="loading">Loading audit logs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination-info-section">
+                        <div class="records-info" id="recordsInfo">Showing 0 records</div>
+                        <div class="records-per-page">
+                            <span>Records per page:</span>
+                            <select id="recordsPerPageSelect" onchange="loadAuditLogs()">
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Detail Modal -->
+    <div id="logModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Audit Log Details</h3>
+                <span class="close" onclick="closeLogModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="log-detail-content">
+                <!-- Log details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        let currentPage = 1;
+        let recordsPerPage = 50;
+        let totalRecords = 0;
+        let currentFilters = {};
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        // Render common header, sidebar, and footer
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+            
+            
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready');
+                loadAuditLogs();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadAuditLogs();
+                } else {
+                    setTimeout(() => loadAuditLogs();, 1000);
+                }
+            }, 2000);
+        });
+        });
+
+        async function loadAuditLogs() {
+            try {
+                const params = new URLSearchParams({
+                    limit: recordsPerPage.toString(),
+                    offset: ((currentPage - 1) * recordsPerPage).toString()
+                });
+
+                if (currentFilters.action) params.append('action', currentFilters.action);
+                if (currentFilters.resource_type) params.append('resource_type', currentFilters.resource_type);
+                if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+                if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+                if (currentFilters.admin_user_id) params.append('admin_user_id', currentFilters.admin_user_id);
+
+                const response = await fetch(`${API_BASE}/admin/audit?${params}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                totalRecords = data.total;
+                renderAuditLogs(data.logs);
+                updatePagination();
+            } catch (error) {
+                console.error('Error loading audit logs:', error);
+                document.getElementById('audit-logs-table-body').innerHTML = 
+                    '<tr><td colspan="7">Error loading audit logs</td></tr>';
+            }
+        }
+
+        function renderAuditLogs(logs) {
+            const tbody = document.getElementById('audit-logs-table-body');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7">No audit logs found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${new Date(log.timestamp).toLocaleString()}</td>
+                    <td>${log.admin_name || log.admin_email || `User ${log.admin_user_id}`}</td>
+                    <td><span class="action-badge ${log.action}">${log.action}</span></td>
+                    <td>${log.resource_type} #${log.resource_id}</td>
+                    <td>${log.description || '-'}</td>
+                    <td>${log.ip_address || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewLogDetails(${log.id})">View Details</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('recordsInfo').textContent = 
+                `Showing ${((currentPage - 1) * recordsPerPage) + 1} to ${Math.min(currentPage * recordsPerPage, totalRecords)} of ${totalRecords} records`;
+        }
+
+        async function viewLogDetails(logId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/audit/${logId}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const log = await response.json();
+                    const content = document.getElementById('log-detail-content');
+                    content.innerHTML = `
+                        <div style="margin-bottom: 16px;">
+                            <strong>Timestamp:</strong> ${new Date(log.timestamp).toLocaleString()}
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>Admin:</strong> ${log.admin_name || log.admin_email || `User ${log.admin_user_id}`}
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>Action:</strong> <span class="action-badge ${log.action}">${log.action}</span>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>Resource:</strong> ${log.resource_type} #${log.resource_id}
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>Description:</strong> ${log.description || '-'}
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>IP Address:</strong> ${log.ip_address || '-'}
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>User Agent:</strong> ${log.user_agent || '-'}
+                        </div>
+                        ${log.old_values ? `
+                            <div style="margin-bottom: 16px;">
+                                <strong>Old Values:</strong>
+                                <pre style="background: #0F0F0F; padding: 12px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(log.old_values, null, 2)}</pre>
+                            </div>
+                        ` : ''}
+                        ${log.new_values ? `
+                            <div style="margin-bottom: 16px;">
+                                <strong>New Values:</strong>
+                                <pre style="background: #0F0F0F; padding: 12px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(log.new_values, null, 2)}</pre>
+                            </div>
+                        ` : ''}
+                    `;
+                    document.getElementById('logModal').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading log details:', error);
+                notificationSystem.showError('Error', 'Failed to load log details');
+            }
+        }
+
+        function closeLogModal() {
+            document.getElementById('logModal').style.display = 'none';
+        }
+
+        function applyFilters() {
+            currentFilters = {
+                action: document.getElementById('action-filter').value,
+                resource_type: document.getElementById('resource-type-filter').value,
+                start_date: document.getElementById('start-date-filter').value,
+                end_date: document.getElementById('end-date-filter').value
+            };
+            currentPage = 1;
+            loadAuditLogs();
+        }
+
+        function clearFilters() {
+            document.getElementById('action-filter').value = '';
+            document.getElementById('resource-type-filter').value = '';
+            document.getElementById('start-date-filter').value = '';
+            document.getElementById('end-date-filter').value = '';
+            document.getElementById('admin-filter').value = '';
+            currentFilters = {};
+            currentPage = 1;
+            loadAuditLogs();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / recordsPerPage);
+            const controls = document.getElementById('paginationControls');
+            
+            if (totalPages <= 1) {
+                controls.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            if (currentPage > 1) {
+                html += `<button class="btn btn-sm btn-secondary" onclick="goToPage(${currentPage - 1})">Previous</button>`;
+            }
+            html += `<span style="margin: 0 16px;">Page ${currentPage} of ${totalPages}</span>`;
+            if (currentPage < totalPages) {
+                html += `<button class="btn btn-sm btn-secondary" onclick="goToPage(${currentPage + 1})">Next</button>`;
+            }
+            controls.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadAuditLogs();
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/audit/stats/summary?days=30`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const stats = await response.json();
+                    renderStats(stats);
+                    document.getElementById('stats-card').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                notificationSystem.showError('Error', 'Failed to load statistics');
+            }
+        }
+
+        function renderStats(stats) {
+            const grid = document.getElementById('stats-grid');
+            grid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.total_logs.toLocaleString()}</div>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats.logs_by_action).length}</div>
+                    <div class="stat-label">Action Types</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats.logs_by_resource_type).length}</div>
+                    <div class="stat-label">Resource Types</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats.logs_by_admin).length}</div>
+                    <div class="stat-label">Active Admins</div>
+                </div>
+            `;
+        }
+
+        async function exportCSV() {
+            try {
+                const params = new URLSearchParams();
+                if (currentFilters.action) params.append('action', currentFilters.action);
+                if (currentFilters.resource_type) params.append('resource_type', currentFilters.resource_type);
+                if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+                if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+
+                const response = await fetch(`${API_BASE}/admin/audit/export/csv?${params}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    notificationSystem.showSuccess('Success', 'Audit logs exported successfully');
+                }
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                notificationSystem.showError('Error', 'Failed to export audit logs');
+            }
+        }
+
+        async function exportJSON() {
+            try {
+                const params = new URLSearchParams();
+                if (currentFilters.action) params.append('action', currentFilters.action);
+                if (currentFilters.resource_type) params.append('resource_type', currentFilters.resource_type);
+                if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+                if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+
+                const response = await fetch(`${API_BASE}/admin/audit/export/json?${params}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    notificationSystem.showSuccess('Success', 'Audit logs exported successfully');
+                }
+            } catch (error) {
+                console.error('Error exporting JSON:', error);
+                notificationSystem.showError('Error', 'Failed to export audit logs');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('logModal');
+            if (event.target == modal) {
+                closeLogModal();
+            }
+        }
+    </script>
+</body>
+</html>
+

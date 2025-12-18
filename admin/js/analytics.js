@@ -140,10 +140,10 @@ class AnalyticsManager {
         this.charts.subscription = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Basic', 'Pro', 'Enterprise'],
+                labels: [], // Will be populated from API data
                 datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: ['#ff6b35', '#00d4aa', '#4a90e2'],
+                    data: [],
+                    backgroundColor: ['#ff6b35', '#00d4aa', '#4a90e2', '#FFD600', '#00FF85'],
                     borderWidth: 0
                 }]
             },
@@ -237,13 +237,25 @@ class AnalyticsManager {
     }
 
     updateSubscriptionChart(distribution) {
-        if (!distribution) return;
+        if (!distribution) {
+            // Show empty chart if no data
+            this.charts.subscription.data.labels = [];
+            this.charts.subscription.data.datasets[0].data = [];
+            this.charts.subscription.update();
+            return;
+        }
         
-        this.charts.subscription.data.datasets[0].data = [
-            distribution.basic || 0,
-            distribution.pro || 0,
-            distribution.enterprise || 0
-        ];
+        // Handle both object format {basic: 10, pro: 5} and array format [{label: 'Basic', count: 10}]
+        if (Array.isArray(distribution)) {
+            this.charts.subscription.data.labels = distribution.map(item => item.label || item.name || 'Unknown');
+            this.charts.subscription.data.datasets[0].data = distribution.map(item => item.count || item.value || 0);
+        } else {
+            // Object format - extract keys as labels and values as data
+            const labels = Object.keys(distribution);
+            const data = labels.map(key => distribution[key] || 0);
+            this.charts.subscription.data.labels = labels.map(key => key.charAt(0).toUpperCase() + key.slice(1));
+            this.charts.subscription.data.datasets[0].data = data;
+        }
         this.charts.subscription.update();
     }
 

@@ -1054,17 +1054,13 @@
                 </div>
                 <div class="user-info">
                     <div class="user-name" id="userDisplayName">John Doe</div>
-                    <div class="user-role" id="userRole">Premium User</div>
+                    <div class="user-role" id="userRole">Free</div>
                 </div>
                 <span class="dropdown-arrow">▼</span>
                 <div class="user-dropdown" id="userDropdown">
                     <a href="dashboard.html" class="dropdown-item">
                         <span class="dropdown-icon">📊</span>
                         Dashboard
-                    </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
                     </a>
                     <a href="account-settings.html" class="dropdown-item">
                         <span class="dropdown-icon">⚙️</span>
@@ -1347,28 +1343,19 @@
             }
         }
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('show');
-        }
-
+        // User dropdown functionality - DELEGATED TO UNIFIED HEADER
+        // The unified-header.html component handles all dropdown logic via portal solution
+        // No local handlers needed - they conflict with the centralized solution
 
         function logout() {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             localStorage.removeItem('user_data');
+            if (typeof window.updateAuthUI === 'function') {
+                window.updateAuthUI();
+            }
             window.location.href = 'homepage.html';
         }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userProfile = document.querySelector('.user-profile');
-            const dropdown = document.getElementById('userDropdown');
-            
-            if (userProfile && dropdown && !userProfile.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
 
 
         // Initialize Charts

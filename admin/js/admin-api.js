@@ -5,8 +5,12 @@
 
 class AdminAPI {
     constructor() {
-        this.baseUrl = 'http://localhost:8003/api/v1';
-        this.authToken = localStorage.getItem('admin_token');
+        // Use production URL or detect from window location
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        this.baseUrl = isLocalhost 
+            ? 'http://localhost:8004/api/v1'
+            : 'https://craneintelligence.tech/api/v1';
+        this.authToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
         this.refreshToken = localStorage.getItem('admin_refresh_token');
         this.isRefreshing = false;
         this.failedQueue = [];

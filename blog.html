@@ -571,7 +571,7 @@
                 }
                 
                 if (userRole) {
-                    userRole.textContent = user.user_role || 'Premium User';
+                    userRole">Free';
                 }
             } else {
                 // Show auth buttons for guest users, hide user profile
@@ -584,13 +584,9 @@
             }
         }
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-                console.log('Dropdown toggled:', dropdown.classList.contains('show'));
-            }
-        }
+        // User dropdown functionality - DELEGATED TO UNIFIED HEADER
+        // The unified-header.html component handles all dropdown logic via portal solution
+        // No local handlers needed - they conflict with the centralized solution
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -606,63 +602,14 @@
             window.location.href = 'signup.html';
         }
     </script>
+    <script src="js/component-loader.js" defer></script>
+    <script src="js/user-profile-manager.js" defer></script>
 </head>
 <body>
+    <!-- Header - Using Unified Component -->
+    <div data-component="unified-header"></div>
     <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                </a>
-            </div>
-            
-            <nav class="nav-menu">
-                <a href="homepage.html#features" class="nav-link">FEATURES</a>
-                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
-                <a href="homepage.html#about" class="nav-link">ABOUT</a>
-                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
-            </nav>
-            
-            <div class="header-right">
-            <div class="auth-buttons" id="authButtons">
-                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
-                <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
-            </div>
-            
-            <div class="user-profile" id="userProfile">
-                <div class="user-avatar" onclick="toggleDropdown()">
-                    <span id="userInitials">U</span>
-                </div>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-name" id="userDisplayName">User</div>
-                    <div class="user-role" id="userRole">Premium User</div>
-                </div>
-                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="dashboard.html" class="dropdown-item">
-                        <span class="dropdown-icon">📊</span>
-                        Dashboard
-                    </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
-                    <a href="account-settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
-                        Account Settings
-                    </a>
-                    <a href="#" class="dropdown-item" onclick="logout()">
-                        <span class="dropdown-icon">🚪</span>
-                        Logout
-                    </a>
-                </div>
-                
-                
-            </div>
-            
-        </div>
-    </header>
+    
 
     <!-- Market Ticker -->
     <div class="market-ticker">
@@ -786,45 +733,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div>
-                    <div class="footer-brand">
-                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
-                    </div>
-                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
-                </div>
-                <div>
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="about-us.html" target="_blank">About Us</a></li>
-                        <li><a href="contact.html" target="_blank">Contact</a></li>
-                        <li><a href="blog.html" target="_blank">Blog</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Legal & Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
-                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
-                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
-                        <li><a href="security.html" target="_blank">Security</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Stay Updated</h4>
-                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
-                    <div class="newsletter">
-                        <input type="email" placeholder="Enter your email">
-                        <button>Subscribe</button>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
-            </div>
-        </div>
-    </footer>
+    
+    <!-- Footer - Using Unified Component -->
+    <div data-component="unified-footer"></div>
 </body>
 </html>

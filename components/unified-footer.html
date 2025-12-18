@@ -1,0 +1,236 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED FOOTER COMPONENT ===== -->
+<!-- Include this footer in all pages for consistent branding and navigation -->
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">
+                    <img src="/images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
+                </div>
+                <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/about-us.html">About Us</a></li>
+                    <li><a href="/contact.html">Contact</a></li>
+                    <li><a href="/blog.html">Blog</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Legal & Support</h4>
+                <ul class="footer-links">
+                    <li><a href="/privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="/terms-of-service.html">Terms of Service</a></li>
+                    <li><a href="/cookie-policy.html">Cookie Policy</a></li>
+                    <li><a href="/security.html">Security</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Stay Updated</h4>
+                <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                <div class="newsletter">
+                    <input type="email" placeholder="Enter your email" id="footerNewsletterEmail">
+                    <button onclick="handleNewsletterSubscribe()">Subscribe</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
+        </div>
+    </div>
+</footer>
+
+<style>
+/* Footer Styles - Centralized */
+.footer {
+    background: #0F0F0F;
+    border-top: 1px solid #333333;
+    padding: 40px 0 20px;
+    margin-top: 80px;
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 32px;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.footer-logo-svg {
+    height: 50px;
+    width: auto;
+    filter: brightness(1.2) contrast(1.2);
+}
+
+.footer-desc {
+    font-size: 14px;
+    color: #B0B0B0;
+    line-height: 1.6;
+    max-width: 300px;
+}
+
+.footer-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00FF85;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 8px;
+}
+
+.footer-links a {
+    color: #B0B0B0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #00FF85;
+}
+
+.newsletter {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.newsletter input {
+    flex: 1;
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    color: #FFFFFF;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.newsletter input:focus {
+    outline: none;
+    border-color: #00FF85;
+}
+
+.newsletter button {
+    background: #00FF85;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.newsletter button:hover {
+    background: #00CC6A;
+}
+
+.footer-bottom {
+    border-top: 1px solid #333333;
+    padding-top: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: #666666;
+}
+
+@media (max-width: 1200px) {
+    .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .footer-desc {
+        max-width: 100%;
+    }
+}
+</style>
+
+<script>
+// Newsletter subscription handler
+async function handleNewsletterSubscribe() {
+    const emailInput = document.getElementById('footerNewsletterEmail');
+    const email = emailInput?.value;
+    
+    if (!email || !email.includes('@')) {
+        if (typeof notificationSystem !== 'undefined') {
+            notificationSystem.showError('Invalid Email', 'Please enter a valid email address');
+        } else {
+            alert('Please enter a valid email address');
+        }
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/v1/newsletter/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            if (typeof notificationSystem !== 'undefined') {
+                notificationSystem.showSuccess('Subscribed!', 'You have been added to our newsletter');
+            } else {
+                alert('Thank you for subscribing!');
+            }
+            emailInput.value = '';
+        } else {
+            if (typeof notificationSystem !== 'undefined') {
+                notificationSystem.showError('Subscription Failed', result.error || 'Unable to subscribe');
+            } else {
+                alert('Subscription failed. Please try again.');
+            }
+        }
+    } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        if (typeof notificationSystem !== 'undefined') {
+            notificationSystem.showError('Error', 'Unable to subscribe. Please try again.');
+        } else {
+            alert('An error occurred. Please try again.');
+        }
+    }
+}
+</script>
+

@@ -3,6 +3,16 @@
  * Handles user management interface functionality
  */
 
+// Generate avatar URL using initials (SVG data URI)
+function generateAvatarUrl(name, size = 80) {
+    const initial = (name || 'U').charAt(0).toUpperCase();
+    const colors = ['007BFF', '00FF85', 'FFD600', 'FF6B6B', '9C27B0', '00BCD4'];
+    const colorIndex = initial.charCodeAt(0) % colors.length;
+    const color = colors[colorIndex];
+    // Use data URI instead of external placeholder service
+    return `data:image/svg+xml,${encodeURIComponent(`<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg"><rect width="${size}" height="${size}" fill="#${color}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${size * 0.4}" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`)}`;
+}
+
 class UserManagement {
     constructor() {
         this.api = new AdminAPI();
@@ -258,10 +268,10 @@ class UserManagement {
 
         } catch (error) {
             console.error('Error loading users:', error);
-            // Use mock data if API fails
-            console.log('Using mock data...');
-            this.users = this.getMockUsers();
-            this.totalUsers = this.users.length;
+            // Show error message
+            this.showError('Failed to load users. Please refresh the page.');
+            this.users = [];
+            this.totalUsers = 0;
             this.renderUsers();
             this.updatePagination();
             this.updateTableCount();
@@ -269,65 +279,6 @@ class UserManagement {
             this.isLoading = false;
             this.hideLoadingState();
         }
-    }
-
-    getMockUsers() {
-        return [
-            {
-                id: 1,
-                name: "Alice Martin",
-                email: "alice@martin.com",
-                role: "Admin",
-                status: "active",
-                lastLogin: "22 min. ago",
-                avatar: "https://via.placeholder.com/32x32/007BFF/FFFFFF?text=AM"
-            },
-            {
-                id: 2,
-                name: "Bob Brown",
-                email: "bob.brown.com",
-                role: "Manager",
-                status: "active",
-                lastLogin: "43 minutes ago",
-                avatar: "https://via.placeholder.com/32x32/28A745/FFFFFF?text=BB"
-            },
-            {
-                id: 3,
-                name: "Carol White",
-                email: "carol.white@example.user",
-                role: "User",
-                status: "active",
-                lastLogin: "4 am ago",
-                avatar: "https://via.placeholder.com/32x32/FFC107/FFFFFF?text=CW"
-            },
-            {
-                id: 4,
-                name: "Daniel Clark",
-                email: "daniel.clark.com",
-                role: "User",
-                status: "suspended",
-                lastLogin: "30 minutes ago",
-                avatar: "https://via.placeholder.com/32x32/DC3545/FFFFFF?text=DC"
-            },
-            {
-                id: 5,
-                name: "Eric Johnson",
-                email: "eri@johnson.com",
-                role: "Suspend",
-                status: "active",
-                lastLogin: "18 hours ago",
-                avatar: "https://via.placeholder.com/32x32/6C757D/FFFFFF?text=EJ"
-            },
-            {
-                id: 6,
-                name: "Fiona Miller",
-                email: "fiona.miller.com",
-                role: "Asbbnik",
-                status: "active",
-                lastLogin: "28 sec. ago",
-                avatar: "https://via.placeholder.com/32x32/17A2B8/FFFFFF?text=FM"
-            }
-        ];
     }
 
     renderUsers() {
@@ -369,7 +320,7 @@ class UserManagement {
                     <input type="checkbox" class="user-checkbox" data-user-id="${user.id}">
                 </td>
                 <td>
-                    <img src="${user.avatar || 'https://via.placeholder.com/32x32/007BFF/FFFFFF?text=' + user.name.charAt(0)}" 
+                    <img src="${user.avatar || generateAvatarUrl(user.name || user.full_name || 'U', 32)}" 
                          alt="${user.name}" class="user-avatar-small">
                 </td>
                 <td>
@@ -382,8 +333,8 @@ class UserManagement {
                     <span class="user-role">${user.user_role || user.role || 'N/A'}</span>
                 </td>
                 <td>
-                    <span class="status-badge ${user.is_active ? 'active' : 'inactive'}">
-                        ${user.is_active ? 'Active' : 'Inactive'}
+                    <span class="status-badge ${this.getUserStatusClass(user)}">
+                        ${this.getUserStatusText(user)}
                     </span>
                 </td>
                 <td>
@@ -433,7 +384,10 @@ class UserManagement {
         // Update the right panel with selected user details
         document.getElementById('selected-user-name').textContent = user.name || user.full_name || 'N/A';
         document.getElementById('selected-user-email').textContent = user.email;
-        document.getElementById('selected-user-avatar').src = user.avatar || 'https://via.placeholder.com/80x80/007BFF/FFFFFF?text=' + (user.name || user.full_name || 'U').charAt(0);
+        const avatarEl = document.getElementById('selected-user-avatar');
+        if (avatarEl) {
+            avatarEl.src = user.avatar || generateAvatarUrl(user.name || user.full_name || 'U', 80);
+        }
         
         // Update role selection
         const roleRadios = document.querySelectorAll('input[name="user-role"]');
@@ -472,7 +426,7 @@ class UserManagement {
             <div class="user-card" data-user-id="${user.id}">
                 <div class="user-card-header">
                     <div class="user-avatar">
-                        <img src="https://via.placeholder.com/48x48/007BFF/FFFFFF?text=${user.full_name.charAt(0)}" alt="${user.full_name}">
+                        <img src="${generateAvatarUrl(user.full_name, 48)}" alt="${user.full_name}">
                     </div>
                     <div class="user-info">
                         <div class="user-name">${user.full_name}</div>
@@ -495,10 +449,7 @@ class UserManagement {
                         <label>Role:</label>
                         <span class="role-badge role-${user.user_role}">${this.formatRole(user.user_role)}</span>
                     </div>
-                    <div class="user-detail">
-                        <label>Subscription:</label>
-                        <span class="subscription-badge subscription-${user.subscription_tier}">${this.formatSubscription(user.subscription_tier)}</span>
-                    </div>
+                    <!-- Subscription tier removed - using user role instead -->
                     <div class="user-detail">
                         <label>Status:</label>
                         <span class="status-badge ${user.is_active ? 'active' : 'inactive'}">
@@ -757,7 +708,6 @@ class UserManagement {
             username: formData.get('username'),
             company_name: formData.get('company_name'),
             user_role: formData.get('user_role'),
-            subscription_tier: formData.get('subscription_tier'),
             password: formData.get('password'),
             is_active: formData.get('is_active') === 'on'
         };
@@ -794,7 +744,7 @@ class UserManagement {
         content.innerHTML = `
             <div class="user-details-header">
                 <div class="user-avatar-large">
-                    <img src="https://via.placeholder.com/80x80/007BFF/FFFFFF?text=${user.full_name.charAt(0)}" alt="${user.full_name}">
+                    <img src="${generateAvatarUrl(user.full_name, 80)}" alt="${user.full_name}">
                 </div>
                 <div class="user-details-info">
                     <h2>${user.full_name}</h2>
@@ -802,8 +752,8 @@ class UserManagement {
                     <p class="user-username">@${user.username}</p>
                 </div>
                 <div class="user-status-large">
-                    <span class="status-badge ${user.is_active ? 'active' : 'inactive'}">
-                        ${user.is_active ? 'Active' : 'Inactive'}
+                    <span class="status-badge ${this.getUserStatusClass(user)}">
+                        ${this.getUserStatusText(user)}
                     </span>
                 </div>
             </div>
@@ -818,10 +768,6 @@ class UserManagement {
                         <span class="role-badge role-${user.user_role}">${this.formatRole(user.user_role)}</span>
                     </div>
                     <div class="detail-item">
-                        <label>Subscription</label>
-                        <span class="subscription-badge subscription-${user.subscription_tier}">${this.formatSubscription(user.subscription_tier)}</span>
-                    </div>
-                    <div class="detail-item">
                         <label>Created</label>
                         <span>${this.formatDate(user.created_at)}</span>
                     </div>
@@ -831,7 +777,15 @@ class UserManagement {
                     </div>
                     <div class="detail-item">
                         <label>Email Verified</label>
-                        <span>${user.is_verified ? 'Yes' : 'No'}</span>
+                        <span class="status-badge ${user.is_verified ? 'active' : 'pending'}">
+                            ${user.is_verified ? 'Verified' : 'Pending'}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Account Status</label>
+                        <span class="status-badge ${this.getUserStatusClass(user)}">
+                            ${this.getUserStatusText(user)}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -937,13 +891,14 @@ class UserManagement {
         const lastBtn = document.getElementById('last-page-btn');
         const pagesContainer = document.getElementById('pagination-pages');
 
-        // Update button states
-        firstBtn.disabled = this.currentPage === 1;
-        prevBtn.disabled = this.currentPage === 1;
-        nextBtn.disabled = this.currentPage === totalPages;
-        lastBtn.disabled = this.currentPage === totalPages;
+        // Update button states - check if elements exist first
+        if (firstBtn) firstBtn.disabled = this.currentPage === 1;
+        if (prevBtn) prevBtn.disabled = this.currentPage === 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage === totalPages;
+        if (lastBtn) lastBtn.disabled = this.currentPage === totalPages;
 
-        // Generate page numbers
+        // Generate page numbers - check if container exists
+        if (!pagesContainer) return;
         pagesContainer.innerHTML = '';
         const startPage = Math.max(1, this.currentPage - 2);
         const endPage = Math.min(totalPages, this.currentPage + 2);
@@ -958,11 +913,20 @@ class UserManagement {
     }
 
     updateTableCount() {
-        const countElement = document.getElementById('table-count');
-        const start = (this.currentPage - 1) * this.pageSize + 1;
-        const end = Math.min(this.currentPage * this.pageSize, this.totalUsers);
+        // Try multiple possible element IDs/selectors
+        const countElement = document.getElementById('table-count') || 
+                           document.getElementById('recordsInfo') ||
+                           document.querySelector('.table-count, .user-count, .total-count, .records-info');
         
-        countElement.textContent = `${this.totalUsers} users`;
+        if (countElement) {
+            const start = (this.currentPage - 1) * this.pageSize + 1;
+            const end = Math.min(this.currentPage * this.pageSize, this.totalUsers);
+            if (countElement.id === 'recordsInfo') {
+                countElement.textContent = `Showing ${start} to ${end} of ${this.totalUsers} records`;
+            } else {
+                countElement.textContent = `${this.totalUsers} users`;
+            }
+        }
     }
 
     showLoadingState() {
@@ -1028,6 +992,22 @@ class UserManagement {
             month: 'short',
             day: 'numeric'
         });
+    }
+
+    getUserStatusClass(user) {
+        // Show "Pending" if user is not verified, even if is_active is True
+        if (!user.is_verified) {
+            return 'pending';
+        }
+        return user.is_active ? 'active' : 'inactive';
+    }
+
+    getUserStatusText(user) {
+        // Show "Pending" if user is not verified, even if is_active is True
+        if (!user.is_verified) {
+            return 'Pending';
+        }
+        return user.is_active ? 'Active' : 'Inactive';
     }
 
     debounce(func, wait) {
@@ -1136,7 +1116,10 @@ class UserManagement {
         // Update the right panel with selected user details
         document.getElementById('selected-user-name').textContent = user.name || user.full_name || 'N/A';
         document.getElementById('selected-user-email').textContent = user.email;
-        document.getElementById('selected-user-avatar').src = user.avatar || 'https://via.placeholder.com/80x80/007BFF/FFFFFF?text=' + (user.name || user.full_name || 'U').charAt(0);
+        const avatarEl = document.getElementById('selected-user-avatar');
+        if (avatarEl) {
+            avatarEl.src = user.avatar || generateAvatarUrl(user.name || user.full_name || 'U', 80);
+        }
         
         // Update role selection
         const roleRadios = document.querySelectorAll('input[name="user-role"]');
@@ -1212,6 +1195,18 @@ class UserManagement {
             this.currentFilters[field] = value;
         } else {
             delete this.currentFilters[field];
+        }
+        this.currentPage = 1;
+        this.loadUsers();
+    }
+
+    applyFilters() {
+        // Apply status filter logic
+        const statusFilter = document.getElementById('status-filter')?.value;
+        if (statusFilter) {
+            this.currentFilters.status = statusFilter;
+        } else {
+            delete this.currentFilters.status;
         }
         this.currentPage = 1;
         this.loadUsers();

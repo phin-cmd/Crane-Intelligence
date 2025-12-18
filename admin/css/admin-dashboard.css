@@ -8,22 +8,27 @@
 }
 
 :root {
-    /* Color Palette */
-    --primary-bg: #1A1A1A;
-    --secondary-bg: #2A2A2A;
-    --accent-blue: #007BFF;
-    --accent-green: #28A745;
-    --accent-orange: #FD7E14;
-    --accent-red: #DC3545;
+    /* Brand Guide Color Palette - Matching Main Website */
+    --primary-bg: #0F0F0F;
+    --secondary-bg: #1A1A1A;
+    --tertiary-bg: #121212;
+    --card-bg: #1E1E1E;
+    --panel-bg: #2A2A2A;
+    --accent-green: #00FF85;
+    --accent-yellow: #FFD600;
+    --accent-orange: #FF9800;
+    --accent-red: #FF4444;
+    --accent-blue: #00BFFF;
     --text-primary: #FFFFFF;
     --text-secondary: #B0B0B0;
     --text-muted: #808080;
-    --border-color: #404040;
-    --hover-bg: #333333;
-    --success: #28A745;
-    --warning: #FFC107;
-    --error: #DC3545;
-    --info: #17A2B8;
+    --border-color: #333333;
+    --border-light: #404040;
+    --hover-bg: #2A2A2A;
+    --success: #00FF85;
+    --warning: #FFD600;
+    --error: #FF4444;
+    --info: #00BFFF;
     
     /* Typography */
     --font-primary: 'Roboto Condensed', sans-serif;
@@ -96,7 +101,7 @@ body {
     font-family: var(--font-primary);
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .header-center {
@@ -124,8 +129,9 @@ body {
 
 .search-input:focus {
     outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: var(--accent-yellow);
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+    background-color: rgba(255, 214, 0, 0.05);
 }
 
 .search-input::placeholder {
@@ -147,7 +153,7 @@ body {
 }
 
 .search-btn:hover {
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .header-right {
@@ -185,7 +191,7 @@ body {
 }
 
 .notification-btn:hover {
-    color: var(--accent-blue);
+    color: var(--accent-green);
     background-color: var(--hover-bg);
 }
 
@@ -260,7 +266,7 @@ body {
 }
 
 .profile-dropdown-btn:hover {
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 /* Page Title */
@@ -289,7 +295,7 @@ body {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
     color: white;
     display: flex;
     align-items: center;
@@ -369,9 +375,9 @@ body {
 }
 
 .nav-link.active {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: var(--accent-blue);
-    border-left-color: var(--accent-blue);
+    background-color: rgba(0, 255, 133, 0.1);
+    color: var(--accent-green);
+    border-left-color: var(--accent-green);
 }
 
 .sidebar-nav {
@@ -394,13 +400,12 @@ body {
     font-size: 0.9rem;
 }
 
-/* Main Content */
+/* Main Content - Override for common layout */
 .admin-main {
-    flex: 1;
-    margin-left: 250px;
-    padding: var(--spacing-xl);
-    background-color: var(--primary-bg);
-    min-height: calc(100vh - 70px);
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px;
+    position: relative;
 }
 
 /* Dashboard Header */
@@ -440,14 +445,16 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--accent-blue);
-    color: white;
+    background-color: var(--accent-yellow);
+    color: #000000;
+    font-weight: 600;
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #E6C200;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
+    color: #000000;
 }
 
 .btn-secondary {
@@ -458,7 +465,7 @@ body {
 
 .btn-secondary:hover {
     background-color: var(--hover-bg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .btn-sm {
@@ -522,7 +529,7 @@ body {
 .metric-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .metric-icon {
@@ -537,7 +544,7 @@ body {
 
 .metric-icon.blue {
     background-color: rgba(0, 123, 255, 0.1);
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .metric-icon.orange {
@@ -630,7 +637,7 @@ body {
 
 .chart-period:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .chart-btn {
@@ -646,13 +653,13 @@ body {
 
 .chart-btn:hover {
     color: var(--text-primary);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .chart-btn.active {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
     color: white;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .chart-content {
@@ -694,7 +701,7 @@ body {
 
 .geo-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow));
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -884,7 +891,7 @@ body {
 
 .activity-item:hover {
     background-color: var(--hover-bg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .activity-icon {
@@ -899,7 +906,7 @@ body {
 
 .activity-icon.user {
     background-color: rgba(0, 123, 255, 0.1);
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .activity-icon.report {
@@ -1064,7 +1071,7 @@ body {
 
 .notification-item:hover {
     background-color: var(--hover-bg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .notification-icon {
@@ -1287,7 +1294,7 @@ body {
     height: 20px;
     margin: -10px 0 0 -10px;
     border: 2px solid var(--border-color);
-    border-top-color: var(--accent-blue);
+    border-top-color: var(--accent-green);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -1349,9 +1356,12 @@ body {
 /* Focus States */
 button:focus,
 input:focus,
-select:focus {
-    outline: 2px solid var(--accent-blue);
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--accent-yellow);
     outline-offset: 2px;
+    border-color: var(--accent-yellow);
+    background-color: rgba(255, 214, 0, 0.05);
 }
 
 /* Data Tables */
@@ -1460,8 +1470,9 @@ select:focus {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: var(--accent-yellow);
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+    background-color: rgba(255, 214, 0, 0.05);
 }
 
 /* Filter Controls */
@@ -1526,7 +1537,7 @@ select:focus {
 .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .stat-icon {
@@ -1691,7 +1702,7 @@ select:focus {
     width: 40px;
     height: 40px;
     border: 4px solid var(--border-color);
-    border-top: 4px solid var(--accent-blue);
+    border-top: 4px solid var(--accent-green);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: var(--spacing-md);
@@ -1788,7 +1799,7 @@ select:focus {
 }
 
 .security-tab.active {
-    color: var(--accent-blue);
+    color: var(--accent-green);
     border-bottom-color: var(--accent-blue);
 }
 
@@ -1831,7 +1842,7 @@ select:focus {
 .role-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .role-header {
@@ -1861,7 +1872,7 @@ select:focus {
 
 .role-badge.medium {
     background-color: rgba(0, 123, 255, 0.1);
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .role-description {
@@ -1940,7 +1951,7 @@ select:focus {
 
 .action-badge.UPDATE {
     background-color: rgba(0, 123, 255, 0.1);
-    color: var(--accent-blue);
+    color: var(--accent-green);
 }
 
 .action-badge.DELETE {
@@ -1986,7 +1997,7 @@ select:focus {
 .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .stat-icon {
@@ -2143,7 +2154,7 @@ select:focus {
 .report-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .report-icon {
@@ -2323,9 +2334,9 @@ select:focus {
 }
 
 .action-icon:hover {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
     color: white;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .users-table {
@@ -2365,8 +2376,8 @@ select:focus {
 }
 
 .user-table tr.selected {
-    background-color: rgba(0, 123, 255, 0.1);
-    border-left: 3px solid var(--accent-blue);
+    background-color: rgba(0, 255, 133, 0.1);
+    border-left: 3px solid var(--accent-green);
 }
 
 .user-avatar-small {
@@ -2437,9 +2448,9 @@ select:focus {
 
 .info-btn:hover,
 .menu-btn:hover {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
     color: white;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .user-profile {
@@ -2603,7 +2614,7 @@ select:focus {
 }
 
 input:checked + .toggle-slider {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
 }
 
 input:checked + .toggle-slider:before {
@@ -2728,7 +2739,7 @@ input:checked + .toggle-slider:before {
 
 .search-input:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
@@ -2760,7 +2771,7 @@ input:checked + .toggle-slider:before {
 
 .filter-select:focus, .date-input:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .bulk-actions-row {
@@ -2802,7 +2813,7 @@ input:checked + .toggle-slider:before {
 .action-icon:hover {
     background: var(--hover-bg);
     color: var(--text-primary);
-    border-color: var(--accent-blue);
+    border-color: var(--accent-green);
 }
 
 .users-table {
@@ -3063,7 +3074,7 @@ input:checked + .toggle-slider:before {
 }
 
 input:checked + .toggle-slider {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
 }
 
 input:checked + .toggle-slider:before {

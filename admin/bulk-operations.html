@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Operations - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .card { background: #1A1A1A; border: 1px solid #333333; padding: 24px; border-radius: 8px; margin-bottom: 20px; }
+        .card h3 { color: #FFFFFF; margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #B0B0B0; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #FFD600; outline: none; }
+        .file-upload { border: 2px dashed #333333; padding: 40px; text-align: center; border-radius: 8px; cursor: pointer; }
+        .file-upload:hover { border-color: #FFD600; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>Bulk Operations</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Bulk User Operations</h3>
+                    <div class="form-group">
+                        <label>User IDs (comma-separated)</label>
+                        <textarea id="user-ids" rows="5" placeholder="Enter user IDs separated by commas, e.g., 1, 2, 3"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="bulkActivate()">Bulk Activate</button>
+                        <button class="btn btn-primary" onclick="bulkDeactivate()">Bulk Deactivate</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Export Users</h3>
+                    <p style="color: #B0B0B0; margin-bottom: 16px;">Export user data to CSV format</p>
+                    <button class="btn btn-primary" onclick="exportUsers()">Export All Users</button>
+                </div>
+
+                <div class="card">
+                    <h3>Import Users</h3>
+                    <p style="color: #B0B0B0; margin-bottom: 16px;">Import users from CSV file</p>
+                    <div class="file-upload" onclick="document.getElementById('import-file').click()">
+                        <input type="file" id="import-file" accept=".csv" style="display: none;" onchange="handleFileSelect(event)">
+                        <p>Click to select CSV file or drag and drop</p>
+                        <p style="color: #B0B0B0; font-size: 12px; margin-top: 8px;" id="file-name">No file selected</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="importUsers()" style="margin-top: 16px;">Import Users</button>
+                </div>
+
+                <div id="operation-results" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        let selectedFile = null;
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('file-name').textContent = file.name;
+            }
+        }
+
+        function getUserIds() {
+            const idsText = document.getElementById('user-ids').value;
+            return idsText.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+        }
+
+        async function bulkActivate() {
+            const userIds = getUserIds();
+            if (userIds.length === 0) {
+                notificationSystem.showError('Error', 'Please enter user IDs');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/bulk/users/activate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_ids: userIds, action: 'activate' })
+                });
+                const result = await response.json();
+                showOperationResult(result);
+            } catch (error) {
+                console.error('Error activating users:', error);
+                notificationSystem.showError('Error', 'Failed to activate users');
+            }
+        }
+
+        async function bulkDeactivate() {
+            const userIds = getUserIds();
+            if (userIds.length === 0) {
+                notificationSystem.showError('Error', 'Please enter user IDs');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/bulk/users/deactivate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_ids: userIds, action: 'deactivate' })
+                });
+                const result = await response.json();
+                showOperationResult(result);
+            } catch (error) {
+                console.error('Error deactivating users:', error);
+                notificationSystem.showError('Error', 'Failed to deactivate users');
+            }
+        }
+
+        async function exportUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/bulk/users/export`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    notificationSystem.showSuccess('Success', 'Users exported successfully');
+                }
+            } catch (error) {
+                console.error('Error exporting users:', error);
+                notificationSystem.showError('Error', 'Failed to export users');
+            }
+        }
+
+        async function importUsers() {
+            if (!selectedFile) {
+                notificationSystem.showError('Error', 'Please select a CSV file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/bulk/users/import`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${accessToken}` },
+                    body: formData
+                });
+                const result = await response.json();
+                showOperationResult(result);
+            } catch (error) {
+                console.error('Error importing users:', error);
+                notificationSystem.showError('Error', 'Failed to import users');
+            }
+        }
+
+        function showOperationResult(result) {
+            const resultsDiv = document.getElementById('operation-results');
+            resultsDiv.innerHTML = `
+                <div class="card">
+                    <h3>Operation Result</h3>
+                    <p style="color: ${result.success ? '#00FF85' : '#FF4444'};">${result.message}</p>
+                    <p>Processed: ${result.processed}</p>
+                    <p>Failed: ${result.failed}</p>
+                    ${result.errors && result.errors.length > 0 ? `
+                        <div style="margin-top: 16px;">
+                            <strong>Errors:</strong>
+                            <ul style="color: #FF4444;">
+                                ${result.errors.map(e => `<li>${e}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+

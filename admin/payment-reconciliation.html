@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Reconciliation - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .btn-secondary { background: #333333; color: #FFFFFF; border-color: #333333; }
+        .btn-secondary:hover { background: #444444; }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; }
+        .user-table tr:hover { background: #2A2A2A; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .status-badge.reconciled { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .status-badge.unreconciled { background: rgba(255, 214, 0, 0.2); color: #FFD600; }
+        .status-badge.matched { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .status-badge.unmatched { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+        .filter-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-controls select, .filter-controls input { padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .filter-controls select:focus, .filter-controls input:focus { border-color: #FFD600; outline: none; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>Payment Reconciliation</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="reconcileAll()">Reconcile All</button>
+                    </div>
+                </div>
+
+                <div class="filter-controls">
+                    <input type="date" id="start-date-filter" placeholder="Start Date">
+                    <input type="date" id="end-date-filter" placeholder="End Date">
+                    <select id="status-filter">
+                        <option value="">All Status</option>
+                        <option value="unreconciled">Unreconciled Only</option>
+                        <option value="reconciled">Reconciled Only</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="applyFilters()">Apply Filters</button>
+                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all" onchange="toggleSelectAll()"></th>
+                                <th>Payment ID</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Stripe Payment Intent</th>
+                                <th>Status</th>
+                                <th>Reconciled</th>
+                                <th>Matched</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body">
+                            <tr><td colspan="9" class="loading">Loading payments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        let selectedPayments = new Set();
+        let currentFilters = {};
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+            
+            
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready');
+                loadPayments();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadPayments();
+                } else {
+                    setTimeout(() => loadPayments();, 1000);
+                }
+            }, 2000);
+        });
+        });
+
+        async function loadPayments() {
+            try {
+                const params = new URLSearchParams();
+                if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+                if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+                if (currentFilters.unreconciled_only) params.append('unreconciled_only', 'true');
+
+                const response = await fetch(`${API_BASE}/admin/payments/reconcile?${params}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                renderPayments(data);
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                document.getElementById('payments-table-body').innerHTML = 
+                    '<tr><td colspan="9">Error loading payments</td></tr>';
+            }
+        }
+
+        function renderPayments(payments) {
+            const tbody = document.getElementById('payments-table-body');
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9">No payments found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = payments.map(payment => `
+                <tr>
+                    <td><input type="checkbox" value="${payment.payment_id}" onchange="togglePayment(${payment.payment_id})"></td>
+                    <td>${payment.payment_id}</td>
+                    <td>${payment.user_email}</td>
+                    <td>$${payment.amount.toFixed(2)}</td>
+                    <td>${payment.stripe_payment_intent_id || '-'}</td>
+                    <td>${payment.status}</td>
+                    <td><span class="status-badge ${payment.is_reconciled ? 'reconciled' : 'unreconciled'}">${payment.is_reconciled ? 'Reconciled' : 'Unreconciled'}</span></td>
+                    <td><span class="status-badge ${payment.matched ? 'matched' : 'unmatched'}">${payment.matched ? 'Matched' : 'Unmatched'}</span></td>
+                    <td>
+                        ${!payment.is_reconciled ? `<button class="btn btn-sm btn-primary" onclick="reconcilePayment(${payment.payment_id})">Reconcile</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function togglePayment(paymentId) {
+            if (selectedPayments.has(paymentId)) {
+                selectedPayments.delete(paymentId);
+            } else {
+                selectedPayments.add(paymentId);
+            }
+        }
+
+        function toggleSelectAll() {
+            const checkbox = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                togglePayment(parseInt(cb.value));
+            });
+        }
+
+        async function reconcilePayment(paymentId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/reconcile/${paymentId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'Payment reconciled successfully');
+                    loadPayments();
+                } else {
+                    notificationSystem.showError('Error', 'Failed to reconcile payment');
+                }
+            } catch (error) {
+                console.error('Error reconciling payment:', error);
+                notificationSystem.showError('Error', 'Failed to reconcile payment');
+            }
+        }
+
+        async function reconcileAll() {
+            if (selectedPayments.size === 0) {
+                notificationSystem.showError('Error', 'Please select payments to reconcile');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/reconcile/batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ payment_ids: Array.from(selectedPayments) })
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'Payments reconciled successfully');
+                    selectedPayments.clear();
+                    loadPayments();
+                } else {
+                    notificationSystem.showError('Error', 'Failed to reconcile payments');
+                }
+            } catch (error) {
+                console.error('Error reconciling payments:', error);
+                notificationSystem.showError('Error', 'Failed to reconcile payments');
+            }
+        }
+
+        function applyFilters() {
+            currentFilters = {
+                start_date: document.getElementById('start-date-filter').value,
+                end_date: document.getElementById('end-date-filter').value,
+                unreconciled_only: document.getElementById('status-filter').value === 'unreconciled'
+            };
+            loadPayments();
+        }
+
+        function clearFilters() {
+            document.getElementById('start-date-filter').value = '';
+            document.getElementById('end-date-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            currentFilters = {};
+            loadPayments();
+        }
+    </script>
+</body>
+</html>
+

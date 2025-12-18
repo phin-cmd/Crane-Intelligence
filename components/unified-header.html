@@ -1,188 +1,1658 @@
 <!-- ===== CRANE INTELLIGENCE - UNIFIED HEADER COMPONENT ===== -->
-<!-- Include this header in all pages for consistent authentication UI -->
+<!-- Self-contained header with auth UI and dropdown - NO EXTERNAL DEPENDENCIES -->
 
-<header class="header">
-    <div class="header-container">
-        <!-- Logo -->
-        <div class="logo">
-            <a href="/homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-            </a>
-        </div>
-
-        <!-- Navigation Menu (visible on homepage, hidden on other pages when logged in) -->
-        <nav class="nav-menu" id="navMenu">
-            <a href="/homepage.html#features" class="nav-link">FEATURES</a>
-            <a href="/homepage.html#pricing" class="nav-link">PRICING</a>
-            <a href="/homepage.html#about" class="nav-link">ABOUT</a>
-            <a href="/homepage.html#contact" class="nav-link">CONTACT</a>
-        </nav>
-
-        <!-- Right side: Auth Buttons OR User Profile -->
-        <div class="header-right">
-            <!-- Auth Buttons (shown when user is NOT logged in) -->
-            <div class="auth-buttons" id="authButtons" style="display: none;">
-                <a href="/login.html" class="auth-btn login">Login</a>
-                <a href="/signup.html" class="auth-btn signup">Sign Up</a>
-            </div>
-
-            <!-- User Profile Dropdown (shown when user IS logged in) -->
-            <div class="user-profile" id="userProfile" style="display: none;">
-                <div class="user-avatar" id="userAvatar">
-                    <span id="userInitials">U</span>
-                </div>
-                <div class="user-info">
-                    <div class="user-name" id="userDisplayName">User Name</div>
-                    <div class="user-role" id="userRole">Free User</div>
-                </div>
-                <span class="dropdown-arrow">▼</span>
-                
-                <!-- Dropdown Menu -->
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="/dashboard.html" class="dropdown-item">
-                        <span class="dropdown-icon">📊</span>
-                        Dashboard
-                    </a>
-                    <a href="/valuation-terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
-                    <a href="/account-settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
-                        Account Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item" data-action="logout">
-                        <span class="dropdown-icon">🚪</span>
-                        Logout
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="header-container">
+    <!-- Logo -->
+    <div class="logo">
+        <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
+            <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
+        </a>
     </div>
-</header>
 
-<!-- Market Ticker (optional - include on pages where needed) -->
-<div class="market-ticker" id="marketTicker" style="display: none;">
-    <div class="ticker-container">
-        <div class="ticker-content">
-            <div class="ticker-item">
-                <span class="ticker-symbol">XCMG</span>
-                <span class="ticker-price">467.8</span>
-                <span class="ticker-change down">-0.4%</span>
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="navMenu">
+        <a href="#features" class="nav-link">FEATURES</a>
+        <a href="#pricing" class="nav-link">PRICING</a>
+        <a href="#about" class="nav-link">ABOUT</a>
+        <a href="#contact" class="nav-link">CONTACT</a>
+    </nav>
+
+    <!-- Right side: Auth Buttons OR Notification Bell + User Profile -->
+    <div class="header-right">
+        <!-- Auth Buttons (shown when user is NOT logged in) -->
+        <div class="auth-buttons" id="authButtons">
+            <button class="auth-btn login" onclick="window.openLoginModal ? window.openLoginModal() : (window.location.href='login.html')">Login</button>
+            <button class="auth-btn signup" onclick="window.openSignupModal ? window.openSignupModal() : (window.location.href='signup.html')">Sign Up</button>
+        </div>
+
+        <!-- Notification Bell (shown when user IS logged in) -->
+        <div class="notification-bell-container" id="notificationBellContainer" style="display: none !important;">
+            <button class="notification-bell" id="notificationBell" aria-label="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <!-- Notification Dropdown (hidden by default, shown via portal) -->
+            <div class="notification-dropdown" id="notificationDropdown" style="display: none !important;">
+                <div class="notification-header">
+                    <h3>Notifications</h3>
+                    <button class="mark-all-read" id="markAllReadBtn">Mark all as read</button>
+                </div>
+                <div class="notification-list" id="notificationList">
+                    <div class="notification-empty">No notifications</div>
+                </div>
+                <div class="notification-footer">
+                    <a href="notifications.html" class="view-all-link" id="viewAllNotificationsLink">View all notifications</a>
+                </div>
             </div>
-            <div class="ticker-item">
-                <span class="ticker-symbol">MANITEX</span>
-                <span class="ticker-price">757.8</span>
-                <span class="ticker-change up">+1.3%</span>
+        </div>
+
+        <!-- User Profile Dropdown (shown when user IS logged in) -->
+        <div class="user-profile" id="userProfile" style="display: none !important;">
+            <div class="user-avatar" id="userAvatar">
+                <span id="userInitials">U</span>
             </div>
-            <div class="ticker-item">
-                <span class="ticker-symbol">LIEBHERR</span>
-                <span class="ticker-price">567.3</span>
-                <span class="ticker-change up">+3.1%</span>
+            <div class="user-info">
+                <div class="user-name" id="userDisplayName">User Name</div>
+                <div class="user-role" id="userRole">User</div>
             </div>
-            <div class="ticker-item">
-                <span class="ticker-symbol">TEREX</span>
-                <span class="ticker-price">234.5</span>
-                <span class="ticker-change down">-0.7%</span>
+            <span class="dropdown-arrow">▼</span>
+            
+            <!-- Dropdown Menu - CONSISTENT ACROSS ALL PAGES -->
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard.html" class="dropdown-item" id="dropdownDashboard">📊 Dashboard</a>
+                <a href="/report-generation.html" class="dropdown-item" id="dropdownFMVReports">📄 FMV Reports</a>
+                <a href="/account-settings.html" class="dropdown-item" id="dropdownAccountSettings">⚙️ Account Settings</a>
+                <a href="#" class="dropdown-item" id="logoutBtn">🚪 Logout</a>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-/* Ensure dropdown divider is visible */
-.dropdown-divider {
-    height: 1px;
-    background: #333333;
-    margin: 8px 0;
+/* User Profile Dropdown Styles */
+.user-profile {
+    display: none !important;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative !important;
+    z-index: 999999 !important; /* Match dropdown z-index */
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    overflow: visible !important; /* Allow dropdown to overflow */
 }
 
-/* Market Ticker Styles */
-.market-ticker {
-    background: #0F0F0F;
-    border-bottom: 1px solid #333333;
-    padding: 8px 0;
-    overflow: hidden;
-    position: relative;
+.user-profile:hover {
+    background: rgba(0, 255, 133, 0.05);
 }
 
-.ticker-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 32px;
-}
-
-.ticker-content {
-    display: flex;
-    animation: scroll 30s linear infinite;
-    white-space: nowrap;
-    gap: 32px;
-}
-
-.ticker-item {
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00FF85, #00CC6A);
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-family: 'JetBrains Mono', monospace;
+    justify-content: center;
+    color: #000000;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
-.ticker-symbol {
-    color: #FFFFFF;
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 14px;
     font-weight: 600;
-    font-size: 12px;
-}
-
-.ticker-price {
     color: #FFFFFF;
-    font-weight: 500;
-    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
 
-.ticker-change {
-    font-weight: 600;
+.user-role {
     font-size: 12px;
+    color: #B0B0B0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
 
-.ticker-change.up {
+.dropdown-arrow {
+    color: #B0B0B0;
+    font-size: 10px;
+    transition: transform 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.user-profile:hover .dropdown-arrow {
     color: #00FF85;
 }
 
-.ticker-change.down {
-    color: #FF4444;
+.user-profile.active .dropdown-arrow {
+    transform: rotate(180deg);
+    color: #00FF85;
 }
 
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+.user-dropdown {
+    position: fixed !important; /* Use fixed to escape overflow constraints */
+    top: auto !important;
+    bottom: auto !important;
+    right: 20px !important;
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    border-radius: 8px !important;
+    min-width: 220px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.2s ease !important;
+    z-index: 9999999 !important; /* Maximum z-index to ensure it's always on top */
+    padding: 8px 0 !important;
+    display: block !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
 }
 
-/* Responsive adjustments */
+.user-dropdown.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    display: block !important;
+    pointer-events: auto !important;
+    z-index: 9999999 !important; /* Maximum z-index to ensure it's always on top */
+    position: fixed !important; /* Use fixed to escape overflow constraints */
+}
+
+.dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px 20px !important;
+    color: #B0B0B0 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    transition: all 0.2s !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    width: 100% !important;
+    text-align: left !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 255, 133, 0.1) !important;
+    color: #00FF85 !important;
+}
+
+.dropdown-item:last-child:hover {
+    background: rgba(255, 68, 68, 0.1) !important;
+    color: #FF4444 !important;
+}
+
+/* Notification Bell Styles */
+.notification-bell-container {
+    position: relative;
+    margin-right: 12px;
+    z-index: 99999;
+}
+
+.notification-bell {
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    color: #B0B0B0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-bell:hover {
+    background: rgba(0, 255, 133, 0.1);
+    color: #00FF85;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #FF4444;
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.4;
+    border: 2px solid #1A1A1A;
+}
+
+.notification-dropdown {
+    position: fixed;
+    top: auto;
+    right: 20px;
+    background: #1A1A1A;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    min-width: 360px;
+    max-width: 400px;
+    max-height: 500px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 9999999;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #333333;
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.mark-all-read {
+    background: transparent;
+    border: none;
+    color: #00FF85;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.mark-all-read:hover {
+    background: rgba(0, 255, 133, 0.1);
+}
+
+.notification-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.notification-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #2A2A2A;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification-item:hover {
+    background: rgba(0, 255, 133, 0.05);
+}
+
+.notification-item.unread {
+    background: rgba(0, 255, 133, 0.03);
+    border-left: 3px solid #00FF85;
+}
+
+.notification-item.unread .notification-title {
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 255, 133, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.notification-message {
+    font-size: 12px;
+    color: #B0B0B0;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #6B7280;
+}
+
+.notification-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.notification-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #333333;
+    text-align: center;
+}
+
+.view-all-link {
+    color: #00FF85;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s;
+    cursor: pointer;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+    display: block;
+}
+
+.view-all-link:hover {
+    color: #00CC6A;
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
-    .ticker-container {
-        padding: 0 16px;
-    }
-    
-    .ticker-item {
-        gap: 8px;
-    }
-    
-    .ticker-symbol,
-    .ticker-price,
-    .ticker-change {
-        font-size: 10px;
+    .notification-dropdown {
+        min-width: 320px;
+        max-width: calc(100vw - 40px);
+        right: 10px;
     }
 }
 </style>
 
 <script>
-// Show market ticker on specific pages
-if (document.getElementById('marketTicker')) {
-    const tickerPages = ['dashboard.html', 'market-analysis.html', 'valuation-terminal.html'];
-    const currentPage = window.location.pathname.split('/').pop();
-    if (tickerPages.includes(currentPage)) {
-        document.getElementById('marketTicker').style.display = 'block';
+(function() {
+    'use strict';
+    
+    // Global guard to prevent multiple initializations across script executions
+    if (window.unifiedHeaderInitialized) {
+        console.log('[UNIFIED-HEADER] Already initialized, skipping duplicate execution');
+        return;
     }
-}
+    window.unifiedHeaderInitialized = true;
+    
+    console.log('[UNIFIED-HEADER] Initializing radical self-contained solution...');
+    
+    // ===== RADICAL APPROACH: SELF-CONTAINED AUTH UI MANAGER =====
+    
+    // Storage helper with fallback for tracking prevention
+    // Use global memory storage to persist across script executions
+    if (!window.unifiedHeaderMemoryStorage) {
+        window.unifiedHeaderMemoryStorage = {};
+    }
+    const memoryStorage = window.unifiedHeaderMemoryStorage;
+    
+    // Cache localStorage availability to reduce tracking prevention warnings
+    let localStorageAvailable = null;
+    function checkLocalStorageAvailable() {
+        if (localStorageAvailable !== null) return localStorageAvailable;
+        try {
+            if (typeof localStorage !== 'undefined' && localStorage !== null) {
+                const testKey = '__localStorage_test__';
+                localStorage.setItem(testKey, 'test');
+                localStorage.removeItem(testKey);
+                localStorageAvailable = true;
+                return true;
+            }
+        } catch(e) {
+            localStorageAvailable = false;
+            return false;
+        }
+        localStorageAvailable = false;
+        return false;
+    }
+    
+    const storage = {
+        get: function(key) {
+            if (checkLocalStorageAvailable()) {
+                try {
+                    const value = localStorage.getItem(key);
+                    if (value !== null) return value;
+                } catch(e) {
+                    // Tracking prevention blocked - use memory fallback
+                    // Don't log every time to reduce console spam
+                }
+            }
+            return memoryStorage[key] || null;
+        },
+        set: function(key, value) {
+            if (checkLocalStorageAvailable()) {
+                try {
+                    localStorage.setItem(key, value);
+                    return true;
+                } catch(e) {
+                    // Tracking prevention blocked - use memory fallback
+                    // Don't log every time to reduce console spam
+                }
+            }
+            memoryStorage[key] = value;
+            return true;
+        },
+        remove: function(key) {
+            if (checkLocalStorageAvailable()) {
+                try {
+                    localStorage.removeItem(key);
+                } catch(e) {
+                    // Don't log every time to reduce console spam
+                }
+            }
+            delete memoryStorage[key];
+        }
+    };
+    
+    // Get auth state
+    function getAuthState() {
+        const token = storage.get('access_token');
+        const userData = storage.get('user_data');
+        return {
+            isLoggedIn: !!(token && userData),
+            token: token,
+            userData: userData ? JSON.parse(userData) : null
+        };
+    }
+    
+    // Update auth UI visibility
+    function updateAuthUI() {
+        const authButtons = document.getElementById('authButtons');
+        const userProfile = document.getElementById('userProfile');
+        const notificationBellContainer = document.getElementById('notificationBellContainer');
+        
+        if (!authButtons || !userProfile || !notificationBellContainer) {
+            console.warn('[UNIFIED-HEADER] Elements not found, retrying...');
+            setTimeout(updateAuthUI, 100);
+            return;
+        }
+        
+        const auth = getAuthState();
+        
+        if (auth.isLoggedIn) {
+            // USER LOGGED IN: Hide buttons, show notification bell and profile
+            authButtons.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+            notificationBellContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; z-index: 99998 !important; position: relative !important;';
+            userProfile.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; z-index: 99998 !important; position: relative !important;';
+            
+            // Also ensure dropdown has correct z-index and is properly structured
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                    dropdown.style.zIndex = '999999';
+                dropdown.style.position = 'absolute';
+                
+                // ALWAYS rebuild dropdown with correct items (never trust existing content)
+                // This ensures consistency across all pages
+                dropdown.innerHTML = `
+                    <a href="/dashboard.html" class="dropdown-item" id="dropdownDashboard">📊 Dashboard</a>
+                    <a href="/report-generation.html" class="dropdown-item" id="dropdownFMVReports">📄 FMV Reports</a>
+                    <a href="/account-settings.html" class="dropdown-item" id="dropdownAccountSettings">⚙️ Account Settings</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">🚪 Logout</a>
+                `;
+                // Re-setup dropdown handlers after rebuild
+                setTimeout(setupDropdown, 50);
+            }
+            
+            // Update user info
+            if (auth.userData) {
+                const displayName = document.getElementById('userDisplayName');
+                const initials = document.getElementById('userInitials');
+                const role = document.getElementById('userRole');
+                
+                if (displayName) {
+                    const name = auth.userData.full_name || auth.userData.email || 'User';
+                    displayName.textContent = name;
+                }
+                
+                if (initials) {
+                    const name = auth.userData.full_name || auth.userData.email || 'U';
+                    const init = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    initials.textContent = init;
+                }
+                
+                if (role) {
+                    // Display user_role (not subscription tier)
+                    let roleName = 'User';
+                    if (auth.userData.user_role) {
+                        const userRole = auth.userData.user_role.toLowerCase();
+                        const roleMap = {
+                            'crane_rental_company': 'Crane Rental Company',
+                            'equipment_dealer': 'Equipment Dealer',
+                            'financial_institution': 'Financial Institution',
+                            'others': 'Other'
+                        };
+                        roleName = roleMap[userRole] || userRole.replace('_', ' ').replace(/\w/g, l => l.toUpperCase());
+                    }
+                    role.textContent = roleName;
+                }
+            }
+        } else {
+            // USER NOT LOGGED IN: Show buttons, hide notification bell and profile
+            authButtons.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+            notificationBellContainer.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+            userProfile.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+        }
+    }
+    
+    // ===== RADICAL APPROACH: PORTAL DROPDOWN TO BODY =====
+    // Move dropdown to body when open, remove when closed - escapes ALL constraints
+    
+    let dropdownPortal = null;
+    let isDropdownOpen = false;
+    let clickOutsideHandler = null;
+    
+    function createDropdownPortal() {
+        // Remove existing portal if any
+        if (dropdownPortal) {
+            dropdownPortal.remove();
+        }
+        
+        // Create new portal element
+        dropdownPortal = document.createElement('div');
+        dropdownPortal.id = 'userDropdownPortal';
+        dropdownPortal.style.cssText = 'position: fixed !important; z-index: 99999999 !important; pointer-events: none !important;';
+        document.body.appendChild(dropdownPortal);
+        
+        console.log('[UNIFIED-HEADER] Dropdown portal created');
+        return dropdownPortal;
+    }
+    
+    function setupDropdown() {
+        // Prevent multiple setups
+        if (dropdownSetupComplete) {
+            console.log('[UNIFIED-HEADER] Dropdown already set up, skipping');
+            return true;
+        }
+        
+        const userProfile = document.getElementById('userProfile');
+        const dropdown = document.getElementById('userDropdown');
+        
+        if (!userProfile || !dropdown) {
+            console.warn('[UNIFIED-HEADER] Dropdown elements not found');
+            return false;
+        }
+        
+        console.log('[UNIFIED-HEADER] Setting up radical dropdown solution...');
+        
+        // Remove any existing handlers first (by cloning)
+        const newProfile = userProfile.cloneNode(true);
+        userProfile.parentNode.replaceChild(newProfile, userProfile);
+        const newUserProfile = document.getElementById('userProfile');
+        const originalDropdown = document.getElementById('userDropdown');
+        
+        // Radical toggle function - move dropdown to body portal
+        function toggleDropdown(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            const currentProfile = document.getElementById('userProfile');
+            const currentDropdown = document.getElementById('userDropdown');
+            
+            if (!currentProfile || !currentDropdown) {
+                console.error('[UNIFIED-HEADER] Elements not found in toggleDropdown');
+                return;
+            }
+            
+            console.log('[UNIFIED-HEADER] Toggling dropdown, isOpen:', isDropdownOpen);
+            
+            if (isDropdownOpen) {
+                // CLOSE: Remove portal and reset
+                closeDropdown();
+            } else {
+                // OPEN: Create portal and show dropdown
+                const portal = createDropdownPortal();
+                
+                // Hide original dropdown
+                currentDropdown.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+                
+                // Clone dropdown HTML structure - ALWAYS use consistent items
+                const clonedDropdown = document.createElement('div');
+                clonedDropdown.className = 'user-dropdown';
+                clonedDropdown.id = 'userDropdownPortalClone';
+                
+                // ALWAYS use correct structure (never clone - ensures consistency)
+                clonedDropdown.innerHTML = `
+                    <a href="/dashboard.html" class="dropdown-item" id="dropdownDashboard">📊 Dashboard</a>
+                    <a href="/report-generation.html" class="dropdown-item" id="dropdownFMVReports">📄 FMV Reports</a>
+                    <a href="/account-settings.html" class="dropdown-item" id="dropdownAccountSettings">⚙️ Account Settings</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">🚪 Logout</a>
+                `;
+                
+                // Calculate position from profile
+                const profileRect = currentProfile.getBoundingClientRect();
+                const topPosition = profileRect.bottom + 8;
+                const rightPosition = window.innerWidth - profileRect.right;
+                
+                // Apply maximum visibility styles
+                clonedDropdown.style.cssText = `
+                    position: fixed !important;
+                    top: ${topPosition}px !important;
+                    right: ${rightPosition}px !important;
+                    background: #1A1A1A !important;
+                    border: 1px solid #333333 !important;
+                    border-radius: 8px !important;
+                    min-width: 220px !important;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    transform: translateY(0) !important;
+                    z-index: 99999999 !important;
+                    padding: 8px 0 !important;
+                    display: block !important;
+                    pointer-events: auto !important;
+                    margin: 0 !important;
+                `;
+                
+                // Style all items
+                const items = clonedDropdown.querySelectorAll('.dropdown-item');
+                items.forEach((item) => {
+                    item.style.cssText = 'display: flex !important; align-items: center !important; gap: 12px !important; padding: 12px 20px !important; color: #B0B0B0 !important; text-decoration: none !important; font-size: 14px !important; cursor: pointer !important; opacity: 1 !important; visibility: visible !important; background: transparent !important; width: 100% !important; text-align: left !important;';
+                });
+                
+                // Setup logout handler
+                const logoutBtn = clonedDropdown.querySelector('#logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        storage.remove('access_token');
+                        storage.remove('refresh_token');
+                        storage.remove('user_data');
+                        updateAuthUI();
+                        closeDropdown();
+                        setTimeout(() => {
+                            if (window.location.pathname !== '/homepage.html' && !window.location.pathname.endsWith('homepage.html')) {
+                                window.location.href = '/homepage.html';
+                            } else {
+                                window.location.reload();
+                            }
+                        }, 100);
+                    }, true);
+                }
+                
+                portal.appendChild(clonedDropdown);
+                portal.style.pointerEvents = 'auto';
+                
+                currentProfile.classList.add('active');
+                isDropdownOpen = true;
+                
+                // Setup click outside handler
+                clickOutsideHandler = function(e) {
+                    if (portal && !portal.contains(e.target) && !currentProfile.contains(e.target)) {
+                        closeDropdown();
+                    }
+                };
+                setTimeout(() => {
+                    document.addEventListener('click', clickOutsideHandler, true);
+                }, 10);
+                
+                // Handle window resize and scroll - reposition dropdown
+                const repositionHandler = function() {
+                    if (isDropdownOpen && portal && currentProfile) {
+                        const profileRect = currentProfile.getBoundingClientRect();
+                        const topPosition = profileRect.bottom + 8;
+                        const rightPosition = window.innerWidth - profileRect.right;
+                        const clonedDropdown = portal.querySelector('#userDropdownPortalClone');
+                        if (clonedDropdown) {
+                            clonedDropdown.style.setProperty('top', `${topPosition}px`, 'important');
+                            clonedDropdown.style.setProperty('right', `${rightPosition}px`, 'important');
+                        }
+                    }
+                };
+                
+                // Store reposition handler for cleanup
+                window._dropdownRepositionHandler = repositionHandler;
+                window.addEventListener('resize', repositionHandler);
+                window.addEventListener('scroll', repositionHandler, true);
+                
+                console.log('[UNIFIED-HEADER] ✅ Dropdown opened in portal, items:', items.length, 'at position:', topPosition, rightPosition);
+            }
+        }
+        
+        function closeDropdown() {
+            if (!isDropdownOpen) return;
+            
+            const currentProfile = document.getElementById('userProfile');
+            const currentDropdown = document.getElementById('userDropdown');
+            
+            // Remove portal
+            if (dropdownPortal) {
+                dropdownPortal.remove();
+                dropdownPortal = null;
+            }
+            
+            // Show original dropdown again (hidden)
+            if (currentDropdown) {
+                currentDropdown.style.cssText = '';
+            }
+            
+            if (currentProfile) {
+                currentProfile.classList.remove('active');
+            }
+            
+            // Remove click outside handler
+            if (clickOutsideHandler) {
+                document.removeEventListener('click', clickOutsideHandler, true);
+                clickOutsideHandler = null;
+            }
+            
+            // Remove resize and scroll handlers
+            if (window._dropdownRepositionHandler) {
+                window.removeEventListener('resize', window._dropdownRepositionHandler);
+                window.removeEventListener('scroll', window._dropdownRepositionHandler, true);
+                delete window._dropdownRepositionHandler;
+            }
+            
+            isDropdownOpen = false;
+            console.log('[UNIFIED-HEADER] ✅ Dropdown closed and portal removed');
+        }
+        
+        // Attach click handlers
+        const avatar = document.getElementById('userAvatar');
+        const userInfo = newUserProfile.querySelector('.user-info');
+        const arrow = newUserProfile.querySelector('.dropdown-arrow');
+        
+        [avatar, userInfo, arrow, newUserProfile].forEach((el) => {
+            if (el) {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', toggleDropdown, true);
+            }
+        });
+        
+        // Expose functions globally
+        window.toggleUserDropdown = toggleDropdown;
+        window.closeUserDropdown = closeDropdown;
+        
+        dropdownSetupComplete = true;
+        state.dropdownSetupComplete = true;
+        console.log('[UNIFIED-HEADER] Radical dropdown solution initialized');
+        return true;
+    }
+    
+    // ===== OPTIMIZED APPROACH: EVENT-DRIVEN UPDATES =====
+    
+    // Use global flags to persist across script executions
+    if (!window.unifiedHeaderState) {
+        window.unifiedHeaderState = {
+            setupComplete: false,
+            dropdownSetupComplete: false,
+            notificationBellSetupComplete: false
+        };
+    }
+    const state = window.unifiedHeaderState;
+    let setupComplete = state.setupComplete;
+    let dropdownSetupComplete = state.dropdownSetupComplete;
+    let notificationBellSetupComplete = state.notificationBellSetupComplete;
+    let updateAuthUITimeout = null;
+    
+    // Debounced update function to prevent excessive calls
+    function debouncedUpdateAuthUI() {
+        if (updateAuthUITimeout) {
+            clearTimeout(updateAuthUITimeout);
+        }
+        updateAuthUITimeout = setTimeout(() => {
+            updateAuthUI();
+        }, 100);
+    }
+    
+    // Update immediately on first load (only once)
+    if (!setupComplete) {
+        updateAuthUI();
+        setupDropdown();
+        setupComplete = true;
+        state.setupComplete = true;
+    }
+    
+    // Update on storage changes (cross-tab)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'access_token' || e.key === 'user_data') {
+            debouncedUpdateAuthUI();
+        }
+    });
+    
+    // Override localStorage.setItem to catch same-tab changes (if available)
+    // Only set up once to prevent multiple overrides
+    if (!window.unifiedHeaderStorageOverrideSet) {
+        window.unifiedHeaderStorageOverrideSet = true;
+        try {
+            if (typeof localStorage !== 'undefined' && localStorage.setItem && checkLocalStorageAvailable()) {
+                const originalSetItem = localStorage.setItem;
+                localStorage.setItem = function(key, value) {
+                    try {
+                        originalSetItem.call(this, key, value);
+                    } catch(e) {
+                        // Tracking prevention - store in memory
+                        // Don't log to reduce console spam
+                        memoryStorage[key] = value;
+                    }
+                    if (key === 'access_token' || key === 'user_data') {
+                        debouncedUpdateAuthUI();
+                    }
+                };
+            }
+        } catch(e) {
+            // localStorage not available - that's ok, we use memoryStorage
+        }
+    }
+    
+    // Listen for custom auth state change events
+    window.addEventListener('authStateChanged', debouncedUpdateAuthUI);
+    
+    // Retry setup only once if elements not found initially (with guard)
+    let retryCount = 0;
+    const maxRetries = 2; // Reduced from 3 to 2
+    const retryDelays = [100, 500];
+    
+    function retrySetup() {
+        if (retryCount >= maxRetries || setupComplete) {
+            return;
+        }
+        
+        const delay = retryDelays[retryCount];
+        setTimeout(function() {
+            const authButtons = document.getElementById('authButtons');
+            const userProfile = document.getElementById('userProfile');
+            
+            // Only retry if elements still not found and setup not complete
+            if (!authButtons || !userProfile) {
+                retryCount++;
+                if (retryCount < maxRetries && !setupComplete) {
+                    retrySetup();
+                } else {
+                    console.warn('[UNIFIED-HEADER] Max retries reached, elements may not be available');
+                }
+            } else {
+                // Elements found, setup complete
+                if (!setupComplete) {
+                    updateAuthUI();
+                    const success = setupDropdown();
+                    if (success) {
+                        console.log('[UNIFIED-HEADER] Dropdown setup successful at', delay, 'ms');
+                        setupComplete = true;
+                    }
+                }
+            }
+        }, delay);
+    }
+    
+    // Start retry if initial setup failed (only once)
+    if (!setupComplete && !window.unifiedHeaderRetryStarted) {
+        window.unifiedHeaderRetryStarted = true;
+        retrySetup();
+    }
+    
+    // Also setup dropdown when profile becomes visible (only if not already set up)
+    const profileObserver = new MutationObserver(function(mutations) {
+        if (dropdownSetupComplete) return;
+        
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const profile = document.getElementById('userProfile');
+                if (profile && profile.style.display !== 'none' && !profile.style.display.includes('none')) {
+                    console.log('[UNIFIED-HEADER] Profile became visible, setting up dropdown');
+                    setTimeout(setupDropdown, 50);
+                }
+            }
+        });
+    });
+    
+    const userProfileEl = document.getElementById('userProfile');
+    if (userProfileEl) {
+        profileObserver.observe(userProfileEl, { attributes: true, attributeFilter: ['style'] });
+    }
+    
+    // Expose globally for external calls
+    window.updateAuthUI = updateAuthUI;
+    
+    // ===== NOTIFICATION BELL FUNCTIONALITY =====
+    
+    let isNotificationDropdownOpen = false;
+    let notificationPortal = null;
+    let notificationClickOutsideHandler = null;
+    
+    let notificationBellClickHandler = null;
+    let notificationLoadTimeout = null;
+    let lastNotificationLoad = 0;
+    const NOTIFICATION_LOAD_THROTTLE = 5000; // Only load notifications once every 5 seconds
+    
+    function setupNotificationBell() {
+        // Prevent multiple setups
+        if (notificationBellSetupComplete) {
+            console.log('[UNIFIED-HEADER] Notification bell already set up, skipping');
+            return true;
+        }
+        
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+        
+        if (!notificationBell || !notificationDropdown) {
+            console.warn('[UNIFIED-HEADER] Notification elements not found', {
+                bell: !!notificationBell,
+                dropdown: !!notificationDropdown,
+                bellContainer: !!document.getElementById('notificationBellContainer')
+            });
+            return false;
+        }
+        
+        console.log('[UNIFIED-HEADER] Setting up notification bell');
+        
+        // Create new click handler
+        notificationBellClickHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[UNIFIED-HEADER] Notification bell clicked - handler fired');
+            toggleNotificationDropdown();
+        };
+        
+        // Attach click handler
+        notificationBell.addEventListener('click', notificationBellClickHandler);
+        
+        // Mark all as read
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                markAllNotificationsAsRead();
+            });
+        }
+        
+        // Load notifications (throttled)
+        throttledLoadNotifications();
+        
+        // Poll for new notifications every 30 seconds (only if setup was successful)
+        if (window.notificationPollInterval) {
+            clearInterval(window.notificationPollInterval);
+        }
+        window.notificationPollInterval = setInterval(throttledLoadNotifications, 30000);
+        
+        notificationBellSetupComplete = true;
+        state.notificationBellSetupComplete = true;
+        console.log('[UNIFIED-HEADER] Notification bell setup complete');
+        return true;
+    }
+    
+    // Throttled notification loading
+    function throttledLoadNotifications() {
+        const now = Date.now();
+        if (now - lastNotificationLoad < NOTIFICATION_LOAD_THROTTLE) {
+            console.log('[UNIFIED-HEADER] Throttling notification load (too soon)');
+            return;
+        }
+        
+        if (notificationLoadTimeout) {
+            clearTimeout(notificationLoadTimeout);
+        }
+        
+        notificationLoadTimeout = setTimeout(() => {
+            lastNotificationLoad = Date.now();
+            loadNotifications();
+        }, 100);
+    }
+    
+    function toggleNotificationDropdown() {
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        
+        console.log('[UNIFIED-HEADER] toggleNotificationDropdown called', {
+            bell: !!notificationBell,
+            dropdown: !!notificationDropdown,
+            isOpen: isNotificationDropdownOpen
+        });
+        
+        if (!notificationBell || !notificationDropdown) {
+            console.error('[UNIFIED-HEADER] Missing elements for notification dropdown');
+            return;
+        }
+        
+        if (isNotificationDropdownOpen) {
+            console.log('[UNIFIED-HEADER] Closing notification dropdown');
+            closeNotificationDropdown();
+        } else {
+            console.log('[UNIFIED-HEADER] Opening notification dropdown');
+            // Close user dropdown if open
+            if (window.closeUserDropdown) {
+                window.closeUserDropdown();
+            }
+            
+            // Create portal for dropdown
+            if (notificationPortal) {
+                notificationPortal.remove();
+            }
+            
+            notificationPortal = document.createElement('div');
+            notificationPortal.id = 'notificationDropdownPortal';
+            notificationPortal.style.cssText = 'position: fixed !important; z-index: 99999999 !important; pointer-events: none !important;';
+            document.body.appendChild(notificationPortal);
+            
+            // Clone dropdown
+            const clonedDropdown = notificationDropdown.cloneNode(true);
+            clonedDropdown.id = 'notificationDropdownClone';
+            
+            // Calculate position
+            const bellRect = notificationBell.getBoundingClientRect();
+            const topPosition = bellRect.bottom + 8;
+            const rightPosition = window.innerWidth - bellRect.right;
+            
+            clonedDropdown.style.cssText = `
+                position: fixed !important;
+                top: ${topPosition}px !important;
+                right: ${rightPosition}px !important;
+                background: #1A1A1A !important;
+                border: 1px solid #333333 !important;
+                border-radius: 8px !important;
+                min-width: 360px !important;
+                max-width: 400px !important;
+                max-height: 500px !important;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(0) !important;
+                z-index: 99999999 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                pointer-events: auto !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            `;
+            
+            console.log('[UNIFIED-HEADER] Cloned dropdown positioned at:', {
+                top: topPosition,
+                right: rightPosition,
+                bellRect: bellRect
+            });
+            
+            // Append cloned dropdown to portal
+            notificationPortal.appendChild(clonedDropdown);
+            notificationPortal.style.pointerEvents = 'auto';
+            
+            // Force a reflow to ensure the element is in the DOM
+            clonedDropdown.offsetHeight;
+            
+            // Load notifications into the cloned dropdown
+            loadNotificationsIntoDropdown(clonedDropdown);
+            
+            isNotificationDropdownOpen = true;
+            console.log('[UNIFIED-HEADER] Notification dropdown opened and appended to DOM');
+            
+            // Verify dropdown is visible
+            setTimeout(() => {
+                const rect = clonedDropdown.getBoundingClientRect();
+                console.log('[UNIFIED-HEADER] Dropdown visibility check:', {
+                    visible: rect.width > 0 && rect.height > 0,
+                    rect: rect,
+                    computedStyle: window.getComputedStyle(clonedDropdown).display
+                });
+            }, 100);
+            
+            // Setup click outside handler (with delay to allow link clicks to process first)
+            notificationClickOutsideHandler = function(e) {
+                // Don't close if clicking on the view all link or any link/button in the dropdown
+                const target = e.target;
+                const isViewAllLink = target.closest('.view-all-link') || 
+                                     target.closest('#viewAllNotificationsLink') ||
+                                     target.classList.contains('view-all-link') ||
+                                     target.id === 'viewAllNotificationsLink';
+                
+                if (isViewAllLink) {
+                    console.log('[UNIFIED-HEADER] Click on view all link detected, not closing dropdown');
+                    return;
+                }
+                
+                if (target.closest('.mark-all-read') ||
+                    target.closest('.notification-item') ||
+                    target.closest('button') ||
+                    target.closest('.notification-footer')) {
+                    return;
+                }
+                
+                if (notificationPortal && !notificationPortal.contains(target) && !notificationBell.contains(target)) {
+                    closeNotificationDropdown();
+                }
+            };
+            // Use a longer delay to ensure link handlers are set up first
+            setTimeout(() => {
+                document.addEventListener('click', notificationClickOutsideHandler, true);
+            }, 150);
+            
+            // Re-setup mark all read button in cloned dropdown
+            const clonedMarkAllRead = clonedDropdown.querySelector('#markAllReadBtn');
+            if (clonedMarkAllRead) {
+                clonedMarkAllRead.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    markAllNotificationsAsRead();
+                });
+            }
+            
+            // Setup "View all notifications" link in cloned dropdown
+            const clonedViewAllLink = clonedDropdown.querySelector('.view-all-link') || 
+                                     clonedDropdown.querySelector('#viewAllNotificationsLink');
+            console.log('[UNIFIED-HEADER] Setting up view all link:', {
+                found: !!clonedViewAllLink,
+                element: clonedViewAllLink,
+                href: clonedViewAllLink ? clonedViewAllLink.getAttribute('href') : null,
+                parent: clonedViewAllLink ? clonedViewAllLink.parentElement : null
+            });
+            
+            if (clonedViewAllLink) {
+                // Ensure the link and its parent are clickable
+                clonedViewAllLink.style.pointerEvents = 'auto';
+                clonedViewAllLink.style.cursor = 'pointer';
+                clonedViewAllLink.style.zIndex = '10';
+                clonedViewAllLink.style.position = 'relative';
+                clonedViewAllLink.style.display = 'block';
+                clonedViewAllLink.style.width = '100%';
+                clonedViewAllLink.style.textDecoration = 'none';
+                
+                // Ensure parent footer is also clickable
+                const footer = clonedViewAllLink.closest('.notification-footer');
+                if (footer) {
+                    footer.style.pointerEvents = 'auto';
+                    footer.style.zIndex = '10';
+                }
+                
+                // Store original href
+                let originalHref = clonedViewAllLink.getAttribute('href') || 'notifications.html';
+                // Ensure it's an absolute path
+                if (!originalHref.startsWith('/') && !originalHref.startsWith('http')) {
+                    originalHref = '/' + originalHref;
+                }
+                
+                console.log('[UNIFIED-HEADER] Original href:', originalHref);
+                
+                // Add click handler that works alongside the href
+                const viewAllClickHandler = function(e) {
+                    console.log('[UNIFIED-HEADER] View all notifications clicked - handler fired');
+                    
+                    // Remove the click outside handler to prevent interference
+                    if (notificationClickOutsideHandler) {
+                        document.removeEventListener('click', notificationClickOutsideHandler, true);
+                    }
+                    
+                    // Close dropdown
+                    closeNotificationDropdown();
+                    
+                    // Navigate
+                    console.log('[UNIFIED-HEADER] Navigating to:', originalHref);
+                    window.location.href = originalHref;
+                    
+                    // Prevent default only if href navigation fails
+                    e.preventDefault();
+                    e.stopPropagation();
+                };
+                
+                // Add handler in capture phase (runs first)
+                clonedViewAllLink.addEventListener('click', viewAllClickHandler, true);
+                
+                // Also ensure the href is set correctly
+                clonedViewAllLink.setAttribute('href', originalHref);
+                
+                console.log('[UNIFIED-HEADER] View all link setup complete, href:', clonedViewAllLink.getAttribute('href'));
+            } else {
+                console.error('[UNIFIED-HEADER] View all link not found in cloned dropdown');
+                // Try to find it in the original dropdown
+                const originalLink = document.querySelector('.view-all-link');
+                console.log('[UNIFIED-HEADER] Original link in DOM:', !!originalLink);
+            }
+            
+            // Ensure all links and buttons in the cloned dropdown are clickable
+            clonedDropdown.querySelectorAll('a, button').forEach(element => {
+                element.style.pointerEvents = 'auto';
+                element.style.cursor = 'pointer';
+            });
+        }
+    }
+    
+    function closeNotificationDropdown() {
+        if (!isNotificationDropdownOpen) return;
+        
+        if (notificationPortal) {
+            notificationPortal.remove();
+            notificationPortal = null;
+        }
+        
+        if (notificationClickOutsideHandler) {
+            document.removeEventListener('click', notificationClickOutsideHandler, true);
+            notificationClickOutsideHandler = null;
+        }
+        
+        isNotificationDropdownOpen = false;
+    }
+    
+    function loadNotifications() {
+        const auth = getAuthState();
+        if (!auth.isLoggedIn || !auth.token) {
+            console.log('[UNIFIED-HEADER] Cannot load notifications - not logged in');
+            return;
+        }
+        
+        console.log('[UNIFIED-HEADER] Loading notifications...');
+        
+        // Detect API URL
+        const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : window.location.origin.replace(/:\d+$/, ':8004');
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        fetch(`${apiBaseUrl}/api/v1/notifications`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            console.log('[UNIFIED-HEADER] Notifications response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('[UNIFIED-HEADER] Notifications data:', data);
+            let notifications = [];
+            if (data.success && data.data && Array.isArray(data.data)) {
+                notifications = data.data;
+            } else if (data.success && Array.isArray(data.notifications)) {
+                notifications = data.notifications;
+            } else if (data.success && data.data && !Array.isArray(data.data)) {
+                console.warn('[UNIFIED-HEADER] data.data is not an array:', data.data);
+            } else {
+                console.warn('[UNIFIED-HEADER] Unexpected notification response format:', data);
+            }
+            console.log('[UNIFIED-HEADER] Processed notifications:', notifications.length);
+            updateNotificationUI(notifications);
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                console.error('[UNIFIED-HEADER] Notification request timed out after 10 seconds');
+            } else {
+                console.error('[UNIFIED-HEADER] Error loading notifications:', error);
+            }
+        });
+    }
+    
+    function loadNotificationsIntoDropdown(dropdownElement) {
+        const auth = getAuthState();
+        if (!auth.isLoggedIn || !auth.token) {
+            console.warn('[UNIFIED-HEADER] Cannot load notifications - not logged in or no token');
+            return;
+        }
+        
+        console.log('[UNIFIED-HEADER] Loading notifications into dropdown...');
+        
+        // Detect API URL
+        const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : window.location.origin.replace(/:\d+$/, ':8004');
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        fetch(`${apiBaseUrl}/api/v1/notifications`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            console.log('[UNIFIED-HEADER] Notifications API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('[UNIFIED-HEADER] Notifications data for dropdown:', data);
+            let notifications = [];
+            if (data.success && data.data && Array.isArray(data.data)) {
+                notifications = data.data;
+            } else if (data.success && Array.isArray(data.notifications)) {
+                notifications = data.notifications;
+            }
+            console.log('[UNIFIED-HEADER] Processed notifications for dropdown:', notifications.length);
+            updateNotificationUIInElement(dropdownElement, notifications);
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            console.error('[UNIFIED-HEADER] Error loading notifications into dropdown:', error);
+            // Show error in dropdown
+            const notificationList = dropdownElement.querySelector('#notificationList');
+            if (notificationList) {
+                let errorMessage = 'Error loading notifications';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out';
+                } else if (error.message && error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Connection error';
+                }
+                notificationList.innerHTML = `<div class="notification-empty" style="color: #FF4444;">${errorMessage}</div>`;
+            }
+        });
+    }
+    
+    function updateNotificationUI(notifications) {
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        
+        console.log('[UNIFIED-HEADER] updateNotificationUI called with', notifications.length, 'notifications');
+        
+        if (!notificationList) {
+            console.warn('[UNIFIED-HEADER] notificationList element not found');
+            return;
+        }
+        
+        // Count unread notifications
+        const unreadCount = notifications.filter(n => !n.read).length;
+        console.log('[UNIFIED-HEADER] Unread count:', unreadCount);
+        
+        // Update badge
+        if (notificationBadge) {
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                notificationBadge.style.display = 'block';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+        
+        // Update notification list
+        if (notifications.length === 0) {
+            notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+            return;
+        }
+        
+        notificationList.innerHTML = notifications.map(notification => {
+            const timeAgo = formatTimeAgo(notification.created_at);
+            const icon = getNotificationIcon(notification.type);
+            const unreadClass = notification.read ? '' : 'unread';
+            
+            return `
+                <div class="notification-item ${unreadClass}" data-id="${notification.id}">
+                    <div class="notification-icon">${icon}</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${escapeHtml(notification.title)}</div>
+                        <div class="notification-message">${escapeHtml(notification.message)}</div>
+                        <div class="notification-time">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers
+        notificationList.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const notificationId = this.dataset.id;
+                markNotificationAsRead(notificationId);
+            });
+        });
+    }
+    
+    function updateNotificationUIInElement(element, notifications) {
+        const notificationList = element.querySelector('#notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        
+        console.log('[UNIFIED-HEADER] updateNotificationUIInElement called', {
+            hasElement: !!element,
+            hasList: !!notificationList,
+            notificationCount: notifications.length
+        });
+        
+        if (!notificationList) {
+            console.error('[UNIFIED-HEADER] notificationList not found in dropdown element', {
+                element: element,
+                queryResult: element ? element.querySelector('#notificationList') : null
+            });
+            return;
+        }
+        
+        // Count unread notifications
+        const unreadCount = notifications.filter(n => !n.read).length;
+        console.log('[UNIFIED-HEADER] Unread count:', unreadCount);
+        
+        // Update badge
+        if (notificationBadge) {
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                notificationBadge.style.display = 'block';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+        
+        // Update notification list
+        if (notifications.length === 0) {
+            notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+            console.log('[UNIFIED-HEADER] No notifications to display');
+            return;
+        }
+        
+        console.log('[UNIFIED-HEADER] Rendering', notifications.length, 'notifications');
+        notificationList.innerHTML = notifications.map(notification => {
+            const timeAgo = formatTimeAgo(notification.created_at);
+            const icon = getNotificationIcon(notification.type);
+            const unreadClass = notification.read ? '' : 'unread';
+            
+            return `
+                <div class="notification-item ${unreadClass}" data-id="${notification.id}">
+                    <div class="notification-icon">${icon}</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${escapeHtml(notification.title)}</div>
+                        <div class="notification-message">${escapeHtml(notification.message)}</div>
+                        <div class="notification-time">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers
+        notificationList.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const notificationId = this.dataset.id;
+                console.log('[UNIFIED-HEADER] Notification item clicked:', notificationId);
+                markNotificationAsRead(notificationId);
+            });
+        });
+        
+        console.log('[UNIFIED-HEADER] Notification list updated successfully');
+    }
+    
+    function markNotificationAsRead(notificationId) {
+        const auth = getAuthState();
+        if (!auth.isLoggedIn || !auth.token) return;
+        
+        const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : window.location.origin.replace(/:\d+$/, ':8004');
+        
+        fetch(`${apiBaseUrl}/api/v1/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(() => {
+            loadNotifications();
+        })
+        .catch(error => {
+            console.error('[UNIFIED-HEADER] Error marking notification as read:', error);
+        });
+    }
+    
+    function markAllNotificationsAsRead() {
+        const auth = getAuthState();
+        if (!auth.isLoggedIn || !auth.token) return;
+        
+        const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : window.location.origin.replace(/:\d+$/, ':8004');
+        
+        fetch(`${apiBaseUrl}/api/v1/notifications/read-all`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(() => {
+            loadNotifications();
+        })
+        .catch(error => {
+            console.error('[UNIFIED-HEADER] Error marking all notifications as read:', error);
+        });
+    }
+    
+    function formatTimeAgo(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return date.toLocaleDateString();
+    }
+    
+    function getNotificationIcon(type) {
+        const icons = {
+            'email_verification': '✉️',
+            'payment_success': '💳',
+            'report_ready': '📄',
+            'system': '🔔',
+            'default': '🔔'
+        };
+        return icons[type] || icons['default'];
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Initialize notification bell when auth UI is updated (only once)
+    const originalUpdateAuthUI = updateAuthUI;
+    updateAuthUI = function() {
+        originalUpdateAuthUI();
+        const auth = getAuthState();
+        if (auth.isLoggedIn && !notificationBellSetupComplete && !window.unifiedHeaderNotificationBellSetupScheduled) {
+            window.unifiedHeaderNotificationBellSetupScheduled = true;
+            console.log('[UNIFIED-HEADER] User logged in, setting up notification bell');
+            setTimeout(function() {
+                const success = setupNotificationBell();
+                if (success) {
+                    // Load notifications (throttled)
+                    throttledLoadNotifications();
+                } else {
+                    // Retry if setup failed (only once)
+                    if (!notificationBellSetupComplete) {
+                        console.warn('[UNIFIED-HEADER] Notification bell setup failed, retrying...');
+                        setTimeout(function() {
+                            setupNotificationBell();
+                            throttledLoadNotifications();
+                        }, 500);
+                    }
+                }
+            }, 100);
+        } else {
+            if (!auth.isLoggedIn) {
+                console.log('[UNIFIED-HEADER] User not logged in, skipping notification bell setup');
+            }
+        }
+    };
+    
+    // Also try to setup notification bell on page load (only once)
+    if (!window.notificationBellPageLoadAttempted && !notificationBellSetupComplete) {
+        window.notificationBellPageLoadAttempted = true;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    const auth = getAuthState();
+                    if (auth.isLoggedIn && !notificationBellSetupComplete) {
+                        setupNotificationBell();
+                        throttledLoadNotifications();
+                    }
+                }, 500);
+            });
+        } else {
+            setTimeout(function() {
+                const auth = getAuthState();
+                if (auth.isLoggedIn && !notificationBellSetupComplete) {
+                    setupNotificationBell();
+                    throttledLoadNotifications();
+                }
+            }, 500);
+        }
+    }
+    
+    console.log('[UNIFIED-HEADER] Radical solution initialized');
+})();
 </script>
-

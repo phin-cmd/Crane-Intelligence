@@ -20,6 +20,7 @@
             align-items: center;
             justify-content: center;
             color: #FFFFFF;
+            padding: 20px;
         }
 
         .login-container {
@@ -28,7 +29,7 @@
             border-radius: 16px;
             padding: 48px;
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
         }
@@ -40,52 +41,51 @@
 
         .logo {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            position: relative;
+            gap: 20px;
+            margin-bottom: 32px;
         }
 
-        .logo-img {
-            width: 40px;
-            height: 40px;
-        }
 
         .logo-text {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 42px;
+            font-weight: 900;
             color: #FFFFFF;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(255, 214, 0, 0.5);
             position: relative;
-            padding: 0 12px;
+            padding: 0 20px;
         }
         
         .logo-text::before {
             content: '';
             position: absolute;
-            left: -8px;
+            left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 40px;
+            width: 6px;
+            height: 50px;
             background: linear-gradient(180deg, #FFD600 0%, #FFC107 100%);
-            border-radius: 2px;
+            border-radius: 3px;
         }
         
         .logo-text::after {
             content: '';
             position: absolute;
-            right: -8px;
+            right: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 40px;
+            width: 6px;
+            height: 50px;
             background: linear-gradient(180deg, #00FF85 0%, #00CC6A 100%);
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         .login-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: #FFFFFF;
             margin-bottom: 8px;
@@ -94,19 +94,19 @@
         .login-subtitle {
             font-size: 16px;
             color: #B0B0B0;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .admin-badge {
             display: inline-block;
             background: linear-gradient(135deg, #FFD600, #FFC107);
             color: #0F0F0F;
-            padding: 4px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .login-form {
@@ -123,7 +123,7 @@
 
         .form-label {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             color: #E0E0E0;
         }
 
@@ -199,10 +199,12 @@
             color: #FFD600;
             text-decoration: none;
             transition: color 0.2s ease;
+            font-weight: 500;
         }
 
         .forgot-password:hover {
             color: #FFC107;
+            text-decoration: underline;
         }
 
         .login-button {
@@ -212,10 +214,14 @@
             padding: 16px 24px;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .login-button:hover {
@@ -266,7 +272,6 @@
             border-top: 2px solid #FFD600;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 8px;
         }
 
         @keyframes spin {
@@ -297,6 +302,7 @@
 
         .back-to-website:hover {
             color: #FFC107;
+            text-decoration: underline;
         }
 
         .security-notice {
@@ -324,12 +330,13 @@
             }
 
             .login-title {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .logo-text {
-                font-size: 20px;
+                font-size: 32px;
             }
+
         }
     </style>
 </head>
@@ -337,7 +344,6 @@
     <div class="login-container">
         <div class="login-header">
             <div class="logo">
-                <img src="/images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
                 <span class="logo-text">CRANE INTELLIGENCE</span>
             </div>
             <h1 class="login-title">Admin Login</h1>
@@ -356,7 +362,7 @@
                     id="email" 
                     name="email" 
                     class="form-input" 
-                    placeholder="admin@craneintelligence.com"
+                    placeholder="Enter your admin email"
                     required
                     autocomplete="email"
                 >
@@ -388,7 +394,7 @@
                     <input type="checkbox" id="rememberMe" name="rememberMe">
                     <label for="rememberMe">Remember me</label>
                 </div>
-                <a href="reset-password.html" class="forgot-password">Forgot Password?</a>
+                <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot Password?</a>
             </div>
 
             <button type="submit" class="login-button" id="loginButton">
@@ -406,9 +412,43 @@
 
         <div class="login-footer">
             <p>Need help accessing the admin portal?</p>
-            <a href="mailto:admin@craneintelligence.com" class="back-to-website">Contact System Administrator</a>
+            <a href="mailto:pgenerelly@craneintelligence.tech" class="back-to-website">Contact System Administrator</a>
             <br><br>
             <a href="homepage.html" class="back-to-website">← Back to Main Website</a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: rgba(26, 26, 26, 0.98); border: 1px solid #404040; border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; margin: 20px;">
+            <h2 style="color: #FFFFFF; margin-bottom: 16px; font-size: 24px;">Reset Password</h2>
+            <p style="color: #B0B0B0; margin-bottom: 24px; font-size: 14px;">Enter your email address and we'll send you a password reset link.</p>
+            <div id="forgotPasswordError" style="display: none; background: rgba(255, 68, 68, 0.1); border: 1px solid #FF4444; color: #FF4444; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+            <div id="forgotPasswordSuccess" style="display: none; background: rgba(255, 214, 0, 0.1); border: 1px solid #FFD600; color: #FFD600; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+            <form id="forgotPasswordForm">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: #E0E0E0; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="forgotPasswordEmail" 
+                        required
+                        style="width: 100%; padding: 14px 16px; background: #121212; border: 1px solid #404040; border-radius: 8px; color: #FFFFFF; font-size: 16px;"
+                        placeholder="Enter your admin email"
+                    >
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button 
+                        type="button" 
+                        onclick="closeForgotPasswordModal()"
+                        style="flex: 1; padding: 14px; background: #404040; border: none; border-radius: 8px; color: #FFFFFF; font-weight: 600; cursor: pointer;"
+                    >Cancel</button>
+                    <button 
+                        type="submit"
+                        id="forgotPasswordSubmit"
+                        style="flex: 1; padding: 14px; background: linear-gradient(135deg, #FFD600, #FFC107); border: none; border-radius: 8px; color: #0F0F0F; font-weight: 700; cursor: pointer;"
+                    >Send Reset Link</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -437,6 +477,86 @@
             }
         }
 
+        // Forgot Password Modal
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+            document.getElementById('forgotPasswordEmail').focus();
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+            document.getElementById('forgotPasswordForm').reset();
+            document.getElementById('forgotPasswordError').style.display = 'none';
+            document.getElementById('forgotPasswordSuccess').style.display = 'none';
+        }
+
+        // Forgot Password Form Submission
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgotPasswordEmail').value;
+            const submitButton = document.getElementById('forgotPasswordSubmit');
+            const errorDiv = document.getElementById('forgotPasswordError');
+            const successDiv = document.getElementById('forgotPasswordSuccess');
+            
+            // Hide previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            
+            try {
+                const apiBaseUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:8003' 
+                    : window.location.origin;
+                
+                const response = await fetch(`${apiBaseUrl}/api/v1/admin/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successDiv.textContent = data.message || 'Password reset link has been sent to your email. Please check your inbox.';
+                    successDiv.style.display = 'block';
+                    document.getElementById('forgotPasswordForm').reset();
+                    
+                    // Close modal after 3 seconds
+                    setTimeout(() => {
+                        closeForgotPasswordModal();
+                    }, 3000);
+                } else {
+                    errorDiv.textContent = data.detail || data.message || 'Failed to send reset link. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                errorDiv.textContent = 'Network error. Please check your connection and try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Reset Link';
+            }
+        });
+
+        // Forgot Password Link Click
+        document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            openForgotPasswordModal();
+        });
+
+        // Close modal on outside click
+        document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeForgotPasswordModal();
+            }
+        });
+
         // Form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -451,7 +571,7 @@
             const buttonText = document.getElementById('buttonText');
             
             loginButton.disabled = true;
-            loadingSpinner.style.display = 'inline-block';
+            loadingSpinner.style.display = 'block';
             buttonText.textContent = 'Signing In...';
             
             // Hide any previous messages
@@ -534,24 +654,6 @@
             if (adminToken) {
                 // User is already logged in, redirect to dashboard
                 window.location.href = '/admin/dashboard.html';
-            }
-        });
-
-        // Demo credentials section
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add demo credentials display
-            const loginForm = document.querySelector('.login-form');
-            if (loginForm) {
-                const demoSection = document.createElement('div');
-                demoSection.style.cssText = 'margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 214, 0, 0.2); border-radius: 8px;';
-                demoSection.innerHTML = `
-                    <div style="font-size: 12px; font-weight: 600; color: #FFD600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Demo Credentials</div>
-                    <div style="font-size: 13px; color: #B0B0B0; line-height: 1.6;">
-                        <div><strong style="color: #FFFFFF;">Email:</strong> admin@craneintelligence.com</div>
-                        <div><strong style="color: #FFFFFF;">Password:</strong> admin123</div>
-                    </div>
-                `;
-                loginForm.parentNode.insertBefore(demoSection, loginForm.nextSibling);
             }
         });
     </script>

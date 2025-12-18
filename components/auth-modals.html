@@ -1,0 +1,512 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED AUTH MODALS COMPONENT ===== -->
+<!-- Login, Signup, and Forgot Password Modals - Centralized Component -->
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Welcome Back</h2>
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p class="modal-subtitle">Sign in to your account</p>
+            
+            <div class="error-message" id="loginErrorMessage"></div>
+            <div class="success-message" id="loginSuccessMessage"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="form-submit" id="loginSubmitBtn">
+                    Sign In
+                </button>
+
+                <div class="loading" id="loginLoading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </form>
+
+            <div class="form-links">
+                <a href="#" onclick="switchToSignup()" class="form-link">Create Account</a>
+                <a href="#" onclick="switchToForgotPassword()" class="form-link">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Signup Modal -->
+<div id="signupModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create Account</h2>
+            <span class="close" onclick="closeSignupModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p class="modal-subtitle">Join the professional crane valuation platform</p>
+            
+            <div class="error-message" id="signupErrorMessage"></div>
+            <div class="success-message" id="signupSuccessMessage"></div>
+
+            <form id="signupForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupFirstName" class="form-label">First Name</label>
+                        <input 
+                            type="text" 
+                            id="signupFirstName" 
+                            name="firstName" 
+                            class="form-input" 
+                            placeholder="Enter first name"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="signupLastName" class="form-label">Last Name</label>
+                        <input 
+                            type="text" 
+                            id="signupLastName" 
+                            name="lastName" 
+                            class="form-input" 
+                            placeholder="Enter last name"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="signupEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupPassword" class="form-label">Password</label>
+                        <input 
+                            type="password" 
+                            id="signupPassword" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Create a password"
+                            required
+                            minlength="8"
+                        >
+                        <div class="password-requirements">
+                            Password must be at least 8 characters long
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="signupConfirmPassword" 
+                            name="confirmPassword" 
+                            class="form-input" 
+                            placeholder="Confirm your password"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupUserRole" class="form-label">Role</label>
+                    <select id="signupUserRole" name="userRole" class="form-select" required>
+                        <option value="">Select your role</option>
+                        <option value="crane_rental_company">Crane Rental Company</option>
+                        <option value="equipment_dealer">Equipment Dealer</option>
+                        <option value="financial_institution">Financial Institution</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="form-submit" id="signupSubmitBtn">
+                    Create Account
+                </button>
+
+                <div class="loading" id="signupLoading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </form>
+
+            <div class="form-links">
+                <a href="#" onclick="switchToLogin()" class="form-link">Already have an account? Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Reset Password</h2>
+            <span class="close" onclick="closeForgotPasswordModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p class="modal-subtitle">Enter your email address and we'll send you a link to reset your password</p>
+            
+            <div class="error-message" id="forgotPasswordErrorMessage"></div>
+            <div class="success-message" id="forgotPasswordSuccessMessage"></div>
+
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="forgotPasswordEmail" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="forgotPasswordEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="Enter your email address"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="form-submit" id="forgotPasswordSubmitBtn">
+                    Send Reset Link
+                </button>
+
+                <div class="loading" id="forgotPasswordLoading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </form>
+
+            <div class="form-links">
+                <a href="#" onclick="switchToLogin()" class="form-link">Back to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modal Styles - Centralized */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: #1A1A1A;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #333333;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid #333333;
+}
+
+.modal-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.close {
+    color: #B0B0B0;
+    font-size: 28px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #FFFFFF;
+}
+
+.modal-body {
+    padding: 32px;
+}
+
+.modal-subtitle {
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #00FF85;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    color: #FFFFFF;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #00FF85;
+}
+
+.form-select {
+    cursor: pointer;
+}
+
+.password-requirements {
+    font-size: 11px;
+    color: #808080;
+    margin-top: 4px;
+}
+
+.form-submit {
+    width: 100%;
+    background: linear-gradient(90deg, #00FF85, #00CC6A);
+    color: #000000;
+    border: none;
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.form-submit:hover:not(:disabled) {
+    background: linear-gradient(90deg, #00CC6A, #00AA55);
+    transform: translateY(-1px);
+}
+
+.form-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.form-link {
+    color: #00FF85;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.form-link:hover {
+    color: #00CC6A;
+}
+
+.error-message {
+    display: none;
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid #FF4444;
+    color: #FF4444;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.success-message {
+    display: none;
+    background: rgba(0, 255, 133, 0.1);
+    border: 1px solid #00FF85;
+    color: #00FF85;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.loading {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    color: #B0B0B0;
+    font-size: 13px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #333333;
+    border-top-color: #00FF85;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Modal functions - Centralized
+function openLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    clearLoginForm();
+}
+
+function openSignupModal() {
+    document.getElementById('signupModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSignupModal() {
+    document.getElementById('signupModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    clearSignupForm();
+}
+
+function openForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    clearForgotPasswordForm();
+}
+
+function switchToSignup() {
+    closeLoginModal();
+    openSignupModal();
+}
+
+function switchToLogin() {
+    closeSignupModal();
+    closeForgotPasswordModal();
+    openLoginModal();
+}
+
+function switchToForgotPassword() {
+    closeLoginModal();
+    openForgotPasswordModal();
+}
+
+function clearLoginForm() {
+    const form = document.getElementById('loginForm');
+    if (form) form.reset();
+    const errorMsg = document.getElementById('loginErrorMessage');
+    const successMsg = document.getElementById('loginSuccessMessage');
+    if (errorMsg) errorMsg.style.display = 'none';
+    if (successMsg) successMsg.style.display = 'none';
+}
+
+function clearSignupForm() {
+    const form = document.getElementById('signupForm');
+    if (form) form.reset();
+    const errorMsg = document.getElementById('signupErrorMessage');
+    const successMsg = document.getElementById('signupSuccessMessage');
+    if (errorMsg) errorMsg.style.display = 'none';
+    if (successMsg) successMsg.style.display = 'none';
+}
+
+function clearForgotPasswordForm() {
+    const form = document.getElementById('forgotPasswordForm');
+    if (form) form.reset();
+    const errorMsg = document.getElementById('forgotPasswordErrorMessage');
+    const successMsg = document.getElementById('forgotPasswordSuccessMessage');
+    if (errorMsg) errorMsg.style.display = 'none';
+    if (successMsg) successMsg.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+    const modals = ['loginModal', 'signupModal', 'forgotPasswordModal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            if (modalId === 'loginModal') closeLoginModal();
+            else if (modalId === 'signupModal') closeSignupModal();
+            else if (modalId === 'forgotPasswordModal') closeForgotPasswordModal();
+        }
+    });
+});
+</script>
+

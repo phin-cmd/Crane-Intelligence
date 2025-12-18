@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDPR Compliance - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .btn-danger { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+        .btn-danger:hover { background: #CC0000; }
+        .card { background: #1A1A1A; border: 1px solid #333333; padding: 24px; border-radius: 8px; margin-bottom: 20px; }
+        .card h3 { color: #FFFFFF; margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #B0B0B0; }
+        .form-group input { width: 100%; padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .form-group input:focus { border-color: #FFD600; outline: none; }
+        .warning-box { background: rgba(255, 214, 0, 0.1); border: 1px solid #FFD600; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+        .warning-box p { color: #FFD600; margin: 0; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>GDPR Compliance</h2>
+                </div>
+
+                <div class="warning-box">
+                    <p><strong>Warning:</strong> Data export and deletion operations are logged and cannot be undone. Please ensure you have proper authorization before proceeding.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Export User Data</h3>
+                    <p style="color: #B0B0B0; margin-bottom: 16px;">Export all data associated with a user in JSON format for GDPR compliance.</p>
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="number" id="export-user-id" placeholder="Enter user ID">
+                    </div>
+                    <button class="btn btn-primary" onclick="exportUserData()">Export User Data</button>
+                </div>
+
+                <div class="card">
+                    <h3>Delete User Data</h3>
+                    <p style="color: #B0B0B0; margin-bottom: 16px;">Permanently delete or anonymize all user data. This action cannot be undone.</p>
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="number" id="delete-user-id" placeholder="Enter user ID">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="confirm-deletion" style="width: auto; margin-right: 8px;">
+                            I confirm that I have authorization to delete this user's data
+                        </label>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteUserData()">Delete User Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+        });
+
+        async function exportUserData() {
+            const userId = parseInt(document.getElementById('export-user-id').value);
+            if (!userId) {
+                notificationSystem.showError('Error', 'Please enter a user ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/gdpr/export/${userId}/download`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `user_${userId}_data_export.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    notificationSystem.showSuccess('Success', 'User data exported successfully');
+                } else {
+                    const error = await response.json();
+                    notificationSystem.showError('Error', error.detail || 'Failed to export user data');
+                }
+            } catch (error) {
+                console.error('Error exporting user data:', error);
+                notificationSystem.showError('Error', 'Failed to export user data');
+            }
+        }
+
+        async function deleteUserData() {
+            const userId = parseInt(document.getElementById('delete-user-id').value);
+            if (!userId) {
+                notificationSystem.showError('Error', 'Please enter a user ID');
+                return;
+            }
+
+            if (!document.getElementById('confirm-deletion').checked) {
+                notificationSystem.showError('Error', 'Please confirm that you have authorization');
+                return;
+            }
+
+            if (!confirm(`Are you absolutely sure you want to delete all data for user ${userId}? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/gdpr/delete/${userId}?confirm=true`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    notificationSystem.showSuccess('Success', result.message || 'User data deleted successfully');
+                } else {
+                    const error = await response.json();
+                    notificationSystem.showError('Error', error.detail || 'Failed to delete user data');
+                }
+            } catch (error) {
+                console.error('Error deleting user data:', error);
+                notificationSystem.showError('Error', 'Failed to delete user data');
+            }
+        }
+    </script>
+</body>
+</html>
+

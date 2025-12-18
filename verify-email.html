@@ -108,7 +108,7 @@
             <div class="status-icon">✅</div>
             <h1 class="success">Email Verified Successfully!</h1>
             <p>Your email has been verified. You can now log in to your Crane Intelligence account and access all features.</p>
-            <a href="/homepage.html" class="button">Go to Login</a>
+            <a href="/login.html" class="button">Go to Login</a>
         </div>
 
         <!-- Error State -->
@@ -135,7 +135,12 @@
             }
 
             try {
-                const response = await fetch('/api/v1/auth/verify-email', {
+                // Detect API URL based on environment
+                const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:8004'
+                    : window.location.origin.replace(/:\d+$/, ':8004');
+                
+                const response = await fetch(`${apiBaseUrl}/api/v1/auth/verify-email`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -150,7 +155,7 @@
                     showSuccess();
                     // Redirect to login after 3 seconds
                     setTimeout(() => {
-                        window.location.href = '/homepage.html';
+                        window.location.href = '/login.html';
                     }, 3000);
                 } else {
                     showError(data.error || data.message || 'Verification failed. Please try again.');

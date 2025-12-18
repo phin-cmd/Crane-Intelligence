@@ -115,3 +115,10 @@ deploy.log
 # Local development
 .local/
 local/
+
+# Backup directories
+.backups/
+
+# Audit reports
+audit_report.json
+OPTIMIZATION_CHANGELOG.md

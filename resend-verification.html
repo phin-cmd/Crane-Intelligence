@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resend Verification Email - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/uniform-design.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 100%);
+            min-height: 100vh;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo-bar {
+            width: 4px;
+            height: 32px;
+            background: #FFD600;
+            border-radius: 2px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #94A3B8;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 15, 15, 0.8);
+            border: 2px solid #404040;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00FF85;
+            box-shadow: 0 0 0 3px rgba(0, 255, 133, 0.1);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #00FF85, #00CC6A);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .form-submit:hover {
+            background: linear-gradient(135deg, #00CC6A, #00B359);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 133, 0.3);
+        }
+
+        .form-submit:disabled {
+            background: #6B7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #FF4444;
+            color: #FF4444;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 133, 0.1);
+            border: 1px solid #00FF85;
+            color: #00FF85;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .form-links {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .form-link {
+            color: #00FF85;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .form-link:hover {
+            color: #00CC6A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-bar"></div>
+                <div class="logo-text">CRANE INTELLIGENCE</div>
+            </div>
+            <h1>Resend Verification Email</h1>
+            <p class="subtitle">Enter your email to receive a new verification link</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="resendForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="form-submit" id="submitBtn">
+                Resend Verification Email
+            </button>
+        </form>
+
+        <div class="form-links">
+            <a href="login.html" class="form-link">Back to Login</a>
+        </div>
+    </div>
+
+    <script>
+        const resendForm = document.getElementById('resendForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Get email from URL parameter if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const emailParam = urlParams.get('email');
+        if (emailParam) {
+            document.getElementById('email').value = emailParam;
+        }
+
+        resendForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            
+            const formData = new FormData(resendForm);
+            const email = formData.get('email');
+
+            try {
+                // Detect API URL based on environment
+                const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:8004'
+                    : window.location.origin.replace(/:\d+$/, ':8004');
+                
+                const response = await fetch(`${apiBaseUrl}/api/v1/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    successMessage.textContent = result.message || 'Verification email sent! Please check your inbox.';
+                    successMessage.style.display = 'block';
+                } else {
+                    errorMessage.textContent = result.error || 'Failed to send verification email. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Resend verification error:', error);
+                errorMessage.textContent = 'Network error. Please check your connection and try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Resend Verification Email';
+            }
+        });
+    </script>
+</body>
+</html>
+

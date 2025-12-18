@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/uniform-design.css">
     <link rel="stylesheet" href="css/performance.css">
+    <link rel="stylesheet" href="css/unified-header.css">
+    <script src="js/component-loader.js" defer></script>
     <style>
         * {
             margin: 0;
@@ -88,10 +90,7 @@
             box-sizing: border-box !important;
         }
 
-        .logo {
-            justify-self: start;
-            grid-column: 1;
-        }
+        /* Logo styles removed - using unified header component */
 
         .nav-menu {
             display: flex;
@@ -610,26 +609,8 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                </a>
-            </div>
-            <nav class="nav-menu">
-                <a href="homepage.html#features" class="nav-link">FEATURES</a>
-                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
-                <a href="homepage.html#about" class="nav-link">ABOUT</a>
-                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
-            </nav>
-            <div class="auth-buttons" id="authButtons">
-                <button class="auth-btn login" onclick="window.location.href='login.html'">Login</button>
-                <button class="auth-btn signup" onclick="window.location.href='signup.html'">Sign Up</button>
-            </div>
-        </div>
-    </header>
+    <!-- Unified Header Component -->
+    <div data-component="unified-header"></div>
 
     <div class="main-content">
         <div class="login-container">
@@ -758,7 +739,20 @@
             };
 
             try {
-                const response = await fetch('http://localhost:8003/api/v1/auth/login', {
+                // API Base URL function - uses nginx proxy to avoid mixed content issues
+                function getApiBaseUrl() {
+                    const hostname = window.location.hostname;
+                    
+                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                        return 'http://localhost:8004';
+                    }
+                    
+                    // Use relative path - nginx will proxy /api/ to backend
+                    // This avoids mixed content errors (HTTP from HTTPS page)
+                    return '';
+                }
+                
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -770,19 +764,60 @@
 
                 if (result.success) {
                     // Store tokens in localStorage
-                    localStorage.setItem('access_token', result.data.tokens.access_token);
-                    localStorage.setItem('refresh_token', result.data.tokens.refresh_token);
-                    localStorage.setItem('user_data', JSON.stringify(result.data.user));
+                    const accessToken = result.data.tokens.access_token;
+                    const refreshToken = result.data.tokens.refresh_token;
+                    const userData = result.data.user;
+                    
+                    if (accessToken) {
+                        localStorage.setItem('access_token', accessToken);
+                        console.log('[LOGIN] Access token stored');
+                    }
+                    
+                    if (refreshToken) {
+                        localStorage.setItem('refresh_token', refreshToken);
+                        console.log('[LOGIN] Refresh token stored');
+                    }
+                    
+                    if (userData) {
+                        localStorage.setItem('user_data', JSON.stringify(userData));
+                        console.log('[LOGIN] User data stored:', userData);
+                    } else {
+                        console.warn('[LOGIN] No user data in response, creating minimal user data');
+                        // Create minimal user data if not provided
+                        const minimalUser = {
+                            email: loginData.email,
+                            full_name: loginData.email.split('@')[0],
+                            user_role: 'others'
+                        };
+                        localStorage.setItem('user_data', JSON.stringify(minimalUser));
+                    }
+                    
+                    // Verify storage
+                    const storedToken = localStorage.getItem('access_token');
+                    const storedUserData = localStorage.getItem('user_data');
+                    console.log('[LOGIN] Verification - Token stored:', !!storedToken, 'UserData stored:', !!storedUserData);
                     
                     successMessage.textContent = result.message;
                     successMessage.style.display = 'block';
                     
                     // Redirect to dashboard after successful login
                     setTimeout(() => {
+                        console.log('[LOGIN] Redirecting to dashboard...');
                         window.location.href = 'dashboard.html';
                     }, 1500);
                 } else {
-                    errorMessage.textContent = result.error || 'Login failed. Please try again.';
+                    // Enhanced error message for email verification
+                    let errorText = result.error || 'Login failed. Please try again.';
+                    
+                    // Check if it's an email verification error
+                    if ((result.message && result.message.toLowerCase().includes('verification')) || 
+                        (result.error && result.error.toLowerCase().includes('verification'))) {
+                        errorText = result.error || result.message;
+                        // Add link to resend verification email
+                        errorMessage.innerHTML = `<strong>${errorText}</strong><br><br><a href="resend-verification.html?email=${encodeURIComponent(loginData.email)}" style="color: #00FF85; text-decoration: underline;">Click here to resend verification email</a>`;
+                    } else {
+                        errorMessage.textContent = errorText;
+                    }
                     errorMessage.style.display = 'block';
                 }
             } catch (error) {

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Management - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; }
+        .user-table tr:hover { background: #2A2A2A; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .status-badge.completed { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .status-badge.pending { background: rgba(255, 214, 0, 0.2); color: #FFD600; }
+        .status-badge.failed { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); }
+        .modal-content { background: #1A1A1A; margin: 5% auto; padding: 24px; border: 1px solid #333333; border-radius: 8px; width: 90%; max-width: 500px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: #FFFFFF; margin: 0; }
+        .close { color: #B0B0B0; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #FFFFFF; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #B0B0B0; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #FFD600; outline: none; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>Refund Management</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="openRefundModal()">Create Refund</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Refund ID</th>
+                                <th>Payment ID</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Stripe Refund ID</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="refunds-table-body">
+                            <tr><td colspan="9" class="loading">Loading refunds...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div id="refundModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Refund</h3>
+                <span class="close" onclick="closeRefundModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Payment ID</label>
+                    <input type="number" id="refund-payment-id" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (leave empty for full refund)</label>
+                    <input type="number" id="refund-amount" step="0.01" placeholder="Full refund if empty">
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select id="refund-reason">
+                        <option value="requested_by_customer">Requested by Customer</option>
+                        <option value="duplicate">Duplicate</option>
+                        <option value="fraudulent">Fraudulent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Admin Notes</label>
+                    <textarea id="refund-notes" rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createRefund()">Create Refund</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+            
+            
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready');
+                loadRefunds();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadRefunds();
+                } else {
+                    setTimeout(() => loadRefunds();, 1000);
+                }
+            }, 2000);
+        });
+        });
+
+        async function loadRefunds() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/refunds`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                renderRefunds(data);
+            } catch (error) {
+                console.error('Error loading refunds:', error);
+                document.getElementById('refunds-table-body').innerHTML = 
+                    '<tr><td colspan="9">Error loading refunds</td></tr>';
+            }
+        }
+
+        function renderRefunds(refunds) {
+            const tbody = document.getElementById('refunds-table-body');
+            if (refunds.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9">No refunds found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = refunds.map(refund => `
+                <tr>
+                    <td>${refund.id}</td>
+                    <td>${refund.payment_id}</td>
+                    <td>-</td>
+                    <td>$${refund.amount.toFixed(2)}</td>
+                    <td>${refund.reason || '-'}</td>
+                    <td><span class="status-badge ${refund.status}">${refund.status}</span></td>
+                    <td>${refund.stripe_refund_id || '-'}</td>
+                    <td>${new Date(refund.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewRefund(${refund.id})">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openRefundModal() {
+            document.getElementById('refundModal').style.display = 'block';
+        }
+
+        function closeRefundModal() {
+            document.getElementById('refundModal').style.display = 'none';
+        }
+
+        async function createRefund() {
+            const paymentId = parseInt(document.getElementById('refund-payment-id').value);
+            const amount = document.getElementById('refund-amount').value ? parseFloat(document.getElementById('refund-amount').value) : null;
+            const reason = document.getElementById('refund-reason').value;
+            const notes = document.getElementById('refund-notes').value;
+
+            if (!paymentId) {
+                notificationSystem.showError('Error', 'Payment ID is required');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/refund`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        payment_id: paymentId,
+                        amount: amount,
+                        reason: reason,
+                        admin_notes: notes
+                    })
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'Refund created successfully');
+                    closeRefundModal();
+                    loadRefunds();
+                } else {
+                    const error = await response.json();
+                    notificationSystem.showError('Error', error.detail || 'Failed to create refund');
+                }
+            } catch (error) {
+                console.error('Error creating refund:', error);
+                notificationSystem.showError('Error', 'Failed to create refund');
+            }
+        }
+
+        async function viewRefund(refundId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/refunds/${refundId}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const refund = await response.json();
+                    alert(`Refund Details:\nID: ${refund.id}\nAmount: $${refund.amount}\nStatus: ${refund.status}\nReason: ${refund.reason || 'N/A'}`);
+                }
+            } catch (error) {
+                console.error('Error loading refund:', error);
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('refundModal');
+            if (event.target == modal) {
+                closeRefundModal();
+            }
+        }
+    </script>
+</body>
+</html>
+

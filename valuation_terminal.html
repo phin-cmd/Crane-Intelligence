@@ -1178,10 +1178,6 @@
                             <span class="dropdown-icon">📊</span>
                             Dashboard
                         </a>
-                        <a href="/valuation-terminal.html" class="dropdown-item">
-                            <span class="dropdown-icon">⚡</span>
-                            Valuation Terminal
-                        </a>
                         <a href="/account-settings.html" class="dropdown-item">
                             <span class="dropdown-icon">⚙️</span>
                             Account Settings
@@ -7416,11 +7412,11 @@ function renderPlans(plans, billing) {
         // Use yearly_price from API response
         const yearlyPrice = plan.yearly_price || Math.round(monthlyPrice * 12 * 0.9);
         const displayPrice = billing === 'yearly' ? yearlyPrice : monthlyPrice;
-        const priceDisplay = plan.id === 'enterprise' ? 'Custom' : `$${(displayPrice / 100).toLocaleString()}`;
+        const priceDisplay = `$${(displayPrice / 100).toLocaleString()}`;
         const billingPeriod = billing === 'yearly' ? '/year' : '/month';
         // Calculate savings: (monthly × 12) - yearly_price
         const monthlyAnnual = monthlyPrice * 12;
-        const savingsAmount = billing === 'yearly' && plan.id !== 'enterprise' ? monthlyAnnual - yearlyPrice : 0;
+        const savingsAmount = billing === 'yearly' ? monthlyAnnual - yearlyPrice : 0;
         
         return `
             <div class="ci-plan-card ${plan.popular ? 'ci-popular' : ''}">
@@ -7459,10 +7455,6 @@ function closePaywall() {
 }
 
 function selectPlan(id, name, price, amount, billing) {
-    if (id === 'enterprise') {
-        window.location.href = '/contact-sales';
-        return;
-    }
     
     const yearlyAmount = planPrices[id]?.yearly || Math.round(amount * 12 * 0.9);
     const currentBillingCycle = billing || 'monthly';

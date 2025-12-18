@@ -1,0 +1,404 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED USER PROFILE DROPDOWN COMPONENT ===== -->
+<!-- Centralized user profile dropdown with all menu options -->
+
+<!-- User Profile Dropdown (shown when user IS logged in) -->
+<div class="user-profile" id="userProfile" style="display: none;">
+    <div class="user-avatar" id="userAvatar" onclick="if(typeof toggleUserDropdown==='function')toggleUserDropdown();else if(typeof userProfileManager!=='undefined')userProfileManager.toggleDropdown();">
+        <span id="userInitials">U</span>
+    </div>
+    <div class="user-info" onclick="if(typeof toggleUserDropdown==='function')toggleUserDropdown();else if(typeof userProfileManager!=='undefined')userProfileManager.toggleDropdown();">
+        <div class="user-name" id="userDisplayName">User Name</div>
+        <div class="user-role" id="userRole">User</div>
+    </div>
+    <span class="dropdown-arrow" onclick="if(typeof toggleUserDropdown==='function')toggleUserDropdown();else if(typeof userProfileManager!=='undefined')userProfileManager.toggleDropdown();">▼</span>
+    
+    <!-- Dropdown Menu -->
+    <div class="user-dropdown" id="userDropdown">
+        <!-- Main Navigation -->
+        <a href="/dashboard.html" class="dropdown-item">
+            <span class="dropdown-icon">📊</span>
+            <span class="dropdown-text">Dashboard</span>
+        </a>
+        <a href="/report-generation.html" class="dropdown-item">
+            <span class="dropdown-icon">📄</span>
+            <span class="dropdown-text">FMV Reports</span>
+        </a>
+        <a href="/account-settings.html" class="dropdown-item">
+            <span class="dropdown-icon">⚙️</span>
+            <span class="dropdown-text">Account Settings</span>
+        </a>
+        <a href="#" class="dropdown-item" data-action="logout" onclick="if(typeof handleLogout==='function')handleLogout(event);else if(typeof userProfileManager!=='undefined'){event.preventDefault();event.stopPropagation();userProfileManager.handleLogout();}else if(typeof logout==='function'){event.preventDefault();event.stopPropagation();logout();}">
+            <span class="dropdown-icon">🚪</span>
+            <span class="dropdown-text">Logout</span>
+        </a>
+    </div>
+</div>
+
+<style>
+/* User Profile Dropdown Styles - Centralized */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.user-profile:hover {
+    background: rgba(0, 255, 133, 0.05);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00FF85, #00CC6A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #B0B0B0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.dropdown-arrow {
+    color: #B0B0B0;
+    font-size: 10px;
+    transition: transform 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.user-profile:hover .dropdown-arrow {
+    color: #00FF85;
+}
+
+.user-profile.active .dropdown-arrow {
+    transform: rotate(180deg);
+    color: #00FF85;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #1A1A1A;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    min-width: 220px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1001;
+    padding: 8px 0;
+}
+
+.user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: #B0B0B0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 255, 133, 0.1);
+    color: #00FF85;
+}
+
+.dropdown-item[data-action="logout"]:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #FF4444;
+}
+
+.dropdown-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.dropdown-text {
+    flex: 1;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #333333;
+    margin: 8px 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .user-info {
+        display: none !important;
+    }
+    
+    .dropdown-arrow {
+        display: none !important;
+    }
+    
+    .user-profile {
+        padding: 8px;
+    }
+    
+    .user-dropdown {
+        right: -10px;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-dropdown {
+        right: -20px;
+        min-width: 180px;
+    }
+    
+    .dropdown-item {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+</style>
+
+<script>
+// User Profile Dropdown Functions - Centralized
+
+/**
+ * Toggle user dropdown menu (uses UserProfileManager if available)
+ */
+function toggleUserDropdown() {
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.toggleDropdown();
+    } else {
+        // Fallback implementation
+        const dropdown = document.getElementById('userDropdown');
+        const userProfile = document.getElementById('userProfile');
+        
+        if (dropdown && userProfile) {
+            const isOpen = dropdown.classList.contains('show');
+            closeAllDropdowns();
+            if (!isOpen) {
+                dropdown.classList.add('show');
+                userProfile.classList.add('active');
+            }
+        }
+    }
+}
+
+/**
+ * Close user dropdown menu
+ */
+function closeUserDropdown() {
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.closeDropdown();
+    } else {
+        const dropdown = document.getElementById('userDropdown');
+        const userProfile = document.getElementById('userProfile');
+        if (dropdown) dropdown.classList.remove('show');
+        if (userProfile) userProfile.classList.remove('active');
+    }
+}
+
+/**
+ * Close all dropdowns
+ */
+function closeAllDropdowns() {
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.closeAllDropdowns();
+    } else {
+        const allDropdowns = document.querySelectorAll('.user-dropdown.show');
+        const allProfiles = document.querySelectorAll('.user-profile.active');
+        allDropdowns.forEach(dd => dd.classList.remove('show'));
+        allProfiles.forEach(profile => profile.classList.remove('active'));
+    }
+}
+
+/**
+ * Handle logout action
+ */
+function handleLogout(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.handleLogout();
+    } else if (typeof logout === 'function') {
+        closeUserDropdown();
+        logout();
+    } else {
+        // Fallback logout
+        closeUserDropdown();
+        if (typeof safeStorage !== 'undefined') {
+            safeStorage.removeItem('access_token');
+            safeStorage.removeItem('refresh_token');
+            safeStorage.removeItem('user_data');
+        }
+        if (typeof updateUserInterface === 'function') {
+            updateUserInterface(null);
+        }
+        if (typeof notificationSystem !== 'undefined') {
+            notificationSystem.showSuccess('Logged Out', 'You have been logged out successfully');
+        } else {
+            alert('You have been logged out successfully.');
+        }
+        setTimeout(() => {
+            window.location.href = '/homepage.html';
+        }, 1000);
+    }
+}
+
+/**
+ * Update user profile display (uses UserProfileManager if available)
+ */
+function updateUserProfileDisplay(user) {
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.updateProfileDisplay(user);
+    } else {
+        // Fallback implementation
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userInitials = document.getElementById('userInitials');
+        const userRole = document.getElementById('userRole');
+        const userProfile = document.getElementById('userProfile');
+        const authButtons = document.getElementById('authButtons');
+        
+        if (!user) {
+            if (userProfile) userProfile.style.display = 'none';
+            if (authButtons) authButtons.style.display = 'flex';
+            return;
+        }
+        
+        if (userProfile) userProfile.style.display = 'flex';
+        if (authButtons) authButtons.style.display = 'none';
+        
+        if (userDisplayName) {
+            const fullName = user.full_name || user.email || user.username || 'User';
+            userDisplayName.textContent = fullName;
+        }
+        
+        if (userInitials) {
+            const fullName = user.full_name || user.email || user.username || 'U';
+            const initials = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+            userInitials.textContent = initials;
+        }
+        
+        if (userRole) {
+            // Display user role only
+            if (typeof userProfileManager !== 'undefined') {
+                userProfileManager.updateRoleDisplay(user, userRole);
+            } else {
+                // Fallback: display user role
+                let roleName = 'User';
+                if (user.user_role) {
+                    const role = user.user_role.toLowerCase();
+                    const roleMap = {
+                        'crane_rental_company': 'Crane Rental Company',
+                        'equipment_dealer': 'Equipment Dealer',
+                        'financial_institution': 'Financial Institution',
+                        'others': 'Other'
+                    };
+                    roleName = roleMap[role] || role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+                userRole.textContent = roleName;
+            }
+        }
+    }
+}
+
+/**
+ * Initialize user profile dropdown
+ */
+function initializeUserProfileDropdown() {
+    // Use UserProfileManager if available
+    if (typeof userProfileManager !== 'undefined') {
+        userProfileManager.initialize();
+        return;
+    }
+    
+    // Fallback initialization
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('userDropdown');
+        const userProfile = document.getElementById('userProfile');
+        
+        if (dropdown && userProfile && !userProfile.contains(event.target)) {
+            closeUserDropdown();
+        }
+    });
+    
+    // Handle dropdown item clicks
+    const dropdownItems = document.querySelectorAll('.user-dropdown .dropdown-item');
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (item.getAttribute('data-action') !== 'logout') {
+                setTimeout(() => closeUserDropdown(), 100);
+            }
+        });
+    });
+    
+    // Update profile display if user is logged in
+    if (typeof safeStorage !== 'undefined') {
+        const userData = safeStorage.getItem('user_data');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                updateUserProfileDisplay(user);
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+    }
+}
+
+// Initialize when component loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeUserProfileDropdown);
+} else {
+    initializeUserProfileDropdown();
+}
+</script>
+

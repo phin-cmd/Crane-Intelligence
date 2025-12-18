@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/uniform-design.css">
     <link rel="stylesheet" href="css/performance.css">
+    <link rel="stylesheet" href="css/unified-header.css">
+    <script src="js/component-loader.js" defer></script>
     <style>
         * {
             margin: 0;
@@ -88,10 +90,7 @@
             box-sizing: border-box !important;
         }
 
-        .logo {
-            justify-self: start;
-            grid-column: 1;
-        }
+        /* Logo styles removed - using unified header component */
 
         .nav-menu {
             display: flex;
@@ -641,26 +640,8 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                </a>
-            </div>
-            <nav class="nav-menu">
-                <a href="homepage.html#features" class="nav-link">FEATURES</a>
-                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
-                <a href="homepage.html#about" class="nav-link">ABOUT</a>
-                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
-            </nav>
-            <div class="auth-buttons" id="authButtons">
-                <button class="auth-btn login" onclick="window.location.href='login.html'">Login</button>
-                <button class="auth-btn signup" onclick="window.location.href='signup.html'">Sign Up</button>
-            </div>
-        </div>
-    </header>
+    <!-- Unified Header Component -->
+    <div data-component="unified-header"></div>
 
     <div class="main-content">
         <div class="signup-container">
@@ -714,77 +695,44 @@
                 >
             </div>
 
-            <div class="form-group">
-                <label for="username" class="form-label">Username</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-input" 
-                    placeholder="Choose a username"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="companyName" class="form-label">Company Name</label>
-                <input 
-                    type="text" 
-                    id="companyName" 
-                    name="companyName" 
-                    class="form-input" 
-                    placeholder="Enter your company name"
-                    required
-                >
-            </div>
-
             <div class="form-row">
                 <div class="form-group">
-                    <label for="userRole" class="form-label">Role</label>
-                    <select id="userRole" name="userRole" class="form-select" required>
-                        <option value="">Select your role</option>
-                        <option value="crane_rental_company">Crane Rental Company</option>
-                        <option value="equipment_dealer">Equipment Dealer</option>
-                        <option value="financial_institution">Financial Institution</option>
-                        <option value="admin">Admin</option>
-                    </select>
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Create a password"
+                        required
+                        minlength="8"
+                    >
+                    <div class="password-requirements">
+                        Password must be at least 8 characters long
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="subscriptionTier" class="form-label">Plan</label>
-                    <select id="subscriptionTier" name="subscriptionTier" class="form-select" required>
-                        <option value="basic">Basic (Free)</option>
-                        <option value="professional">Professional</option>
-                        <option value="enterprise">Enterprise</option>
-                    </select>
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        class="form-input" 
+                        placeholder="Confirm your password"
+                        required
+                    >
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
-                    placeholder="Create a password"
-                    required
-                    minlength="8"
-                >
-                <div class="password-requirements">
-                    Password must be at least 8 characters long
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input 
-                    type="password" 
-                    id="confirmPassword" 
-                    name="confirmPassword" 
-                    class="form-input" 
-                    placeholder="Confirm your password"
-                    required
-                >
+                <label for="userRole" class="form-label">Role</label>
+                <select id="userRole" name="userRole" class="form-select" required>
+                    <option value="">Select your role</option>
+                    <option value="crane_rental_company">Crane Rental Company</option>
+                    <option value="equipment_dealer">Equipment Dealer</option>
+                    <option value="financial_institution">Financial Institution</option>
+                    <option value="others">Others</option>
+                </select>
             </div>
 
             <button type="submit" class="form-submit" id="submitBtn">
@@ -892,15 +840,26 @@
             const signupData = {
                 full_name: `${formData.get('firstName')} ${formData.get('lastName')}`,
                 email: formData.get('email'),
-                username: formData.get('username'),
                 password: formData.get('password'),
-                company_name: formData.get('companyName'),
                 user_role: formData.get('userRole'),
-                subscription_tier: formData.get('subscriptionTier')
+                subscription_tier: 'free' // Default to free tier like the modal
             };
 
             try {
-                const response = await fetch('http://localhost:8004/api/v1/auth/register', {
+                // API Base URL function - uses nginx proxy to avoid mixed content issues
+                function getApiBaseUrl() {
+                    const hostname = window.location.hostname;
+                    
+                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                        return 'http://localhost:8004';
+                    }
+                    
+                    // Use relative path - nginx will proxy /api/ to backend
+                    // This avoids mixed content errors (HTTP from HTTPS page)
+                    return '';
+                }
+                
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -911,13 +870,16 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    successMessage.textContent = result.message;
+                    // Enhanced success message with email verification instructions
+                    const message = result.message || 'Account created successfully! Please check your email for verification instructions.';
+                    successMessage.innerHTML = `<strong>${message}</strong><br><br>We've sent a verification email to <strong>${signupData.email}</strong>. Please check your inbox and click the verification link to activate your account. You won't be able to log in until you verify your email.`;
                     successMessage.style.display = 'block';
                     
-                    // Redirect to login page after successful registration
+                    // Don't redirect immediately - let user read the message
+                    // Redirect to login page after a longer delay
                     setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
+                        window.location.href = 'login.html?message=Please verify your email to continue';
+                    }, 5000);
                 } else {
                     errorMessage.textContent = result.error || 'Registration failed. Please try again.';
                     errorMessage.style.display = 'block';

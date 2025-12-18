@@ -1,0 +1,569 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED PAYMENT MODULE COMPONENT ===== -->
+<!-- Stripe payment integration - Centralized Component -->
+
+<div class="payment-module" id="paymentModule">
+    <div class="payment-header">
+        <h3 class="payment-title">Complete Payment</h3>
+        <p class="payment-subtitle">Secure payment processing via Stripe</p>
+    </div>
+    
+    <div class="payment-form" id="paymentForm">
+        <!-- Payment Method Selection -->
+        <div class="payment-method-section">
+            <h4 class="section-label">Payment Method</h4>
+            <div class="payment-methods">
+                <label class="payment-method-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span>Credit/Debit Card</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Stripe Card Element Container -->
+        <div class="stripe-container">
+            <div id="card-element" class="stripe-card-element">
+                <!-- Stripe Elements will create form elements here -->
+            </div>
+            <div id="card-errors" class="stripe-errors" role="alert"></div>
+        </div>
+        
+        <!-- Billing Information -->
+        <div class="billing-section">
+            <h4 class="section-label">Billing Information</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="billingName" class="form-label">Full Name *</label>
+                    <input 
+                        type="text" 
+                        id="billingName" 
+                        name="billingName" 
+                        class="form-input" 
+                        placeholder="John Doe"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="billingEmail" class="form-label">Email *</label>
+                    <input 
+                        type="email" 
+                        id="billingEmail" 
+                        name="billingEmail" 
+                        class="form-input" 
+                        placeholder="john@example.com"
+                        required
+                    >
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="billingAddress" class="form-label">Address *</label>
+                    <input 
+                        type="text" 
+                        id="billingAddress" 
+                        name="billingAddress" 
+                        class="form-input" 
+                        placeholder="123 Main St"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="billingCity" class="form-label">City *</label>
+                    <input 
+                        type="text" 
+                        id="billingCity" 
+                        name="billingCity" 
+                        class="form-input" 
+                        placeholder="New York"
+                        required
+                    >
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="billingState" class="form-label">State/Province</label>
+                    <input 
+                        type="text" 
+                        id="billingState" 
+                        name="billingState" 
+                        class="form-input" 
+                        placeholder="NY"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="billingZip" class="form-label">ZIP/Postal Code *</label>
+                    <input 
+                        type="text" 
+                        id="billingZip" 
+                        name="billingZip" 
+                        class="form-input" 
+                        placeholder="10001"
+                        required
+                    >
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="billingCountry" class="form-label">Country *</label>
+                <select id="billingCountry" name="billingCountry" class="form-select" required>
+                    <option value="">Select Country</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h4 class="section-label">Order Summary</h4>
+            <div class="summary-item">
+                <span class="summary-label">Service:</span>
+                <span class="summary-value" id="paymentServiceName">Valuation Report</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Amount:</span>
+                <span class="summary-value" id="paymentAmount">$0.00</span>
+            </div>
+            <div class="summary-total">
+                <span class="summary-label">Total:</span>
+                <span class="summary-value" id="paymentTotal">$0.00</span>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="payment-submit-btn" id="paymentSubmitBtn">
+            <span id="paymentButtonText">Pay Now</span>
+            <span id="paymentButtonAmount"></span>
+        </button>
+        
+        <div class="payment-security">
+            <p class="security-note">
+                🔒 Your payment is secured by Stripe. We never store your card information.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Payment Module Styles - Centralized */
+.payment-module {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 32px;
+    background: #1A1A1A;
+    border: 1px solid #333333;
+    border-radius: 12px;
+}
+
+.payment-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #333333;
+}
+
+.payment-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+}
+
+.payment-subtitle {
+    font-size: 14px;
+    color: #B0B0B0;
+}
+
+.payment-method-section {
+    margin-bottom: 24px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00FF85;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 16px;
+}
+
+.payment-method-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.payment-method-option:hover {
+    border-color: #00FF85;
+}
+
+.payment-method-option input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.payment-method-option input[type="radio"]:checked + span {
+    color: #00FF85;
+}
+
+.stripe-container {
+    margin-bottom: 24px;
+}
+
+.stripe-card-element {
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: #FFFFFF;
+}
+
+.stripe-card-element:focus {
+    border-color: #00FF85;
+    outline: none;
+}
+
+.stripe-errors {
+    color: #FF4444;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 20px;
+}
+
+.billing-section {
+    margin-bottom: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #333333;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #00FF85;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    color: #FFFFFF;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #00FF85;
+}
+
+.order-summary {
+    background: rgba(0, 255, 133, 0.05);
+    border: 1px solid rgba(0, 255, 133, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.summary-label {
+    color: #B0B0B0;
+}
+
+.summary-value {
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 255, 133, 0.2);
+    font-size: 18px;
+}
+
+.summary-total .summary-label {
+    color: #00FF85;
+    font-weight: 600;
+}
+
+.summary-total .summary-value {
+    color: #00FF85;
+    font-size: 20px;
+}
+
+.payment-submit-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #00FF85, #00CC6A);
+    color: #000000;
+    border: none;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.payment-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(90deg, #00CC6A, #00AA55);
+    transform: translateY(-1px);
+}
+
+.payment-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.payment-security {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #333333;
+}
+
+.security-note {
+    font-size: 12px;
+    color: #808080;
+}
+
+@media (max-width: 768px) {
+    .payment-module {
+        padding: 24px 16px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Payment Module Handler - Centralized
+let stripeInstance = null;
+let cardElement = null;
+let paymentIntentClientSecret = null;
+
+// Initialize Stripe
+async function initializePaymentModule(amount, serviceName, stripePublishableKey) {
+    if (typeof Stripe === 'undefined') {
+        console.error('Stripe.js not loaded');
+        return false;
+    }
+    
+    try {
+        // Initialize Stripe
+        stripeInstance = Stripe(stripePublishableKey || 'pk_test_...');
+        
+        // Create Stripe Elements
+        const elements = stripeInstance.elements();
+        cardElement = elements.create('card', {
+            style: {
+                base: {
+                    color: '#FFFFFF',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '14px',
+                    '::placeholder': {
+                        color: '#808080',
+                    },
+                },
+                invalid: {
+                    color: '#FF4444',
+                },
+            },
+        });
+        
+        // Mount card element
+        cardElement.mount('#card-element');
+        
+        // Handle real-time validation errors
+        cardElement.on('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Update payment amount display
+        if (amount) {
+            document.getElementById('paymentAmount').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('paymentTotal').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('paymentButtonAmount').textContent = `$${amount.toFixed(2)}`;
+        }
+        
+        if (serviceName) {
+            document.getElementById('paymentServiceName').textContent = serviceName;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Payment module initialization error:', error);
+        return false;
+    }
+}
+
+// Handle payment submission
+async function handlePaymentSubmit(event) {
+    event.preventDefault();
+    
+    if (!stripeInstance || !cardElement) {
+        alert('Payment system not initialized. Please refresh the page.');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('paymentSubmitBtn');
+    const buttonText = document.getElementById('paymentButtonText');
+    
+    // Disable button
+    submitBtn.disabled = true;
+    buttonText.textContent = 'Processing...';
+    
+    // Get billing information
+    const billingData = {
+        name: document.getElementById('billingName').value,
+        email: document.getElementById('billingEmail').value,
+        address: {
+            line1: document.getElementById('billingAddress').value,
+            city: document.getElementById('billingCity').value,
+            state: document.getElementById('billingState').value,
+            postal_code: document.getElementById('billingZip').value,
+            country: document.getElementById('billingCountry').value,
+        }
+    };
+    
+    try {
+        // Create or confirm payment intent
+        if (!paymentIntentClientSecret) {
+            // Create payment intent
+            const response = await fetch('/api/v1/payments/create-intent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: parseFloat(document.getElementById('paymentTotal').textContent.replace('$', '')),
+                    currency: 'usd',
+                    billing: billingData
+                })
+            });
+            
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to create payment intent');
+            }
+            
+            paymentIntentClientSecret = result.data.client_secret;
+        }
+        
+        // Confirm payment
+        const { error, paymentIntent } = await stripeInstance.confirmCardPayment(
+            paymentIntentClientSecret,
+            {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: billingData
+                }
+            }
+        );
+        
+        if (error) {
+            throw new Error(error.message);
+        }
+        
+        if (paymentIntent.status === 'succeeded') {
+            // Payment successful
+            if (typeof notificationSystem !== 'undefined') {
+                notificationSystem.showSuccess('Payment Successful', 'Your payment has been processed');
+            }
+            
+            // Redirect to success page
+            window.location.href = `/payment-success.html?payment_intent=${paymentIntent.id}`;
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        if (typeof notificationSystem !== 'undefined') {
+            notificationSystem.showError('Payment Failed', error.message || 'Unable to process payment');
+        } else {
+            alert('Payment failed: ' + error.message);
+        }
+        
+        submitBtn.disabled = false;
+        buttonText.textContent = 'Pay Now';
+    }
+}
+
+// Initialize payment form handler
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('paymentForm');
+    if (form) {
+        form.addEventListener('submit', handlePaymentSubmit);
+    }
+    
+    // Auto-initialize if data attributes are present
+    const module = document.getElementById('paymentModule');
+    if (module) {
+        const amount = parseFloat(module.getAttribute('data-amount') || '0');
+        const serviceName = module.getAttribute('data-service-name') || 'Valuation Report';
+        const stripeKey = module.getAttribute('data-stripe-key');
+        
+        if (stripeKey) {
+            initializePaymentModule(amount, serviceName, stripeKey);
+        }
+    }
+});
+</script>
+

@@ -1025,10 +1025,6 @@
                         <span class="dropdown-icon">📊</span>
                         Dashboard
                     </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
                     <a href="account-settings.html" class="dropdown-item">
                         <span class="dropdown-icon">⚙️</span>
                         Account Settings
@@ -1356,7 +1352,7 @@
                 }
                 
                 if (userRole) {
-                    userRole.textContent = user.user_role || 'Premium User';
+                    userRole">Free';
                 }
             } else {
                 // Show auth buttons for guest users, hide user profile
@@ -1367,29 +1363,9 @@
             }
         }
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            const userInfo = document.querySelector('.user-info');
-            
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-            if (userInfo) {
-                userInfo.classList.toggle('active');
-            }
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userProfile = document.getElementById('userProfile');
-            const dropdown = document.getElementById('userDropdown');
-            
-            if (userProfile && dropdown) {
-                if (!userProfile.contains(event.target)) {
-                    dropdown.classList.remove('show');
-                }
-            }
-        });
+        // User dropdown functionality - DELEGATED TO UNIFIED HEADER
+        // The unified-header.html component handles all dropdown logic via portal solution
+        // No local handlers needed - they conflict with the centralized solution
 
         function logout() {
             localStorage.removeItem('access_token');

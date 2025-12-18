@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuations Management - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        input:focus, select:focus { border-color: #FFD600; background-color: rgba(255, 214, 0, 0.05); }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .status-badge.active { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .status-badge.inactive { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <input type="text" id="valuation-search" placeholder="Search valuations...">
+                        </div>
+                        <div class="filter-controls">
+                            <select id="user-filter">
+                                <option value="">All Users</option>
+                            </select>
+                            <select id="status-filter">
+                                <option value="">All Status</option>
+                                <option value="true">Success</option>
+                                <option value="false">Failed</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="loadStats()">View Stats</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Report ID</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Manufacturer</th>
+                                <th>Model</th>
+                                <th>Year</th>
+                                <th>Capacity (tons)</th>
+                                <th>Report Type</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="valuations-table-body">
+                            <tr><td colspan="11" class="loading">Loading valuations...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination-container">
+                    <div class="pagination-info-section">
+                        <div class="records-info" id="recordsInfo">Showing 0 records</div>
+                        <div class="records-per-page">
+                            <span>Records per page:</span>
+                            <select id="recordsPerPageSelect">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        let valuations = [];
+        let currentPage = 1;
+        let recordsPerPage = 10;
+
+        if (!accessToken) window.location.href = '/admin/login.html';
+
+        async function loadValuations() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/fmv-reports?limit=1000`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                valuations = data.reports || [];
+                renderValuations();
+            } catch (error) {
+                console.error('Error loading valuations:', error);
+                document.getElementById('valuations-table-body').innerHTML = '<tr><td colspan="11">Error loading valuations</td></tr>';
+            }
+        }
+
+        function renderValuations() {
+            const tbody = document.getElementById('valuations-table-body');
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const paginatedValuations = valuations.slice(startIndex, endIndex);
+            
+            if (paginatedValuations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11">No valuations found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = paginatedValuations.map(v => {
+                const craneData = v.crane_data || v.crane_details || {};
+                const status = (v.status || '').toLowerCase();
+                return `
+                <tr>
+                    <td><code>${v.id}</code></td>
+                    <td>${v.customer_name || 'N/A'}</td>
+                    <td>${v.customer_email || 'N/A'}</td>
+                    <td>${craneData.manufacturer || 'N/A'}</td>
+                    <td>${craneData.model || 'N/A'}</td>
+                    <td>${craneData.year || 'N/A'}</td>
+                    <td>${craneData.capacity_tons || craneData.capacity || 'N/A'}</td>
+                    <td><span class="badge">${(v.report_type || '').toUpperCase()}</span></td>
+                    <td><span class="status-badge ${status === 'completed' || status === 'delivered' ? 'active' : 'inactive'}">${(v.status || 'draft').toUpperCase()}</span></td>
+                    <td>${v.created_at ? new Date(v.created_at).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewValuation(${v.id})">View</button>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+            
+            // Update pagination
+            updatePagination();
+        }
+        
+        function viewValuation(reportId) {
+            window.location.href = `/admin/fmv-reports.html#report-${reportId}`;
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(valuations.length / recordsPerPage);
+            const paginationControls = document.getElementById('paginationControls');
+            const recordsInfo = document.getElementById('recordsInfo');
+            
+            if (recordsInfo) {
+                recordsInfo.textContent = `Showing ${(currentPage - 1) * recordsPerPage + 1} to ${Math.min(currentPage * recordsPerPage, valuations.length)} of ${valuations.length} records`;
+            }
+            
+            if (paginationControls) {
+                let html = '';
+                if (currentPage > 1) {
+                    html += `<button class="btn btn-sm btn-secondary" onclick="changePage(${currentPage - 1})">Previous</button>`;
+                }
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentPage) {
+                        html += `<button class="btn btn-sm btn-primary" disabled>${i}</button>`;
+                    } else if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                        html += `<button class="btn btn-sm btn-secondary" onclick="changePage(${i})">${i}</button>`;
+                    } else if (i === currentPage - 3 || i === currentPage + 3) {
+                        html += `<span>...</span>`;
+                    }
+                }
+                if (currentPage < totalPages) {
+                    html += `<button class="btn btn-sm btn-secondary" onclick="changePage(${currentPage + 1})">Next</button>`;
+                }
+                paginationControls.innerHTML = html;
+            }
+        }
+        
+        function changePage(page) {
+            currentPage = page;
+            renderValuations();
+        }
+        
+        document.getElementById('recordsPerPageSelect')?.addEventListener('change', (e) => {
+            recordsPerPage = parseInt(e.target.value);
+            currentPage = 1;
+            renderValuations();
+        });
+
+        async function loadStats() {
+            try {
+                const total = valuations.length;
+                const completed = valuations.filter(v => (v.status || '').toLowerCase() === 'completed' || (v.status || '').toLowerCase() === 'delivered').length;
+                const inProgress = valuations.filter(v => {
+                    const status = (v.status || '').toLowerCase();
+                    return status === 'in_review' || status === 'in_progress';
+                }).length;
+                const successRate = total > 0 ? ((completed / total) * 100).toFixed(2) : 0;
+                
+                alert(`Total Valuations: ${total}\nCompleted: ${completed}\nIn Progress: ${inProgress}\nSuccess Rate: ${successRate}%`);
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load stats');
+            }
+        }
+
+        loadValuations();
+    </script>
+
+    <script>
+        // Render common header, sidebar, and footer on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles initialization
+            
+            // Add profile dropdown
+            setTimeout(function() {
+                const profileElement = document.getElementById('adminProfile');
+                if (profileElement && !document.getElementById('profileDropdown')) {
+                    profileElement.insertAdjacentHTML('afterend', `
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <a href="profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Profile
+                            </a>
+                            <a href="settings.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                                </svg>
+                                Settings
+                            </a>
+                            <button class="dropdown-item logout" onclick="adminLogout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16,17 21,12 16,7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    `);
+                }
+            }, 100);
+            
+            // admin-layout.js handles footer
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready, loading valuations');
+                loadValuations();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadValuations();
+                } else {
+                    setTimeout(() => loadValuations(), 1000);
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+

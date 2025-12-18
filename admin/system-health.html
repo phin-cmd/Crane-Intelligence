@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .status-card { background: #1A1A1A; border: 1px solid #333333; padding: 24px; border-radius: 8px; margin-bottom: 20px; }
+        .status-card h3 { color: #FFFFFF; margin-bottom: 16px; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-indicator.healthy { background: #00FF85; }
+        .status-indicator.degraded { background: #FFD600; }
+        .status-indicator.down { background: #FF4444; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+        .metric-item { background: #0F0F0F; padding: 16px; border-radius: 8px; }
+        .metric-label { color: #B0B0B0; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { color: #FFFFFF; font-size: 24px; font-weight: 700; }
+        .progress-bar { width: 100%; height: 8px; background: #0F0F0F; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: #00FF85; transition: width 0.3s; }
+        .progress-fill.warning { background: #FFD600; }
+        .progress-fill.danger { background: #FF4444; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>System Health</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="refreshHealth()">Refresh</button>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>
+                        <span class="status-indicator" id="overall-status"></span>
+                        Overall System Status: <span id="status-text">Loading...</span>
+                    </h3>
+                    <p id="status-timestamp" style="color: #B0B0B0; margin-top: 8px;"></p>
+                </div>
+
+                <div class="status-card">
+                    <h3>API Status</h3>
+                    <div id="api-status">Loading...</div>
+                </div>
+
+                <div class="status-card">
+                    <h3>Database Status</h3>
+                    <div id="database-status">Loading...</div>
+                </div>
+
+                <div class="status-card">
+                    <h3>Server Resources</h3>
+                    <div class="metric-grid" id="server-resources">
+                        <div class="metric-item">
+                            <div class="metric-label">CPU Usage</div>
+                            <div class="metric-value" id="cpu-value">-</div>
+                            <div class="progress-bar"><div class="progress-fill" id="cpu-progress" style="width: 0%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Memory Usage</div>
+                            <div class="metric-value" id="memory-value">-</div>
+                            <div class="progress-bar"><div class="progress-fill" id="memory-progress" style="width: 0%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Disk Usage</div>
+                            <div class="metric-value" id="disk-value">-</div>
+                            <div class="progress-bar"><div class="progress-fill" id="disk-progress" style="width: 0%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>Recent Errors</h3>
+                    <div id="recent-errors">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+            
+            
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready');
+                loadHealthStatus();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadHealthStatus();
+                } else {
+                    setTimeout(() => loadHealthStatus();, 1000);
+                }
+            }, 2000);
+        });
+            setInterval(loadHealthStatus, 30000); // Refresh every 30 seconds
+        });
+
+        async function loadHealthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/system/health`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                renderHealthStatus(data);
+            } catch (error) {
+                console.error('Error loading health status:', error);
+            }
+        }
+
+        function renderHealthStatus(data) {
+            // Overall status
+            const statusIndicator = document.getElementById('overall-status');
+            const statusText = document.getElementById('status-text');
+            statusIndicator.className = `status-indicator ${data.status}`;
+            statusText.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            document.getElementById('status-timestamp').textContent = `Last updated: ${new Date(data.timestamp).toLocaleString()}`;
+
+            // API Status
+            document.getElementById('api-status').innerHTML = `
+                <div class="metric-item">
+                    <div class="metric-label">Status</div>
+                    <div class="metric-value">${data.api_status.status}</div>
+                </div>
+            `;
+
+            // Database Status
+            document.getElementById('database-status').innerHTML = `
+                <div class="metric-item">
+                    <div class="metric-label">Status</div>
+                    <div class="metric-value">${data.database_status.status}</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Response Time</div>
+                    <div class="metric-value">${data.database_status.response_time_ms}ms</div>
+                </div>
+            `;
+
+            // Server Resources
+            if (data.server_resources && !data.server_resources.error) {
+                const cpu = data.server_resources.cpu_percent || 0;
+                const memory = data.server_resources.memory_percent || 0;
+                const disk = data.server_resources.disk_percent || 0;
+
+                document.getElementById('cpu-value').textContent = `${cpu.toFixed(1)}%`;
+                document.getElementById('cpu-progress').style.width = `${cpu}%`;
+                document.getElementById('cpu-progress').className = `progress-fill ${cpu > 90 ? 'danger' : cpu > 70 ? 'warning' : ''}`;
+
+                document.getElementById('memory-value').textContent = `${memory.toFixed(1)}%`;
+                document.getElementById('memory-progress').style.width = `${memory}%`;
+                document.getElementById('memory-progress').className = `progress-fill ${memory > 90 ? 'danger' : memory > 70 ? 'warning' : ''}`;
+
+                document.getElementById('disk-value').textContent = `${disk.toFixed(1)}%`;
+                document.getElementById('disk-progress').style.width = `${disk}%`;
+                document.getElementById('disk-progress').className = `progress-fill ${disk > 90 ? 'danger' : disk > 70 ? 'warning' : ''}`;
+            }
+
+            // Load recent errors
+            loadRecentErrors();
+        }
+
+        async function loadRecentErrors() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/system/errors/recent?limit=10`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    const errors = await response.json();
+                    const errorsHtml = errors.length > 0 
+                        ? errors.map(e => `
+                            <div style="padding: 12px; background: #0F0F0F; border-radius: 4px; margin-bottom: 8px;">
+                                <div style="color: #FF4444; font-weight: 600;">${e.level.toUpperCase()}</div>
+                                <div style="color: #FFFFFF; margin-top: 4px;">${e.message}</div>
+                                <div style="color: #B0B0B0; font-size: 12px; margin-top: 4px;">${new Date(e.timestamp).toLocaleString()}</div>
+                            </div>
+                        `).join('')
+                        : '<div style="color: #B0B0B0;">No recent errors</div>';
+                    document.getElementById('recent-errors').innerHTML = errorsHtml;
+                }
+            } catch (error) {
+                console.error('Error loading recent errors:', error);
+            }
+        }
+
+        function refreshHealth() {
+            loadHealthStatus();
+            notificationSystem.showSuccess('Success', 'Health status refreshed');
+        }
+    </script>
+</body>
+</html>
+

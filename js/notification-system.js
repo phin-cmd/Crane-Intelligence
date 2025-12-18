@@ -267,6 +267,10 @@ class NotificationSystem {
                     background: #DC3545;
                     color: white;
                 }
+                
+                .confirmation-btn-danger:hover {
+                    background: #C82333;
+                }
 
                 .confirmation-btn:hover {
                     opacity: 0.9;
@@ -309,16 +313,36 @@ class NotificationSystem {
                     }
 
                     .confirmation-dialog {
-                        background: #2A2A2A;
+                        background: #1A1A1A;
                         color: #FFFFFF;
+                        border: 1px solid #333;
                     }
 
                     .confirmation-title {
                         color: #FFFFFF;
+                        font-weight: 600;
                     }
 
                     .confirmation-message {
                         color: #B0B0B0;
+                    }
+                    
+                    .confirmation-btn-danger {
+                        background: #DC3545;
+                        color: white;
+                    }
+                    
+                    .confirmation-btn-danger:hover {
+                        background: #C82333;
+                    }
+                    
+                    .confirmation-btn-secondary {
+                        background: #444;
+                        color: white;
+                    }
+                    
+                    .confirmation-btn-secondary:hover {
+                        background: #555;
                     }
                 }
 

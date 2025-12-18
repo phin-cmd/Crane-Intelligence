@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - CRANE INTELLIGENCE</title>
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Ensure body is visible immediately -->
+    <style>
+        body {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .notifications-container {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    </style>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/unified-header.css">
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+    <script src="/js/component-loader.js" defer></script>
+    <script>
+        // Ensure components load even if auto-loader fails (only once)
+        if (!window.notificationsPageComponentLoaderCalled) {
+            window.notificationsPageComponentLoaderCalled = true;
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('[NOTIFICATIONS PAGE] DOMContentLoaded - checking component loader');
+                if (typeof window.componentLoader !== 'undefined') {
+                    console.log('[NOTIFICATIONS PAGE] Component loader found, triggering replaceAllPlaceholders');
+                    setTimeout(function() {
+                        window.componentLoader.replaceAllPlaceholders();
+                    }, 100);
+                } else {
+                    console.warn('[NOTIFICATIONS PAGE] Component loader not found, will retry');
+                    setTimeout(function() {
+                        if (typeof window.componentLoader !== 'undefined') {
+                            window.componentLoader.replaceAllPlaceholders();
+                        }
+                    }, 500);
+                }
+            });
+        }
+    </script>
+    
+    <style>
+        /* ===== NOTIFICATIONS PAGE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0F0F0F;
+            --secondary-black: #1A1A1A;
+            --tertiary-black: #121212;
+            --accent-green: #00FF85;
+            --accent-yellow: #FFD600;
+            --accent-red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --border-light: #404040;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Main Content */
+        .notifications-container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            padding-top: 60px; /* Account for sticky header */
+            position: relative;
+            z-index: 1;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            min-height: 400px;
+        }
+
+        .notifications-header {
+            margin-bottom: 32px;
+        }
+
+        .notifications-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .notifications-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .notifications-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: var(--tertiary-black);
+            border-color: var(--border-light);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-green);
+            color: var(--primary-black);
+            border-color: var(--accent-green);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--tertiary-black);
+            border-color: var(--border-light);
+        }
+
+        .action-btn.primary {
+            background: var(--accent-green);
+            color: var(--primary-black);
+            border-color: var(--accent-green);
+        }
+
+        .action-btn.primary:hover {
+            background: #00CC6A;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-card {
+            background: var(--secondary-black);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-card:hover {
+            background: var(--tertiary-black);
+            border-color: var(--border-light);
+        }
+
+        .notification-card.unread {
+            border-left: 4px solid var(--accent-green);
+            background: rgba(0, 255, 133, 0.05);
+        }
+
+        .notification-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .notification-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+        }
+
+        .notification-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .notification-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-type {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-action-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .notification-action-btn:hover {
+            background: var(--tertiary-black);
+            border-color: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .loading-state, .empty-state, .error-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text, .empty-state-title, .error-state-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state-icon, .error-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-message, .error-state-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 400px;
+        }
+
+        .error-retry-btn {
+            margin-top: 16px;
+            padding: 10px 20px;
+            background: var(--accent-green);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Footer styles are handled by unified-footer component */
+
+        @media (max-width: 768px) {
+            .notifications-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-buttons {
+                width: 100%;
+            }
+
+            .action-buttons {
+                width: 100%;
+            }
+
+            .action-btn {
+                flex: 1;
+            }
+
+            .notification-header-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .notification-time {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Header Component -->
+    <div data-component="unified-header"></div>
+    
+    <!-- Market Ticker Component -->
+    <div data-component="unified-market-ticker"></div>
+
+    <!-- Main Content -->
+    <div class="notifications-container" id="notificationsContainer">
+        <div class="notifications-header">
+            <h1>Notifications</h1>
+            <p>Stay updated with your account activity and important updates</p>
+        </div>
+
+        <!-- Filter and Actions Bar -->
+        <div class="notifications-actions">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="unread">Unread</button>
+                <button class="filter-btn" data-filter="read">Read</button>
+                <button class="filter-btn" data-filter="system">System</button>
+                <button class="filter-btn" data-filter="email_verification">Email</button>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn primary" id="markAllReadBtn">Mark All as Read</button>
+                <button class="action-btn" id="refreshBtn">Refresh</button>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notificationsList" class="notifications-list">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading notifications...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unified Footer Component -->
+    <div data-component="unified-footer"></div>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            console.log('[NOTIFICATIONS PAGE] Script loaded, initializing...');
+            
+            // State
+            let allNotifications = [];
+            let filteredNotifications = [];
+            let currentFilter = 'all';
+            let isLoading = false;
+            let loadTimeout = null;
+
+            // Get auth state - match unified-header pattern with storage fallback
+            // Use global memory storage to persist across script executions
+            if (!window.notificationsPageMemoryStorage) {
+                window.notificationsPageMemoryStorage = {};
+            }
+            const memoryStorage = window.notificationsPageMemoryStorage;
+            
+            // Cache localStorage availability to reduce tracking prevention warnings
+            let localStorageAvailable = null;
+            function checkLocalStorageAvailable() {
+                if (localStorageAvailable !== null) return localStorageAvailable;
+                try {
+                    if (typeof localStorage !== 'undefined' && localStorage !== null) {
+                        const testKey = '__localStorage_test__';
+                        localStorage.setItem(testKey, 'test');
+                        localStorage.removeItem(testKey);
+                        localStorageAvailable = true;
+                        return true;
+                    }
+                } catch(e) {
+                    localStorageAvailable = false;
+                    return false;
+                }
+                localStorageAvailable = false;
+                return false;
+            }
+            
+            const storage = {
+                get: function(key) {
+                    if (checkLocalStorageAvailable()) {
+                        try {
+                            const value = localStorage.getItem(key);
+                            if (value !== null) return value;
+                        } catch(e) {
+                            // Tracking prevention blocked - use memory fallback
+                            // Don't log every time to reduce console spam
+                        }
+                    }
+                    return memoryStorage[key] || null;
+                }
+            };
+            
+            function getAuthState() {
+                try {
+                    const token = storage.get('access_token');
+                    const userData = storage.get('user_data');
+                    
+                    if (!token || !userData) {
+                        return { isLoggedIn: false, token: null, user: null };
+                    }
+                    
+                    return {
+                        isLoggedIn: true,
+                        token: token,
+                        user: JSON.parse(userData)
+                    };
+                } catch (e) {
+                    console.error('[NOTIFICATIONS PAGE] Error parsing auth state:', e);
+                    return { isLoggedIn: false, token: null, user: null };
+                }
+            }
+
+            // Detect API URL - use standard origin (nginx will proxy to backend)
+            function getApiBaseUrl() {
+                const hostname = window.location.hostname;
+                
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    return 'http://localhost:8003';
+                }
+                
+                // For production, use the same origin (nginx will proxy /api/* to backend)
+                // Don't specify port - use standard HTTPS port which nginx handles
+                return window.location.origin;
+            }
+
+            // Load notifications
+            async function loadNotifications() {
+                // Prevent multiple simultaneous loads
+                if (isLoading) {
+                    console.log('[NOTIFICATIONS PAGE] Already loading notifications, skipping duplicate call');
+                    return;
+                }
+                
+                console.log('[NOTIFICATIONS PAGE] loadNotifications called');
+                const auth = getAuthState();
+                if (!auth.isLoggedIn || !auth.token) {
+                    console.warn('[NOTIFICATIONS PAGE] User not logged in or no token');
+                    showError('Please log in to view notifications');
+                    return;
+                }
+
+                isLoading = true;
+                const listElement = document.getElementById('notificationsList');
+                if (!listElement) {
+                    console.error('[NOTIFICATIONS PAGE] notificationsList element not found!');
+                    isLoading = false;
+                    return;
+                }
+                listElement.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Loading notifications...</div>
+                    </div>
+                `;
+
+                // Declare timeoutId outside try block so it's accessible in catch
+                let timeoutId = null;
+                let controller = null;
+                
+                try {
+                    // Use standard API path (nginx will proxy to backend)
+                    const apiUrl = `${getApiBaseUrl()}/api/v1/notifications`;
+                    console.log('[NOTIFICATIONS PAGE] Fetching from:', apiUrl);
+                    
+                    // Create AbortController for timeout
+                    controller = new AbortController();
+                    timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${auth.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        signal: controller.signal
+                    });
+                    
+                    if (timeoutId) {
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                    }
+
+                    console.log('[NOTIFICATIONS PAGE] Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('[NOTIFICATIONS PAGE] API error:', response.status, errorText);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('[NOTIFICATIONS PAGE] Response data:', data);
+                    
+                    const notifications = data.success && data.data ? data.data : [];
+                    console.log('[NOTIFICATIONS PAGE] Parsed notifications:', notifications.length, notifications);
+
+                    allNotifications = notifications;
+                    applyFilter();
+                    isLoading = false;
+                } catch (error) {
+                    // Clear timeout if it exists
+                    if (timeoutId) {
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                    }
+                    isLoading = false;
+                    console.error('[NOTIFICATIONS PAGE] Error loading notifications:', error);
+                    
+                    let errorMessage = 'Failed to load notifications. ';
+                    if (error.name === 'AbortError') {
+                        errorMessage += 'Request timed out. Please check your connection and try again.';
+                    } else if (error.message && error.message.includes('Failed to fetch')) {
+                        errorMessage += 'Unable to connect to the server. Please check your connection.';
+                    } else {
+                        errorMessage += 'Please check the console for details.';
+                    }
+                    
+                    showError(errorMessage);
+                }
+            }
+
+            // Apply filter
+            function applyFilter() {
+                filteredNotifications = allNotifications.filter(notification => {
+                    if (currentFilter === 'all') return true;
+                    if (currentFilter === 'unread') return !notification.read;
+                    if (currentFilter === 'read') return notification.read;
+                    if (currentFilter === 'system') return notification.type === 'system';
+                    if (currentFilter === 'email_verification') return notification.type === 'email_verification';
+                    return true;
+                });
+
+                renderNotifications();
+            }
+
+            // Render notifications
+            function renderNotifications() {
+                const listElement = document.getElementById('notificationsList');
+                
+                if (!listElement) {
+                    console.error('[NOTIFICATIONS PAGE] notificationsList element not found in renderNotifications!');
+                    return;
+                }
+
+                console.log('[NOTIFICATIONS PAGE] Rendering notifications:', {
+                    total: allNotifications.length,
+                    filtered: filteredNotifications.length,
+                    currentFilter: currentFilter
+                });
+
+                if (filteredNotifications.length === 0) {
+                    if (allNotifications.length === 0) {
+                        listElement.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔔</div>
+                                <div class="empty-state-title">No notifications</div>
+                                <div class="empty-state-message">You're all caught up! No notifications to display.</div>
+                            </div>
+                        `;
+                    } else {
+                        listElement.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <div class="empty-state-title">No notifications match this filter</div>
+                                <div class="empty-state-message">Try selecting a different filter or view all notifications.</div>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                console.log('[NOTIFICATIONS PAGE] Rendering', filteredNotifications.length, 'notifications');
+                const notificationsHTML = filteredNotifications.map(notification => {
+                    const timeAgo = formatTimeAgo(notification.created_at);
+                    const icon = getNotificationIcon(notification.type);
+                    const unreadClass = notification.read ? '' : 'unread';
+                    const typeLabel = notification.type.replace('_', ' ').toUpperCase();
+
+                    return `
+                        <div class="notification-card ${unreadClass}" data-id="${notification.id}">
+                            <div class="notification-header-row">
+                                <div class="notification-title-row">
+                                    <div class="notification-icon">${icon}</div>
+                                    <h3 class="notification-title">${escapeHtml(notification.title)}</h3>
+                                </div>
+                                <div class="notification-time">${timeAgo}</div>
+                            </div>
+                            <div class="notification-message">${escapeHtml(notification.message)}</div>
+                            <div class="notification-footer-row">
+                                <div class="notification-type">${typeLabel}</div>
+                                <div class="notification-actions">
+                                    ${!notification.read ? `
+                                        <button class="notification-action-btn mark-read-btn" data-id="${notification.id}">
+                                            Mark as Read
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                listElement.innerHTML = notificationsHTML;
+                console.log('[NOTIFICATIONS PAGE] Notifications HTML rendered, length:', notificationsHTML.length);
+
+                // Add click handlers
+                const cards = listElement.querySelectorAll('.notification-card');
+                console.log('[NOTIFICATIONS PAGE] Found', cards.length, 'notification cards');
+                cards.forEach(card => {
+                    card.addEventListener('click', function(e) {
+                        if (!e.target.closest('.notification-action-btn')) {
+                            const notificationId = parseInt(this.dataset.id);
+                            console.log('[NOTIFICATIONS PAGE] Card clicked, marking as read:', notificationId);
+                            markAsRead(notificationId);
+                        }
+                    });
+                });
+
+                // Add mark as read button handlers
+                const markReadButtons = listElement.querySelectorAll('.mark-read-btn');
+                console.log('[NOTIFICATIONS PAGE] Found', markReadButtons.length, 'mark as read buttons');
+                markReadButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const notificationId = parseInt(this.dataset.id);
+                        console.log('[NOTIFICATIONS PAGE] Mark as read button clicked:', notificationId);
+                        markAsRead(notificationId);
+                    });
+                });
+                
+                console.log('[NOTIFICATIONS PAGE] Render complete');
+            }
+
+            // Mark notification as read
+            async function markAsRead(notificationId) {
+                const auth = getAuthState();
+                if (!auth.isLoggedIn || !auth.token) return;
+
+                try {
+                    const response = await fetch(`${getApiBaseUrl()}/api/v1/notifications/${notificationId}/read`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${auth.token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const notification = allNotifications.find(n => n.id === notificationId);
+                        if (notification) {
+                            notification.read = true;
+                        }
+                        applyFilter();
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            }
+
+            // Mark all as read
+            async function markAllAsRead() {
+                const auth = getAuthState();
+                if (!auth.isLoggedIn || !auth.token) return;
+
+                try {
+                    const response = await fetch(`${getApiBaseUrl()}/api/v1/notifications/read-all`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${auth.token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        allNotifications.forEach(n => n.read = true);
+                        applyFilter();
+                    }
+                } catch (error) {
+                    console.error('Error marking all notifications as read:', error);
+                }
+            }
+
+            // Show error
+            function showError(message) {
+                const listElement = document.getElementById('notificationsList');
+                if (listElement) {
+                    listElement.innerHTML = `
+                        <div class="error-state">
+                            <div class="error-state-icon">⚠️</div>
+                            <div class="error-state-title">Error</div>
+                            <div class="error-state-message">${escapeHtml(message)}</div>
+                            <button class="error-retry-btn" onclick="location.reload()">Retry</button>
+                        </div>
+                    `;
+                }
+            }
+
+            // Format time ago
+            function formatTimeAgo(dateString) {
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return 'Unknown';
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMs / 3600000);
+                    const diffDays = Math.floor(diffMs / 86400000);
+
+                    if (diffMins < 1) return 'Just now';
+                    if (diffMins < 60) return `${diffMins}m ago`;
+                    if (diffHours < 24) return `${diffHours}h ago`;
+                    if (diffDays < 7) return `${diffDays}d ago`;
+                    return date.toLocaleDateString();
+                } catch (e) {
+                    return 'Unknown';
+                }
+            }
+
+            // Get notification icon
+            function getNotificationIcon(type) {
+                const icons = {
+                    'email_verification': '✉️',
+                    'payment_success': '💳',
+                    'report_ready': '📄',
+                    'system': '🔔',
+                    'default': '🔔'
+                };
+                return icons[type] || icons['default'];
+            }
+
+            // Escape HTML
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Initialize immediately
+            function initNotificationsPage() {
+                // Prevent multiple initializations
+                if (window.notificationsPageInitialized) {
+                    console.log('[NOTIFICATIONS PAGE] Already initialized, skipping');
+                    return;
+                }
+                
+                console.log('[NOTIFICATIONS PAGE] Initializing (readyState:', document.readyState, ')');
+                
+                // Verify components are loaded
+                const header = document.querySelector('[data-component="unified-header"]');
+                const footer = document.querySelector('[data-component="unified-footer"]');
+                const ticker = document.querySelector('[data-component="unified-market-ticker"]');
+                console.log('[NOTIFICATIONS PAGE] Components check:', {
+                    header: !!header,
+                    footer: !!footer,
+                    ticker: !!ticker,
+                    componentLoader: typeof window.componentLoader !== 'undefined'
+                });
+                
+                // Ensure container is visible
+                const container = document.getElementById('notificationsContainer');
+                if (container) {
+                    container.style.display = 'block';
+                    container.style.visibility = 'visible';
+                    container.style.opacity = '1';
+                    console.log('[NOTIFICATIONS PAGE] Container found and visible');
+                } else {
+                    console.error('[NOTIFICATIONS PAGE] Container not found!');
+                    // Only retry once if not already initialized
+                    if (!window.notificationsPageRetryAttempted) {
+                        window.notificationsPageRetryAttempted = true;
+                        setTimeout(initNotificationsPage, 100);
+                    }
+                    return;
+                }
+                
+                // Check auth
+                const auth = getAuthState();
+                if (!auth.isLoggedIn) {
+                    console.log('[NOTIFICATIONS PAGE] Not logged in, redirecting...');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                console.log('[NOTIFICATIONS PAGE] User logged in, setting up...');
+                console.log('[NOTIFICATIONS PAGE] API Base URL will be:', getApiBaseUrl());
+                
+                // Load notifications
+                loadNotifications();
+
+                // Filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        currentFilter = this.dataset.filter;
+                        console.log('[NOTIFICATIONS PAGE] Filter:', currentFilter);
+                        applyFilter();
+                    });
+                });
+
+                // Mark all as read
+                const markAllBtn = document.getElementById('markAllReadBtn');
+                if (markAllBtn) {
+                    markAllBtn.addEventListener('click', markAllAsRead);
+                }
+
+                // Refresh
+                const refreshBtn = document.getElementById('refreshBtn');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', loadNotifications);
+                }
+                
+                window.notificationsPageInitialized = true;
+                console.log('[NOTIFICATIONS PAGE] Initialization complete');
+            }
+            
+            // Run immediately
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initNotificationsPage);
+            } else {
+                initNotificationsPage();
+            }
+        })();
+    </script>
+</body>
+</html>

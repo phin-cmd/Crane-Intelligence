@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Settings - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        .btn-secondary { background: #1A1A1A; color: #FFFFFF; border: 1px solid #333333; }
+        .btn-secondary:hover { background: #2A2A2A; border-color: #00FF85; }
+        input:focus, select:focus { border-color: #FFD600; background-color: rgba(255, 214, 0, 0.05); }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-sm" onclick="loadAllPermissions()">View All Permissions</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Description</th>
+                                <th>Permissions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roles-table-body">
+                            <tr><td colspan="4" class="loading">Loading roles...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) window.location.href = '/admin/login.html';
+
+        async function loadRoles() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/roles`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const roles = await response.json();
+                renderRoles(roles);
+            } catch (error) {
+                console.error('Error loading roles:', error);
+                document.getElementById('roles-table-body').innerHTML = '<tr><td colspan="4">Error loading roles</td></tr>';
+            }
+        }
+
+        function renderRoles(roles) {
+            const tbody = document.getElementById('roles-table-body');
+            if (roles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No roles found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = roles.map(r => `
+                <tr>
+                    <td><strong>${r.role}</strong></td>
+                    <td>${r.description}</td>
+                    <td><div style="max-height: 100px; overflow-y: auto;">${r.permissions.join(', ')}</div></td>
+                    <td><button class="btn btn-sm btn-secondary" onclick="viewRole('${r.role}')">View Details</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadAllPermissions() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/roles/permissions/all`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const permissions = await response.json();
+                alert(`All Available Permissions:\n${permissions.join('\n')}`);
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load permissions');
+            }
+        }
+
+        async function viewRole(roleName) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/roles/${roleName}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const role = await response.json();
+                alert(`Role: ${role.role}\nPermissions: ${role.permissions.join(', ')}`);
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load role details');
+            }
+        }
+
+        loadRoles();
+    </script>
+
+    <script>
+        // Render common header, sidebar, and footer on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles initialization
+            
+            // Add profile dropdown
+            setTimeout(function() {
+                const profileElement = document.getElementById('adminProfile');
+                if (profileElement && !document.getElementById('profileDropdown')) {
+                    profileElement.insertAdjacentHTML('afterend', `
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <a href="profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Profile
+                            </a>
+                            <a href="settings.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                                </svg>
+                                Settings
+                            </a>
+                            <button class="dropdown-item logout" onclick="adminLogout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16,17 21,12 16,7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    `);
+                }
+            }, 100);
+            
+            // Render footer
+            const footerContainer = document.getElementById('admin-footer-container');
+            if (footerContainer) {
+                footerContainer.innerHTML = renderAdminFooter();
+            }
+        });
+    </script>
+</body>
+</html>
+

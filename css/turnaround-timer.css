@@ -1,0 +1,32 @@
+/* Turnaround Timer Styles */
+.turnaround-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #B0B0B0;
+    background: #2A2A2A;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #404040;
+    margin-top: 8px;
+}
+
+.turnaround-timer .timer-label {
+    color: #808080;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.turnaround-timer .timer-value {
+    color: #00FF85; /* Green for active timer */
+    font-weight: 600;
+}
+
+.turnaround-timer .timer-overdue {
+    color: #FF4444; /* Red for overdue */
+    font-weight: 600;
+    text-transform: uppercase;
+}
+

@@ -14,6 +14,7 @@
     <script src="js/notification-system.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/date-fns.min.js"></script>
+    <script src="js/component-loader.js" defer></script>
     <style>
         /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
         
@@ -1381,133 +1382,6 @@
             padding: 0 20px;
         }
 
-        
-        /* FMV Reports Section - Matching Terminal Access Plans Style */
-        .fmv-reports-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 var(--space-xl);
-        }
-
-        .fmv-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 32px;
-            margin-top: 48px;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .fmv-card {
-            background: #1E1E1E;
-            border: 2px solid #333;
-            border-radius: 12px;
-            padding: 30px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .fmv-card:hover {
-            border-color: #00FF88;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
-        }
-
-        .fmv-card.featured {
-            border-color: #00FF88;
-            background: linear-gradient(135deg, #1E1E1E 0%, #1A2A1E 100%);
-        }
-
-        .fmv-badge {
-            position: absolute;
-            top: -12px;
-            right: 20px;
-            background: #00FF88;
-            color: #000;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .fmv-type-header {
-            margin-bottom: 25px;
-        }
-
-        .fmv-type-header h3 {
-            font-size: 24px;
-            color: #00FF88;
-            margin-bottom: 10px;
-        }
-
-        .fmv-price {
-            font-size: 36px;
-            font-weight: 700;
-            color: #FFFFFF;
-        }
-
-        .fmv-features {
-            list-style: none;
-            padding: 0;
-            margin: 25px 0;
-        }
-
-        .fmv-features li {
-            padding: 12px 0;
-            color: #B0B0B0;
-            font-size: 15px;
-            border-bottom: 1px solid #2A2A2A;
-        }
-
-        .fmv-features li:last-child {
-            border-bottom: none;
-        }
-
-        .fmv-button {
-            width: 100%;
-            padding: 16px 32px;
-            background: linear-gradient(135deg, #00FF88, #00DD77);
-            color: #000000;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 24px;
-        }
-
-        .fmv-button:hover {
-            background: linear-gradient(135deg, #00DD77, #00CC66);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 255, 136, 0.3);
-        }
-
-        .fmv-disclaimer {
-            text-align: center;
-            color: #888888;
-            font-size: 14px;
-            margin-top: 32px;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-            .fmv-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .fmv-card.featured {
-                transform: none;
-            }
-
-            .fmv-price {
-                font-size: 2.5rem;
-            }
-        }
 
 
         .pricing-grid {
@@ -3409,16 +3283,6 @@
                 font-size: 8px;
             }
         }
-
-
-    
-        /* FMV Reports Section */
-        .fmv-reports {
-            padding: var(--space-3xl) 0;
-            background: linear-gradient(180deg, #0A0A0A 0%, #0F0F0F 100%);
-        }
-
-        .fmv-reports-container {
             max-width: var(--container-width);
             margin: 0 auto;
             padding: 0 var(--space-lg);
@@ -3504,133 +3368,12 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                </a>
-            </div>
-            
-            <nav class="nav-menu">
-                <a href="#features" class="nav-link">FEATURES</a>
-                <a href="#pricing" class="nav-link">PRICING</a>
-                <a href="#about" class="nav-link">ABOUT</a>
-                <a href="#contact" class="nav-link">CONTACT</a>
-            </nav>
-            
-            
-            <div class="header-right">
-            <div class="auth-buttons" id="authButtons">
-                <button class="auth-btn login" onclick="openLoginModal()">Login</button>
-                <button class="auth-btn signup" onclick="openSignupModal()">Sign Up</button>
-            </div>
-            
-            <div class="user-profile" id="userProfile">
-                <div class="user-avatar" onclick="toggleDropdown()">
-                    <span id="userInitials">U</span>
-                </div>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-name" id="userDisplayName">User</div>
-                    <div class="user-role" id="userRole">Premium User</div>
-                </div>
-                <div class="dropdown-arrow" onclick="toggleDropdown()">▼</div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="dashboard.html" class="dropdown-item">
-                        <span class="dropdown-icon">📊</span>
-                        Dashboard
-                    </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
-                    <a href="report-generation.html" class="dropdown-item">
-                        <span class="dropdown-icon">📄</span>
-                        FMV Reports
-                    </a>
-                    <a href="account-settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
-                        Account Settings
-                    </a>
-                    <a href="#" class="dropdown-item" onclick="logout()">
-                        <span class="dropdown-icon">🚪</span>
-                        Logout
-                    </a>
-                </div>
-                
-            </div>
-            
-        </div>
-    </header>
+    <!-- Header - Using Unified Component -->
+    <div data-component="unified-header"></div>
 
-    <!-- Market Ticker -->
-    <div class="market-ticker">
-        <div class="ticker-container">
-            <div class="ticker-content">
-                <div class="ticker-item">
-                    <span class="ticker-symbol">XCMG</span>
-                    <span class="ticker-price">467.8</span>
-                    <span class="ticker-change down">-0.4%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">MANITEX</span>
-                    <span class="ticker-price">757.8</span>
-                    <span class="ticker-change up">+1.3%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">AMERICAN</span>
-                    <span class="ticker-price">732.9</span>
-                    <span class="ticker-change down">-1.2%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">SHUTTLELIFT</span>
-                    <span class="ticker-price">683.4</span>
-                    <span class="ticker-change up">+2.2%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">GALION</span>
-                    <span class="ticker-price">709.8</span>
-                    <span class="ticker-change down">-0.5%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">DEMAG</span>
-                    <span class="ticker-price">667.8</span>
-                    <span class="ticker-change down">-1.1%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">NA-CRANE</span>
-                    <span class="ticker-price">762.1</span>
-                    <span class="ticker-change up">+1.8%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">EU-CRANE</span>
-                    <span class="ticker-price">639.8</span>
-                    <span class="ticker-change up">+2.1%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">AS-CRANE</span>
-                    <span class="ticker-price">749.2</span>
-                    <span class="ticker-change down">-0.7%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">TEREX</span>
-                    <span class="ticker-price">523.4</span>
-                    <span class="ticker-change up">+0.8%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">LIEBHERR</span>
-                    <span class="ticker-price">891.2</span>
-                    <span class="ticker-change down">-0.3%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">GROVE</span>
-                    <span class="ticker-price">645.7</span>
-                    <span class="ticker-change up">+1.5%</span>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    <!-- Market Ticker - Using Unified Component -->
+    <div data-component="unified-market-ticker"></div>
 
 
     <!-- Hero Section -->
@@ -3641,7 +3384,7 @@
                 <p class="hero-subtitle">Bloomberg Terminal-quality analysis with instant deal scoring and risk assessment for the global crane market</p>
                 
                 <div class="hero-cta-group">
-                    <button class="btn-primary" onclick="window.location.href='/report-generation.html'" style="padding: 18px 48px;">Get Certified FMV Report</button>
+                    <button class="btn-primary" onclick="window.location.href='/report-generation.html'" style="padding: 22px 64px; font-size: 14px;">Get Professional FMV Report</button>
                 </div>
 
                 <div class="hero-stats">
@@ -3727,52 +3470,6 @@
 
 
 
-    <!-- FMV Professional Reports Section -->
-    <section class="fmv-reports" id="fmv-reports">
-        <div class="fmv-reports-container">
-            <div class="section-header">
-                <h2 class="section-title">Professional FMV Reports</h2>
-                <p class="section-subtitle">Expert-prepared Fair Market Value reports delivered within 24-48 hours</p>
-            </div>
-
-            <div class="fmv-grid">
-                <div class="fmv-card">
-                    <div class="fmv-type-header">
-                        <h3>Standard Report</h3>
-                        <div class="fmv-price">$999</div>
-                    </div>
-                    <ul class="fmv-features">
-                        <li>✓ Fair Market Value Analysis</li>
-                        <li>✓ 5 Comparable Sales</li>
-                        <li>✓ Market Trend Analysis</li>
-                        <li>✓ 24-48 Hour Delivery</li>
-                        <li>✓ PDF Report</li>
-                    </ul>
-                    <button class="fmv-cta" onclick="window.location.href='/report-generation.html'">Select Standard</button>
-                </div>
-
-                <div class="fmv-card featured">
-                    <div class="fmv-badge">RECOMMENDED</div>
-                    <div class="fmv-type-header">
-                        <h3>Enhanced Report</h3>
-                        <div class="fmv-price">$1,499</div>
-                    </div>
-                    <ul class="fmv-features">
-                        <li>✓ Everything in Standard</li>
-                        <li>✓ 10 Comparable Sales</li>
-                        <li>✓ Depreciation Analysis</li>
-                        <li>✓ Regional Market Insights</li>
-                        <li>✓ Investment Recommendations</li>
-                    </ul>
-                    <button class="fmv-cta" onclick="window.location.href='/report-generation.html'">Select Enhanced</button>
-                </div>
-            </div>
-
-            <div class="fmv-info">
-                <p>All reports are manually reviewed and prepared by our expert analysts. Perfect for insurance, financing, sales negotiations, or investment decisions.</p>
-            </div>
-        </div>
-    </section>
 
     <!-- Features Section -->
     <section class="features" id="features">
@@ -3848,64 +3545,73 @@
     <section class="pricing" id="pricing">
         <div class="pricing-container">
             <div class="section-header">
-                <h2 class="section-title">Terminal Access Plans</h2>
-                <p class="section-subtitle">Professional-grade access for serious market participants</p>
+                <h2 class="section-title">Professional FMV Reports</h2>
+                <p class="section-subtitle">Expert-prepared Fair Market Value reports delivered within 24-48 hours</p>
             </div>
 
-            
-                        <div class="billing-toggle-container">
-                <span class="billing-toggle-label active" id="monthlyLabel">Monthly</span>
-                <div class="billing-toggle-switch" id="billingToggle" onclick="toggleBilling()">
-                    <div class="billing-toggle-slider"></div>
-                </div>
-                <span class="billing-toggle-label" id="yearlyLabel">Yearly <span class="yearly-discount" style="display:none;">SAVE 10%</span></span>
-            </div>
-            <div class="pricing-grid">
-                <div class="pricing-card" data-monthly-price="999" data-yearly-price="10188" data-tier="starter">
-                    <h3 class="pricing-title">Starter</h3>
-                    <div class="pricing-price" data-monthly="$999" data-yearly="$10,188">$999</div>
-                    <div class="pricing-period" data-monthly="per month" data-yearly="per year">per month</div>
-                    <div class="pricing-savings" style="display:none; color: #00FF88; font-size: 14px; margin-top: 8px;">Save $1,200/year (10% off)</div>
+            <div class="pricing-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 1400px; margin: 40px auto;">
+                <div class="pricing-card" data-tier="spot_check">
+                    <h3 class="pricing-title">Spot Check</h3>
+                    <div class="pricing-price">$495</div>
+                    <div class="pricing-period">per valuation</div>
                     <ul class="pricing-features">
-                        <li>1 valuation per month</li>
-                        <li>Basic market data access</li>
-                        <li>Standard risk assessment</li>
-                        <li>Email support</li>
-                        <li>PDF reports</li>
+                        <li>✓ Quick internal estimates</li>
+                        <li>✓ 1 crane</li>
+                        <li>✓ 1-page email summary</li>
+                        <li>✓ FMV range estimate</li>
+                        <li>✓ 2–3 comparables</li>
+                        <li>✓ 24-hour turnaround</li>
+                        <li>✓ 1 valuation per month</li>
+                        <li style="color: #FF4444;">✗ No bulk upload</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="starter" onclick="handlePricingAction('starter')">Start Trial</button>
+                    <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">Select Spot Check</button>
                 </div>
-                <div class="pricing-card featured" data-monthly-price="2499" data-yearly-price="25490" data-tier="professional">
+                <div class="pricing-card featured" data-tier="professional">
                     <div class="pricing-badge">Most Popular</div>
                     <h3 class="pricing-title">Professional</h3>
-                    <div class="pricing-price" data-monthly="$2,499" data-yearly="$25,490">$2,499</div>
-                    <div class="pricing-period" data-monthly="per month" data-yearly="per year">per month</div>
-                    <div class="pricing-savings" style="display:none; color: #00FF88; font-size: 14px; margin-top: 8px;">Save $4,500/year (10% off)</div>
+                    <div class="pricing-price">$995</div>
+                    <div class="pricing-period">per valuation</div>
                     <ul class="pricing-features">
-                        <li>Unlimited valuations</li>
-                        <li>Real-time market data</li>
-                        <li>Advanced analytics</li>
-                        <li>API access</li>
-                        <li>Priority support</li>
-                        <li>Custom reports</li>
+                        <li>✓ 1 crane</li>
+                        <li>✓ 3–5 page PDF</li>
+                        <li>✓ 5+ verified comps</li>
+                        <li>✓ Deal & Wear Scores</li>
+                        <li>✓ Regional commentary</li>
+                        <li>✓ Signed by analyst</li>
+                        <li>✓ 24-hour turnaround</li>
+                        <li>✓ Pay-per-use</li>
+                        <li style="color: #FF4444;">✗ No bulk upload</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">Start Trial</button>
+                    <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">Select Professional</button>
                 </div>
-                <div class="pricing-card" data-monthly-price="4999" data-yearly-price="59340" data-tier="enterprise">
-                    <h3 class="pricing-title">Enterprise</h3>
-                    <div class="pricing-price" data-monthly="$4,999" data-yearly="$59,340">$4,999</div>
-                    <div class="pricing-period" data-monthly="per month" data-yearly="per year">per month</div>
-                    <div class="pricing-savings" style="display:none; color: #00FF88; font-size: 14px; margin-top: 8px;">Save $6,600/year (10% off)</div>
+                <div class="pricing-card featured" data-tier="fleet_valuation">
+                    <div class="pricing-badge">Fleet Option</div>
+                    <h3 class="pricing-title">Fleet Valuation</h3>
+                    <div class="pricing-price">Starting at $1,495</div>
+                    <div class="pricing-period">Pay-per-use • Tiered pricing</div>
+                    <div style="background: rgba(0, 255, 133, 0.05); border: 1px solid rgba(0, 255, 133, 0.2); border-radius: 6px; padding: 12px; margin: 16px 0; font-size: 11px; color: #B0B0B0; text-align: left;">
+                        <strong style="color: #00FF85;">Tiered Pricing:</strong><br>
+                        1-5: $1,495 ($299/crane)<br>
+                        6-10: $2,495 ($249/crane)<br>
+                        11-25: $4,995 ($199/crane)<br>
+                        26-50: $7,995 (~$159/crane)
+                    </div>
                     <ul class="pricing-features">
-                        <li>Unlimited everything</li>
-                        <li>Dedicated terminal</li>
-                        <li>Custom integrations</li>
-                        <li>White-label options</li>
-                        <li>24/7 phone support</li>
-                        <li>On-premise deployment</li>
+                        <li>✓ 2–50 cranes supported</li>
+                        <li>✓ Multi-unit PDF (one page per crane)</li>
+                        <li>✓ Fleet total summary</li>
+                        <li>✓ CSV upload support</li>
+                        <li>✓ Market overview</li>
+                        <li>✓ 36–72 hour turnaround</li>
+                        <li>✓ 5 valuations per payment</li>
+                        <li style="color: #00FF85;">✓ Bulk upload enabled</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="enterprise" onclick="handlePricingAction('enterprise')">Contact Sales</button>
+                    <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">Select Fleet Valuation</button>
                 </div>
+            </div>
+            
+            <div class="fmv-info" style="text-align: center; margin-top: 48px; padding: 24px; background: rgba(0, 255, 133, 0.05); border-radius: 12px; border: 1px solid rgba(0, 255, 133, 0.1); max-width: 1400px; margin-left: auto; margin-right: auto;">
+                <p style="color: #B0B0B0; font-size: 15px; line-height: 1.6; margin: 0;">All reports are manually reviewed and prepared by our expert analysts. Perfect for insurance, financing, sales negotiations, or investment decisions.</p>
             </div>
 
         </section>
@@ -3989,51 +3695,8 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div>
-                    <div class="footer-brand">
-                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
-                    </div>
-                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="about-us.html" target="_blank">About Us</a></li>
-                        <li><a href="contact.html" target="_blank">Contact</a></li>
-                        <li><a href="blog.html" target="_blank">Blog</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Legal & Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
-                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
-                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
-                        <li><a href="security.html" target="_blank">Security</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Stay Updated</h4>
-                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
-                    <div class="newsletter">
-                        <input type="email" placeholder="Enter your email">
-                        <button>Subscribe</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer - Using Unified Component -->
+    <div data-component="unified-footer"></div>
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
@@ -4220,7 +3883,7 @@
                             <option value="crane_rental_company">Crane Rental Company</option>
                             <option value="equipment_dealer">Equipment Dealer</option>
                             <option value="financial_institution">Financial Institution</option>
-                            <option value="admin">Admin</option>
+                            <option value="others">Others</option>
                         </select>
                     </div>
 
@@ -4298,39 +3961,64 @@
         };
         const safeStorage = window.safeStorage; // Create alias for easier access
 
-        // Modal functions
-        function openLoginModal() {
-            document.getElementById('loginModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
+        // API Base URL function - uses nginx proxy to avoid mixed content issues
+        function getApiBaseUrl() {
+            const hostname = window.location.hostname;
+            
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:8004';
+            }
+            
+            // Use relative path - nginx will proxy /api/ to backend
+            // This avoids mixed content errors (HTTP from HTTPS page)
+            return '';
         }
 
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            clearLoginForm();
-        }
+        // Modal functions - Make them globally accessible
+        window.openLoginModal = function() {
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        };
 
-        function openSignupModal() {
-            document.getElementById('signupModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
+        window.closeLoginModal = function() {
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                if (typeof clearLoginForm === 'function') clearLoginForm();
+            }
+        };
 
-        function closeSignupModal() {
-            document.getElementById('signupModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            clearSignupForm();
-        }
+        window.openSignupModal = function() {
+            const modal = document.getElementById('signupModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        };
 
-        function switchToSignup() {
-            closeLoginModal();
-            openSignupModal();
-        }
+        window.closeSignupModal = function() {
+            const modal = document.getElementById('signupModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                if (typeof clearSignupForm === 'function') clearSignupForm();
+            }
+        };
 
-        function switchToLogin() {
-            closeSignupModal();
-            closeForgotPasswordModal();
-            openLoginModal();
-        }
+        window.switchToSignup = function() {
+            if (typeof window.closeLoginModal === 'function') window.closeLoginModal();
+            if (typeof window.openSignupModal === 'function') window.openSignupModal();
+        };
+
+        window.switchToLogin = function() {
+            if (typeof window.closeSignupModal === 'function') window.closeSignupModal();
+            if (typeof window.closeForgotPasswordModal === 'function') window.closeForgotPasswordModal();
+            if (typeof window.openLoginModal === 'function') window.openLoginModal();
+        };
 
         // Handle Launch Terminal button click
         function handleLaunchTerminal() {
@@ -4346,106 +4034,81 @@
 
         // Handle Start Trial button click
         
-        // Billing Toggle Functionality
-                let isYearlyBilling = false;
-        
-        function toggleBilling() {
-            isYearlyBilling = !isYearlyBilling;
-            
-            // Update toggle UI
-            document.getElementById('monthlyLabel').classList.toggle('active');
-            document.getElementById('yearlyLabel').classList.toggle('active');
-            document.getElementById('billingToggle').classList.toggle('active');
-            
-            // Show/hide yearly discount badge
-            const discountBadge = document.querySelector('.yearly-discount');
-            if (discountBadge) {
-                discountBadge.style.display = isYearlyBilling ? 'inline' : 'none';
-            }
-            
-            // Update all pricing cards
-            const pricingCards = document.querySelectorAll('.pricing-card');
-            pricingCards.forEach(card => {
-                const priceElement = card.querySelector('.pricing-price');
-                const periodElement = card.querySelector('.pricing-period');
-                const savingsElement = card.querySelector('.pricing-savings');
-                
-                if (isYearlyBilling) {
-                    priceElement.textContent = priceElement.getAttribute('data-yearly');
-                    periodElement.textContent = periodElement.getAttribute('data-yearly');
-                    if (savingsElement) {
-                        savingsElement.style.display = 'block';
-                    }
-                } else {
-                    priceElement.textContent = priceElement.getAttribute('data-monthly');
-                    periodElement.textContent = periodElement.getAttribute('data-monthly');
-                    if (savingsElement) {
-                        savingsElement.style.display = 'none';
-                    }
-                }
-            });
-        }
         
         function handlePricingAction(tier) {
             const accessToken = safeStorage.getItem('access_token');
             const userData = safeStorage.getItem('user_data');
             
+            // Free tier - cannot submit requests
+            if (tier === 'free') {
+                alert('Free tier users cannot submit valuation requests. Please upgrade to Spot Check or Professional tier.');
+                return;
+            }
+            
             if (!accessToken || !userData) {
-                // Not logged in - show Start Trial
-                handleStartTrial(tier.charAt(0).toUpperCase() + tier.slice(1));
+                // Not logged in - redirect to login/signup
+                alert('Please log in or sign up to submit a valuation request.');
+                if (typeof window.openLoginModal === 'function') window.openLoginModal();
                 return;
             }
             
             try {
                 const user = JSON.parse(userData);
-                const currentTier = (user.subscription_plan || user.plan || 'basic').toLowerCase();
-                const currentBillingCycle = (user.billing_cycle || 'monthly').toLowerCase();
+                const currentTier = (user.subscription_tier || user.subscription_plan || user.plan || 'free').toLowerCase();
                 
-                // Determine action based on current tier
-                if (tier === currentTier) {
-                    // Current plan - do nothing
+                // Check if user can submit requests based on tier
+                if (currentTier === 'free') {
+                    alert('Free tier users cannot submit valuation requests. Please upgrade to Spot Check or Professional tier.');
                     return;
-                } else if (tier === 'enterprise') {
-                    // Always contact sales for enterprise
-                    handleContactSales();
+                }
+                
+                // Redirect to report generation page with tier selection
+                if (tier === 'spot_check' || tier === 'professional' || tier === 'fleet_valuation') {
+                    window.location.href = `/report-generation.html?tier=${tier}`;
                 } else {
-                    // Show upgrade/downgrade modal
-                    showPlanManagement(tier.charAt(0).toUpperCase() + tier.slice(1));
+                    alert('Invalid tier selection. Please try again.');
                 }
             } catch (e) {
                 console.error('Error handling pricing action:', e);
-                handleStartTrial(tier.charAt(0).toUpperCase() + tier.slice(1));
+                alert('An error occurred. Please try again.');
             }
         }
         
-// Improved version with retry logic
+// Improved version with retry logic (optimized)
+let pricingUpdateInProgress = false;
+
 function updatePricingForLoggedInUser(retryCount = 0) {
-    const maxRetries = 10;
-    const retryDelay = 100; // ms
+    // Prevent multiple simultaneous calls
+    if (pricingUpdateInProgress && retryCount === 0) {
+        return;
+    }
     
-    console.log('[PRICING] updatePricingForLoggedInUser called, retry:', retryCount);
+    const maxRetries = 5; // Reduced from 10
+    const retryDelay = 200; // Increased from 100ms to reduce frequency
+    
+    if (retryCount === 0) {
+        pricingUpdateInProgress = true;
+    }
     
     const accessToken = safeStorage.getItem('access_token');
     const userData = safeStorage.getItem('user_data');
     
-    console.log('[PRICING] Token exists:', !!accessToken, 'User data exists:', !!userData);
-    
     // If no user data and haven't exceeded retries, try again
     if ((!accessToken || !userData) && retryCount < maxRetries) {
-        console.log('[PRICING] User data not available yet, retrying in', retryDelay, 'ms');
         setTimeout(() => updatePricingForLoggedInUser(retryCount + 1), retryDelay);
         return;
     }
     
     // If still no data after retries, reset to default
     if (!accessToken || !userData) {
-        console.log('[PRICING] User not logged in after', maxRetries, 'retries, resetting to default');
         resetPricingButtons();
+        pricingUpdateInProgress = false;
         return;
     }
     
     try {
         const user = JSON.parse(userData);
+        pricingUpdateInProgress = false; // Mark as complete
         let currentTier = (user.subscription_tier || user.plan || 'basic').toLowerCase();
         const currentBillingCycle = (user.billing_cycle || 'monthly').toLowerCase();
         
@@ -4457,7 +4120,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
         console.log('[PRICING] User subscription:', { tier: currentTier, billing: currentBillingCycle, user: user });
         
         // Define tier hierarchy for comparison
-        const tierHierarchy = { 'basic': 0, 'starter': 1, 'professional': 2, 'enterprise': 3 };
+        const tierHierarchy = { 'free': 0, 'basic': 0, 'spot_check': 1, 'professional': 2, 'fleet_valuation': 3 };
         const currentTierLevel = tierHierarchy[currentTier] || 0;
         
         // Update each pricing button
@@ -4475,7 +4138,27 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             
             console.log(`[PRICING] Updating button for ${buttonTier} (current: ${currentTier})`);
             
-            if (buttonTier === currentTier) {
+            // Handle Free tier button
+            if (buttonTier === 'free') {
+                if (currentTier === 'free' || currentTier === 'basic') {
+                    button.textContent = 'Current Plan';
+                    button.style.background = '#00FF88';
+                    button.style.color = '#000000';
+                    button.style.border = '2px solid #00FF88';
+                    button.style.fontWeight = 'bold';
+                    button.disabled = true;
+                    button.style.cursor = 'not-allowed';
+                    button.style.opacity = '0.6';
+                } else {
+                    button.textContent = 'Downgrade';
+                    button.style.background = 'transparent';
+                    button.style.color = '#00FF88';
+                    button.style.border = '2px solid #00FF88';
+                    button.disabled = false;
+                    button.style.cursor = 'pointer';
+                    button.style.opacity = '1';
+                }
+            } else if (buttonTier === currentTier) {
                 // Current plan
                 button.textContent = 'Current Plan';
                 button.style.background = '#00FF88';
@@ -4485,38 +4168,23 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 button.disabled = true;
                 button.style.cursor = 'not-allowed';
                 button.style.opacity = '1';
-                button.onclick = null;
-                console.log(`[PRICING] Set ${buttonTier} to "Current Plan"`);
-            } else if (buttonTier === 'enterprise' && currentTier !== 'enterprise') {
-                // Enterprise always shows Upgrade or Contact Sales
-                button.textContent = 'Upgrade';
-                button.style.background = 'transparent';
-                button.style.color = '#00FF88';
-                button.style.border = '2px solid #00FF88';
-                button.style.fontWeight = 'normal';
-                button.disabled = false;
-                button.style.cursor = 'pointer';
-                button.style.opacity = '1';
-                console.log(`[PRICING] Set ${buttonTier} to "Upgrade"`);
-            } else if (currentTier === 'basic') {
-                // Basic users see "Start Trial" for paid tiers
-                button.textContent = 'Start Trial';
-                button.style.background = 'transparent';
-                button.style.color = '#00FF88';
-                button.style.border = '2px solid #00FF88';
-                button.style.fontWeight = 'normal';
-                button.disabled = false;
-                button.style.cursor = 'pointer';
-                button.style.opacity = '1';
-                console.log(`[PRICING] Set ${buttonTier} to "Start Trial" (basic user)`);
+            } else if (currentTier === 'free' || currentTier === 'basic') {
+                // Free/Basic users can submit requests for paid tiers
+                if (buttonTier === 'spot_check' || buttonTier === 'professional' || buttonTier === 'fleet_valuation') {
+                    button.textContent = buttonTier === 'fleet_valuation' ? 'Submit Fleet Request' : 'Submit Request';
+                    button.style.background = 'transparent';
+                    button.style.color = '#00FF88';
+                    button.style.border = '2px solid #00FF88';
+                    button.disabled = false;
+                    button.style.cursor = 'pointer';
+                    button.style.opacity = '1';
+                }
             } else {
-                // Paid users see Upgrade or Downgrade
+                // Paid users see Submit Request or Upgrade
                 if (buttonTierLevel > currentTierLevel) {
-                    button.textContent = 'Upgrade';
-                    console.log(`[PRICING] Set ${buttonTier} to "Upgrade"`);
+                    button.textContent = buttonTier === 'fleet_valuation' ? 'Upgrade to Fleet' : 'Upgrade';
                 } else {
-                    button.textContent = 'Downgrade';
-                    console.log(`[PRICING] Set ${buttonTier} to "Downgrade"`);
+                    button.textContent = buttonTier === 'fleet_valuation' ? 'Submit Fleet Request' : 'Submit Request';
                 }
                 button.style.background = 'transparent';
                 button.style.color = '#00FF88';
@@ -4532,6 +4200,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
     } catch (e) {
         console.error('[PRICING] Error updating pricing buttons:', e);
         resetPricingButtons();
+        pricingUpdateInProgress = false; // Reset flag on error
     }
 }
 
@@ -4541,22 +4210,32 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             pricingButtons.forEach(button => {
                 const buttonTier = button.getAttribute('data-tier');
                 
-                if (buttonTier === 'enterprise') {
-                    button.textContent = 'Contact Sales';
+                if (buttonTier === 'free') {
+                    button.textContent = 'Current Plan';
+                    button.disabled = true;
+                    button.style.opacity = '0.6';
+                    button.style.cursor = 'not-allowed';
+                } else if (buttonTier === 'fleet_valuation') {
+                    button.textContent = 'Submit Fleet Request';
                 } else {
-                    button.textContent = 'Start Trial';
+                    button.textContent = 'Submit Request';
                 }
                 button.style.background = '';
                 button.style.color = '';
                 button.style.border = '';
                 button.style.cursor = '';
-                button.disabled = false;
+                if (buttonTier !== 'free') {
+                    button.disabled = false;
+                }
             });
         }
-        function openForgotPasswordModal() {
-            document.getElementById('forgotPasswordModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
+        window.openForgotPasswordModal = function() {
+            const modal = document.getElementById('forgotPasswordModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        };
 
         // Handle consultation form submission
         async function handleConsultationSubmission(event) {
@@ -4587,7 +4266,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             
             try {
                 // Send consultation request to backend
-                const response = await fetch('/api/v1/consultation/submit', {
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/consultation/submit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -4628,16 +4307,19 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             }
         }
 
-        function closeForgotPasswordModal() {
-            document.getElementById('forgotPasswordModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            clearForgotPasswordForm();
-        }
+        window.closeForgotPasswordModal = function() {
+            const modal = document.getElementById('forgotPasswordModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                if (typeof clearForgotPasswordForm === 'function') clearForgotPasswordForm();
+            }
+        };
 
-        function switchToForgotPassword() {
-            closeLoginModal();
-            openForgotPasswordModal();
-        }
+        window.switchToForgotPassword = function() {
+            if (typeof window.closeLoginModal === 'function') window.closeLoginModal();
+            if (typeof window.openForgotPasswordModal === 'function') window.openForgotPasswordModal();
+        };
 
         function clearLoginForm() {
             document.getElementById('loginForm').reset();
@@ -4695,7 +4377,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
 
             try {
                 console.log('[LOGIN] Sending API request...');
-                const response = await fetch('https://craneintelligence.tech/api/v1/auth/login', {
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -4800,17 +4482,44 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                         console.warn('[LOGIN] Could not show success notification:', successError);
                     }
                     
-                    // Update UI
+                    // Update UI using centralized auth UI manager
                     try {
                         console.log('[LOGIN] Updating user interface...');
-                        if (typeof updateUserInterface === 'function') {
-                            updateUserInterface(userData);
-                            console.log('[LOGIN] UI updated');
+                        console.log('[LOGIN] User data stored:', !!userData, 'Token stored:', !!accessToken);
+                        
+                        // Force immediate update
+                        if (typeof window.updateAuthUI === 'function') {
+                            console.log('[LOGIN] Calling updateAuthUI() multiple times...');
+                            // Call immediately and with delays to catch component injection
+                            window.updateAuthUI();
+                            setTimeout(() => { console.log('[LOGIN] Retry 1'); window.updateAuthUI(); }, 100);
+                            setTimeout(() => { console.log('[LOGIN] Retry 2'); window.updateAuthUI(); }, 300);
+                            setTimeout(() => { console.log('[LOGIN] Retry 3'); window.updateAuthUI(); }, 500);
+                            setTimeout(() => { console.log('[LOGIN] Retry 4'); window.updateAuthUI(); }, 1000);
+                            setTimeout(() => { console.log('[LOGIN] Retry 5'); window.updateAuthUI(); }, 2000);
+                            setTimeout(() => { console.log('[LOGIN] Retry 6'); window.updateAuthUI(); }, 3000);
+                            console.log('[LOGIN] UI update scheduled via centralized function');
                         } else {
-                            console.warn('[LOGIN] updateUserInterface function not found');
+                            console.error('[LOGIN] window.updateAuthUI function not found!');
+                            if (typeof updateUserInterface === 'function') {
+                                updateUserInterface(userData);
+                                console.log('[LOGIN] UI updated via fallback function');
+                            }
+                        }
+                        
+                        // Dispatch custom event for auth state change
+                        window.dispatchEvent(new CustomEvent('authStateChanged'));
+                        
+                        // Also trigger storage event manually (for same-tab updates)
+                        if (typeof window.dispatchEvent !== 'undefined') {
+                            window.dispatchEvent(new StorageEvent('storage', {
+                                key: 'user_data',
+                                newValue: JSON.stringify(userData),
+                                storageArea: localStorage
+                            }));
                         }
                     } catch (uiError) {
-                        console.warn('[LOGIN] Could not update UI:', uiError);
+                        console.error('[LOGIN] Could not update UI:', uiError);
                     }
                     
                     // Close modal
@@ -4843,7 +4552,9 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                     
                 } else {
                     // Login failed
-                    console.log('[LOGIN] Login failed:', result.message || result.error);
+                    const errorText = result.error || result.message || 'Invalid credentials. Please try again.';
+                    console.log('[LOGIN] Login failed:', errorText);
+                    console.log('[LOGIN] Full result:', JSON.stringify(result, null, 2));
                     
                     try {
                         if (loadingId && notificationSystem && notificationSystem.hideLoading) {
@@ -4853,16 +4564,40 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                         console.warn('[LOGIN] Could not hide loading on error:', e);
                     }
                     
+                    // Check if it's an email verification error
+                    const isVerificationError = errorText.toLowerCase().includes('verification') || 
+                                               (result.message && result.message.toLowerCase().includes('verification'));
+                    
                     try {
                         if (notificationSystem && notificationSystem.showError) {
-                            notificationSystem.showError('Login Failed', result.error || result.message || 'Invalid credentials. Please try again.');
+                            if (isVerificationError) {
+                                // Show verification error with resend link
+                                notificationSystem.showError('Email Verification Required', errorText, {
+                                    duration: 10000,
+                                    action: {
+                                        label: 'Resend Verification',
+                                        url: `/resend-verification.html?email=${encodeURIComponent(loginData.email)}`
+                                    }
+                                });
+                            } else {
+                                notificationSystem.showError('Login Failed', errorText);
+                            }
                         } else {
-                            errorMessage.textContent = result.error || result.message || 'Invalid credentials. Please try again.';
+                            errorMessage.textContent = errorText;
                             errorMessage.style.display = 'block';
+                            
+                            // Add resend verification link if it's a verification error
+                            if (isVerificationError) {
+                                const resendLink = document.createElement('a');
+                                resendLink.href = `/resend-verification.html?email=${encodeURIComponent(loginData.email)}`;
+                                resendLink.textContent = 'Click here to resend verification email';
+                                resendLink.style.cssText = 'display: block; margin-top: 8px; color: #00FF85; text-decoration: underline;';
+                                errorMessage.appendChild(resendLink);
+                            }
                         }
                     } catch (e) {
                         console.warn('[LOGIN] Could not show error:', e);
-                        errorMessage.textContent = result.error || result.message || 'Invalid credentials. Please try again.';
+                        errorMessage.textContent = errorText;
                         errorMessage.style.display = 'block';
                     }
                 }
@@ -4925,12 +4660,12 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 username: formData.get('email').split('@')[0],
                 password: formData.get('password'),
                 user_role: formData.get('userRole'),
-                subscription_tier: 'basic',
+                subscription_tier: 'free',
                 company_name: 'N/A'
             };
             
             try {
-                const response = await fetch('https://craneintelligence.tech/api/v1/auth/signup', {
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/signup`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(signupData)
@@ -4943,7 +4678,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                     notificationSystem.showSuccess('Account Created!', result.message || 'Account created successfully!');
                     document.getElementById('signupForm').reset();
                     closeSignupModal();
-                    setTimeout(() => openLoginModal(), 1500);
+                    setTimeout(() => { if (typeof window.openLoginModal === 'function') window.openLoginModal(); }, 1500);
                 } else {
                     notificationSystem.showError('Registration Failed', result?.error || result?.message || 'Registration failed');
                 }
@@ -4981,7 +4716,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             console.log("Consultation request:", formData);
 
             try {
-                const response = await fetch('https://craneintelligence.tech/api/v1/auth/forgot-password', {
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/forgot-password`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -5351,7 +5086,7 @@ function updatePricingForLoggedInUser(retryCount = 0) {
         async function loadRealTimeMarketData() {
             try {
                 // Load crane listings data to calculate market stats
-                const listingsResponse = await fetch('/api/v1/enhanced-data/crane-listings?limit=1000');
+                const listingsResponse = await fetch(`${getApiBaseUrl()}/api/v1/enhanced-data/crane-listings?limit=1000`);
                 const listingsData = await listingsResponse.json();
                 
                 if (listingsData.success && listingsData.data && listingsData.data.length > 0) {
@@ -5565,32 +5300,9 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             }
         }
 
-        // User dropdown functionality
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            const userInfo = document.querySelector('.user-info');
-            
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-            if (userInfo) {
-                userInfo.classList.toggle('active');
-            }
-        }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('userDropdown');
-            const userProfile = document.getElementById('userProfile');
-            
-            if (dropdown && userProfile && !userProfile.contains(event.target)) {
-                dropdown.classList.remove('show');
-                const userInfo = document.querySelector('.user-info');
-                if (userInfo) {
-                    userInfo.classList.remove('active');
-                }
-            }
-        });
+        // User dropdown functionality - DELEGATED TO UNIFIED HEADER
+        // The unified-header.html component handles all dropdown logic via portal solution
+        // No local handlers needed - they conflict with the centralized solution
 
         /* Mobile menu functionality removed */
 
@@ -5727,14 +5439,29 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                     handleApiError: (error, context) => showFallbackNotification('error', context || 'Error', error.message || 'An error occurred')
                 };
             }
-            // Set initial state
-            const authButtons = document.getElementById('authButtons');
-            const userProfile = document.getElementById('userProfile');
-            
-            if (authButtons && userProfile) {
-                authButtons.style.display = 'flex';
-                userProfile.style.display = 'none';
-            }
+            // Set initial state - wait for component to load
+            setTimeout(() => {
+                const authButtons = document.getElementById('authButtons');
+                const userProfile = document.getElementById('userProfile');
+                
+                if (authButtons && userProfile) {
+                    // Check if user is logged in
+                    const userData = safeStorage.getItem('user_data');
+                    const token = safeStorage.getItem('access_token');
+                    
+                    if (!userData || !token) {
+                        // Guest user - show auth buttons
+                        authButtons.style.setProperty('display', 'flex', 'important');
+                        authButtons.style.setProperty('visibility', 'visible', 'important');
+                        authButtons.style.setProperty('opacity', '1', 'important');
+                        userProfile.style.setProperty('display', 'none', 'important');
+                    } else {
+                        // Logged in user - show profile
+                        authButtons.style.setProperty('display', 'none', 'important');
+                        userProfile.style.setProperty('display', 'flex', 'important');
+                    }
+                }
+            }, 500);
             
             // Check authentication status and update UI immediately
             checkAuthStatus();
@@ -5787,112 +5514,129 @@ function updatePricingForLoggedInUser(retryCount = 0) {
 
 
         function updateUserInterface(user) {
-            console.log('updateUserInterface called with user:', user);
-            const authButtons = document.getElementById('authButtons');
-            const userProfile = document.getElementById('userProfile');
-            const userDisplayName = document.getElementById('userDisplayName');
-            const userInitials = document.getElementById('userInitials');
-            const userRole = document.getElementById('userRole');
-            const mobileAuthButtons = document.getElementById('mobileAuthButtons');
+            console.log('[homepage] updateUserInterface called with user:', user);
             
-            console.log('Elements found:', { authButtons, userProfile, userDisplayName, userInitials, userRole, mobileAuthButtons });
-            
-            // Force hide both elements first
-            if (authButtons) {
-                authButtons.style.display = 'none';
-                authButtons.style.visibility = 'hidden';
-            }
-            if (userProfile) {
-                userProfile.style.display = 'none';
-                userProfile.style.visibility = 'hidden';
-            }
-            if (mobileAuthButtons) {
-                mobileAuthButtons.style.display = 'none';
-                mobileAuthButtons.style.visibility = 'hidden';
-            }
-            
-            if (user) {
-                console.log('User logged in, showing profile, hiding auth buttons');
-                // Show user profile for logged-in users, hide auth buttons
-                if (userProfile) {
-                    userProfile.style.display = 'flex';
-                    userProfile.style.visibility = 'visible';
-                    console.log('Updated inline styles - userProfile: flex visible');
+            // ALWAYS delegate to centralized updateAuthUI function
+            if (typeof window.updateAuthUI === 'function') {
+                console.log('[homepage] Delegating to centralized updateAuthUI');
+                window.updateAuthUI(true); // Force update
+                // Also update user profile display if user data is provided
+                if (user && typeof userProfileManager !== 'undefined') {
+                    setTimeout(() => {
+                        userProfileManager.updateProfileDisplay(user);
+                    }, 500);
                 }
-                if (authButtons) {
-                    authButtons.style.display = 'none';
-                    authButtons.style.visibility = 'hidden';
-                    console.log('Updated inline styles - authButtons: none hidden');
-                }
-                if (mobileAuthButtons) {
-                    mobileAuthButtons.style.display = 'none';
-                    mobileAuthButtons.style.visibility = 'hidden';
-                    console.log('Updated inline styles - mobileAuthButtons: none hidden');
+                // Dispatch custom event for auth state change
+                window.dispatchEvent(new CustomEvent('authStateChanged'));
+                return;
+            }
+            
+            console.warn('[homepage] window.updateAuthUI not found, using fallback');
+            // Fallback implementation (legacy support) - only if centralized function doesn't exist
+            // Wait for component to be loaded if it's not ready yet
+            function tryUpdateUI(retries = 10) {
+                const authButtons = document.getElementById('authButtons');
+                const userProfile = document.getElementById('userProfile');
+                const userDisplayName = document.getElementById('userDisplayName');
+                const userInitials = document.getElementById('userInitials');
+                const userRole = document.getElementById('userRole');
+                const mobileAuthButtons = document.getElementById('mobileAuthButtons');
+                
+                // If auth buttons don't exist and we still have retries, wait and try again
+                if (!authButtons && retries > 0) {
+                    console.log('Auth buttons not found, retrying...', retries);
+                    setTimeout(() => tryUpdateUI(retries - 1), 200);
+                    return;
                 }
                 
-                // Update user information
-                if (userDisplayName && userInitials) {
-                    const fullName = user.full_name || user.email || 'User';
-                    userDisplayName.textContent = fullName;
-                    userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
-                }
+                console.log('Elements found:', { authButtons, userProfile, userDisplayName, userInitials, userRole, mobileAuthButtons });
                 
-                if (userRole) {
-                    // Payment-based tier calculation
-                    function getSubscriptionTierFromPayment(userData) {
-                        const subscriptionPlan = userData.subscription_plan || {};
-                        const monthlyPrice = subscriptionPlan.monthly_price || 0;
-                        const yearlyPrice = subscriptionPlan.yearly_price || 0;
-                        
-                        if (monthlyPrice > 0) {
-                            if (monthlyPrice >= 4999) return 'enterprise';
-                            else if (monthlyPrice >= 2499) return 'professional';
-                            else if (monthlyPrice >= 999) return 'starter';
-                            else return 'basic';
-                        } else if (yearlyPrice > 0) {
-                            if (yearlyPrice >= 59340) return 'enterprise';
-                            else if (yearlyPrice >= 25490) return 'professional';
-                            else if (yearlyPrice >= 10188) return 'starter';
-                            else return 'basic';
-                        } else {
-                            return 'basic';
-                        }
+                if (user) {
+                    console.log('User logged in, showing profile, hiding auth buttons');
+                    // Show user profile for logged-in users, hide auth buttons
+                    if (userProfile) {
+                        userProfile.style.setProperty('display', 'flex', 'important');
+                        userProfile.style.setProperty('visibility', 'visible', 'important');
+                        console.log('Updated inline styles - userProfile: flex visible');
+                    }
+                    if (authButtons) {
+                        authButtons.style.setProperty('display', 'none', 'important');
+                        authButtons.style.setProperty('visibility', 'hidden', 'important');
+                        console.log('Updated inline styles - authButtons: none hidden');
+                    }
+                    if (mobileAuthButtons) {
+                        mobileAuthButtons.style.setProperty('display', 'none', 'important');
+                        mobileAuthButtons.style.setProperty('visibility', 'hidden', 'important');
+                        console.log('Updated inline styles - mobileAuthButtons: none hidden');
                     }
                     
-                    const tierNames = {
-                        "basic": "Basic User",
-                        "starter": "Starter User",
-                        "professional": "Professional User",
-                        "enterprise": "Enterprise User"
-                    };
+                    // Update user information
+                    if (userDisplayName && userInitials) {
+                        const fullName = user.full_name || user.email || 'User';
+                        userDisplayName.textContent = fullName;
+                        userInitials.textContent = fullName.split(' ').map(name => name.charAt(0)).join('').toUpperCase().substring(0, 2);
+                    }
                     
-                    const tier = getSubscriptionTierFromPayment(user);
-                    const tierName = tierNames[tier] || "Basic User";
-                    userRole.textContent = tierName;
-                    console.log("✅ Homepage - Payment-based tier:", tierName, "(monthly_price:", user.subscription_plan?.monthly_price, ")");
-                }
-                
-                // Update pricing section for logged-in user
-                updatePricingForLoggedInUser();
-            } else {
-                console.log('User not logged in, showing auth buttons, hiding profile');
-                // Show auth buttons for guest users, hide user profile
-                if (authButtons) {
-                    authButtons.style.display = 'flex';
-                    authButtons.style.visibility = 'visible';
-                    console.log('Updated inline styles - authButtons: flex visible');
-                }
-                if (mobileAuthButtons) {
-                    mobileAuthButtons.style.display = 'flex';
-                    mobileAuthButtons.style.visibility = 'visible';
-                    console.log('Updated inline styles - mobileAuthButtons: flex visible');
-                }
-                if (userProfile) {
-                    userProfile.style.display = 'none';
-                    userProfile.style.visibility = 'hidden';
-                    console.log('Updated inline styles - userProfile: none hidden');
+                    if (userRole) {
+                        // Payment-based tier calculation
+                        function getSubscriptionTierFromPayment(userData) {
+                            const subscriptionPlan = userData.subscription_plan || {};
+                            const monthlyPrice = subscriptionPlan.monthly_price || 0;
+                            const yearlyPrice = subscriptionPlan.yearly_price || 0;
+                            
+                            if (monthlyPrice > 0) {
+                                if (monthlyPrice >= 2499) return 'professional';
+                                else if (monthlyPrice >= 999) return 'starter';
+                                else return 'basic';
+                            } else if (yearlyPrice > 0) {
+                                if (yearlyPrice >= 25490) return 'professional';
+                                else if (yearlyPrice >= 10188) return 'starter';
+                                else return 'basic';
+                            } else {
+                                return 'basic';
+                            }
+                        }
+                        
+                        const tierNames = {
+                            "basic": "Basic User",
+                            "starter": "Starter User",
+                            "professional": "Professional User",
+                        };
+                        
+                        const tier = getSubscriptionTierFromPayment(user);
+                        const tierName = tierNames[tier] || "Basic User";
+                        userRole.textContent = tierName;
+                        console.log("✅ Homepage - Payment-based tier:", tierName, "(monthly_price:", user.subscription_plan?.monthly_price, ")");
+                    }
+                    
+                    // Update pricing section for logged-in user
+                    updatePricingForLoggedInUser();
+                } else {
+                    console.log('User not logged in, showing auth buttons, hiding profile');
+                    // Show auth buttons for guest users, hide user profile
+                    if (authButtons) {
+                        authButtons.style.setProperty('display', 'flex', 'important');
+                        authButtons.style.setProperty('visibility', 'visible', 'important');
+                        authButtons.style.setProperty('opacity', '1', 'important');
+                        authButtons.classList.remove('hidden');
+                        console.log('Updated inline styles - authButtons: flex visible');
+                    }
+                    if (mobileAuthButtons) {
+                        mobileAuthButtons.style.setProperty('display', 'flex', 'important');
+                        mobileAuthButtons.style.setProperty('visibility', 'visible', 'important');
+                        mobileAuthButtons.style.setProperty('opacity', '1', 'important');
+                        console.log('Updated inline styles - mobileAuthButtons: flex visible');
+                    }
+                    if (userProfile) {
+                        userProfile.style.setProperty('display', 'none', 'important');
+                        userProfile.style.setProperty('visibility', 'hidden', 'important');
+                        console.log('Updated inline styles - userProfile: none hidden');
+                    }
                 }
             }
+            
+            // Start the update process
+            tryUpdateUI();
         }
 
     </script>
@@ -5907,7 +5651,7 @@ async function loadSubscriptionTier() {
   if (!userEmail) return;
   
   try {
-    const response = await fetch("/api/v1/users/subscription", {
+    const response = await fetch(`${getApiBaseUrl()}/api/v1/users/subscription`, {
       headers: {
         "x-user-email": userEmail
       }

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Management - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-danger { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+        .btn-danger:hover { background: #CC0000; }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; overflow: hidden; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; padding: 12px; text-align: left; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; padding: 12px; }
+        .user-table tr:hover { background: #2A2A2A; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .status-badge.active { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+        .status-badge.inactive { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <h2>Session Management</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-danger btn-sm" onclick="revokeAllSessions()">Revoke All My Sessions</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Admin</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+                                <th>Last Activity</th>
+                                <th>Created</th>
+                                <th>Expires</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessions-table-body">
+                            <tr><td colspan="8" class="loading">Loading sessions...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) {
+            window.location.href = '/admin/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+            
+            
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready');
+                loadSessions();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadSessions();
+                } else {
+                    setTimeout(() => loadSessions();, 1000);
+                }
+            }, 2000);
+        });
+        });
+
+        async function loadSessions() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/sessions/my-sessions`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                renderSessions(data.sessions);
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                document.getElementById('sessions-table-body').innerHTML = 
+                    '<tr><td colspan="8">Error loading sessions</td></tr>';
+            }
+        }
+
+        function renderSessions(sessions) {
+            const tbody = document.getElementById('sessions-table-body');
+            if (sessions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No active sessions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = sessions.map(session => `
+                <tr>
+                    <td>${session.admin_name || session.admin_email}</td>
+                    <td>${session.ip_address || '-'}</td>
+                    <td>${session.user_agent ? session.user_agent.substring(0, 50) + '...' : '-'}</td>
+                    <td>${new Date(session.last_activity).toLocaleString()}</td>
+                    <td>${new Date(session.created_at).toLocaleString()}</td>
+                    <td>${new Date(session.expires_at).toLocaleString()}</td>
+                    <td><span class="status-badge ${session.is_active ? 'active' : 'inactive'}">${session.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="revokeSession(${session.id})">Revoke</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function revokeSession(sessionId) {
+            if (!confirm('Are you sure you want to revoke this session?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'Session revoked successfully');
+                    loadSessions();
+                } else {
+                    notificationSystem.showError('Error', 'Failed to revoke session');
+                }
+            } catch (error) {
+                console.error('Error revoking session:', error);
+                notificationSystem.showError('Error', 'Failed to revoke session');
+            }
+        }
+
+        async function revokeAllSessions() {
+            if (!confirm('Are you sure you want to revoke all your sessions? You will be logged out.')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/sessions/revoke-all`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'All sessions revoked. You will be logged out.');
+                    setTimeout(() => {
+                        window.location.href = '/admin/login.html';
+                    }, 2000);
+                } else {
+                    notificationSystem.showError('Error', 'Failed to revoke sessions');
+                }
+            } catch (error) {
+                console.error('Error revoking all sessions:', error);
+                notificationSystem.showError('Error', 'Failed to revoke sessions');
+            }
+        }
+    </script>
+</body>
+</html>
+

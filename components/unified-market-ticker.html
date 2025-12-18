@@ -1,0 +1,167 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED MARKET TICKER COMPONENT ===== -->
+<!-- Include this ticker on pages where market data should be displayed -->
+
+<div class="market-ticker" id="marketTicker">
+    <div class="ticker-container">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-symbol">XCMG</span>
+                <span class="ticker-price">467.8</span>
+                <span class="ticker-change down">-0.4%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">MANITEX</span>
+                <span class="ticker-price">757.8</span>
+                <span class="ticker-change up">+1.3%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">AMERICAN</span>
+                <span class="ticker-price">732.9</span>
+                <span class="ticker-change down">-1.2%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">SHUTTLELIFT</span>
+                <span class="ticker-price">683.4</span>
+                <span class="ticker-change up">+2.2%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">GALION</span>
+                <span class="ticker-price">709.8</span>
+                <span class="ticker-change down">-0.5%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">DEMAG</span>
+                <span class="ticker-price">667.8</span>
+                <span class="ticker-change down">-1.1%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">NA-CRANE</span>
+                <span class="ticker-price">762.1</span>
+                <span class="ticker-change up">+1.8%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">EU-CRANE</span>
+                <span class="ticker-price">639.8</span>
+                <span class="ticker-change up">+2.1%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">AS-CRANE</span>
+                <span class="ticker-price">749.2</span>
+                <span class="ticker-change down">-0.7%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">LIEBHERR</span>
+                <span class="ticker-price">567.3</span>
+                <span class="ticker-change up">+3.1%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">TEREX</span>
+                <span class="ticker-price">234.5</span>
+                <span class="ticker-change down">-0.7%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">MANITOWOC</span>
+                <span class="ticker-price">521.3</span>
+                <span class="ticker-change up">+1.7%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Market Ticker Styles - Centralized */
+.market-ticker {
+    background: #0F0F0F;
+    border-bottom: 1px solid #333333;
+    padding: 8px 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.ticker-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.ticker-content {
+    display: flex;
+    animation: scroll 30s linear infinite;
+    white-space: nowrap;
+    gap: 32px;
+}
+
+.ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+}
+
+.ticker-symbol {
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ticker-price {
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.ticker-change {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ticker-change.up {
+    color: #00FF85;
+}
+
+.ticker-change.down {
+    color: #FF4444;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ticker-container {
+        padding: 0 16px;
+    }
+    
+    .ticker-item {
+        gap: 8px;
+    }
+    
+    .ticker-symbol,
+    .ticker-price,
+    .ticker-change {
+        font-size: 10px;
+    }
+}
+</style>
+
+<script>
+// Show/hide market ticker based on page
+(function() {
+    const tickerPages = ['dashboard.html', 'market-analysis.html', 'valuation_terminal.html', 'homepage.html'];
+    const currentPage = window.location.pathname.split('/').pop() || 'homepage.html';
+    
+    const marketTicker = document.getElementById('marketTicker');
+    if (marketTicker) {
+        if (tickerPages.includes(currentPage)) {
+            marketTicker.style.display = 'block';
+        } else {
+            marketTicker.style.display = 'none';
+        }
+    }
+})();
+</script>
+

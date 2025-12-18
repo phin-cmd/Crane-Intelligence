@@ -18,6 +18,9 @@
     <script src="js/live-data-framework.js"></script>
     <script src="js/notification-system.js"></script>
     <script src="/js/unified-auth-utils.js" defer></script>
+    <script src="js/component-loader.js" defer></script>
+    <script src="js/user-profile-manager.js" defer></script>
+    <script src="js/turnaround-timer.js" defer></script>
     <style>
         /* ===== PROFESSIONAL DASHBOARD STYLES ===== */
         * {
@@ -32,168 +35,19 @@
             color: #FFFFFF;
             line-height: 1.6;
             overflow-x: hidden;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         
-        /* Header Styles - Exact Match to Homepage */
-        .header {
-            background: #1A1A1A !important;
-            border-bottom: 1px solid #404040 !important;
-            padding: 16px 0 !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1000 !important;
-            backdrop-filter: none !important;
-        }
-
-        .header-container {
-            max-width: 1400px !important;
-            margin: 0 auto !important;
-            padding: 0 32px !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            height: 80px !important;
-            position: relative !important;
-        }
-
-        .logo {
-            display: flex !important;
-            align-items: center !important;
-            transition: none !important;
-        }
-
-        .logo:hover {
-            transform: none !important;
-        }
-
-        .logo-svg {
-            height: 60px !important;
-            width: auto !important;
-            filter: brightness(1.2) contrast(1.2) !important;
-        }
-
-        .nav-menu {
-            display: none !important;
-            align-items: center !important;
-            gap: 40px !important;
-            position: absolute !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) !important;
-        }
-
-        .nav-menu.show {
-            display: flex !important;
-        }
-
-        .nav-link {
-            color: #FFFFFF !important;
-            text-decoration: none !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            transition: color 0.2s !important;
-        }
-
-        .nav-link:hover {
+        /* Header styles are now handled by unified-header.css */
+        /* Removed inline header styles to use unified component */
             color: #FFD600 !important;
         }
 
 
 
-        .user-profile-wrapper {
-            position: absolute;
-            right: 32px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .user-profile {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00FF85, #00E673);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #FFFFFF;
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: #B0B0B0;
-        }
-
-        .dropdown-arrow {
-            color: #B0B0B0;
-            font-size: 12px;
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: #1A1A1A;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            z-index: 1001;
-            display: none;
-            margin-top: 4px;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: #FFFFFF;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-            background: #333333;
-        }
-
-        .dropdown-icon {
-            font-size: 16px;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: #333333;
-            margin: 8px 0;
-        }
+        /* User profile styles are now handled by unified-header.css and user-profile-dropdown component */
 
         /* Market Ticker - Exact Match to Homepage */
         .market-ticker {
@@ -256,7 +110,9 @@
 
         /* Dashboard Layout */
         .dashboard-container {
-            display: flex;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
             min-height: calc(100vh - 160px);
             background: #0F0F0F;
         }
@@ -358,6 +214,9 @@
             flex: 1;
             padding: 24px;
             overflow-y: auto;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .dashboard-header {
@@ -471,6 +330,200 @@
             gap: 16px;
         }
 
+        /* Turnaround Timer Styles for Dashboard */
+        .turnaround-timer {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0, 255, 133, 0.05);
+            border: 1px solid rgba(0, 255, 133, 0.2);
+            border-radius: 6px;
+        }
+        
+        .timer-label {
+            font-size: 11px;
+            color: #B0B0B0;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .timer-display {
+            margin: 6px 0;
+        }
+        
+        .timer-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: #00FF85;
+        }
+        
+        .timer-value.overdue {
+            color: #FF4444;
+        }
+        
+        .timer-status {
+            font-size: 11px;
+            color: #B0B0B0;
+            margin-top: 4px;
+        }
+        
+        .timer-urgent .timer-value {
+            color: #FF4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .timer-warning .timer-value {
+            color: #FFD600;
+        }
+        
+        .timer-overdue {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Report Modal Styles */
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .report-modal-content {
+            background: #1a1a1a;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .report-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .report-modal-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .report-modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .report-modal-close:hover {
+            background: #333;
+        }
+        
+        .report-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .report-detail-section {
+            margin-bottom: 24px;
+        }
+        
+        .report-detail-section h3 {
+            color: #00FF85;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .report-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .report-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .report-detail-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .report-detail-value {
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .report-modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .report-modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .report-modal-btn.primary {
+            background: #00FF85;
+            color: #000;
+        }
+        
+        .report-modal-btn.primary:hover {
+            background: #00cc6a;
+        }
+        
+        .report-modal-btn:not(.primary) {
+            background: #333;
+            color: #fff;
+        }
+        
+        .report-modal-btn:not(.primary):hover {
+            background: #444;
+        }
+
         .fmv-report-card {
             background: #0F0F0F;
             border: 1px solid #333333;
@@ -509,33 +562,62 @@
         }
 
         .fmv-status-draft {
-            background: #404040;
-            color: #B0B0B0;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
         }
 
-        .fmv-status-pending {
-            background: #FFA50033;
-            color: #FFA500;
+        .fmv-status-submitted {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+            border: 1px solid #00FF85;
         }
 
-        .fmv-status-paid {
-            background: #00FF8833;
-            color: #00FF88;
+        .fmv-status-in-progress {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            border: 1px solid #2196f3;
         }
 
-        .fmv-status-processing {
-            background: #1E90FF33;
-            color: #1E90FF;
+        .report-modal-status-section {
+            padding: 20px;
+            background: #1A1A1A;
+            border-bottom: 1px solid #333333;
+            text-align: center;
+        }
+        
+        .report-modal-status-section .report-modal-status {
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            padding: 12px 24px !important;
+            display: inline-block;
+            border-radius: 6px;
         }
 
         .fmv-status-completed {
-            background: #00FF8833;
-            color: #00FF88;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
         }
 
-        .fmv-status-failed {
-            background: #FF444433;
-            color: #FF4444;
+        .fmv-status-delivered {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+            font-weight: 700;
+        }
+
+        .fmv-status-need-more-info {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .fmv-status-overdue {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            border: 1px solid #f44336;
+            font-weight: 700;
         }
 
         .fmv-report-crane {
@@ -1656,102 +1738,35 @@
 
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <a href="homepage.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <img src="images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-svg">
-                </a>
-            </div>
-            <nav class="nav-menu">
-                <a href="homepage.html#features" class="nav-link">FEATURES</a>
-                <a href="homepage.html#pricing" class="nav-link">PRICING</a>
-                <a href="homepage.html#about" class="nav-link">ABOUT</a>
-                <a href="homepage.html#contact" class="nav-link">CONTACT</a>
-            </nav>
-            <div class="user-profile-wrapper">
-                <div class="user-profile" id="userProfile" onclick="toggleDropdown(event)">
-                    <div class="user-avatar" id="userAvatar">
-                        <span id="userInitials">JD</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name" id="userDisplayName">John Doe</div>
-                        <div class="user-role" id="userRole"><span id="subscriptionTier">Free</span> • <span id="subscriptionValuations">0/0</span></div>
-                    </div>
-                    <span class="dropdown-arrow">▼</span>
-                </div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="dashboard.html" class="dropdown-item">
-                        <span class="dropdown-icon">📊</span>
-                        Dashboard
-                    </a>
-                    <a href="valuation_terminal.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚡</span>
-                        Valuation Terminal
-                    </a>
-                    <a href="report-generation.html" class="dropdown-item">
-                        <span class="dropdown-icon">📄</span>
-                        FMV Reports
-                    </a>
-                    <a href="account-settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
-                        Account Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item" onclick="logout()">
-                        <span class="dropdown-icon">🚪</span>
-                        Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Market Ticker -->
-    <div class="market-ticker">
-        <div class="ticker-container">
-            <div class="ticker-content">
-                <div class="ticker-item">
-                    <span class="ticker-symbol">XCMG</span>
-                    <span class="ticker-price">467.8</span>
-                    <span class="ticker-change down">-0.4%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">MANITEX</span>
-                    <span class="ticker-price">757.8</span>
-                    <span class="ticker-change up">+1.3%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">AMERICAN</span>
-                    <span class="ticker-price">732.9</span>
-                    <span class="ticker-change down">-1.2%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">SHUTTLELIFT</span>
-                    <span class="ticker-price">683.4</span>
-                    <span class="ticker-change up">+2.2%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">GALION</span>
-                    <span class="ticker-price">709.8</span>
-                    <span class="ticker-change down">-0.5%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">DEMAG</span>
-                    <span class="ticker-price">891.2</span>
-                    <span class="ticker-change up">+1.8%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">TEREX</span>
-                    <span class="ticker-price">234.5</span>
-                    <span class="ticker-change down">-0.7%</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-symbol">LIEBHERR</span>
-                    <span class="ticker-price">567.3</span>
-                    <span class="ticker-change up">+3.1%</span>
-                </div>
+    <!-- Immediate visibility script -->
+    <script>
+        // Force visibility immediately, before any other scripts run
+        (function() {
+            document.body.style.display = 'block';
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            
+            // Ensure main content is visible as soon as it exists
+            const observer = new MutationObserver(function(mutations) {
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.style.setProperty('display', 'block', 'important');
+                    mainContent.style.setProperty('visibility', 'visible', 'important');
+                    mainContent.style.setProperty('opacity', '1', 'important');
+                }
+            });
+            
+            if (document.body) {
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        })();
+    </script>
+    
+    <!-- Unified Header Component -->
+    <div data-component="unified-header"></div>
+    
+    <!-- Unified Market Ticker Component -->
+    <div data-component="unified-market-ticker"></div>
             </div>
         </div>
     </div>
@@ -1792,11 +1807,6 @@
                 <h3 class="sidebar-title">QUICK ACTIONS</h3>
                 <div class="quick-actions">
                     <button class="action-btn primary" onclick="window.location.href='valuation_terminal.html'">NEW VALUATION</button>
-                    <button class="action-btn" onclick="window.location.href='add-equipment.html'">ADD EQUIPMENT</button>
-                    <button class="action-btn" onclick="window.location.href='market-analysis.html'">MARKET ANALYSIS</button>
-                    <button class="action-btn" onclick="window.location.href='report-generation.html'">GENERATE REPORT</button>
-                    <button class="action-btn" onclick="window.location.href='export-data.html'">EXPORT DATA</button>
-                    <button class="action-btn" onclick="window.location.href='schedule-inspection.html'">SCHEDULE INSPECTION</button>
                     </div>
                     </div>
                 </div>
@@ -1820,10 +1830,13 @@
             <div class="fmv-reports-section">
                 <div class="fmv-reports-header">
                     <h2 class="fmv-reports-title">📊 My FMV Reports</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
                     <div class="fmv-reports-tabs">
                         <button class="fmv-tab active" onclick="switchFMVTab('all')">All</button>
                         <button class="fmv-tab" onclick="switchFMVTab('drafts')">Drafts</button>
                         <button class="fmv-tab" onclick="switchFMVTab('submitted')">Submitted</button>
+                        </div>
+                        <button class="action-btn" onclick="window.location.href='/fmv-reports.html'" style="margin-left: 10px; padding: 8px 16px; background: #00FF85; color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-transform: uppercase; font-size: 12px;">View All</button>
                     </div>
                 </div>
                 <div class="fmv-reports-content" id="fmvReportsContent">
@@ -2090,26 +2103,81 @@
     </footer>
 
     <script>
+        // Safe localStorage wrapper to handle tracking prevention
+        (function() {
+            'use strict';
+            const safeStorage = {
+                getItem: function(key) {
+                    try { 
+                        return localStorage.getItem(key); 
+                    } catch (e) { 
+                        console.warn('[DASHBOARD] localStorage access blocked:', e); 
+                        return null; 
+                    }
+                },
+                setItem: function(key, value) {
+                    try { 
+                        localStorage.setItem(key, value); 
+                    } catch (e) { 
+                        console.warn('[DASHBOARD] localStorage access blocked:', e); 
+                    }
+                },
+                removeItem: function(key) {
+                    try { 
+                        localStorage.removeItem(key); 
+                    } catch (e) { 
+                        console.warn('[DASHBOARD] localStorage access blocked:', e); 
+                    }
+                }
+            };
+            window.safeStorage = safeStorage;
+        })();
+        
         // Authentication and User Management
         window.addEventListener('load', () => {
-            const token = localStorage.getItem('access_token');
-            const userData = localStorage.getItem('user_data');
-            
-            if (!token || !userData) {
+            // Delay authentication check to allow content to render first
+            setTimeout(() => {
+                const token = window.safeStorage.getItem('access_token');
+                const userData = window.safeStorage.getItem('user_data');
+                
+                console.log('[DASHBOARD] Auth check - Token:', token ? 'exists' : 'missing', 'UserData:', userData ? 'exists' : 'missing');
+                
+                // Check if token exists - this is the primary requirement
+                if (!token) {
+                    console.warn('[DASHBOARD] No access token found, redirecting to homepage');
                 window.location.href = 'homepage.html';
                 return;
             }
+                
+                // If we have a token but no userData, try to fetch user data or create a minimal user object
+                if (!userData) {
+                    console.warn('[DASHBOARD] Token exists but no user data. Attempting to continue with token only.');
+                    // Try to use token to fetch user data, or create minimal user object
+                    const minimalUser = {
+                        email: 'user@example.com',
+                        full_name: 'User',
+                        user_role: 'others'
+                    };
+                    updateUserInterface(minimalUser);
+                    return;
+                }
             
             try {
                 const user = JSON.parse(userData);
+                    console.log('[DASHBOARD] User data parsed successfully:', user);
                 updateUserInterface(user);
             } catch (error) {
-                console.error('Error parsing user data:', error);
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                localStorage.removeItem('user_data');
-                window.location.href = 'homepage.html';
-            }
+                    console.error('[DASHBOARD] Error parsing user data:', error);
+                    // Don't clear tokens on parse error - token is still valid
+                    // Just use minimal user data
+                    const minimalUser = {
+                        email: 'user@example.com',
+                        full_name: 'User',
+                        user_role: 'others'
+                    };
+                    updateUserInterface(minimalUser);
+                }
+            }, 500);
         });
         
         function updateUserInterface(user) {
@@ -2139,36 +2207,25 @@
                     userInitials.textContent = initials.substring(0, 2);
                 }
                 
-                // Fetch subscription tier from API
+                // Update user role display
                 if (userRole) {
-                    const token = localStorage.getItem('access_token');
-                    if (token) {
-                        fetch('https://craneintelligence.tech/api/v1/subscriptions/info', {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                    .then(response => response.json())
-                    .then(data => {
-                        const tierNames = {
-                            'basic': 'Basic User',
-                            'starter': 'Starter User',
-                            'professional': 'Professional User',
-                            'enterprise': 'Enterprise User'
+                    let displayRole = 'User';
+                    // Display user role
+                    if (user.user_role) {
+                        const role = user.user_role.toLowerCase();
+                        const roleMap = {
+                            'crane_rental_company': 'Crane Rental Company',
+                            'equipment_dealer': 'Equipment Dealer',
+                            'financial_institution': 'Financial Institution',
+                            'others': 'Other'
                         };
-                        const tierName = tierNames[data.tier] || 'Basic User';
-                        userRole.textContent = tierName;
-                        console.log('Dashboard - Updated subscription tier display:', tierName, 'from API response:', data);
-                    })
-                        .catch(error => {
-                            console.error('Dashboard - Error fetching subscription tier:', error);
-                            userRole.textContent = 'Basic User';
-                        });
+                        // Display user role
+                        displayRole = roleMap[role] || role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
                     } else {
-                        userRole.textContent = 'Basic User';
+                        // Fallback: use email or default
+                        displayRole = user.email ? user.email.split('@')[0] : 'User';
                     }
+                    userRole.textContent = displayRole;
                 }
             } else {
                 // Hide user profile for guest users
@@ -2193,9 +2250,9 @@
 
 
         window.logout = function() {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('user_data');
+            window.safeStorage.removeItem('access_token');
+            window.safeStorage.removeItem('refresh_token');
+            window.safeStorage.removeItem('user_data');
             window.location.href = 'homepage.html';
         }
 
@@ -2276,7 +2333,12 @@
 
         function initializeCharts() {
             // Portfolio Performance Chart
-            const portfolioCtx = document.getElementById('portfolioChart').getContext('2d');
+            const portfolioChart = document.getElementById('portfolioChart');
+            if (!portfolioChart) {
+                console.warn('[DASHBOARD] Portfolio chart element not found');
+                return;
+            }
+            const portfolioCtx = portfolioChart.getContext('2d');
             new Chart(portfolioCtx, {
                 type: 'line',
                 data: {
@@ -2317,7 +2379,12 @@
             });
 
             // Market Analysis Chart
-            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketChart = document.getElementById('marketChart');
+            if (!marketChart) {
+                console.warn('[DASHBOARD] Market chart element not found');
+                return;
+            }
+            const marketCtx = marketChart.getContext('2d');
             new Chart(marketCtx, {
                 type: 'bar',
                 data: {
@@ -2548,6 +2615,10 @@
             const currentPageData = allValuations.slice(startIndex, endIndex);
             
             const tbody = document.getElementById('valuationsTableBody');
+            if (!tbody) {
+                console.warn('[DASHBOARD] Valuations table body not found');
+                return;
+            }
             tbody.innerHTML = '';
             
             currentPageData.forEach(valuation => {
@@ -2571,6 +2642,11 @@
             const paginationControls = document.getElementById('paginationControls');
             const recordsInfo = document.getElementById('recordsInfo');
             const valuationsCount = document.getElementById('valuationsCount');
+            
+            if (!paginationControls) {
+                console.warn('[DASHBOARD] Pagination controls not found');
+                return;
+            }
             
             // Clear existing buttons
             paginationControls.innerHTML = '';
@@ -2718,7 +2794,12 @@
                 goToPage(page);
                 input.value = '';
             } else {
-                alert(`Please enter a page number between 1 and ${totalPages}`);
+                const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+                if (notificationSystem) {
+                    notificationSystem.showWarning('Invalid Page Number', `Please enter a page number between 1 and ${totalPages}`);
+                } else {
+                    console.warn(`Invalid page number: ${page}. Valid range: 1-${totalPages}`);
+                }
                 input.value = '';
             }
         }
@@ -2755,14 +2836,24 @@
             submitted: []
         };
 
+        // Listen for user data updates (e.g., after subscription upgrade)
+        window.addEventListener('userDataUpdated', async (event) => {
+            console.log('🔄 User data updated, refreshing FMV reports...');
+            await loadFMVReports();
+        });
+
         // Load FMV reports on page load
         async function loadFMVReports() {
             try {
-                // Get user email from session
-                const userEmail = getUserEmail();
-                if (!userEmail) {
-                    console.log('No user email found');
-                    displayEmptyState('Please log in to view your FMV reports');
+                // Get user ID from authenticated user
+                const userId = getUserId();
+                if (!userId) {
+                    console.log('No user ID found');
+                    // Still load drafts from localStorage even if not authenticated
+                    const drafts = loadDraftReports();
+                    fmvReports.drafts = drafts;
+                    fmvReports.submitted = [];
+                    displayFMVReports();
                     return;
                 }
 
@@ -2770,13 +2861,19 @@
                 const drafts = loadDraftReports();
                 fmvReports.drafts = drafts;
 
-                // Load submitted reports from API
-                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/user/${encodeURIComponent(userEmail)}`);
+                // Load submitted reports from API using user ID
+                const token = window.safeStorage.getItem('access_token') || window.safeStorage.getItem('auth_token') || window.safeStorage.getItem('crane_auth_token');
+                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/user/${userId}`, {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
-                    fmvReports.submitted = data.reports || [];
+                    // API returns array directly, not wrapped in {reports: []}
+                    fmvReports.submitted = Array.isArray(data) ? data : (data.reports || []);
                 } else {
-                    console.error('Failed to load submitted reports');
+                    console.error('Failed to load submitted reports:', response.status, response.statusText);
                     fmvReports.submitted = [];
                 }
 
@@ -2784,8 +2881,56 @@
                 displayFMVReports();
             } catch (error) {
                 console.error('Error loading FMV reports:', error);
-                displayEmptyState('Failed to load reports. Please try again later.');
+                // Still show drafts even if API fails
+                const drafts = loadDraftReports();
+                fmvReports.drafts = drafts;
+                fmvReports.submitted = [];
+                displayFMVReports();
             }
+        }
+        
+        // Get user ID from session/localStorage
+        function getUserId() {
+            // Try to get from unified auth
+            if (window.unifiedAuth && window.unifiedAuth.user && window.unifiedAuth.user.id) {
+                return window.unifiedAuth.user.id;
+            }
+            
+            // Try user_data (main auth system)
+            const userData = window.safeStorage.getItem('user_data');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user.id) return user.id;
+                } catch (e) {
+                    console.error('Error parsing user_data:', e);
+                }
+            }
+            
+            // Try to decode JWT token to get user ID
+            const token = window.safeStorage.getItem('access_token') || window.safeStorage.getItem('auth_token') || window.safeStorage.getItem('crane_auth_token');
+            if (token) {
+                try {
+                    // Decode JWT token (simple base64 decode, no verification)
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    if (payload.sub) return parseInt(payload.sub);
+                } catch (e) {
+                    console.error('Error decoding token:', e);
+                }
+            }
+            
+            // Fallback to currentUser
+            const currentUser = window.safeStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    if (user.id) return user.id;
+                } catch (e) {
+                    console.error('Error parsing currentUser:', e);
+                }
+            }
+            
+            return null;
         }
 
         // Get user email from session/localStorage
@@ -2796,7 +2941,7 @@
             }
             
             // Try user_data (main auth system)
-            const userData = localStorage.getItem('user_data');
+            const userData = window.safeStorage.getItem('user_data');
             if (userData) {
                 try {
                     const user = JSON.parse(userData);
@@ -2807,7 +2952,7 @@
             }
             
             // Fallback to currentUser
-            const currentUser = localStorage.getItem('currentUser');
+            const currentUser = window.safeStorage.getItem('currentUser');
             if (currentUser) {
                 try {
                     const user = JSON.parse(currentUser);
@@ -2824,7 +2969,7 @@
         // Load draft reports from localStorage
         function loadDraftReports() {
             try {
-                const drafts = localStorage.getItem('fmv_draft_reports');
+                const drafts = window.safeStorage.getItem('fmv_draft_reports');
                 if (drafts) {
                     return JSON.parse(drafts);
                 }
@@ -2853,12 +2998,117 @@
             const container = document.getElementById('fmvReportsContent');
             let reportsToDisplay = [];
 
+            // Combine all reports from API (they come with all statuses)
+            // CRITICAL: Deduplicate reports - ensure only ONE report per unique ID
+            // Use a Map to track reports by ID, prioritizing API reports over localStorage drafts
+            const reportsMap = new Map();
+            
+            // First, add all API reports (these take priority)
+            fmvReports.submitted.forEach(report => {
+                if (report.id) {
+                    const reportId = String(report.id);
+                    // Only add if not already in map (API reports take priority)
+                    if (!reportsMap.has(reportId)) {
+                        reportsMap.set(reportId, report);
+                    }
+                }
+            });
+            
+            // Then, add localStorage drafts only if they don't have a corresponding API report
+            fmvReports.drafts.forEach(draft => {
+                const draftId = draft.id ? String(draft.id) : '';
+                // If it's a localStorage-only draft (starts with 'draft_'), include it
+                if (draftId.startsWith('draft_')) {
+                    if (!reportsMap.has(draftId)) {
+                        reportsMap.set(draftId, draft);
+                    }
+                } else {
+                    // It's a real ID - only include if there's no API report with this ID
+                    if (!reportsMap.has(draftId)) {
+                        reportsMap.set(draftId, draft);
+                    }
+                }
+            });
+            
+            // Convert map to array
+            const allReports = Array.from(reportsMap.values());
+            
+            // Filter out DELETED reports
+            const activeReports = allReports.filter(r => {
+                const status = (r.status || '').toLowerCase();
+                return status !== 'deleted';
+            });
+            
+            // Additional deduplication: Remove duplicates by payment_intent_id if they exist
+            // If two reports have the same payment_intent_id, keep the one with the latest created_at
+            const paymentIntentMap = new Map();
+            activeReports.forEach(report => {
+                const paymentIntentId = report.payment_intent_id;
+                if (paymentIntentId) {
+                    const existing = paymentIntentMap.get(paymentIntentId);
+                    if (!existing) {
+                        paymentIntentMap.set(paymentIntentId, report);
+                    } else {
+                        // Compare dates - keep the newer one
+                        const existingDate = new Date(existing.created_at || 0);
+                        const currentDate = new Date(report.created_at || 0);
+                        if (currentDate > existingDate) {
+                            paymentIntentMap.set(paymentIntentId, report);
+                        }
+                    }
+                }
+            });
+            
+            // Merge payment_intent_id deduplicated reports with reports without payment_intent_id
+            const finalReports = [];
+            const usedIds = new Set();
+            const usedPaymentIntents = new Set();
+            
+            // First, add reports with payment_intent_id (deduplicated)
+            paymentIntentMap.forEach(report => {
+                const reportId = report.id ? String(report.id) : '';
+                if (reportId && !usedIds.has(reportId)) {
+                    finalReports.push(report);
+                    usedIds.add(reportId);
+                    if (report.payment_intent_id) {
+                        usedPaymentIntents.add(report.payment_intent_id);
+                    }
+                }
+            });
+            
+            // Then, add reports without payment_intent_id or with unique payment_intent_id
+            activeReports.forEach(report => {
+                const reportId = report.id ? String(report.id) : '';
+                if (reportId && !usedIds.has(reportId)) {
+                    // If it has a payment_intent_id, check if we already have a report with that ID
+                    if (report.payment_intent_id && usedPaymentIntents.has(report.payment_intent_id)) {
+                        return; // Skip this duplicate
+                    }
+                    finalReports.push(report);
+                    usedIds.add(reportId);
+                    if (report.payment_intent_id) {
+                        usedPaymentIntents.add(report.payment_intent_id);
+                    }
+                }
+            });
+            
+            // Use finalReports instead of activeReports
+            const deduplicatedReports = finalReports;
+
             if (currentFMVTab === 'all') {
-                reportsToDisplay = [...fmvReports.drafts, ...fmvReports.submitted];
+                reportsToDisplay = deduplicatedReports;
             } else if (currentFMVTab === 'drafts') {
-                reportsToDisplay = fmvReports.drafts;
+                // Filter for DRAFT status reports
+                reportsToDisplay = deduplicatedReports.filter(r => {
+                    const status = (r.status || '').toLowerCase();
+                    return status === 'draft' || !r.id || String(r.id).startsWith('draft_');
+                });
             } else if (currentFMVTab === 'submitted') {
-                reportsToDisplay = fmvReports.submitted;
+                // Filter for SUBMITTED and other non-draft statuses
+                reportsToDisplay = deduplicatedReports.filter(r => {
+                    const status = (r.status || '').toLowerCase();
+                    return status !== 'draft' && r.id && !String(r.id).startsWith('draft_');
+                });
             }
 
             if (reportsToDisplay.length === 0) {
@@ -2878,10 +3128,22 @@
                 return dateB - dateA;
             });
 
-            // Generate HTML for reports
+            // Generate HTML for reports - filter out empty cards (invalid report types)
+            const reportCards = reportsToDisplay.map(report => generateReportCard(report)).filter(card => card.trim() !== '');
+            
+            if (reportCards.length === 0) {
+                const emptyMessage = currentFMVTab === 'drafts' 
+                    ? 'No draft reports found. Start a new FMV report to create a draft.'
+                    : currentFMVTab === 'submitted'
+                    ? 'No submitted reports found. Complete and submit an FMV report to see it here.'
+                    : 'No FMV reports found. Order a new FMV report to get started.';
+                displayEmptyState(emptyMessage);
+                return;
+            }
+            
             const html = `
                 <div class="fmv-reports-grid">
-                    ${reportsToDisplay.map(report => generateReportCard(report)).join('')}
+                    ${reportCards.join('')}
                 </div>
             `;
 
@@ -2890,27 +3152,67 @@
 
         // Generate HTML for a single report card
         function generateReportCard(report) {
-            const isDraft = !report.id || report.id.startsWith('draft_');
-            const status = isDraft ? 'draft' : (report.status || 'pending');
-            const reportType = report.report_type || 'standard';
-            const craneData = report.crane_data || {};
+            // Convert report.id to string for comparison (it might be a number from API)
+            const reportIdStr = report.id ? String(report.id) : '';
+            const isDraft = !report.id || reportIdStr.startsWith('draft_');
+            // Get status - check both status field and payment_status
+            let status = isDraft ? 'draft' : (report.status || 'pending');
+            // If payment was successful but status is still draft, update to submitted
+            if (!isDraft && status === 'draft' && report.payment_status === 'succeeded') {
+                status = 'submitted';
+            }
+            // Normalize status to lowercase for consistency and map to correct status
+            status = (status || '').toLowerCase();
+            // Map old statuses to new ones
+            if (status === 'in_review') {
+                status = 'in_progress'; // IN_REVIEW removed, map to IN_PROGRESS
+            }
+            // Replace underscores with hyphens for CSS class names
+            const statusClass = status.replace(/_/g, '-');
+            // Map report types correctly - 'spot_check' -> 'Spot Check', 'professional' -> 'Professional', 'fleet_valuation' -> 'Fleet Valuation'
+            const reportTypeRaw = report.report_type || 'standard';
+            let reportType = 'standard';
+            if (reportTypeRaw === 'spot_check') {
+                reportType = 'spot_check';
+            } else if (reportTypeRaw === 'professional') {
+                reportType = 'professional';
+            } else if (reportTypeRaw === 'fleet_valuation') {
+                reportType = 'fleet_valuation';
+            } else {
+                reportType = reportTypeRaw; // Keep as-is if unknown
+            }
+            const craneData = report.crane_data || report.crane_details || {};
             const craneName = `${craneData.manufacturer || 'Unknown'} ${craneData.model || 'Model'}`;
             const craneDetails = `${craneData.year || 'N/A'} | ${craneData.capacity || 'N/A'} tons`;
             const date = formatDate(report.created_at || report.saved_at);
-            const amount = report.amount ? `$${(report.amount / 100).toFixed(2)}` : reportType === 'enhanced' ? '$1,499' : '$999';
+            const amount = report.amount_paid ? `$${report.amount_paid.toFixed(2)}` : (report.amount ? `$${(report.amount / 100).toFixed(2)}` : reportType === 'enhanced' ? '$1,499' : '$999');
+
+            // Format report type for display - filter out invalid "STANDARD" type
+            let reportTypeDisplay = reportType === 'spot_check' ? 'SPOT CHECK' : 
+                                     reportType === 'professional' ? 'PROFESSIONAL' : 
+                                     reportType === 'fleet_valuation' ? 'FLEET VALUATION' : 
+                                     reportType.toUpperCase();
+            
+            // If report type is "STANDARD" (invalid), skip this report to avoid duplicates
+            if (reportTypeDisplay === 'STANDARD' || reportTypeRaw === 'standard') {
+                return ''; // Return empty string to skip this card
+            }
 
             return `
-                <div class="fmv-report-card">
+                <div class="fmv-report-card" onclick="openReportModal('${reportIdStr}')" style="cursor: pointer;">
                     <div class="fmv-report-header">
-                        <div class="fmv-report-type">${reportType.toUpperCase()}</div>
-                        <div class="fmv-report-status fmv-status-${status}">${status.toUpperCase()}</div>
+                        <div class="fmv-report-type">${reportTypeDisplay}</div>
+                        <div class="fmv-report-status fmv-status-${statusClass}">${formatFMVStatus(status)}</div>
                     </div>
                     <div class="fmv-report-crane">${craneName}</div>
                     <div class="fmv-report-details">${craneDetails}</div>
+                    ${report.turnaround_deadline ? `
+                        <div id="dashboard-timer-${reportIdStr}" data-turnaround-timer data-report-id="${reportIdStr}" data-deadline="${report.turnaround_deadline}" style="margin-top: 12px;"></div>
+                    ` : ''}
                     <div class="fmv-report-meta">
                         <div class="fmv-report-date">${date}</div>
-                        <div class="fmv-report-actions">
-                            ${generateActionButtons(report, isDraft, status)}
+                        <div class="fmv-report-actions" onclick="event.stopPropagation();">
+                            ${generateActionButtons(report, isDraft, status, reportIdStr)}
                         </div>
                     </div>
                 </div>
@@ -2918,32 +3220,58 @@
         }
 
         // Generate action buttons based on report status
-        function generateActionButtons(report, isDraft, status) {
+        function generateActionButtons(report, isDraft, status, reportIdStr) {
+            // Use reportIdStr if provided, otherwise convert report.id to string
+            const reportId = reportIdStr || (report.id ? String(report.id) : '');
             if (isDraft) {
                 return `
-                    <button class="fmv-action-btn primary" onclick="continueDraft('${report.id}')">Continue</button>
-                    <button class="fmv-action-btn" onclick="deleteDraft('${report.id}')">Delete</button>
+                    <button class="fmv-action-btn primary" onclick="continueDraft('${reportId}')">Continue</button>
+                    <button class="fmv-action-btn" onclick="deleteDraft('${reportId}')">Delete</button>
                 `;
-            } else if (status === 'completed') {
+            } else if (status === 'completed' || status === 'delivered') {
                 return `
-                    <button class="fmv-action-btn primary" onclick="viewReport('${report.id}')">View Report</button>
+                    <button class="fmv-action-btn primary" onclick="viewReport('${reportId}')">View Report</button>
                 `;
-            } else if (status === 'processing') {
+            } else if (status === 'in_progress') {
                 return `
                     <button class="fmv-action-btn">In Progress</button>
                 `;
-            } else if (status === 'paid') {
+            } else if (status === 'submitted') {
                 return `
-                    <button class="fmv-action-btn">Awaiting Processing</button>
+                    <button class="fmv-action-btn">Submitted</button>
+                `;
+            } else if (status === 'need_more_info') {
+                return `
+                    <button class="fmv-action-btn" onclick="viewReport('${reportId}')">View Details</button>
+                `;
+            } else if (status === 'overdue') {
+                return `
+                    <button class="fmv-action-btn">Overdue</button>
                 `;
             } else {
                 return `
-                    <button class="fmv-action-btn" onclick="viewReport('${report.id}')">View Details</button>
+                    <button class="fmv-action-btn" onclick="viewReport('${reportId}')">View Details</button>
                 `;
             }
         }
 
         // Format date for display
+        function formatFMVStatus(status) {
+            if (!status) return 'Unknown';
+            const statusMap = {
+                'draft': 'Draft',
+                'submitted': 'Submitted',
+                'in_progress': 'In Progress',
+                'completed': 'Completed',
+                'delivered': 'Delivered',
+                'need_more_info': 'Need More Info',
+                'overdue': 'Overdue',
+                'pending': 'Pending',
+                'in_review': 'In Progress' // Legacy mapping
+            };
+            return statusMap[status.toLowerCase()] || status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
+        }
+
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
@@ -2965,34 +3293,406 @@
 
         // Continue editing a draft report
         function continueDraft(draftId) {
-            // Store the draft ID to load in the report generation page
-            localStorage.setItem('continue_draft', draftId);
+            // Find the report in all loaded reports
+            const allReports = [...fmvReports.drafts, ...fmvReports.submitted];
+            const report = allReports.find(r => {
+                const rId = r.id ? String(r.id) : '';
+                return rId === String(draftId);
+            });
+            
+            if (report) {
+                // Store full report data for pre-filling
+                window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
+                window.safeStorage.setItem('continue_draft', draftId);
+                console.log('📋 Storing report data for pre-fill:', report);
+            } else {
+                // Fallback: just store ID if report not found
+                window.safeStorage.setItem('continue_draft', draftId);
+            }
+            
             window.location.href = '/report-generation.html';
         }
 
         // Delete a draft report
-        function deleteDraft(draftId) {
-            if (!confirm('Are you sure you want to delete this draft?')) {
+        async function deleteDraft(draftId) {
+            // Use in-app confirmation modal instead of browser confirm
+            const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+            if (!notificationSystem) {
+                console.error('Notification system not available');
+                return;
+            }
+            
+            const confirmed = await notificationSystem.confirmDangerous(
+                'Delete Report',
+                'Are you sure you want to delete this draft report? This action cannot be undone.',
+                {
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    type: 'danger'
+                }
+            );
+            
+            if (!confirmed) {
                 return;
             }
 
             try {
+                // Check if it's a localStorage-only draft (starts with 'draft_')
+                if (String(draftId).startsWith('draft_')) {
+                    // Delete from localStorage only
                 const drafts = loadDraftReports();
                 const updatedDrafts = drafts.filter(d => d.id !== draftId);
-                localStorage.setItem('fmv_draft_reports', JSON.stringify(updatedDrafts));
+                    window.safeStorage.setItem('fmv_draft_reports', JSON.stringify(updatedDrafts));
+                    notificationSystem.showSuccess('Report Deleted', 'The draft report has been deleted successfully.');
+                } else {
+                    // It's a database report - call API to mark as DELETED
+                    const token = window.safeStorage.getItem('access_token') || window.safeStorage.getItem('auth_token') || window.safeStorage.getItem('crane_auth_token');
+                    const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/${draftId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : '',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ detail: 'Failed to delete report' }));
+                        throw new Error(errorData.detail || 'Failed to delete report');
+                    }
+                    notificationSystem.showSuccess('Report Deleted', 'The report has been deleted successfully.');
+                }
                 
                 // Reload reports
                 loadFMVReports();
             } catch (error) {
                 console.error('Error deleting draft:', error);
-                alert('Failed to delete draft. Please try again.');
+                notificationSystem.showError('Delete Failed', 'Failed to delete draft. Please try again.');
             }
         }
 
         // View a completed report
         function viewReport(reportId) {
-            // For completed reports, we could open a modal or navigate to a details page
-            alert('Report details for: ' + reportId + '\n\nThis feature will open the report PDF or details page.');
+            openReportModal(reportId);
+        }
+        
+        // Open report modal with all details
+        function openReportModal(reportId) {
+            // Find the report in all loaded reports
+            const allReports = [...fmvReports.drafts, ...fmvReports.submitted];
+            const report = allReports.find(r => {
+                const rId = r.id ? String(r.id) : '';
+                return rId === String(reportId);
+            });
+            
+            if (!report) {
+                const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+                if (notificationSystem) {
+                    notificationSystem.showError('Report Not Found', 'The requested report could not be found.');
+                } else {
+                    console.error('Report not found');
+                }
+                return;
+            }
+            
+            const status = (report.status || '').toLowerCase();
+            const craneData = report.crane_data || report.crane_details || {};
+            const reportType = report.report_type || 'professional';
+            const reportTypeDisplay = reportType === 'spot_check' ? 'SPOT CHECK' : 
+                                     reportType === 'professional' ? 'PROFESSIONAL' : 
+                                     reportType === 'fleet_valuation' ? 'FLEET VALUATION' : 
+                                     reportType.toUpperCase();
+            
+            // Determine if report has payment and can show receipt
+            const hasPayment = report.payment_intent_id && report.amount_paid && report.amount_paid > 0;
+            const statusDisplay = formatFMVStatus(status);
+            const statusClass = status.replace(/_/g, '-');
+            
+            // Build modal content
+            let modalContent = `
+                <div class="report-modal-content">
+                    <div class="report-modal-header">
+                        <h2>${reportTypeDisplay} Report #${reportId}</h2>
+                        <button class="report-modal-close" onclick="closeReportModal()">&times;</button>
+                    </div>
+                    <div class="report-modal-status-section" style="padding: 20px; background: #1A1A1A; border-bottom: 1px solid #333333; text-align: center;">
+                        <div style="font-size: 12px; color: #B0B0B0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Current Status</div>
+                        <div class="report-modal-status fmv-status-${statusClass}" style="font-size: 18px; font-weight: 700; padding: 12px 24px; display: inline-block; border-radius: 6px;">${statusDisplay}</div>
+                        ${hasPayment ? `
+                            <div style="margin-top: 16px;">
+                                <button onclick="downloadReceiptPDF(${reportId})" class="report-modal-btn primary" style="background: #00FF85; color: #000000; font-weight: 600; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                    📄 View Receipt
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="report-modal-body">
+                        <div class="report-detail-section">
+                            <h3>🏗️ Crane Equipment Details</h3>
+                            <div class="report-detail-grid">
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Manufacturer:</span>
+                                    <span class="report-detail-value">${craneData.manufacturer || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Model:</span>
+                                    <span class="report-detail-value">${craneData.model || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Year:</span>
+                                    <span class="report-detail-value">${craneData.year || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Capacity:</span>
+                                    <span class="report-detail-value">${craneData.capacity || craneData.capacity_tons || 'N/A'} tons</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Crane Type:</span>
+                                    <span class="report-detail-value">${craneData.craneType || craneData.crane_type || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Operating Hours:</span>
+                                    <span class="report-detail-value">${craneData.operatingHours || craneData.operating_hours || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Mileage:</span>
+                                    <span class="report-detail-value">${craneData.mileage || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Region:</span>
+                                    <span class="report-detail-value">${craneData.region || 'N/A'}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Condition:</span>
+                                    <span class="report-detail-value">${craneData.condition || 'N/A'}</span>
+                                </div>
+                                ${craneData.serial_number || craneData.serialNumber ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Serial Number:</span>
+                                    <span class="report-detail-value">${craneData.serial_number || craneData.serialNumber}</span>
+                                </div>
+                                ` : ''}
+                                ${craneData.boomLength || craneData.boom_length ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Boom Length:</span>
+                                    <span class="report-detail-value">${craneData.boomLength || craneData.boom_length}m</span>
+                                </div>
+                                ` : ''}
+                                ${craneData.jibLength || craneData.jib_length ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Jib Length:</span>
+                                    <span class="report-detail-value">${craneData.jibLength || craneData.jib_length}m</span>
+                                </div>
+                                ` : ''}
+                                ${craneData.maxHookHeight || craneData.max_hook_height ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Max Hook Height:</span>
+                                    <span class="report-detail-value">${craneData.maxHookHeight || craneData.max_hook_height}m</span>
+                                </div>
+                                ` : ''}
+                                ${craneData.maxRadius || craneData.max_radius ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Max Radius:</span>
+                                    <span class="report-detail-value">${craneData.maxRadius || craneData.max_radius}m</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                            ${(craneData.additionalSpecs || craneData.additional_specs || craneData.specialFeatures || craneData.special_features || craneData.usageHistory || craneData.usage_history) ? `
+                            <div style="margin-top: 20px;">
+                                ${craneData.additionalSpecs || craneData.additional_specs ? `
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="color: #FFD600; margin-bottom: 8px;">Additional Specifications:</h4>
+                                    <p style="color: #fff; white-space: pre-wrap;">${craneData.additionalSpecs || craneData.additional_specs}</p>
+                                </div>
+                                ` : ''}
+                                ${craneData.specialFeatures || craneData.special_features ? `
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="color: #FFD600; margin-bottom: 8px;">Special Features:</h4>
+                                    <p style="color: #fff; white-space: pre-wrap;">${craneData.specialFeatures || craneData.special_features}</p>
+                                </div>
+                                ` : ''}
+                                ${craneData.usageHistory || craneData.usage_history ? `
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="color: #FFD600; margin-bottom: 8px;">Usage History:</h4>
+                                    <p style="color: #fff; white-space: pre-wrap;">${craneData.usageHistory || craneData.usage_history}</p>
+                                </div>
+                                ` : ''}
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${report.service_record_files && report.service_record_files.length > 0 ? `
+                        <div class="report-detail-section">
+                            <h3>📎 Service Records & Documents</h3>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                ${(Array.isArray(report.service_record_files) ? report.service_record_files : [report.service_record_files]).map((fileUrl, index) => {
+                                    const fileName = typeof fileUrl === 'string' ? fileUrl.split('/').pop() : (fileUrl.name || `Document ${index + 1}`);
+                                    let fileUrlStr = typeof fileUrl === 'string' ? fileUrl : (fileUrl.url || fileUrl);
+                                    // Handle legacy local file paths (convert to CDN redirect endpoint for backward compatibility)
+                                    if (fileUrlStr.startsWith('/uploads/service-records/')) {
+                                        const filename = fileUrlStr.replace('/uploads/service-records/', '');
+                                        fileUrlStr = `/api/v1/fmv-reports/service-records/${filename}`;
+                                    }
+                                    // CDN URLs (starting with http/https) are used directly
+                                    return `
+                                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #1a1a1a; border-radius: 6px;">
+                                        <span>📄</span>
+                                        <span style="flex: 1; color: #fff;">${fileName}</span>
+                                        <a href="${fileUrlStr}" download="${fileName}" style="padding: 6px 12px; background: #00FF85; color: #000; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">Download</a>
+                                    </div>
+                                `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${(status === 'delivered' || status === 'completed') && report.pdf_url ? `
+                        <div class="report-detail-section">
+                            <h3>📄 Report PDF</h3>
+                            <div style="padding: 15px; background: #1a1a1a; border-radius: 6px;">
+                                <a href="${report.pdf_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #00FF85; color: #000; border-radius: 6px; text-decoration: none; font-weight: 600;">View PDF Report</a>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="report-detail-section">
+                            <h3>📋 Report Information</h3>
+                            <div class="report-detail-grid">
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Report ID:</span>
+                                    <span class="report-detail-value">#${reportId}</span>
+                                </div>
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Created:</span>
+                                    <span class="report-detail-value">${formatDate(report.created_at || report.saved_at)}</span>
+                                </div>
+                                ${report.amount_paid ? `
+                                <div class="report-detail-item">
+                                    <span class="report-detail-label">Amount Paid:</span>
+                                    <span class="report-detail-value">$${report.amount_paid.toFixed(2)}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-modal-footer">
+                        ${status === 'draft' ? `
+                            <button class="report-modal-btn primary" onclick="continueDraftFromModal('${reportId}')">Continue to Payment</button>
+                            <button class="report-modal-btn" onclick="closeReportModal(); setTimeout(() => deleteDraft('${reportId}'), 100);">Delete</button>
+                        ` : (status === 'delivered' || status === 'completed') && report.pdf_url ? `
+                            <a href="${report.pdf_url}" target="_blank" class="report-modal-btn primary">Download PDF</a>
+                        ` : ''}
+                        <button class="report-modal-btn" onclick="closeReportModal()">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            // Create or update modal
+            let modal = document.getElementById('reportModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'reportModal';
+                modal.className = 'report-modal';
+                modal.innerHTML = modalContent;
+                // Close modal when clicking outside
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeReportModal();
+                    }
+                });
+                document.body.appendChild(modal);
+            } else {
+                modal.innerHTML = modalContent;
+                modal.style.display = 'flex';
+            }
+        }
+        
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Continue draft from modal - navigate to report-generation with prefilled data
+        function continueDraftFromModal(reportId) {
+            // Find the report in all loaded reports
+            const allReports = [...fmvReports.drafts, ...fmvReports.submitted];
+            const report = allReports.find(r => {
+                const rId = r.id ? String(r.id) : '';
+                return rId === String(reportId);
+            });
+            
+            if (report) {
+                // Store full report data for pre-filling
+                window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
+                window.safeStorage.setItem('continue_draft', reportId);
+                console.log('📋 Storing report data for pre-fill:', report);
+            } else {
+                // Fallback: just store ID if report not found
+                window.safeStorage.setItem('continue_draft', reportId);
+            }
+            
+            window.location.href = '/report-generation.html';
+        }
+        
+        // Download PDF receipt for a report
+        async function downloadReceiptPDF(reportId) {
+            try {
+                const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+                if (!token) {
+                    if (window.notificationSystem) {
+                        window.notificationSystem.showError('Authentication Required', 'Please log in to download receipts.');
+                    } else {
+                        alert('Please log in to download receipts.');
+                    }
+                    return;
+                }
+                
+                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/${reportId}/receipt`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        if (window.notificationSystem) {
+                            window.notificationSystem.showError('Receipt Not Found', 'This report does not have payment information.');
+                        } else {
+                            alert('This report does not have payment information.');
+                        }
+                    } else if (response.status === 400) {
+                        if (window.notificationSystem) {
+                            window.notificationSystem.showError('No Payment', 'This report has no payment information.');
+                        } else {
+                            alert('This report has no payment information.');
+                        }
+                    } else {
+                        throw new Error(`Failed to download receipt: ${response.status}`);
+                    }
+                    return;
+                }
+                
+                // Get PDF blob
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Payment_Receipt_Report_${reportId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                if (window.notificationSystem) {
+                    window.notificationSystem.showSuccess('Receipt Downloaded', 'Payment receipt has been downloaded successfully.');
+                }
+            } catch (error) {
+                console.error('Error downloading receipt:', error);
+                if (window.notificationSystem) {
+                    window.notificationSystem.showError('Download Failed', 'Failed to download receipt. Please try again.');
+                } else {
+                    alert('Failed to download receipt. Please try again.');
+                }
+            }
         }
 
         // Load FMV reports when page loads

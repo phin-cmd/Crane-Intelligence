@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments & Billing - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .admin-header { background: #1A1A1A; border-bottom: 1px solid #333333; }
+        .admin-sidebar { background: #1A1A1A; border-right: 1px solid #333333; }
+        .sidebar-menu .active a { color: #00FF85; border-left-color: #00FF85; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        input:focus, select:focus { border-color: #FFD600; background-color: rgba(255, 214, 0, 0.05); }
+        .stat-card { background: #1A1A1A; border: 1px solid #333333; }
+        .stat-card h3 { color: #B0B0B0; }
+        .stat-card .value { color: #FFFFFF; }
+        .table-container { background: #1A1A1A; border: 1px solid #333333; }
+        .user-table th { background: #0F0F0F; color: #B0B0B0; border-bottom: 1px solid #333333; }
+        .user-table td { color: #FFFFFF; border-bottom: 1px solid #333333; }
+        .badge { background: rgba(0, 255, 133, 0.2); color: #00FF85; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                    <div class="stat-card">
+                        <h3>Total Revenue</h3>
+                        <div class="value" id="total-revenue">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Today's Revenue</h3>
+                        <div class="value" id="today-revenue">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Revenue</h3>
+                        <div class="value" id="month-revenue">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <div class="value" id="total-users">0</div>
+                    </div>
+                </div>
+
+                <div class="content-header">
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <input type="text" id="payment-search" placeholder="Search payments...">
+                        </div>
+                        <div class="filter-controls">
+                            <select id="report-type-filter">
+                                <option value="">All Report Types</option>
+                                <option value="spot_check">Spot Check</option>
+                                <option value="professional">Professional</option>
+                                <option value="fleet_valuation">Fleet Valuation</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="loadBillingHistory()">Billing History</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Report Type</th>
+                                <th>Amount</th>
+                                <th>Payment Intent</th>
+                                <th>Payment Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body">
+                            <tr><td colspan="8" class="loading">Loading payments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        let payments = [];
+
+        if (!accessToken) window.location.href = '/admin/login.html';
+
+        async function loadPayments() {
+            try {
+                // Load FMV reports with payment information
+                const response = await fetch(`${API_BASE}/admin/fmv-reports?limit=1000`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const data = await response.json();
+                payments = data.reports || [];
+                renderPayments();
+                loadStats();
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                document.getElementById('payments-table-body').innerHTML = '<tr><td colspan="8">Error loading payments</td></tr>';
+            }
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('payments-table-body');
+            // Show all reports with payment_intent_id or amount_paid (not just succeeded)
+            const paidReports = payments.filter(p => p.payment_intent_id || (p.amount_paid && p.amount_paid > 0) || p.payment_status === 'succeeded');
+            
+            if (paidReports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No payment records found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = paidReports.map(p => {
+                // Get amount using the same calculation logic
+                const amount = calculateAmount(p);
+                
+                // Determine payment status
+                let paymentStatus = p.payment_status || 'pending';
+                if (p.payment_intent_id && p.payment_status === 'succeeded') {
+                    paymentStatus = 'succeeded';
+                } else if (p.payment_intent_id && !paymentStatus.includes('failed') && !paymentStatus.includes('canceled')) {
+                    paymentStatus = 'succeeded'; // Assume succeeded if payment_intent exists
+                }
+                
+                const date = p.paid_at || p.submitted_at || p.created_at;
+                
+                // Get report type
+                let reportType = p.report_type || 'N/A';
+                // Normalize report type values
+                reportType = String(reportType).toLowerCase().trim();
+                if (reportType === 'spot_check' || reportType === 'spotcheck' || reportType === 'spot check') {
+                    reportType = 'Spot Check';
+                } else if (reportType === 'professional') {
+                    reportType = 'Professional';
+                } else if (reportType === 'fleet_valuation' || reportType === 'fleetvaluation' || reportType === 'fleet valuation') {
+                    reportType = 'Fleet Valuation';
+                } else {
+                    // Capitalize first letter of each word
+                    reportType = reportType.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                }
+                
+                return `
+                <tr>
+                    <td><code>${p.id}</code></td>
+                    <td>${p.customer_name || 'N/A'}</td>
+                    <td>${p.customer_email || 'N/A'}</td>
+                    <td><span class="badge">${(p.report_type || '').toUpperCase()}</span></td>
+                    <td><strong>$${amount.toFixed(2)}</strong></td>
+                    <td><code style="font-size: 11px;">${p.payment_intent_id || 'N/A'}</code></td>
+                    <td><span class="status-badge ${paymentStatus === 'succeeded' ? 'active' : 'inactive'}">${paymentStatus}</span></td>
+                    <td>${date ? new Date(date).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button onclick="downloadReceiptPDF(${p.id})" class="btn btn-sm btn-secondary" style="cursor: pointer;">📄 View Receipt</button>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+        }
+        
+        async function downloadReceiptPDF(reportId) {
+            try {
+                // Use admin-specific endpoint for receipts
+                const response = await fetch(`${API_BASE}/admin/fmv-reports/${reportId}/receipt`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to download receipt: ${response.status}`);
+                }
+                
+                // Get PDF blob
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Payment_Receipt_Report_${reportId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading receipt:', error);
+                if (window.notificationSystem) {
+                    window.notificationSystem.showError('Error', 'Failed to download receipt. Please try again.');
+                } else {
+                    alert('Failed to download receipt. Please try again.');
+                }
+            }
+        }
+        
+        function viewPaymentDetails(reportId) {
+            // Download PDF receipt
+            downloadReceiptPDF(reportId);
+        }
+
+        // Helper function to calculate amount from payment record
+        function calculateAmount(p) {
+            let amount = 0;
+            if (p.amount_paid && p.amount_paid > 0) {
+                amount = parseFloat(p.amount_paid);
+            } else if (p.amount && p.amount > 0) {
+                amount = parseFloat(p.amount) / 100; // Convert from cents to dollars
+            } else if (p.payment_intent_id && p.payment_status === 'succeeded') {
+                // Estimate from report type if amount is missing
+                if (p.report_type === 'spot_check') amount = 495;
+                else if (p.report_type === 'professional') amount = 995;
+                else if (p.report_type === 'fleet_valuation') amount = 495;
+            }
+            return amount;
+        }
+
+        async function loadStats() {
+            try {
+                // Calculate stats from payment data - include all reports with payment_intent_id or amount_paid
+                const paidReports = payments.filter(p => p.payment_intent_id || (p.amount_paid && p.amount_paid > 0) || p.payment_status === 'succeeded');
+                const totalRevenue = paidReports.reduce((sum, p) => sum + calculateAmount(p), 0);
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayRevenue = paidReports.filter(p => {
+                    const date = p.paid_at || p.submitted_at || p.created_at;
+                    return date && new Date(date) >= today;
+                }).reduce((sum, p) => sum + calculateAmount(p), 0);
+                
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthRevenue = paidReports.filter(p => {
+                    const date = p.paid_at || p.submitted_at || p.created_at;
+                    return date && new Date(date) >= monthStart;
+                }).reduce((sum, p) => sum + calculateAmount(p), 0);
+                
+                const uniqueUsers = new Set(paidReports.map(p => p.user_id || p.customer_email)).size;
+                
+                document.getElementById('total-revenue').textContent = `$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('today-revenue').textContent = `$${todayRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('month-revenue').textContent = `$${monthRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('total-users').textContent = uniqueUsers;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadBillingHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/billing-history`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const history = await response.json();
+                alert(`Billing History: ${history.length} records found`);
+                // Could open a modal with detailed history
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load billing history');
+            }
+        }
+
+        async function viewHistory(userId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/payments/${userId}/history`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const history = await response.json();
+                alert(`User has ${history.length} payment records`);
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load user history');
+            }
+        }
+
+        // admin-layout.js will handle header and sidebar rendering
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready, loading payments');
+                loadPayments();
+            }, { once: true });
+            
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    loadPayments();
+                } else {
+                    setTimeout(() => loadPayments(), 1000);
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,292 @@
+<!-- ===== CRANE INTELLIGENCE - UNIFIED PRICING SECTION COMPONENT ===== -->
+<!-- Terminal Access Plans and Fleet Valuation - Centralized Component -->
+
+<section class="pricing" id="pricing">
+    <div class="pricing-container">
+        <div class="section-header">
+            <h2 class="section-title">Professional FMV Reports</h2>
+            <p class="section-subtitle">Expert-prepared Fair Market Value reports delivered within 24 hours</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Free Tier -->
+            <div class="pricing-card" data-tier="free">
+                <h3 class="pricing-title">Free</h3>
+                <div class="pricing-price">$0</div>
+                <div class="pricing-period">per month</div>
+                <ul class="pricing-features">
+                    <li>Basic platform access</li>
+                    <li>View market data</li>
+                    <li>Browse listings</li>
+                    <li style="color: #FF4444; font-weight: 600;">Cannot submit FMV requests</li>
+                </ul>
+                <button class="pricing-cta" data-tier="free" onclick="handlePricingAction('free')" style="opacity: 0.6; cursor: not-allowed;" disabled>Current Plan</button>
+            </div>
+            
+            <!-- Spot Check Tier -->
+            <div class="pricing-card" data-tier="spot_check">
+                <h3 class="pricing-title">Spot Check</h3>
+                <div class="pricing-price">Request-Based</div>
+                <div class="pricing-period">per valuation</div>
+                <ul class="pricing-features">
+                    <li>✓ Quick internal estimates</li>
+                    <li>✓ 1 crane</li>
+                    <li>✓ 1-page email summary</li>
+                    <li>✓ FMV range estimate</li>
+                    <li>✓ 2–3 comparables</li>
+                    <li>✓ 24-hour turnaround</li>
+                </ul>
+                <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">Submit Request</button>
+            </div>
+            
+            <!-- Professional Tier -->
+            <div class="pricing-card featured" data-tier="professional">
+                <div class="pricing-badge">Most Popular</div>
+                <h3 class="pricing-title">Professional</h3>
+                <div class="pricing-price">Request-Based</div>
+                <div class="pricing-period">per valuation</div>
+                <ul class="pricing-features">
+                    <li>✓ 1 crane</li>
+                    <li>✓ 3–5 page PDF</li>
+                    <li>✓ 5+ verified comps</li>
+                    <li>✓ Deal & Wear Scores</li>
+                    <li>✓ Regional commentary</li>
+                    <li>✓ Signed by analyst</li>
+                    <li>✓ 24-hour turnaround</li>
+                </ul>
+                <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">Submit Request</button>
+            </div>
+        </div>
+        
+        <!-- Fleet Valuation Section -->
+        <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #333333;">
+            <div class="section-header">
+                <h2 class="section-title">Fleet Valuation</h2>
+                <p class="section-subtitle">Multi-unit valuation reports for fleet operators</p>
+            </div>
+            
+            <div class="pricing-card featured" style="max-width: 600px; margin: 40px auto;" data-tier="fleet_valuation">
+                <div class="pricing-badge">Fleet Option</div>
+                <h3 class="pricing-title">Fleet Valuation</h3>
+                <div class="pricing-price">Tiered Pricing</div>
+                <div class="pricing-period">Based on units</div>
+                <ul class="pricing-features">
+                    <li>✓ 2–50 cranes supported</li>
+                    <li>✓ Multi-unit PDF (one page per crane)</li>
+                    <li>✓ Fleet total summary</li>
+                    <li>✓ CSV upload support</li>
+                    <li>✓ Market overview</li>
+                    <li>✓ 24 hour turnaround</li>
+                </ul>
+                
+                <!-- Tiered Fleet Pricing Table -->
+                <div style="margin: 24px 0; padding: 20px; background: rgba(0, 255, 133, 0.05); border-radius: 8px; border: 1px solid rgba(0, 255, 133, 0.2);">
+                    <h4 style="color: #00FF85; font-size: 14px; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; text-align: center;">Tiered Fleet Pricing Model</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(0, 255, 133, 0.3);">
+                                <th style="padding: 8px; text-align: left; color: #00FF85; font-weight: 600;">Units</th>
+                                <th style="padding: 8px; text-align: right; color: #00FF85; font-weight: 600;">Price</th>
+                                <th style="padding: 8px; text-align: right; color: #00FF85; font-weight: 600;">Per-Crane Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 8px; color: #B0B0B0;">1–5</td>
+                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$1,495</td>
+                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$299</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 8px; color: #B0B0B0;">6–10</td>
+                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$2,495</td>
+                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$249</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 8px; color: #B0B0B0;">11–25</td>
+                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$4,995</td>
+                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">$199</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; color: #B0B0B0;">26–50</td>
+                                <td style="padding: 8px; text-align: right; color: #FFFFFF; font-weight: 600;">$7,995</td>
+                                <td style="padding: 8px; text-align: right; color: #B0B0B0;">~$159</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">Submit Fleet Request</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Pricing Section Styles - Centralized */
+.pricing {
+    padding: 60px 0;
+    background: #1A1A1A;
+}
+
+.pricing-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #B0B0B0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+}
+
+.pricing-card {
+    background: #121212;
+    border: 1px solid #333333;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.pricing-card:hover {
+    border-color: #00FF85;
+    transform: translateY(-4px);
+}
+
+.pricing-card.featured {
+    border-color: #00FF85;
+    transform: scale(1.05);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00FF85;
+    color: #000000;
+    padding: 4px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+}
+
+.pricing-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.pricing-price {
+    font-size: 36px;
+    font-weight: 700;
+    color: #00FF85;
+    margin-bottom: 4px;
+}
+
+.pricing-period {
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 24px;
+}
+
+.pricing-features {
+    list-style: none;
+    margin-bottom: 32px;
+    padding: 0;
+    text-align: left;
+}
+
+.pricing-features li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #B0B0B0;
+    border-bottom: 1px solid #2A2A2A;
+}
+
+.pricing-features li:last-child {
+    border-bottom: none;
+}
+
+.pricing-cta {
+    width: 100%;
+    background: transparent;
+    color: #00FF85;
+    border: 1px solid #00FF85;
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.pricing-cta:hover:not(:disabled) {
+    background: #00FF85;
+    color: #000000;
+}
+
+.pricing-card.featured .pricing-cta {
+    background: #00FF85;
+    color: #000000;
+}
+
+.pricing-card.featured .pricing-cta:hover:not(:disabled) {
+    background: #00CC6A;
+}
+
+.pricing-cta:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 1200px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .pricing-container {
+        padding: 0 16px;
+    }
+    
+    .section-title {
+        font-size: 24px;
+    }
+}
+</style>
+

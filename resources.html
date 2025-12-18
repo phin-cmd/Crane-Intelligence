@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <script src="js/component-loader.js" defer></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 20px 40px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .page-subtitle {
+            font-size: 20px;
+            color: #B0B0B0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .resources-section {
+            margin-bottom: 64px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #333333;
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
+        .resource-card {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .resource-card:hover {
+            border-color: #00FF85;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 255, 133, 0.1);
+        }
+        
+        .resource-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .resource-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+        }
+        
+        .resource-description {
+            color: #B0B0B0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            flex-grow: 1;
+        }
+        
+        .resource-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #00FF85;
+            color: #000000;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .resource-link:hover {
+            background: #00CC6A;
+            transform: scale(1.05);
+        }
+        
+        .resource-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #808080;
+        }
+        
+        .resource-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 255, 133, 0.1);
+            color: #00FF85;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .download-section {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 48px;
+            margin-top: 64px;
+            text-align: center;
+        }
+        
+        .download-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 16px;
+        }
+        
+        .download-description {
+            color: #B0B0B0;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 100px 16px 32px;
+            }
+            
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .page-subtitle {
+                font-size: 16px;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-card {
+                padding: 24px;
+            }
+            
+            .download-section {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">Resources</h1>
+            <p class="page-subtitle">Access our comprehensive library of guides, whitepapers, webinars, and industry reports to help you make informed decisions about crane equipment valuation</p>
+        </div>
+        
+        <!-- Whitepapers Section -->
+        <div class="resources-section">
+            <h2 class="section-title">Whitepapers</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">📄</div>
+                    <h3 class="resource-title">Understanding Fair Market Value in Crane Equipment</h3>
+                    <p class="resource-description">A comprehensive guide to understanding FMV calculations, market factors, and how to interpret valuation reports for crane equipment.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">PDF</span>
+                        <span>15 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download PDF</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">📊</div>
+                    <h3 class="resource-title">Market Trends in Crane Equipment 2024</h3>
+                    <p class="resource-description">An in-depth analysis of current market trends, pricing patterns, and future outlook for the crane equipment industry.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">PDF</span>
+                        <span>28 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download PDF</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">💰</div>
+                    <h3 class="resource-title">Fleet Valuation Best Practices</h3>
+                    <p class="resource-description">Learn how to effectively value and manage your crane fleet for insurance, financing, and strategic planning purposes.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">PDF</span>
+                        <span>22 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download PDF</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Guides & Tutorials Section -->
+        <div class="resources-section">
+            <h2 class="section-title">Guides & Tutorials</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">📖</div>
+                    <h3 class="resource-title">How to Read an FMV Report</h3>
+                    <p class="resource-description">Step-by-step guide to understanding every section of a professional FMV report, including comparables, Deal & Wear Scores, and regional commentary.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Guide</span>
+                        <span>10 min read</span>
+                    </div>
+                    <a href="#" class="resource-link">Read Guide</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🎯</div>
+                    <h3 class="resource-title">Choosing the Right Valuation Tier</h3>
+                    <p class="resource-description">Learn which FMV report tier (Spot Check, Professional, or Fleet Valuation) is best suited for your specific needs and use case.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Guide</span>
+                        <span>8 min read</span>
+                    </div>
+                    <a href="#" class="resource-link">Read Guide</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">📋</div>
+                    <h3 class="resource-title">Preparing Your Equipment Data</h3>
+                    <p class="resource-description">Essential checklist and tips for gathering and organizing equipment information to ensure accurate valuations.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Guide</span>
+                        <span>5 min read</span>
+                    </div>
+                    <a href="#" class="resource-link">Read Guide</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🔍</div>
+                    <h3 class="resource-title">Understanding Comparables Analysis</h3>
+                    <p class="resource-description">Deep dive into how comparable sales data is collected, verified, and used in FMV calculations.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Guide</span>
+                        <span>12 min read</span>
+                    </div>
+                    <a href="#" class="resource-link">Read Guide</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Webinars Section -->
+        <div class="resources-section">
+            <h2 class="section-title">Webinar Recordings</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">🎥</div>
+                    <h3 class="resource-title">Introduction to Crane Equipment Valuation</h3>
+                    <p class="resource-description">Watch our expert analysts explain the fundamentals of crane equipment valuation, market factors, and how to use FMV reports effectively.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Video</span>
+                        <span>45 min</span>
+                    </div>
+                    <a href="#" class="resource-link">Watch Recording</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🎥</div>
+                    <h3 class="resource-title">Fleet Management & Valuation Strategies</h3>
+                    <p class="resource-description">Learn best practices for managing and valuing large crane fleets, including optimization strategies and market analysis.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Video</span>
+                        <span>60 min</span>
+                    </div>
+                    <a href="#" class="resource-link">Watch Recording</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🎥</div>
+                    <h3 class="resource-title">Market Trends & Future Outlook</h3>
+                    <p class="resource-description">Industry experts discuss current market trends, pricing patterns, and predictions for the crane equipment industry.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Video</span>
+                        <span>50 min</span>
+                    </div>
+                    <a href="#" class="resource-link">Watch Recording</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Industry Reports Section -->
+        <div class="resources-section">
+            <h2 class="section-title">Industry Reports</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">📈</div>
+                    <h3 class="resource-title">Q4 2024 Crane Market Report</h3>
+                    <p class="resource-description">Comprehensive quarterly analysis of crane equipment market performance, pricing trends, and regional variations.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Report</span>
+                        <span>35 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download Report</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">📈</div>
+                    <h3 class="resource-title">Regional Market Analysis: North America</h3>
+                    <p class="resource-description">Detailed analysis of crane equipment markets across North America, including pricing variations and demand patterns.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Report</span>
+                        <span>42 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download Report</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">📈</div>
+                    <h3 class="resource-title">Equipment Depreciation Trends</h3>
+                    <p class="resource-description">Analysis of depreciation patterns across different crane types, manufacturers, and age categories.</p>
+                    <div class="resource-meta">
+                        <span class="resource-type">Report</span>
+                        <span>28 pages</span>
+                    </div>
+                    <a href="#" class="resource-link">Download Report</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Download All Section -->
+        <div class="download-section">
+            <h2 class="download-title">Need All Resources?</h2>
+            <p class="download-description">Get access to our complete resource library including all whitepapers, guides, webinars, and industry reports in one convenient package.</p>
+            <a href="contact.html" class="resource-link" style="display: inline-block;">Contact Us for Access</a>
+        </div>
+    </div>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        // Load header and footer components
+        if (typeof loadComponent !== 'undefined') {
+            loadComponent('header-container', 'components/unified-header.html');
+            loadComponent('footer-container', 'components/unified-footer.html');
+        }
+    </script>
+</body>
+</html>
+

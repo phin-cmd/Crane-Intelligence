@@ -9,7 +9,6 @@ const TIER_DISPLAY_NAMES = {
     'basic': 'Basic User',  // Map 'basic' to 'Basic User'
     'starter': 'Starter User',
     'professional': 'Professional User',
-    'enterprise': 'Enterprise User',
     'pro': 'Professional User'  // Map 'pro' to 'Professional'
 };
 

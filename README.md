@@ -24,7 +24,7 @@ Crane-Intelligence/
 ├── frontend/                    # Frontend web application
 │   ├── homepage.html           # Landing page
 │   ├── dashboard.html          # User dashboard
-│   ├── valuation-terminal.html # Main valuation tool
+│   ├── valuation_terminal.html # Main valuation tool
 │   ├── admin-fmv-reports.html  # Admin FMV reports management
 │   ├── report-generation.html  # FMV report generation form
 │   ├── my-reports.html         # User reports view

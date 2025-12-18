@@ -113,49 +113,17 @@ class AdminDashboard {
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            this.showErrorState('Failed to load dashboard data. Using mock data.');
-            // Load mock data as fallback
-            this.loadMockData();
+            this.showErrorState('Failed to load dashboard data. Please refresh the page.');
+            // Don't load mock data - show empty state instead
+            this.updateDashboardMetrics({
+                active_users: 0,
+                total_revenue: 0,
+                system_health: 0,
+                storage_used: 0
+            });
         } finally {
             this.hideLoadingState();
         }
-    }
-
-    loadMockData() {
-        // Load mock data when API fails
-        const mockMetrics = {
-            active_users: 1247,
-            total_revenue: 45230,
-            system_health: 98,
-            storage_used: 67
-        };
-        
-        this.updateDashboardMetrics(mockMetrics);
-        
-        // Load mock chart data
-        const mockCharts = {
-            user_activity: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    data: [1200, 1350, 1100, 1400, 1600, 1800, 1500]
-                }]
-            },
-            revenue_trends: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    data: [35000, 38000, 42000, 40000, 45000, 48000]
-                }]
-            },
-            geographic_distribution: [
-                { country: 'United States', users: 1250, percentage: 85 },
-                { country: 'Canada', users: 320, percentage: 65 },
-                { country: 'United Kingdom', users: 180, percentage: 45 },
-                { country: 'Germany', users: 150, percentage: 35 },
-                { country: 'Australia', users: 90, percentage: 25 }
-            ]
-        };
-        
-        this.updateCharts(mockCharts);
     }
 
     updateDashboardMetrics(metrics) {
@@ -163,7 +131,7 @@ class AdminDashboard {
         this.updateMetricValue('active-users', metrics.active_users || metrics.total_users);
         this.updateMetricValue('total-revenue', `$${this.formatNumber(metrics.total_revenue || metrics.monthly_revenue)}`);
         this.updateMetricValue('system-health', `${metrics.system_health === 'excellent' ? 98 : metrics.system_health === 'good' ? 85 : 75}%`);
-        this.updateMetricValue('storage-used', `${Math.floor(Math.random() * 30) + 60}%`); // Mock storage data
+        this.updateMetricValue('storage-used', `${metrics.storage_used || 0}%`);
     }
 
     updateMetricValue(elementId, value) {

@@ -358,53 +358,46 @@ class UnifiedAuth {
             console.log('📝 Display name set to:', displayName);
         }
 
-        // Update user role/subscription - use payment-based tier logic
+        // Update user role display - show user_role instead of subscription tier
         const userRole = document.getElementById('userRole');
         if (userRole) {
-            // Get subscription tier from local user data
-            const userData = localStorage.getItem('user_data');
+            // Get user data from parameter or localStorage
+            let user = null;
             if (userData) {
-                try {
-                    const user = JSON.parse(userData);
-                    
-                    // Payment-based tier calculation
-                    function getSubscriptionTierFromPayment(userData) {
-                        const subscriptionPlan = userData.subscription_plan || {};
-                        const monthlyPrice = subscriptionPlan.monthly_price || 0;
-                        const yearlyPrice = subscriptionPlan.yearly_price || 0;
-                        
-                        if (monthlyPrice > 0) {
-                            if (monthlyPrice >= 4999) return 'enterprise';
-                            else if (monthlyPrice >= 2499) return 'professional';
-                            else if (monthlyPrice >= 999) return 'starter';
-                            else return 'basic';
-                        } else if (yearlyPrice > 0) {
-                            if (yearlyPrice >= 59340) return 'enterprise';
-                            else if (yearlyPrice >= 25490) return 'professional';
-                            else if (yearlyPrice >= 10188) return 'starter';
-                            else return 'basic';
-                        } else {
-                            return 'basic';
-                        }
+                user = userData;
+            } else {
+                const storedUserData = localStorage.getItem('user_data');
+                if (storedUserData) {
+                    try {
+                        user = JSON.parse(storedUserData);
+                    } catch (e) {
+                        console.error('Error parsing user data:', e);
                     }
-                    
-                    const tierNames = {
-                        'basic': 'Basic User',
-                        'starter': 'Starter User',
-                        'professional': 'Professional User',
-                        'enterprise': 'Enterprise User'
-                    };
-                    
-                    const tier = getSubscriptionTierFromPayment(user);
-                    const tierName = tierNames[tier] || 'Basic User';
-                    userRole.textContent = tierName;
-                    console.log('🏷️ Payment-based tier:', tierName, '(monthly_price:', user.subscription_plan?.monthly_price, ')');
+                }
+            }
+            
+            if (user) {
+                try {
+                    // Display user_role (not subscription tier)
+                    let roleName = 'User';
+                    if (user.user_role) {
+                        const role = user.user_role.toLowerCase();
+                        const roleMap = {
+                            'crane_rental_company': 'Crane Rental Company',
+                            'equipment_dealer': 'Equipment Dealer',
+                            'financial_institution': 'Financial Institution',
+                            'others': 'Other'
+                        };
+                        roleName = roleMap[role] || role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    }
+                    userRole.textContent = roleName;
+                    console.log('🏷️ User role:', roleName);
                 } catch (error) {
                     console.error('❌ Error parsing user data:', error);
-                    userRole.textContent = 'Basic User';
+                    userRole.textContent = 'User';
                 }
             } else {
-                userRole.textContent = 'Basic User';
+                userRole.textContent = 'User';
             }
         }
 

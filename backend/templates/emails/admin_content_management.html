@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Management Action - Admin Notification</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #0F0F0F;
+        }
+        .email-header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #121212 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 1px solid #333333;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .email-content {
+            background-color: #1A1A1A;
+            padding: 40px 30px;
+            color: #FFFFFF;
+        }
+        .button-primary {
+            display: inline-block;
+            background-color: #00FF85;
+            color: #0F0F0F;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .info-box {
+            background-color: rgba(0, 255, 133, 0.1);
+            border-left: 4px solid #00FF85;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background-color: rgba(255, 214, 0, 0.1);
+            border-left: 4px solid #FFD600;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-box {
+            background-color: rgba(255, 68, 68, 0.1);
+            border-left: 4px solid #FF4444;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .email-footer {
+            background-color: #121212;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #333333;
+            color: #B0B0B0;
+            font-size: 12px;
+        }
+        h1, h2, h3 {
+            font-family: 'Roboto Condensed', 'Inter', sans-serif;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-top: 0;
+        }
+        h1 { font-size: 28px; }
+        h2 { font-size: 24px; }
+        h3 { font-size: 20px; }
+        p {
+            color: #B0B0B0;
+            line-height: 1.6;
+            margin: 16px 0;
+        }
+        ul {
+            color: #B0B0B0;
+            line-height: 1.8;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-content { padding: 30px 20px; }
+            .email-header { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-header">
+            <div class="logo-container">
+                <!-- Logo as inline SVG for better email client compatibility -->
+                <svg width="200" height="40" viewBox="0 0 300 60" xmlns="http://www.w3.org/2000/svg" style="height: 40px; width: auto; max-width: 200px; display: block; margin: 0 auto;">
+                    <defs>
+                        <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF9800;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="8" y="12" width="6" height="36" fill="url(#yellowGradient)"/>
+                    <text x="24" y="28" font-family="Roboto Condensed, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" letter-spacing="1px">CRANE</text>
+                    <text x="24" y="44" font-family="Roboto Condensed, Arial, sans-serif" font-size="12" font-weight="500" fill="#FFFFFF" letter-spacing="2px" opacity="0.8">INTELLIGENCE</text>
+                    <rect x="280" y="28" width="2" height="16" fill="#00FF85"/>
+                </svg>
+            </div>
+            <h1 style="color: #FFFFFF; margin: 0;">Content Management Action</h1>
+        </div>
+        
+        <div class="email-content">
+
+        <h2>Content Management Notification</h2>
+        
+        <p>A content management action has been performed by an administrator.</p>
+        
+        <div class="action-details">
+            <h3>Action Details</h3>
+            <ul>
+                <li><strong>Action Type:</strong> {{ action_type }}</li>
+                <li><strong>Performed By:</strong> {{ admin_name }}</li>
+                <li><strong>Timestamp:</strong> {{ action_timestamp }}</li>
+                <li><strong>Content Type:</strong> {{ content_type }}</li>
+                <li><strong>Content ID:</strong> {{ content_id }}</li>
+            </ul>
+        </div>
+        
+        <div class="content-info">
+            <h3>Content Information</h3>
+            <ul>
+                <li><strong>Title:</strong> {{ content_title }}</li>
+                <li><strong>Author:</strong> {{ content_author }}</li>
+                <li><strong>Category:</strong> {{ content_category }}</li>
+                <li><strong>Tags:</strong> {{ content_tags }}</li>
+                <li><strong>Status:</strong> {{ content_status }}</li>
+                <li><strong>Created:</strong> {{ content_created }}</li>
+                <li><strong>Modified:</strong> {{ content_modified }}</li>
+            </ul>
+        </div>
+        
+        <div class="publishing-info">
+            <h3>Publishing Information</h3>
+            <ul>
+                <li><strong>Publish Status:</strong> {{ publish_status }}</li>
+                <li><strong>Publish Date:</strong> {{ publish_date }}</li>
+                <li><strong>Expiry Date:</strong> {{ expiry_date }}</li>
+                <li><strong>Visibility:</strong> {{ visibility }}</li>
+                <li><strong>SEO Score:</strong> {{ seo_score }}/100</li>
+                <li><strong>Readability Score:</strong> {{ readability_score }}/100</li>
+            </ul>
+        </div>
+        
+        <div class="analytics">
+            <h3>Content Analytics</h3>
+            <ul>
+                <li><strong>Views:</strong> {{ content_views }}</li>
+                <li><strong>Shares:</strong> {{ content_shares }}</li>
+                <li><strong>Comments:</strong> {{ content_comments }}</li>
+                <li><strong>Engagement Rate:</strong> {{ engagement_rate }}%</li>
+                <li><strong>Bounce Rate:</strong> {{ bounce_rate }}%</li>
+                <li><strong>Time on Page:</strong> {{ time_on_page }}</li>
+            </ul>
+        </div>
+        
+        <h3>Action Summary</h3>
+        <p><strong>Description:</strong> {{ action_description }}</p>
+        <p><strong>Impact:</strong> {{ action_impact }}</p>
+        <p><strong>Next Steps:</strong> {{ next_steps }}</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ content_management_url }}" class="button">View Content Management</a>
+        </div>
+        
+        <h3>Content Quality Metrics</h3>
+        <ul>
+            <li><strong>Word Count:</strong> {{ word_count }}</li>
+            <li><strong>Reading Time:</strong> {{ reading_time }}</li>
+            <li><strong>Image Count:</strong> {{ image_count }}</li>
+            <li><strong>Link Count:</strong> {{ link_count }}</li>
+            <li><strong>Media Files:</strong> {{ media_files }}</li>
+        </ul>
+        
+        <h3>Content Performance</h3>
+        <ul>
+            <li><strong>Search Ranking:</strong> {{ search_ranking }}</li>
+            <li><strong>Social Shares:</strong> {{ social_shares }}</li>
+            <li><strong>Email Shares:</strong> {{ email_shares }}</li>
+            <li><strong>Direct Traffic:</strong> {{ direct_traffic }}</li>
+            <li><strong>Referral Traffic:</strong> {{ referral_traffic }}</li>
+        </ul>
+        
+        <h3>Recommendations</h3>
+        <ul>
+            <li>{{ recommendation_1 }}</li>
+            <li>{{ recommendation_2 }}</li>
+            <li>{{ recommendation_3 }}</li>
+        </ul>
+        
+        <h3>Content Workflow</h3>
+        <ol>
+            <li>Content created and reviewed</li>
+            <li>SEO optimization applied</li>
+            <li>Quality checks completed</li>
+            <li>Publishing scheduled</li>
+            <li>Performance monitoring enabled</li>
+        </ol>
+        
+        <p><strong>Content management action completed successfully.</strong></p>
+        <p>Best regards,<br>The Crane Intelligence Content Management Team</p>
+    
+        </div>
+        
+        <div class="email-footer">
+            <p style="margin: 0 0 10px 0;">
+                <strong style="color: #FFFFFF;">Crane Intelligence</strong><br>
+                Professional Crane Valuation & Market Intelligence
+            </p>
+            <p style="margin: 10px 0; color: #808080; font-size: 11px;">
+                © 2024 Crane Intelligence. All rights reserved.
+            </p>
+            <p style="margin: 10px 0; color: #808080; font-size: 11px;">
+                This is an administrative notification email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

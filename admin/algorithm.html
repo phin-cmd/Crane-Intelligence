@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Algorithm Settings - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        body { background: #0F0F0F; color: #FFFFFF; }
+        .btn-primary { background: #FFD600; color: #000000; border-color: #FFD600; font-weight: 600; }
+        .btn-primary:hover { background: #E6C200; border-color: #E6C200; }
+        input:focus, select:focus { border-color: #FFD600; background-color: rgba(255, 214, 0, 0.05); }
+        .card { background: #1A1A1A; border: 1px solid #333333; padding: 20px; border-radius: 8px; }
+        .card h3 { color: #FFFFFF; margin-bottom: 15px; }
+        input[type="number"] { background: #0F0F0F; border: 1px solid #333333; color: #FFFFFF; padding: 8px; border-radius: 4px; width: 100%; }
+        input[type="number"]:focus { border-color: #FFD600; background-color: rgba(255, 214, 0, 0.05); }
+        label { display: block; margin-bottom: 5px; color: #B0B0B0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div id="admin-header-container"></div>
+
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
+
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="content-header">
+                    <div class="header-actions">
+                        <select id="category-filter" onchange="loadCategory()">
+                            <option value="">All Categories</option>
+                            <option value="valuation">Valuation</option>
+                            <option value="market_data">Market Data</option>
+                            <option value="scoring">Scoring</option>
+                            <option value="api">API</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="loadStats()">View Stats</button>
+                    </div>
+                </div>
+
+                <div id="settings-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px;">
+                    <div class="card">
+                        <h3>Valuation Settings</h3>
+                        <div id="valuation-settings">Loading...</div>
+                    </div>
+                    <div class="card">
+                        <h3>Market Data Settings</h3>
+                        <div id="market-data-settings">Loading...</div>
+                    </div>
+                    <div class="card">
+                        <h3>Scoring Settings</h3>
+                        <div id="scoring-settings">Loading...</div>
+                    </div>
+                    <div class="card">
+                        <h3>API Settings</h3>
+                        <div id="api-settings">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-footer-container"></div>
+
+    <script>
+        // Render common header, sidebar, and footer on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // admin-layout.js handles header
+            // admin-layout.js handles sidebar
+            // admin-layout.js handles footer
+            // admin-layout.js handles initialization
+        
+            // Add profile dropdown
+            setTimeout(function() {
+                const profileElement = document.getElementById('adminProfile');
+                if (profileElement && !document.getElementById('profileDropdown')) {
+                    profileElement.insertAdjacentHTML('afterend', `
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <a href="profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Profile
+                            </a>
+                            <a href="settings.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                                </svg>
+                                Settings
+                            </a>
+                            <button class="dropdown-item logout" onclick="adminLogout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16,17 21,12 16,7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    `);
+                }
+            }, 100);
+            
+            // Render footer
+            const footerContainer = document.getElementById('admin-footer-container');
+            if (footerContainer) {
+                footerContainer.innerHTML = renderAdminFooter();
+            }
+        });
+    </script>
+
+    <script>
+        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+
+        if (!accessToken) window.location.href = '/admin/login.html';
+
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/algorithm`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (response.status === 401) {
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                const settings = await response.json();
+                renderSettings(settings);
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function renderSettings(settings) {
+            if (settings.valuation) {
+                document.getElementById('valuation-settings').innerHTML = Object.entries(settings.valuation).map(([key, value]) => `
+                    <div style="margin-bottom: 10px;">
+                        <label>${key.replace(/_/g, ' ')}:</label>
+                        <input type="number" value="${value}" step="0.01" onchange="updateSetting('valuation', '${key}', this.value)" style="width: 100%; padding: 5px;">
+                    </div>
+                `).join('');
+            }
+            if (settings.market_data) {
+                document.getElementById('market-data-settings').innerHTML = Object.entries(settings.market_data).map(([key, value]) => `
+                    <div style="margin-bottom: 10px;">
+                        <label>${key.replace(/_/g, ' ')}:</label>
+                        <input type="number" value="${value}" onchange="updateSetting('market_data', '${key}', this.value)" style="width: 100%; padding: 5px;">
+                    </div>
+                `).join('');
+            }
+            if (settings.scoring) {
+                document.getElementById('scoring-settings').innerHTML = '<pre>' + JSON.stringify(settings.scoring, null, 2) + '</pre>';
+            }
+            if (settings.api) {
+                document.getElementById('api-settings').innerHTML = Object.entries(settings.api).map(([key, value]) => `
+                    <div style="margin-bottom: 10px;">
+                        <label>${key.replace(/_/g, ' ')}:</label>
+                        <input type="number" value="${value}" onchange="updateSetting('api', '${key}', this.value)" style="width: 100%; padding: 5px;">
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function updateSetting(category, key, value) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/algorithm/${category}/${key}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: parseFloat(value) || value })
+                });
+                if (response.ok) {
+                    notificationSystem.showSuccess('Success', 'Setting updated successfully');
+                }
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to update setting');
+            }
+        }
+
+        async function loadCategory() {
+            const category = document.getElementById('category-filter').value;
+            if (category) {
+                try {
+                    const response = await fetch(`${API_BASE}/admin/algorithm?category=${category}`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    });
+                    const settings = await response.json();
+                    renderSettings(settings);
+                } catch (error) {
+                    notificationSystem.showError('Error', 'Failed to load category');
+                }
+            } else {
+                loadSettings();
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/algorithm/stats/summary`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const stats = await response.json();
+                alert(`Algorithm Stats:\nTotal Valuations: ${stats.total_valuations}\nAverage Confidence: ${stats.average_confidence}\nSettings Modified: ${stats.settings_modified}`);
+            } catch (error) {
+                notificationSystem.showError('Error', 'Failed to load stats');
+            }
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>
+

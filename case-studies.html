@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Studies - CRANE INTELLIGENCE</title>
+    <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brand-framework.css?v=19">
+    <link rel="stylesheet" href="css/uniform-design.css">
+    <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <script src="js/component-loader.js" defer></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 20px 40px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .page-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .page-subtitle {
+            font-size: 20px;
+            color: #B0B0B0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .case-studies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+        
+        .case-study-card {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .case-study-card:hover {
+            border-color: #00FF85;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 255, 133, 0.1);
+        }
+        
+        .case-study-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+        
+        .case-study-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+        
+        .case-study-type {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0, 255, 133, 0.1);
+            color: #00FF85;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .case-study-content {
+            color: #B0B0B0;
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+        
+        .case-study-results {
+            background: rgba(0, 255, 133, 0.05);
+            border-left: 3px solid #00FF85;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 24px;
+        }
+        
+        .results-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00FF85;
+            margin-bottom: 12px;
+        }
+        
+        .results-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .results-list li {
+            padding: 8px 0;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+        }
+        
+        .results-list li:before {
+            content: "✓";
+            color: #00FF85;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+        
+        .testimonial-section {
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 48px;
+            margin-top: 64px;
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 32px;
+        }
+        
+        .testimonial-card {
+            background: #0F0F0F;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .testimonial-text {
+            color: #B0B0B0;
+            font-style: italic;
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+        
+        .testimonial-author {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        
+        .testimonial-company {
+            color: #808080;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 100px 16px 32px;
+            }
+            
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .page-subtitle {
+                font-size: 16px;
+            }
+            
+            .case-studies-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .case-study-card {
+                padding: 24px;
+            }
+            
+            .testimonial-section {
+                padding: 32px 24px;
+            }
+            
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">Case Studies</h1>
+            <p class="page-subtitle">Real-world success stories from our clients who have leveraged Crane Intelligence for accurate valuations and strategic decision-making</p>
+        </div>
+        
+        <div class="case-studies-grid">
+            <!-- Case Study 1 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Fleet Optimization for Construction Company</h2>
+                        <span class="case-study-type">Fleet Valuation</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>A major construction company needed to assess the fair market value of their 25-crane fleet for insurance and strategic planning purposes. They required comprehensive valuations with market analysis and comparable sales data.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Completed fleet valuation in 48 hours</li>
+                        <li>Identified $2.3M in total fleet value</li>
+                        <li>Provided actionable recommendations for fleet optimization</li>
+                        <li>Enabled informed insurance coverage decisions</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Case Study 2 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Equipment Sale Preparation</h2>
+                        <span class="case-study-type">Professional Report</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>A crane rental company was preparing to sell a 2018 Liebherr LTM 1100-4.2 mobile crane and needed a professional FMV report to support their asking price and negotiate with potential buyers.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Received comprehensive 5-page professional report within 24 hours</li>
+                        <li>Report included 8 verified comparable sales</li>
+                        <li>Deal & Wear Score analysis provided</li>
+                        <li>Successfully sold at 95% of FMV estimate</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Case Study 3 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Quick Valuation for Insurance Claim</h2>
+                        <span class="case-study-type">Spot Check</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>An equipment dealer needed a quick valuation estimate for a damaged crane to support an insurance claim. Time was critical, and they needed a reliable FMV range estimate.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Received email summary within 24 hours</li>
+                        <li>FMV range estimate provided with 3 comparables</li>
+                        <li>Successfully supported insurance claim</li>
+                        <li>Cost-effective solution for urgent need</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Case Study 4 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Merger & Acquisition Due Diligence</h2>
+                        <span class="case-study-type">Fleet Valuation</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>A private equity firm was evaluating an acquisition target and needed accurate valuations of the target company's 40-crane fleet for due diligence purposes.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Comprehensive fleet valuation completed in 72 hours</li>
+                        <li>Multi-unit PDF report with individual crane pages</li>
+                        <li>Market overview provided strategic insights</li>
+                        <li>Enabled informed acquisition decision</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Case Study 5 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Equipment Financing Support</h2>
+                        <span class="case-study-type">Professional Report</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>A crane operator needed a professional FMV report to secure financing for a new equipment purchase. The lender required a certified valuation from a reputable source.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Professional report signed by certified analyst</li>
+                        <li>5+ verified comparables included</li>
+                        <li>Regional commentary provided market context</li>
+                        <li>Successfully secured financing based on report</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Case Study 6 -->
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div>
+                        <h2 class="case-study-title">Tax Assessment Appeal</h2>
+                        <span class="case-study-type">Professional Report</span>
+                    </div>
+                </div>
+                <div class="case-study-content">
+                    <p>A construction company was challenging a property tax assessment on their crane equipment. They needed a professional FMV report to support their appeal.</p>
+                </div>
+                <div class="case-study-results">
+                    <div class="results-title">Results</div>
+                    <ul class="results-list">
+                        <li>Professional report with analyst signature</li>
+                        <li>Comprehensive market analysis provided</li>
+                        <li>Successfully reduced tax assessment by 30%</li>
+                        <li>Report accepted by tax authorities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Testimonials Section -->
+        <div class="testimonial-section">
+            <h2 style="font-size: 32px; font-weight: 700; color: #00FF85; margin-bottom: 16px; text-align: center;">Client Testimonials</h2>
+            <p style="text-align: center; color: #B0B0B0; margin-bottom: 32px;">What our clients say about Crane Intelligence</p>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Crane Intelligence provided us with a comprehensive fleet valuation that was instrumental in our strategic planning. The turnaround time was excellent, and the quality of the analysis exceeded our expectations."
+                    </div>
+                    <div class="testimonial-author">John Smith</div>
+                    <div class="testimonial-company">CEO, ABC Construction</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "The professional FMV report we received was detailed, accurate, and helped us negotiate a better sale price. The analyst's signature and comprehensive comparables gave us the confidence we needed."
+                    </div>
+                    <div class="testimonial-author">Sarah Johnson</div>
+                    <div class="testimonial-company">Equipment Manager, XYZ Rentals</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "We needed a quick valuation for an insurance claim, and Crane Intelligence delivered. The spot check service was perfect for our urgent needs, and the estimate was spot-on."
+                    </div>
+                    <div class="testimonial-author">Michael Chen</div>
+                    <div class="testimonial-company">Operations Director, DEF Equipment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        // Load header and footer components
+        if (typeof loadComponent !== 'undefined') {
+            loadComponent('header-container', 'components/unified-header.html');
+            loadComponent('footer-container', 'components/unified-footer.html');
+        }
+    </script>
+</body>
+</html>
+
