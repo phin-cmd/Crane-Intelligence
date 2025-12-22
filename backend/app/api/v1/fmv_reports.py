@@ -8,7 +8,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File, Form, Request
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ...core.database import get_db
 from ...core.config import settings
@@ -81,38 +81,137 @@ def get_stripe_service():
 
 def convert_report_to_response(report: FMVReport) -> FMVReportResponse:
     """Convert FMVReport model to response schema, handling enum conversions"""
-    report_dict = {
-        "id": report.id,
-        "user_id": report.user_id,
-        "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
-        "status": report.status.value if hasattr(report.status, 'value') else str(report.status),
-        "crane_details": report.crane_details,
-        "service_records": report.service_records,
-        "service_record_files": report.service_record_files if hasattr(report, 'service_record_files') else None,
-        "fleet_pricing_tier": report.fleet_pricing_tier.value if report.fleet_pricing_tier and hasattr(report.fleet_pricing_tier, 'value') else (str(report.fleet_pricing_tier) if report.fleet_pricing_tier else None),
-        "unit_count": report.unit_count,
-        "amount_paid": report.amount_paid,
-        "payment_intent_id": report.payment_intent_id,
-        "payment_status": report.payment_status,
-        "created_at": report.created_at,
-        "submitted_at": report.submitted_at,
-        "paid_at": report.paid_at,
-        "in_progress_at": report.in_progress_at,
-        "completed_at": report.completed_at,
-        "delivered_at": report.delivered_at,
-        "overdue_at": getattr(report, 'overdue_at', None),
-        "rejected_at": getattr(report, 'rejected_at', None),
-        "cancelled_at": getattr(report, 'cancelled_at', None),
-        "turnaround_deadline": getattr(report, 'turnaround_deadline', None),
-        "pdf_url": getattr(report, 'pdf_url', None),
-        "pdf_uploaded_at": getattr(report, 'pdf_uploaded_at', None),
-        "analyst_notes": getattr(report, 'analyst_notes', None),
-        "rejection_reason": getattr(report, 'rejection_reason', None),
-        "assigned_analyst": getattr(report, 'assigned_analyst', None),
-        "metadata": getattr(report, 'report_metadata', None) if hasattr(report, 'report_metadata') else None,  # Use renamed attribute
-        "updated_at": getattr(report, 'updated_at', None)
-    }
-    return FMVReportResponse(**report_dict)
+    try:
+        # Safely extract enum values
+        report_type_value = report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type)
+        status_value = report.status.value if hasattr(report.status, 'value') else str(report.status)
+        
+        # Safely extract fleet_pricing_tier
+        fleet_tier_value = None
+        if report.fleet_pricing_tier:
+            if hasattr(report.fleet_pricing_tier, 'value'):
+                fleet_tier_value = report.fleet_pricing_tier.value
+            else:
+                fleet_tier_value = str(report.fleet_pricing_tier)
+        
+        # Safely extract crane_details - ensure it's a dict
+        crane_details = report.crane_details
+        if crane_details is None:
+            crane_details = {}
+        elif not isinstance(crane_details, dict):
+            # If it's a JSON string, parse it
+            import json
+            if isinstance(crane_details, str):
+                try:
+                    crane_details = json.loads(crane_details)
+                except:
+                    crane_details = {}
+            else:
+                # Try to convert to dict
+                try:
+                    crane_details = dict(crane_details) if hasattr(crane_details, '__dict__') else {}
+                except:
+                    crane_details = {}
+        
+        # Safely extract service_records - ensure it's a list
+        service_records = report.service_records
+        if service_records is None:
+            service_records = []
+        elif not isinstance(service_records, list):
+            # If it's a JSON string, parse it
+            import json
+            if isinstance(service_records, str):
+                try:
+                    service_records = json.loads(service_records)
+                except:
+                    service_records = []
+            else:
+                service_records = []
+        
+        # Safely extract metadata
+        metadata = None
+        if hasattr(report, 'report_metadata'):
+            metadata = report.report_metadata
+        elif hasattr(report, 'metadata'):
+            metadata = report.metadata
+        
+        # Parse metadata if it's a string
+        if metadata and isinstance(metadata, str):
+            import json
+            try:
+                metadata = json.loads(metadata)
+            except:
+                metadata = None
+        
+        # Safely extract service_record_files
+        service_record_files = getattr(report, 'service_record_files', None)
+        if service_record_files is None:
+            service_record_files = []
+        elif not isinstance(service_record_files, list):
+            # If it's a JSON string, parse it
+            import json
+            if isinstance(service_record_files, str):
+                try:
+                    service_record_files = json.loads(service_record_files)
+                except:
+                    service_record_files = []
+            else:
+                service_record_files = []
+        
+        report_dict = {
+            "id": report.id,
+            "user_id": report.user_id,
+            "report_type": report_type_value,
+            "status": status_value,
+            "crane_details": crane_details,
+            "service_records": service_records,
+            "service_record_files": service_record_files,
+            "fleet_pricing_tier": fleet_tier_value,
+            "unit_count": getattr(report, 'unit_count', None),
+            "amount_paid": float(getattr(report, 'amount_paid', 0)) if getattr(report, 'amount_paid', None) is not None else None,
+            "payment_intent_id": getattr(report, 'payment_intent_id', None),
+            "payment_status": getattr(report, 'payment_status', None),
+            "created_at": report.created_at,
+            "submitted_at": getattr(report, 'submitted_at', None),
+            "paid_at": getattr(report, 'paid_at', None),
+            "in_progress_at": getattr(report, 'in_progress_at', None),
+            "completed_at": getattr(report, 'completed_at', None),
+            "delivered_at": getattr(report, 'delivered_at', None),
+            "overdue_at": getattr(report, 'overdue_at', None),
+            "rejected_at": getattr(report, 'rejected_at', None),
+            "cancelled_at": getattr(report, 'cancelled_at', None),
+            "need_more_info_at": getattr(report, 'need_more_info_at', None),
+            "turnaround_deadline": getattr(report, 'turnaround_deadline', None),
+            "pdf_url": getattr(report, 'pdf_url', None),
+            "pdf_uploaded_at": getattr(report, 'pdf_uploaded_at', None),
+            "analyst_notes": getattr(report, 'analyst_notes', None),
+            "rejection_reason": getattr(report, 'rejection_reason', None),
+            "need_more_info_reason": getattr(report, 'need_more_info_reason', None),
+            "assigned_analyst": getattr(report, 'assigned_analyst', None),
+            "metadata": metadata,
+            "updated_at": getattr(report, 'updated_at', report.created_at if hasattr(report, 'created_at') else datetime.now(timezone.utc))
+        }
+        
+        # Create response object
+        return FMVReportResponse(**report_dict)
+    except Exception as e:
+        logger.error(f"Error in convert_report_to_response: {e}", exc_info=True)
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        # Return a minimal valid response to prevent complete failure
+        fallback_created_at = report.created_at if hasattr(report, 'created_at') and report.created_at else datetime.now(timezone.utc)
+        fallback_updated_at = getattr(report, 'updated_at', None) or fallback_created_at
+        return FMVReportResponse(
+            id=report.id,
+            user_id=report.user_id,
+            report_type=str(report.report_type) if hasattr(report, 'report_type') else "professional",
+            status=str(report.status) if hasattr(report, 'status') else "draft",
+            crane_details={},
+            service_records=[],
+            service_record_files=[],
+            created_at=fallback_created_at,
+            updated_at=fallback_updated_at
+        )
 
 
 # CRITICAL: These endpoints MUST be defined FIRST, before ANY other routes
@@ -219,7 +318,7 @@ async def mark_payment_received_by_intent(
                         user_name=user.full_name,
                         report_data={
                             "report_id": report.id,
-                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value', user_timezone=getattr(user, 'timezone', None)) else str(report.report_type),
                             "amount": payment_data.amount,
                             "payment_intent_id": payment_data.payment_intent_id
                         }
@@ -366,16 +465,46 @@ async def create_fmv_payment(
                     from ...schemas.fmv_report import FMVReportCreate, CraneDetails
                     service = FMVReportService(db)
                     
-                    # Build crane_details from crane_data
-                    crane_details = CraneDetails(
-                        manufacturer=crane_data.get("manufacturer", ""),
-                        model=crane_data.get("model", ""),
-                        year=crane_data.get("year"),
-                        capacity=crane_data.get("capacity"),
-                        operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
-                        region=crane_data.get("region", ""),
-                        craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
-                    )
+                    # Check if this is bulk processing
+                    is_bulk_processing = crane_data.get("is_bulk_processing", False)
+                    
+                    if is_bulk_processing:
+                        # For bulk processing, store all bulk data in crane_details as JSON
+                        crane_details = {
+                            "is_bulk_processing": True,
+                            "bulk_records": crane_data.get("bulk_records", []),
+                            "total_cranes": crane_data.get("total_cranes", 0),
+                            "success_count": crane_data.get("success_count", 0),
+                            "error_count": crane_data.get("error_count", 0),
+                            "pricing_tier": crane_data.get("pricing_tier", ""),
+                            "total_price": crane_data.get("total_price", 0),
+                            "bulk_file_url": crane_data.get("bulk_file_url", "")
+                        }
+                        # Set unit_count for fleet valuation
+                        unit_count = crane_data.get("total_cranes", 0)
+                        # Determine fleet pricing tier
+                        from ...models.fmv_report import FleetPricingTier
+                        if unit_count <= 5:
+                            fleet_pricing_tier = FleetPricingTier.TIER_1_5
+                        elif unit_count <= 10:
+                            fleet_pricing_tier = FleetPricingTier.TIER_6_10
+                        elif unit_count <= 25:
+                            fleet_pricing_tier = FleetPricingTier.TIER_11_25
+                        else:
+                            fleet_pricing_tier = FleetPricingTier.TIER_26_50
+                    else:
+                        # Build crane_details from crane_data (single crane)
+                        crane_details = CraneDetails(
+                            manufacturer=crane_data.get("manufacturer", ""),
+                            model=crane_data.get("model", ""),
+                            year=crane_data.get("year"),
+                            capacity=crane_data.get("capacity"),
+                            operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
+                            region=crane_data.get("region", ""),
+                            craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
+                        )
+                        unit_count = None
+                        fleet_pricing_tier = None
                     
                     # Create report data
                     report_create = FMVReportCreate(
@@ -393,6 +522,17 @@ async def create_fmv_payment(
                     draft_report = service.create_report(user_id, report_create)
                     draft_report_id = draft_report.id
                     
+                    # If bulk processing, update unit_count and fleet_pricing_tier
+                    if is_bulk_processing:
+                        draft_report.unit_count = unit_count
+                        draft_report.fleet_pricing_tier = fleet_pricing_tier
+                        # Store bulk file URL in service_record_files if provided
+                        if crane_data.get("bulk_file_url"):
+                            draft_report.service_record_files = [crane_data.get("bulk_file_url")]
+                        db.commit()
+                        db.refresh(draft_report)
+                        logger.info(f"✅ Updated bulk processing report {draft_report_id}: unit_count={unit_count}, tier={fleet_pricing_tier}")
+                    
                     # CRITICAL: Ensure the report is committed to database
                     db.commit()
                     db.refresh(draft_report)
@@ -406,16 +546,32 @@ async def create_fmv_payment(
                         from ...schemas.fmv_report import FMVReportCreate, CraneDetails
                         service = FMVReportService(db)
                         
-                        # Build crane_details from crane_data
-                        crane_details = CraneDetails(
-                            manufacturer=crane_data.get("manufacturer", ""),
-                            model=crane_data.get("model", ""),
-                            year=crane_data.get("year"),
-                            capacity=crane_data.get("capacity"),
-                            operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
-                            region=crane_data.get("region", ""),
-                            craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
-                        )
+                        # Check if this is bulk processing
+                        is_bulk_processing = crane_data.get("is_bulk_processing", False)
+                        
+                        if is_bulk_processing:
+                            # For bulk processing, store all bulk data in crane_details as JSON
+                            crane_details = {
+                                "is_bulk_processing": True,
+                                "bulk_records": crane_data.get("bulk_records", []),
+                                "total_cranes": crane_data.get("total_cranes", 0),
+                                "success_count": crane_data.get("success_count", 0),
+                                "error_count": crane_data.get("error_count", 0),
+                                "pricing_tier": crane_data.get("pricing_tier", ""),
+                                "total_price": crane_data.get("total_price", 0),
+                                "bulk_file_url": crane_data.get("bulk_file_url", "")
+                            }
+                        else:
+                            # Build crane_details from crane_data (single crane)
+                            crane_details = CraneDetails(
+                                manufacturer=crane_data.get("manufacturer", ""),
+                                model=crane_data.get("model", ""),
+                                year=crane_data.get("year"),
+                                capacity=crane_data.get("capacity"),
+                                operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
+                                region=crane_data.get("region", ""),
+                                craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
+                            )
                         
                         # Create report data with user_email in metadata
                         report_create = FMVReportCreate(
@@ -469,10 +625,24 @@ async def create_fmv_payment(
         
         # CRITICAL: Add report_id to metadata if we have a draft_report_id
         # This ensures the payment can be linked to the correct report
+        # Also, if draft_report_id exists, we should NOT create a new draft report
         if draft_report_id:
             metadata["report_id"] = str(draft_report_id)
             metadata["draft_report_id"] = str(draft_report_id)
-            logger.info(f"✅ Added report_id {draft_report_id} to payment intent metadata")
+            logger.info(f"✅ Using existing draft report {draft_report_id} - will NOT create duplicate")
+            
+            # Verify the draft report exists and belongs to the user
+            try:
+                service = FMVReportService(db)
+                draft_report = service.get_report(draft_report_id, user_id if user_id else None)
+                if draft_report:
+                    logger.info(f"✅ Verified draft report {draft_report_id} exists and is valid")
+                else:
+                    logger.warning(f"⚠️ Draft report {draft_report_id} not found or doesn't belong to user - will create new one")
+                    draft_report_id = None  # Reset to None so a new one is created
+            except Exception as verify_error:
+                logger.warning(f"⚠️ Error verifying draft report {draft_report_id}: {verify_error} - will create new one")
+                draft_report_id = None  # Reset to None so a new one is created
         
         # Create payment intent using Stripe service
         stripe = get_stripe_service()
@@ -542,6 +712,25 @@ async def create_fmv_payment(
 
 # CRITICAL: /submit endpoint MUST be defined here, before any parameterized routes like /{report_id}
 # FastAPI matches routes in order, so this specific route must come before parameterized ones
+
+@router.options("/submit")
+async def options_submit():
+    """
+    Handle CORS preflight for /submit.
+    
+    Some browsers send an OPTIONS preflight when Authorization headers are used,
+    and a 405 here prevents the actual POST from being sent. Returning 200 with
+    permissive CORS headers ensures the real /submit POST can proceed.
+    """
+    from fastapi.responses import Response
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+    }
+    return Response(status_code=status.HTTP_200_OK, headers=headers)
+
 @router.post("/submit", response_model=FMVReportResponse, status_code=status.HTTP_201_CREATED)
 async def submit_fmv_report(
     report_data: FMVReportCreate,
@@ -549,7 +738,9 @@ async def submit_fmv_report(
     db: Session = Depends(get_db)
 ):
     """Submit a new FMV report request - Creates DRAFT report immediately when purchase button is clicked"""
+    import traceback
     logger.info(f"📥 Received /submit request: report_type={report_data.report_type if hasattr(report_data, 'report_type') else 'unknown'}")
+    logger.info(f"   Request body keys: {list(report_data.dict().keys()) if hasattr(report_data, 'dict') else 'N/A'}")
     try:
         # Try to get current_user from token if provided
         current_user = None
@@ -672,84 +863,135 @@ async def submit_fmv_report(
         
         # Create report (will be created as DRAFT status)
         logger.info(f"🔄 Creating DRAFT report for user {user_id}...")
+        logger.info(f"   Report type: {report_data.report_type}")
+        logger.info(f"   Crane details keys: {list(report_data.crane_details.dict().keys()) if hasattr(report_data.crane_details, 'dict') else 'N/A'}")
         try:
             report = service.create_report(user_id, report_data)
             logger.info(f"✅ Created DRAFT report {report.id} for user {user_id} via /submit endpoint. Status: {report.status.value}")
             
-            # CRITICAL: Ensure the report is committed to database
-            db.commit()
-            db.refresh(report)
-            
-            logger.info(f"✅ DRAFT report {report.id} committed to database successfully")
+            # Note: create_report already commits and refreshes, so we just need to ensure we have the report object
+            # Refresh to ensure we have the latest data including any database-generated fields
+            try:
+                db.refresh(report)
+                logger.info(f"✅ DRAFT report {report.id} refreshed from database successfully")
+            except Exception as refresh_error:
+                logger.warning(f"⚠️ Could not refresh report (may already be committed): {refresh_error}")
+                # Report is already committed by create_report, so this is not critical
+        except ValueError as value_error:
+            # Handle validation errors
+            db.rollback()
+            logger.error(f"❌ Validation error creating DRAFT report: {value_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid report data: {str(value_error)}"
+            )
         except Exception as db_error:
             # Rollback on error
             db.rollback()
             logger.error(f"❌ Database error creating DRAFT report: {db_error}", exc_info=True)
+            import traceback
+            error_traceback = traceback.format_exc()
+            logger.error(f"Full traceback:\n{error_traceback}")
+            # Check for specific database errors
+            error_str = str(db_error).lower()
+            if "constraint" in error_str or "unique" in error_str:
+                error_detail = f"Database constraint violation. Please check your data and try again. Error: {str(db_error)}"
+            elif "connection" in error_str or "timeout" in error_str:
+                error_detail = f"Database connection failed. Please try again in a moment. Error: {str(db_error)}"
+            else:
+                error_detail = f"Database error: {str(db_error)}"
             # Re-raise to return proper error to client
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Database connection failed. Please try again in a moment. Error: {str(db_error)}"
+                detail=error_detail
             )
         
         # Convert to response
-        response = convert_report_to_response(report)
-        
-        # CRITICAL: Only send DRAFT reminder email, NOT submitted notification
-        # DRAFT reports should only receive draft reminder emails asking to complete payment
-        # Submitted notification should only be sent when payment is received (status = SUBMITTED)
         try:
-            # Ensure we have user_email - get from user object if not already set
-            if not user_email:
+            response = convert_report_to_response(report)
+            logger.info(f"✅ Successfully converted report {report.id} to response")
+        except Exception as convert_error:
+            logger.error(f"❌ Error converting report to response: {convert_error}", exc_info=True)
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to convert report to response: {str(convert_error)}"
+            )
+        
+        # CRITICAL: Only send DRAFT reminder email, NOT submitted notification.
+        # DRAFT reports should always generate in-app notifications even if email
+        # sending is misconfigured, so notification creation is decoupled from
+        # email service availability.
+        try:
+            # Ensure we have user_email and user_name
+            if not user_email or not user_id:
                 user = db.query(User).filter(User.id == user_id).first()
-                if user:
+                if user and not user_email:
                     user_email = user.email
                     logger.info(f"✅ Retrieved user_email from database: {user_email}")
-            
-            email_service = get_fmv_email_service()
-            if email_service and user_email and report.status == FMVReportStatus.DRAFT:
-                # Get user for name
+            else:
                 user = db.query(User).filter(User.id == user_id).first()
-                user_name = user.full_name if user and user.full_name else (current_user.get("full_name", "User") if current_user else "User")
-                
+            
+            user_name = (
+                user.full_name if user and getattr(user, "full_name", None)
+                else (current_user.get("full_name", "User") if current_user else "User")
+            )
+            
+            # Only proceed if this is a DRAFT report
+            if report.status == FMVReportStatus.DRAFT:
                 # Determine report price based on type
                 report_type_value = report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type)
                 try:
-                    from ...services.fmv_pricing_config import get_base_price_dollars
+                    try:
+                        from ...services.fmv_pricing_config import get_base_price_dollars
+                    except ImportError:
+                        # Fallback if pricing config module doesn't exist
+                        def get_base_price_dollars(report_type: str) -> int:
+                            pricing = {"spot_check": 25000, "professional": 99500, "fleet": 149500}
+                            return pricing.get(report_type, 99500)
                     if report_type_value == 'fleet_valuation':
-                        amount = get_base_price_dollars(report_type_value, unit_count=report.unit_count or 1)
+                        amount_cents = get_base_price_dollars(report_type_value, unit_count=report.unit_count or 1)
                     else:
-                        amount = get_base_price_dollars(report_type_value)
+                        amount_cents = get_base_price_dollars(report_type_value)
+                    # get_base_price_dollars returns cents, keep as-is for database but convert for email
+                    amount = amount_cents
                 except Exception:
-                    # Fallback if pricing config unavailable
+                    # Fallback if pricing config unavailable (already in dollars)
                     if report_type_value == 'spot_check':
-                        amount = 250.00
+                        amount = 25000  # Convert to cents for consistency
                     elif report_type_value == 'professional':
-                        amount = 995.00
+                        amount = 99500  # Convert to cents for consistency
                     elif report_type_value == 'fleet_valuation':
-                        amount = 1495.00
+                        amount = 149500  # Convert to cents for consistency
                     else:
-                        amount = 995.00
+                        amount = 99500  # Convert to cents for consistency
                 
-                # Send DRAFT reminder email
-                email_result = email_service.send_draft_reminder_notification(
-                    user_email=user_email,
-                    user_name=user_name,
-                    report_data={
-                        "report_id": report.id,
-                        "report_type": report_type_value,
-                        "amount": amount,
-                        "hours_since_creation": 0,
-                        "reminder_interval": "initial",
-                        "payment_url": f"{settings.frontend_url}/report-generation.html",
-                        "report_type_display": report_type_value.replace('_', ' ').title()
-                    }
-                )
-                if email_result:
-                    logger.info(f"✅ Sent DRAFT reminder email for report {report.id} to {user_email}")
-                else:
-                    logger.warning(f"⚠️ DRAFT reminder email returned False for report {report.id}")
+                # 1) Try to send DRAFT reminder email (if email service configured)
+                try:
+                    email_service = get_fmv_email_service()
+                    if email_service and user_email:
+                        email_result = email_service.send_draft_reminder_notification(
+                            user_email=user_email,
+                            user_name=user_name,
+                            report_data={
+                                "report_id": report.id,
+                                "report_type": report_type_value,
+                                "amount": amount,  # Will be converted to dollars in email service
+                                "hours_since_creation": 0,
+                                "reminder_interval": "initial",
+                                "payment_url": f"{settings.frontend_url}/report-generation.html",
+                                "report_type_display": report_type_value.replace('_', ' ', user_timezone=getattr(user, 'timezone', None)).title()
+                            }
+                        )
+                        if email_result:
+                            logger.info(f"✅ Sent DRAFT reminder email for report {report.id} to {user_email}")
+                        else:
+                            logger.warning(f"⚠️ DRAFT reminder email returned False for report {report.id}")
+                except Exception as email_error:
+                    logger.error(f"Error sending draft reminder notification email: {email_error}", exc_info=True)
                 
-                # Create user notification for DRAFT report
+                # 2) Always create user notification for DRAFT report
                 try:
                     from ...models.notification import UserNotification
                     user_notification = UserNotification(
@@ -764,8 +1006,9 @@ async def submit_fmv_report(
                     logger.info(f"✅ Created user notification for DRAFT report {report.id}")
                 except Exception as notif_error:
                     logger.warning(f"⚠️ Failed to create user notification for DRAFT report: {notif_error}", exc_info=True)
+                    db.rollback()
                 
-                # Create admin notifications for DRAFT report
+                # 3) Always create admin notifications for DRAFT report (best-effort)
                 try:
                     from ...models.admin import AdminUser, Notification
                     admin_users = db.query(AdminUser).filter(
@@ -778,7 +1021,7 @@ async def submit_fmv_report(
                             admin_user_id=admin.id,
                             notification_type="fmv_report_draft_created",
                             title=f"📝 New DRAFT Report: #{report.id}",
-                            message=f"User {user_email} created a DRAFT FMV Report #{report.id}. Payment pending.",
+                            message=f"User {user_email or 'unknown'} created a DRAFT FMV Report #{report.id}. Payment pending.",
                             data={
                                 "report_id": report.id,
                                 "status": "draft",
@@ -794,17 +1037,34 @@ async def submit_fmv_report(
                     logger.info(f"✅ Created admin notifications for DRAFT report {report.id}")
                 except Exception as admin_notif_error:
                     logger.warning(f"⚠️ Failed to create admin notifications for DRAFT report: {admin_notif_error}", exc_info=True)
+                    db.rollback()
         except Exception as e:
-            logger.error(f"Error sending draft reminder notification: {e}", exc_info=True)
+            logger.error(f"Error handling DRAFT reminder flow (email/notifications): {e}", exc_info=True)
         
         return response
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except ValueError as e:
+        logger.error(f"ValueError in submit_fmv_report: {e}", exc_info=True)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        logger.error(f"Error submitting FMV report: {e}", exc_info=True)
+        logger.error(f"❌ Unexpected error submitting FMV report: {e}", exc_info=True)
         import traceback
-        logger.error(f"Full traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to submit report: {str(e)}")
+        error_traceback = traceback.format_exc()
+        logger.error(f"Full traceback:\n{error_traceback}")
+        # Return a more detailed error message for debugging
+        error_detail = f"Failed to submit report: {str(e)}"
+        if "convert_report_to_response" in error_traceback:
+            error_detail += " (Error in response conversion)"
+        elif "create_report" in error_traceback:
+            error_detail += " (Error in report creation)"
+        elif "user_id" in error_traceback.lower():
+            error_detail += " (User authentication error)"
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_detail
+        )
 
 
 @router.post("/upload-service-records", status_code=status.HTTP_200_OK)
@@ -924,7 +1184,7 @@ async def submit_draft_report(
             email_service = get_fmv_email_service()
             if email_service:
                 email_service.send_submitted_notification(
-                user_email=current_user.get("email"),
+                user_email=current_user.get("email", user_timezone=getattr(user, 'timezone', None)),
                 user_name=current_user.get("full_name", "User"),
                 report_data={
                     "report_id": report.id,
@@ -1028,7 +1288,7 @@ async def get_user_reports(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve reports")
 
 
-@router.get("/{report_id}", response_model=FMVReportResponse)
+@router.get("/{report_id:int}", response_model=FMVReportResponse)
 async def get_report(
     report_id: int,
     current_user: Dict[str, Any] = Depends(get_current_user),
@@ -1121,11 +1381,15 @@ async def update_report_status(
             if user:
                 report_data = {
                     "report_id": report.id,
-                    "report_type": report.report_type,
+                    "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                    "report_type_display": report.report_type.value.replace('_', ' ').title() if hasattr(report.report_type, 'value') else str(report.report_type).replace('_', ' ').title(),
+                    "crane_details": report.crane_details,
                     "assigned_analyst": report.assigned_analyst,
                     "rejection_reason": report.rejection_reason,
+                    "need_more_info_reason": report.need_more_info_reason,
                     "pdf_url": report.pdf_url,
-                    "amount": report.amount_paid
+                    "amount": report.amount_paid,
+                    "amount_paid": report.amount_paid
                 }
                 
                 if status_transition.status == FMVReportStatus.IN_PROGRESS:
@@ -1134,32 +1398,44 @@ async def update_report_status(
                         email_service.send_in_progress_notification(
                         user_email=user.email,
                         user_name=user.full_name,
-                        report_data=report_data
-                    )
+                        report_data=report_data, user_timezone=getattr(user, 'timezone', None))
                 elif status_transition.status == FMVReportStatus.COMPLETED:
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_completed_notification(
                         user_email=user.email,
                         user_name=user.full_name,
-                        report_data=report_data
-                    )
+                        report_data=report_data, user_timezone=getattr(user, 'timezone', None))
                 elif status_transition.status == FMVReportStatus.DELIVERED:
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_delivered_notification(
                         user_email=user.email,
                         user_name=user.full_name,
-                        report_data=report_data
-                    )
+                        report_data=report_data, user_timezone=getattr(user, 'timezone', None))
+                elif status_transition.status == FMVReportStatus.NEED_MORE_INFO:
+                    email_service = get_fmv_email_service()
+                    if email_service:
+                        # Include all report details for the email
+                        need_more_info_data = {
+                            "report_id": report.id,
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                            "report_type_display": report.report_type.value.replace('_', ' ').title() if hasattr(report.report_type, 'value') else str(report.report_type).replace('_', ' ').title(),
+                            "crane_details": report.crane_details,
+                            "amount_paid": report.amount_paid,
+                            "need_more_info_reason": report.need_more_info_reason or status_transition.rejection_reason or status_transition.analyst_notes or "Additional information is required to complete your report."
+                        }
+                        email_service.send_need_more_info_notification(
+                            user_email=user.email,
+                            user_name=user.full_name,
+                            report_data=need_more_info_data, user_timezone=getattr(user, 'timezone', None))
                 elif status_transition.status == FMVReportStatus.REJECTED:
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_rejected_notification(
                         user_email=user.email,
                         user_name=user.full_name,
-                        report_data=report_data
-                    )
+                        report_data=report_data, user_timezone=getattr(user, 'timezone', None))
         except Exception as e:
             logger.error(f"Error sending status notification: {e}")
         
@@ -1239,7 +1515,7 @@ async def mark_payment_received(
                         user_name=user.full_name,
                         report_data={
                             "report_id": report.id,
-                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value', user_timezone=getattr(user, 'timezone', None)) else str(report.report_type),
                             "amount": payment_data.amount,
                             "payment_intent_id": payment_data.payment_intent_id
                         }
@@ -1302,8 +1578,7 @@ async def upload_pdf(
                         report_data={
                             "report_id": report.id,
                             "pdf_url": pdf_url
-                        }
-                    )
+                        }, user_timezone=getattr(user, 'timezone', None))
             except Exception as e:
                 logger.error(f"Error sending delivered notification: {e}")
         
@@ -1405,8 +1680,8 @@ async def get_admin_reports(
         
         service = FMVReportService(db)
         
-        # Get all reports (admin can see all)
-        reports = service.get_user_reports(None, status_filter)
+        # Get all reports (admin can see all, including DELETED)
+        reports = service.get_user_reports(None, status_filter, include_deleted=True)
         
         # Apply pagination
         reports = reports[offset:offset + limit]
@@ -1472,19 +1747,20 @@ async def delete_fmv_report(
         
         # Mark as DELETED (soft delete)
         report.status = FMVReportStatus.DELETED
+        # Set deleted_at timestamp if the field exists
+        if hasattr(report, 'deleted_at'):
+            report.deleted_at = datetime.now()
         db.commit()
         db.refresh(report)
         
         logger.info(f"✅ Marked report {report_id} as DELETED by user {user_id}")
         
-        # Get user details for email and notification
-        from ..models.user import User
+        # Get user details for email and notification (User is already imported at top)
         user = db.query(User).filter(User.id == user_id).first()
         
         if user:
-            # Send deletion email notification
+            # Send deletion email notification (FMVEmailService is already imported at top)
             try:
-                from ..services.fmv_email_service import FMVEmailService
                 email_service = FMVEmailService()
                 crane_data = report.crane_details or {}
                 report_data = {
@@ -1496,15 +1772,14 @@ async def delete_fmv_report(
                 email_service.send_deleted_notification(
                     user_email=user.email,
                     user_name=user.full_name or user.email,
-                    report_data=report_data
-                )
+                    report_data=report_data, user_timezone=getattr(user, 'timezone', None))
                 logger.info(f"✅ Deletion email sent to {user.email}")
             except Exception as email_error:
                 logger.warning(f"Failed to send deletion email: {email_error}")
             
             # Create user notification in bell icon
             try:
-                from ..models.notification import UserNotification
+                from ...models.notification import UserNotification
                 user_notification = UserNotification(
                     user_id=user_id,
                     type="report_deleted",
@@ -1519,7 +1794,9 @@ async def delete_fmv_report(
                 logger.warning(f"Failed to create user notification: {notif_error}")
                 db.rollback()
         
-        return {"success": True, "message": "Report deleted successfully", "report_id": report_id}
+        # Return the updated report
+        response = convert_report_to_response(report)
+        return {"success": True, "message": "Report deleted successfully", "report_id": report_id, "report": response}
     except HTTPException:
         raise
     except Exception as e:

@@ -6,10 +6,11 @@
     <title>CRANE INTELLIGENCE - Professional Crane Valuation & Market Intelligence</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/brand-framework.css?v=19">
-    <link rel="stylesheet" href="css/uniform-design.css?v=3">
-    <link rel="stylesheet" href="css/performance.css?v=1">
+    <link rel="stylesheet" href="css/brand-framework.css?v=20">
+    <link rel="stylesheet" href="css/uniform-design.css?v=4">
+    <link rel="stylesheet" href="css/performance.css?v=2">
     <link rel="stylesheet" href="css/unified-header.css">
+    <link rel="stylesheet" href="css/responsive-global.css?v=2">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="js/notification-system.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -338,16 +339,17 @@
 
         .modal-content {
             background: linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%);
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 0;
             border: 1px solid #404040;
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
+            max-width: 450px;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             animation: modalSlideIn 0.3s ease-out;
+            position: relative;
         }
 
         @keyframes modalSlideIn {
@@ -548,8 +550,10 @@
 
         @media (max-width: 600px) {
             .modal-content {
-                margin: 10% auto;
-                width: 95%;
+                margin: 5% auto;
+                width: 90%;
+                max-width: 100%;
+                max-height: 90vh;
             }
             
             .modal-header, .modal-body {
@@ -762,13 +766,14 @@
         .hero-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 var(--space-xl);
+            padding: var(--space-3xl) var(--space-xl);
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1.1fr 0.9fr;
             gap: var(--space-4xl);
-            align-items: center;
+            align-items: stretch;
             position: relative;
             z-index: 1;
+            min-height: 480px;
         }
 
         .hero-content {
@@ -777,18 +782,18 @@
         }
 
         .hero-content h1 {
-            font-family: var(--font-condensed);
-            font-size: 52px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: var(--space-lg);
-            line-height: 1.1;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: var(--font-condensed) !important;
+            font-size: 84px !important;
+            font-weight: 900 !important;
+            color: var(--text-primary) !important;
+            margin-bottom: var(--space-lg) !important;
+            line-height: 1.1 !important;
+            text-transform: uppercase !important;
+            letter-spacing: -1px !important;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-green)) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
         }
 
         .hero-subtitle {
@@ -802,16 +807,19 @@
 
         .hero-cta-group {
             display: flex;
-            gap: var(--space-lg);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-md);
             margin-bottom: var(--space-3xl);
+            max-width: 520px;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--accent-green), #00CC6A);
             color: var(--primary-black);
-            padding: var(--space-lg) var(--space-2xl);
+            padding: calc(var(--space-lg) + 4px) var(--space-4xl);
             font-family: var(--font-condensed);
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -824,6 +832,8 @@
             box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
+            min-width: 420px;
+            text-align: center;
         }
 
         .btn-primary::before {
@@ -932,12 +942,14 @@
             background: var(--secondary-black);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: var(--space-md);
+            padding: var(--space-xl);
             position: relative;
-            overflow: hidden;
-            max-width: 400px;
-            margin: 0 auto;
+            overflow: visible;
+            max-width: 520px;
+            margin: auto 0 auto auto;
             width: 100%;
+            box-shadow: var(--shadow-lg);
+            min-height: 520px;
         }
 
         .live-market-data::before {
@@ -958,7 +970,7 @@
         }
 
         .market-data-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
             text-transform: uppercase;
@@ -989,18 +1001,19 @@
 
         .market-metrics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-sm);
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
         }
 
         .metric-item {
             display: flex;
             flex-direction: column;
             gap: var(--space-xs);
-            padding: var(--space-xs);
+            padding: var(--space-sm);
             background: rgba(255, 255, 255, 0.02);
             border-radius: var(--radius-sm);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .metric-item > div {
@@ -1011,13 +1024,13 @@
         }
 
         .metric-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
             font-weight: 500;
         }
 
         .metric-value {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
             font-family: 'JetBrains Mono', monospace;
@@ -1134,7 +1147,7 @@
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr) !important;
             gap: var(--space-xl);
         }
 
@@ -1386,7 +1399,7 @@
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr) !important;
             gap: 20px;
             margin-top: 40px;
         }
@@ -1472,9 +1485,9 @@
 
         .pricing-cta {
             width: 100%;
-            background: transparent;
-            color: #00FF85;
-            border: 1px solid #00FF85;
+            background: var(--accent-yellow);
+            color: #000000;
+            border: 1px solid var(--accent-yellow);
             padding: 12px 24px;
             font-size: 11px;
             font-weight: 600;
@@ -1485,18 +1498,30 @@
         }
 
         .pricing-cta:hover {
-            background: #00FF85;
-            color: #000000;
+            background: #FFE066;
+            border-color: #FFE066;
         }
 
-        .pricing-card.featured .pricing-cta {
-            background: #00FF85;
-            color: #000000;
-            border-color: #00FF85;
+        .fleet-tier-box {
+            margin-top: 24px;
+            padding: 16px 16px 14px;
+            background: #0F1712;
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid rgba(0, 255, 133, 0.25);
         }
 
-        .pricing-card.featured .pricing-cta:hover {
-            background: #00CC6A;
+        .fleet-tier-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #00FF85;
+            margin-bottom: 6px;
+        }
+
+        .fleet-tier-row {
+            font-size: 12px;
+            color: #D0D0D0;
+            line-height: 1.5;
         }
 
 
@@ -1607,7 +1632,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             position: relative;
-            text-align: left;
+            text-align: center !important;
         }
 
         .consultation h2::after {
@@ -2184,36 +2209,8 @@
             color: #00FF85;
         }
 
-        .newsletter {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-        }
-
-        .newsletter input {
-            flex: 1;
-            background: #2A2A2A;
-            border: 1px solid #404040;
-            color: #FFFFFF;
-            padding: 10px 12px;
-            font-size: 14px;
-        }
-
-        .newsletter input:focus {
-            outline: none;
-            border-color: #00FF85;
-        }
-
-        .newsletter button {
-            background: #00FF85;
-            color: #000000;
-            border: none;
-            padding: 10px 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
+        /* Newsletter styles are handled by unified-footer component */
+        /* Removed conflicting styles to ensure unified footer displays correctly */
 
         .footer-bottom {
             border-top: 1px solid #333333;
@@ -2246,12 +2243,12 @@
             }
             
             .features-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr) !important;
                 gap: var(--space-lg);
             }
             
             .pricing-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr) !important;
             }
             
             .pricing-card.featured {
@@ -2354,11 +2351,12 @@
             }
             
             .hero-content h1 {
-                font-size: 38px;
-                line-height: 1.2;
+                font-size: 64px !important;
+                line-height: 1.2 !important;
                 color: #FFFFFF !important;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-                margin-bottom: var(--space-md);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6) !important;
+                margin-bottom: var(--space-md) !important;
+                font-weight: 900 !important;
             }
             
             .hero-content h1 span {
@@ -2603,16 +2601,16 @@
             }
             
             .hero-content h1 {
-                font-size: 28px;
-                line-height: 1.2;
-                margin-bottom: var(--space-md);
+                font-size: 48px !important;
+                line-height: 1.2 !important;
+                margin-bottom: var(--space-md) !important;
                 color: #FFFFFF !important;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-                font-weight: 700;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                hyphens: auto;
-                max-width: 100%;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+                font-weight: 900 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                hyphens: auto !important;
+                max-width: 100% !important;
             }
             
             .hero-content h1 span {
@@ -2804,13 +2802,13 @@
         }
 
         .hero-content h1 {
-            font-size: 4.5rem;
-            font-weight: 700;
-            color: #FFFFFF;
-            margin-bottom: 24px;
-            line-height: 1.1;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
+            font-size: 5.25rem !important;
+            font-weight: 900 !important;
+            color: #FFFFFF !important;
+            margin-bottom: 24px !important;
+            line-height: 1.1 !important;
+            text-transform: uppercase !important;
+            letter-spacing: -0.02em !important;
         }
 
         .hero-subtitle {
@@ -3112,9 +3110,9 @@
 
         .pricing-cta {
             width: 100%;
-            background: transparent;
-            color: #00FF85;
-            border: 1px solid #00FF85;
+            background: var(--accent-yellow);
+            color: #000000;
+            border: 1px solid var(--accent-yellow);
             padding: 12px 24px;
             font-size: 11px;
             font-weight: 600;
@@ -3125,17 +3123,20 @@
         }
 
         .pricing-cta:hover {
-            background: #00FF85;
+            background: #FFE066;
+            border-color: #FFE066;
             color: #000000;
         }
 
         .pricing-card.featured .pricing-cta {
-            background: #00FF85;
+            background: var(--accent-yellow);
             color: #000000;
+            border-color: var(--accent-yellow);
         }
 
         .pricing-card.featured .pricing-cta:hover {
-            background: #00CC6A;
+            background: #E6C200;
+            border-color: #E6C200;
         }
 
         /* Footer */
@@ -3216,11 +3217,11 @@
             }
 
             .features-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr) !important;
             }
 
             .pricing-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr) !important;
             }
 
             .pricing-card.featured {
@@ -3380,11 +3381,18 @@
     <section class="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1>Professional Crane Valuation Terminal</h1>
-                <p class="hero-subtitle">Bloomberg Terminal-quality analysis with instant deal scoring and risk assessment for the global crane market</p>
+                <h1 style="font-size: 84px !important; font-weight: 900 !important; font-family: 'Roboto Condensed', 'Inter', sans-serif !important;">Independent Crane<br>Valuation, Verified<br>by the Market</h1>
+                <p class="hero-subtitle">
+                    Dealers provide useful input, but it’s naturally shaped by their position. Our role is to independently verify market value so you have an unbiased view before making capital decisions.
+                </p>
                 
                 <div class="hero-cta-group">
-                    <button class="btn-primary" onclick="window.location.href='/report-generation.html'" style="padding: 22px 64px; font-size: 14px;">Get Professional FMV Report</button>
+                    <button class="btn-primary" onclick="handleGetProfessionalFMVReport()">
+                        Get Professional FMV Report
+                    </button>
+                    <p class="hero-subtitle" style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #FFFFFF;">
+                        Dealers provide perspective. We provide independent verification.
+                    </p>
                 </div>
 
                 <div class="hero-stats">
@@ -3541,80 +3549,80 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
+    <!-- Pricing Section (homepage-specific layout) -->
     <section class="pricing" id="pricing">
         <div class="pricing-container">
             <div class="section-header">
                 <h2 class="section-title">Professional FMV Reports</h2>
-                <p class="section-subtitle">Expert-prepared Fair Market Value reports delivered within 24-48 hours</p>
+                <p class="section-subtitle">Expert-prepared Fair Market Value reports delivered within 24 hours</p>
             </div>
 
             <div class="pricing-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 1400px; margin: 40px auto;">
+                <!-- Spot Check -->
                 <div class="pricing-card" data-tier="spot_check">
-                    <h3 class="pricing-title">Spot Check</h3>
-                    <div class="pricing-price">$495</div>
-                    <div class="pricing-period">per valuation</div>
+                    <h3 class="pricing-title">Spot Check — $250</h3>
+                    <div class="pricing-price">$250</div>
+                    <div class="pricing-period">Internal FMV Snapshot</div>
                     <ul class="pricing-features">
-                        <li>✓ Quick internal estimates</li>
-                        <li>✓ 1 crane</li>
-                        <li>✓ 1-page email summary</li>
-                        <li>✓ FMV range estimate</li>
-                        <li>✓ 2–3 comparables</li>
-                        <li>✓ 24-hour turnaround</li>
-                        <li>✓ 1 valuation per month</li>
-                        <li style="color: #FF4444;">✗ No bulk upload</li>
+                        <li>FMV range estimate</li>
+                        <li>Up to 5 cranes</li>
+                        <li>2–3 comparables per crane</li>
+                        <li>1-page summary per unit</li>
+                        <li>24-hour turnaround</li>
+                        <li style="color:#FFB800;">Internal use only • Not a formal appraisal • No scores or signature</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">Select Spot Check</button>
+                    <button class="pricing-cta" data-tier="spot_check" onclick="handlePricingAction('spot_check')">
+                        Get Spot Check
+                    </button>
                 </div>
+
+                <!-- Professional -->
                 <div class="pricing-card featured" data-tier="professional">
                     <div class="pricing-badge">Most Popular</div>
-                    <h3 class="pricing-title">Professional</h3>
+                    <h3 class="pricing-title">Professional — $995</h3>
                     <div class="pricing-price">$995</div>
-                    <div class="pricing-period">per valuation</div>
+                    <div class="pricing-period">Defensible Valuation Report</div>
                     <ul class="pricing-features">
-                        <li>✓ 1 crane</li>
-                        <li>✓ 3–5 page PDF</li>
-                        <li>✓ 5+ verified comps</li>
-                        <li>✓ Deal & Wear Scores</li>
-                        <li>✓ Regional commentary</li>
-                        <li>✓ Signed by analyst</li>
-                        <li>✓ 24-hour turnaround</li>
-                        <li>✓ Pay-per-use</li>
-                        <li style="color: #FF4444;">✗ No bulk upload</li>
+                        <li>1 crane</li>
+                        <li>3–5 page PDF</li>
+                        <li>5+ verified comps</li>
+                        <li>Deal &amp; Wear Scores</li>
+                        <li>Regional commentary</li>
+                        <li>Signed by analyst</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">Select Professional</button>
+                    <button class="pricing-cta" data-tier="professional" onclick="handlePricingAction('professional')">
+                        Select Professional
+                    </button>
                 </div>
+
+                <!-- Fleet Valuation -->
                 <div class="pricing-card featured" data-tier="fleet_valuation">
                     <div class="pricing-badge">Fleet Option</div>
-                    <h3 class="pricing-title">Fleet Valuation</h3>
-                    <div class="pricing-price">Starting at $1,495</div>
-                    <div class="pricing-period">Pay-per-use • Tiered pricing</div>
-                    <div style="background: rgba(0, 255, 133, 0.05); border: 1px solid rgba(0, 255, 133, 0.2); border-radius: 6px; padding: 12px; margin: 16px 0; font-size: 11px; color: #B0B0B0; text-align: left;">
-                        <strong style="color: #00FF85;">Tiered Pricing:</strong><br>
-                        1-5: $1,495 ($299/crane)<br>
-                        6-10: $2,495 ($249/crane)<br>
-                        11-25: $4,995 ($199/crane)<br>
-                        26-50: $7,995 (~$159/crane)
-                    </div>
+                    <h3 class="pricing-title">Fleet Valuation — from $1,495</h3>
+                    <div class="pricing-price">from $1,495</div>
+                    <div class="pricing-period">2–50 cranes • Tiered pricing</div>
                     <ul class="pricing-features">
-                        <li>✓ 2–50 cranes supported</li>
-                        <li>✓ Multi-unit PDF (one page per crane)</li>
-                        <li>✓ Fleet total summary</li>
-                        <li>✓ CSV upload support</li>
-                        <li>✓ Market overview</li>
-                        <li>✓ 36–72 hour turnaround</li>
-                        <li>✓ 5 valuations per payment</li>
-                        <li style="color: #00FF85;">✓ Bulk upload enabled</li>
+                        <li>2–50 cranes supported</li>
+                        <li>Multi-unit PDF (one page per crane)</li>
+                        <li>Fleet total summary</li>
+                        <li>CSV upload support</li>
+                        <li>Market overview</li>
+                        <li>36–72 hour turnaround</li>
                     </ul>
-                    <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">Select Fleet Valuation</button>
+                    <button class="pricing-cta" data-tier="fleet_valuation" onclick="handlePricingAction('fleet_valuation')">
+                        Select Fleet
+                    </button>
+                    <div class="fleet-tier-box">
+                        <div class="fleet-tier-title">Tiered Pricing:</div>
+                        <div class="fleet-tier-row">1–5: $1,495 ($299/crane)</div>
+                        <div class="fleet-tier-row">6–10: $2,495 ($249/crane)</div>
+                        <div class="fleet-tier-row">11–25: $4,995 ($199/crane)</div>
+                        <div class="fleet-tier-row">26–50: $7,995 (~$159/crane)</div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="fmv-info" style="text-align: center; margin-top: 48px; padding: 24px; background: rgba(0, 255, 133, 0.05); border-radius: 12px; border: 1px solid rgba(0, 255, 133, 0.1); max-width: 1400px; margin-left: auto; margin-right: auto;">
-                <p style="color: #B0B0B0; font-size: 15px; line-height: 1.6; margin: 0;">All reports are manually reviewed and prepared by our expert analysts. Perfect for insurance, financing, sales negotiations, or investment decisions.</p>
-            </div>
-
-        </section>
+        </div>
+    </section>
 
 
     <!-- Consultation Section -->
@@ -3671,7 +3679,7 @@
                 <div class="contact-item">
                     <div class="contact-icon">📧</div>
                     <h3 class="contact-title">Email</h3>
-                    <p class="contact-info">support@craneintelligence.com</p>
+                    <p class="contact-info">pgenerelly@craneintelligence.com</p>
                 </div>
                 
                 <div class="contact-item">
@@ -4032,47 +4040,38 @@
             }
         }
 
+        // Handle Get Professional FMV Report button click
+        window.handleGetProfessionalFMVReport = function() {
+            const accessToken = safeStorage.getItem('access_token');
+            if (accessToken) {
+                // User is logged in, redirect to report generation page
+                window.location.href = '/report-generation.html';
+            } else {
+                // User is not logged in, show signup modal
+                if (typeof window.openSignupModal === 'function') {
+                    window.openSignupModal();
+                }
+            }
+        };
+
         // Handle Start Trial button click
         
         
-        function handlePricingAction(tier) {
+        window.handlePricingAction = function(tier) {
+            // Check if user is logged in
             const accessToken = safeStorage.getItem('access_token');
             const userData = safeStorage.getItem('user_data');
             
-            // Free tier - cannot submit requests
-            if (tier === 'free') {
-                alert('Free tier users cannot submit valuation requests. Please upgrade to Spot Check or Professional tier.');
-                return;
-            }
-            
-            if (!accessToken || !userData) {
-                // Not logged in - redirect to login/signup
-                alert('Please log in or sign up to submit a valuation request.');
-                if (typeof window.openLoginModal === 'function') window.openLoginModal();
-                return;
-            }
-            
-            try {
-                const user = JSON.parse(userData);
-                const currentTier = (user.subscription_tier || user.subscription_plan || user.plan || 'free').toLowerCase();
-                
-                // Check if user can submit requests based on tier
-                if (currentTier === 'free') {
-                    alert('Free tier users cannot submit valuation requests. Please upgrade to Spot Check or Professional tier.');
-                    return;
+            if (accessToken && userData) {
+                // User is logged in - navigate to report generation page
+                window.location.href = '/report-generation.html';
+            } else {
+                // User is not logged in - open login modal
+                if (typeof window.openLoginModal === 'function') {
+                    window.openLoginModal();
                 }
-                
-                // Redirect to report generation page with tier selection
-                if (tier === 'spot_check' || tier === 'professional' || tier === 'fleet_valuation') {
-                    window.location.href = `/report-generation.html?tier=${tier}`;
-                } else {
-                    alert('Invalid tier selection. Please try again.');
-                }
-            } catch (e) {
-                console.error('Error handling pricing action:', e);
-                alert('An error occurred. Please try again.');
             }
-        }
+        };
         
 // Improved version with retry logic (optimized)
 let pricingUpdateInProgress = false;
@@ -4142,18 +4141,18 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             if (buttonTier === 'free') {
                 if (currentTier === 'free' || currentTier === 'basic') {
                     button.textContent = 'Current Plan';
-                    button.style.background = '#00FF88';
+                    button.style.background = '#FFD600';
                     button.style.color = '#000000';
-                    button.style.border = '2px solid #00FF88';
+                    button.style.border = '2px solid #FFD600';
                     button.style.fontWeight = 'bold';
                     button.disabled = true;
                     button.style.cursor = 'not-allowed';
                     button.style.opacity = '0.6';
                 } else {
                     button.textContent = 'Downgrade';
-                    button.style.background = 'transparent';
-                    button.style.color = '#00FF88';
-                    button.style.border = '2px solid #00FF88';
+                    button.style.background = '#FFD600';
+                    button.style.color = '#000000';
+                    button.style.border = '2px solid #FFD600';
                     button.disabled = false;
                     button.style.cursor = 'pointer';
                     button.style.opacity = '1';
@@ -4161,9 +4160,9 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             } else if (buttonTier === currentTier) {
                 // Current plan
                 button.textContent = 'Current Plan';
-                button.style.background = '#00FF88';
+                button.style.background = '#FFD600';
                 button.style.color = '#000000';
-                button.style.border = '2px solid #00FF88';
+                button.style.border = '2px solid #FFD600';
                 button.style.fontWeight = 'bold';
                 button.disabled = true;
                 button.style.cursor = 'not-allowed';
@@ -4172,9 +4171,9 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 // Free/Basic users can submit requests for paid tiers
                 if (buttonTier === 'spot_check' || buttonTier === 'professional' || buttonTier === 'fleet_valuation') {
                     button.textContent = buttonTier === 'fleet_valuation' ? 'Submit Fleet Request' : 'Submit Request';
-                    button.style.background = 'transparent';
-                    button.style.color = '#00FF88';
-                    button.style.border = '2px solid #00FF88';
+                    button.style.background = '#FFD600';
+                    button.style.color = '#000000';
+                    button.style.border = '2px solid #FFD600';
                     button.disabled = false;
                     button.style.cursor = 'pointer';
                     button.style.opacity = '1';
@@ -4186,9 +4185,9 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 } else {
                     button.textContent = buttonTier === 'fleet_valuation' ? 'Submit Fleet Request' : 'Submit Request';
                 }
-                button.style.background = 'transparent';
-                button.style.color = '#00FF88';
-                button.style.border = '2px solid #00FF88';
+                button.style.background = '#FFD600';
+                button.style.color = '#000000';
+                button.style.border = '2px solid #FFD600';
                 button.style.fontWeight = 'normal';
                 button.disabled = false;
                 button.style.cursor = 'pointer';
@@ -4256,7 +4255,11 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             
             // Validate required fields
             if (!formData.name || !formData.email || !formData.message) {
-                alert('Please fill in all required fields.');
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Validation Error', 'Please fill in all required fields.');
+                } else {
+                    alert('Please fill in all required fields.');
+                }
                 return;
             }
             
@@ -4289,7 +4292,11 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                     console.log('Consultation submitted successfully:', result);
                     
                     // Show success message
-                    alert('Thank you for your interest! We will contact you within 24 hours to schedule your free consultation. You will receive a confirmation email shortly.');
+                    if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                        notificationSystem.showSuccess('Request Submitted!', 'Thank you for your interest! We will contact you within 24 hours to schedule your free consultation. You will receive a confirmation email shortly.');
+                    } else {
+                        alert('Thank you for your interest! We will contact you within 24 hours to schedule your free consultation. You will receive a confirmation email shortly.');
+                    }
                     
                     // Reset form
                     form.reset();
@@ -4299,7 +4306,11 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 
             } catch (error) {
                 console.error('Consultation submission error:', error);
-                alert('There was an error submitting your request. Please try again or contact us directly.');
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Submission Error', 'There was an error submitting your request. Please try again or contact us directly.');
+                } else {
+                    alert('There was an error submitting your request. Please try again or contact us directly.');
+                }
             } finally {
                 // Hide loading state
                 submitBtn.style.display = 'block';
@@ -5369,7 +5380,11 @@ function updatePricingForLoggedInUser(retryCount = 0) {
             closeSignupModal();
             closeForgotPasswordModal();
             
-            alert('You have been logged out successfully.');
+            if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                notificationSystem.showSuccess('Logged Out', 'You have been logged out successfully.');
+            } else {
+                alert('You have been logged out successfully.');
+            }
         }
 
         // Add a function to clear auth state for testing

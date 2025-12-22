@@ -437,12 +437,19 @@ async def update_report_status(
                             report_data=report_data
                         )
                     elif status_enum == FMVReportStatus.NEED_MORE_INFO:
-                        # Include need_more_info_reason in report_data
-                        report_data['need_more_info_reason'] = getattr(report, 'need_more_info_reason', None) or status_update.notes or "Additional information is required to complete your report."
+                        # Include all necessary data for need more info email
+                        need_more_info_data = {
+                            "report_id": report.id,
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                            "report_type_display": report.report_type.value.replace('_', ' ').title() if hasattr(report.report_type, 'value') else str(report.report_type).replace('_', ' ').title(),
+                            "crane_details": report.crane_details,
+                            "amount_paid": report.amount_paid,
+                            "need_more_info_reason": getattr(report, 'need_more_info_reason', None) or status_update.notes or "Additional information is required to complete your report."
+                        }
                         email_service.send_need_more_info_notification(
                             user_email=user.email,
                             user_name=user.full_name,
-                            report_data=report_data
+                            report_data=need_more_info_data
                         )
                     
                     # Send admin notification for ALL status changes

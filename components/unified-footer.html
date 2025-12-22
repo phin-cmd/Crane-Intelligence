@@ -32,10 +32,10 @@
 
             <div>
                 <h4 class="footer-title">Stay Updated</h4>
-                <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
+                <p class="footer-newsletter-desc">Get the latest insights and market analysis delivered to your inbox</p>
                 <div class="newsletter">
-                    <input type="email" placeholder="Enter your email" id="footerNewsletterEmail">
-                    <button onclick="handleNewsletterSubscribe()">Subscribe</button>
+                    <input type="email" placeholder="Enter your email" id="footerNewsletterEmail" onkeypress="if(event.key === 'Enter') handleNewsletterSubscribe()">
+                    <button id="footerNewsletterButton" onclick="handleNewsletterSubscribe()">SUBSCRIBE</button>
                 </div>
             </div>
         </div>
@@ -118,42 +118,81 @@
     color: #00FF85;
 }
 
+.footer-newsletter-desc {
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
 .newsletter {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    margin-top: 0 !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .newsletter input {
-    flex: 1;
-    background: #2A2A2A;
-    border: 1px solid #404040;
-    color: #FFFFFF;
-    padding: 10px 12px;
-    font-size: 14px;
-    border-radius: 4px;
+    flex: 1 1 auto !important;
+    background: #2A2A2A !important;
+    border: 1px solid #404040 !important;
+    color: #FFFFFF !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    min-width: 200px !important;
+    height: 44px !important;
+    line-height: 1.5 !important;
+}
+
+.newsletter input::placeholder {
+    color: #CCCCCC !important;
 }
 
 .newsletter input:focus {
-    outline: none;
-    border-color: #00FF85;
+    outline: none !important;
+    border-color: #00FF85 !important;
 }
 
 .newsletter button {
-    background: #00FF85;
-    color: #000000;
-    border: none;
-    padding: 10px 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.2s;
+    background: #00FF85 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    border-radius: 6px !important;
+    transition: background 0.2s !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    height: 44px !important;
+    box-sizing: border-box !important;
+    line-height: 1.5 !important;
+    min-width: 100px !important;
+    max-width: 120px !important;
 }
 
 .newsletter button:hover {
-    background: #00CC6A;
+    background: #00CC6A !important;
+}
+
+.newsletter button:disabled {
+    background: #666666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+.newsletter input:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
 }
 
 .footer-bottom {
@@ -180,6 +219,17 @@
     .footer-desc {
         max-width: 100%;
     }
+    
+    .newsletter {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .newsletter input,
+    .newsletter button {
+        width: 100% !important;
+        height: 44px !important;
+    }
 }
 </style>
 
@@ -187,19 +237,49 @@
 // Newsletter subscription handler
 async function handleNewsletterSubscribe() {
     const emailInput = document.getElementById('footerNewsletterEmail');
-    const email = emailInput?.value;
+    const subscribeButton = document.getElementById('footerNewsletterButton');
+    const email = emailInput?.value?.trim();
     
-    if (!email || !email.includes('@')) {
-        if (typeof notificationSystem !== 'undefined') {
+    // Validate email
+    if (!email) {
+        if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+            notificationSystem.showError('Email Required', 'Please enter your email address');
+        } else {
+            alert('Please enter your email address');
+        }
+        emailInput.focus();
+        return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
             notificationSystem.showError('Invalid Email', 'Please enter a valid email address');
         } else {
             alert('Please enter a valid email address');
         }
+        emailInput.focus();
         return;
     }
     
+    // Disable button and show loading state
+    if (subscribeButton) {
+        subscribeButton.disabled = true;
+        subscribeButton.textContent = 'SUBSCRIBING...';
+    }
+    emailInput.disabled = true;
+    
     try {
-        const response = await fetch('/api/v1/newsletter/subscribe', {
+        // Get API base URL
+        const getApiBaseUrl = () => {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8003';
+            }
+            return window.location.origin;
+        };
+        
+        const response = await fetch(`${getApiBaseUrl()}/api/v1/newsletter/subscribe`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -210,26 +290,44 @@ async function handleNewsletterSubscribe() {
         const result = await response.json();
         
         if (result.success) {
-            if (typeof notificationSystem !== 'undefined') {
-                notificationSystem.showSuccess('Subscribed!', 'You have been added to our newsletter');
+            if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                notificationSystem.showSuccess('Subscribed!', result.message || 'You have been added to our newsletter. Check your email for a welcome message!');
             } else {
-                alert('Thank you for subscribing!');
+                alert(result.message || 'Thank you for subscribing!');
             }
             emailInput.value = '';
         } else {
-            if (typeof notificationSystem !== 'undefined') {
-                notificationSystem.showError('Subscription Failed', result.error || 'Unable to subscribe');
+            // Handle already subscribed case
+            if (result.already_subscribed) {
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showInfo) {
+                    notificationSystem.showInfo('Already Subscribed', result.message || 'This email is already subscribed to our newsletter.');
+                } else {
+                    alert(result.message || 'This email is already subscribed.');
+                }
+                emailInput.value = '';
             } else {
-                alert('Subscription failed. Please try again.');
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Subscription Failed', result.message || result.error || 'Unable to subscribe. Please try again.');
+                } else {
+                    alert(result.message || 'Subscription failed. Please try again.');
+                }
             }
         }
     } catch (error) {
         console.error('Newsletter subscription error:', error);
-        if (typeof notificationSystem !== 'undefined') {
-            notificationSystem.showError('Error', 'Unable to subscribe. Please try again.');
+        if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+            notificationSystem.showError('Error', 'Unable to subscribe. Please check your connection and try again.');
         } else {
             alert('An error occurred. Please try again.');
         }
+    } finally {
+        // Re-enable button and input
+        if (subscribeButton) {
+            subscribeButton.disabled = false;
+            subscribeButton.textContent = 'SUBSCRIBE';
+        }
+        emailInput.disabled = false;
+        emailInput.focus();
     }
 }
 </script>

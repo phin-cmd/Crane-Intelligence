@@ -211,7 +211,7 @@ class BrevoEmailService:
                         "X-Priority": "1",
                         "List-Unsubscribe": f"<mailto:{self.from_email}?subject=unsubscribe>",
                         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-                        "Precedence": "bulk",
+                        "Precedence": "normal",  # Changed from "bulk" to "normal" for better deliverability
                         "X-Auto-Response-Suppress": "All"
                     },
                     "replyTo": {

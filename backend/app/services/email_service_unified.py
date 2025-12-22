@@ -214,6 +214,69 @@ class UnifiedEmailService:
             logger.error(f"Failed to send email: {e}")
             return False
     
+    def send_template_email(
+        self,
+        to_emails: List[str],
+        template_name: str,
+        template_context: Dict[str, Any],
+        subject: Optional[str] = None,
+        reply_to: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        attachments: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
+        """
+        Send email using a template
+        
+        Args:
+            to_emails: List of recipient email addresses
+            template_name: Name of the template file
+            template_context: Context variables for template rendering
+            subject: Email subject (if not provided, will use from template context)
+            reply_to: Reply-to email address (optional)
+            tags: List of tags for email categorization (optional, ignored for SMTP)
+            attachments: List of attachment dicts with 'name' and 'content' (base64) or 'file_path'
+        
+        Returns:
+            Dict with 'success' (bool) and 'message' (str)
+        """
+        try:
+            # Render template
+            html_content = self._render_template(template_name, template_context)
+            
+            # Get subject from context or use provided subject
+            email_subject = subject or template_context.get('subject', 'Notification from Crane Intelligence')
+            
+            # Convert attachments format if needed (UnifiedEmailService expects file_path)
+            processed_attachments = None
+            if attachments:
+                processed_attachments = []
+                for att in attachments:
+                    if 'file_path' in att:
+                        processed_attachments.append(att)
+                    elif 'content' in att:
+                        # For base64 content, we'd need to write to temp file
+                        # For now, skip base64 attachments in SMTP mode
+                        logger.warning("Base64 attachments not fully supported in SMTP mode, skipping")
+            
+            # Send email
+            success = self.send_email(
+                to_emails=to_emails,
+                subject=email_subject,
+                html_content=html_content,
+                attachments=processed_attachments
+            )
+            
+            return {
+                "success": success,
+                "message": "Email sent successfully" if success else "Failed to send email"
+            }
+        except Exception as e:
+            logger.error(f"Error in send_template_email: {e}", exc_info=True)
+            return {
+                "success": False,
+                "message": f"Error sending email: {str(e)}"
+            }
+    
     # ==================== ASYNC METHODS ====================
     
     async def send_email_async(

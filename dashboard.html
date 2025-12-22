@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/unified-header.css">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/live-data-framework.js"></script>
@@ -35,15 +36,13 @@
             color: #FFFFFF;
             line-height: 1.6;
             overflow-x: hidden;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            margin: 0;
+            padding: 0;
+            width: 100%;
         }
         
         /* Header styles are now handled by unified-header.css */
         /* Removed inline header styles to use unified component */
-            color: #FFD600 !important;
-        }
 
 
 
@@ -110,20 +109,25 @@
 
         /* Dashboard Layout */
         .dashboard-container {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            display: flex;
+            flex-direction: row;
             min-height: calc(100vh - 160px);
             background: #0F0F0F;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Left Sidebar */
         .sidebar {
-            width: 300px;
+            width: 300px !important;
+            min-width: 300px !important;
             background: #1A1A1A;
             border-right: 1px solid #333333;
             padding: 24px;
             overflow-y: auto;
+            overflow-x: hidden;
+            flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .sidebar-section {
@@ -211,12 +215,13 @@
 
         /* Main Content */
         .main-content {
-            flex: 1;
+            flex: 1 !important;
+            min-width: 0;
             padding: 24px;
             overflow-y: auto;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            overflow-x: hidden;
+            background: #0F0F0F;
+            box-sizing: border-box;
         }
 
         .dashboard-header {
@@ -337,6 +342,7 @@
             background: rgba(0, 255, 133, 0.05);
             border: 1px solid rgba(0, 255, 133, 0.2);
             border-radius: 6px;
+            pointer-events: none; /* Prevent timer from blocking card clicks */
         }
         
         .timer-label {
@@ -419,6 +425,8 @@
             justify-content: space-between;
             padding: 20px 24px;
             border-bottom: 1px solid #333;
+            position: relative;
+            min-height: 60px;
         }
         
         .report-modal-header h2 {
@@ -426,21 +434,36 @@
             color: #fff;
             font-size: 20px;
             font-weight: 600;
+            flex: 1;
+            padding-right: 50px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
         }
         
         .report-modal-close {
             background: none;
             border: none;
             color: #fff;
-            font-size: 28px;
+            font-size: 32px;
             cursor: pointer;
             padding: 0;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 4px;
+            flex-shrink: 0;
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            margin: 0;
+            line-height: 1;
+            transition: background-color 0.2s ease;
         }
         
         .report-modal-close:hover {
@@ -708,6 +731,8 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
             margin-bottom: 32px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .kpi-card {
@@ -753,6 +778,8 @@
             grid-template-columns: 2fr 1fr;
             gap: 24px;
             margin-bottom: 32px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .chart-container {
@@ -1286,34 +1313,67 @@
 
         /* Right Sidebar */
         .right-sidebar {
-            width: 300px;
+            width: 300px !important;
+            min-width: 300px !important;
+            max-width: 300px !important;
             background: #1A1A1A;
             border-left: 1px solid #333333;
             padding: 24px;
             overflow-y: auto;
+            overflow-x: hidden;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        
+        .right-sidebar .sidebar-section {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
         }
 
         .market-data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
+            width: 100% !important;
+            max-width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 11px !important;
+            table-layout: fixed !important;
+            box-sizing: border-box !important;
+            display: table !important;
         }
 
         .market-data-table th {
-            background: #0F0F0F;
-            color: #B0B0B0;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 4px;
-            text-align: left;
-            border-bottom: 1px solid #333333;
+            background: #0F0F0F !important;
+            color: #B0B0B0 !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            padding: 8px 6px !important;
+            text-align: left !important;
+            border-bottom: 1px solid #333333 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        .market-data-table th:nth-child(1) {
+            width: 50% !important;
+        }
+
+        .market-data-table th:nth-child(2) {
+            width: 30% !important;
+        }
+
+        .market-data-table th:nth-child(3) {
+            width: 20% !important;
         }
 
         .market-data-table td {
-            color: #FFFFFF;
-            padding: 8px 4px;
-            border-bottom: 1px solid #333333;
+            color: #FFFFFF !important;
+            padding: 8px 6px !important;
+            border-bottom: 1px solid #333333 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            font-size: 11px !important;
         }
 
         .market-change.positive {
@@ -1454,42 +1514,8 @@
             color: #00FF85;
         }
 
-        .newsletter {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-        }
-
-        .newsletter input {
-            flex: 1;
-            background: #2A2A2A;
-            border: 1px solid #404040;
-            color: #FFFFFF;
-            padding: 10px 12px;
-            font-size: 14px;
-            border-radius: 4px;
-        }
-
-        .newsletter input:focus {
-            outline: none;
-            border-color: #00FF85;
-        }
-
-        .newsletter button {
-            background: #00FF85;
-            color: #000000;
-            border: none;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .newsletter button:hover {
-            background: #00E673;
-        }
+        /* Newsletter styles are handled by unified-footer component */
+        /* Removed conflicting styles to ensure unified footer displays correctly */
 
         .footer-bottom {
             border-top: 1px solid #333333;
@@ -1518,12 +1544,18 @@
 
         @media (max-width: 768px) {
             .dashboard-container {
-                flex-direction: column;
+                flex-direction: column !important;
             }
             
             .sidebar,
             .right-sidebar {
-                width: 100%;
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            
+            .main-content {
+                width: 100% !important;
+                min-width: 100% !important;
             }
             
             .kpi-grid {
@@ -1691,14 +1723,17 @@
                 gap: 16px;
             }
             
+            /* Newsletter styles handled by unified-footer component */
             .newsletter {
-                flex-direction: column;
-                gap: 8px;
+                flex-direction: column !important;
+                gap: 8px !important;
+                align-items: stretch !important;
             }
             
             .newsletter input,
             .newsletter button {
-                width: 100%;
+                width: 100% !important;
+                height: 44px !important;
             }
         }
 
@@ -1767,9 +1802,6 @@
     
     <!-- Unified Market Ticker Component -->
     <div data-component="unified-market-ticker"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Dashboard Container -->
     <div class="dashboard-container">
@@ -1963,46 +1995,6 @@
         <!-- Right Sidebar -->
         <div class="right-sidebar">
             <div class="sidebar-section">
-                <h3 class="sidebar-title">LIVE MARKET DATA</h3>
-                <table class="market-data-table">
-                    <thead>
-                        <tr>
-                            <th>Company</th>
-                            <th>Value</th>
-                            <th>Change</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>CRI</td>
-                            <td>1,847.2</td>
-                            <td class="market-change positive">+1.2%</td>
-                        </tr>
-                        <tr>
-                            <td>LIEBHERR</td>
-                            <td>892.5</td>
-                            <td class="market-change positive">+0.8%</td>
-                        </tr>
-                        <tr>
-                            <td>GROVE</td>
-                            <td>743.1</td>
-                            <td class="market-change negative">-0.3%</td>
-                        </tr>
-                        <tr>
-                            <td>TADANO</td>
-                            <td>654.8</td>
-                            <td class="market-change positive">+2.1%</td>
-                        </tr>
-                        <tr>
-                            <td>MANITOWOC</td>
-                            <td>521.3</td>
-                            <td class="market-change positive">+1.7%</td>
-                        </tr>
-                    </tbody>
-                </table>
-                        </div>
-
-            <div class="sidebar-section">
                 <h3 class="sidebar-title">MARKET NEWS</h3>
                 <div class="news-item">
                     <div class="news-time">09:45 EST</div>
@@ -2056,51 +2048,8 @@
             </div>
         </div>
 
-    <!-- Footer - Exact Match to Homepage -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div>
-                    <div class="footer-brand">
-                        <img src="images/logos/crane-intelligence-logo-white.svg" alt="Crane Intelligence" class="footer-logo-svg">
-                    </div>
-                    <p class="footer-desc">Professional crane valuation, market analysis, and fleet optimization platform. Get accurate crane valuations with our advanced multi-factor analysis engine.</p>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="about-us.html" target="_blank">About Us</a></li>
-                        <li><a href="contact.html" target="_blank">Contact</a></li>
-                        <li><a href="blog.html" target="_blank">Blog</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Legal & Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
-                        <li><a href="terms-of-service.html" target="_blank">Terms of Service</a></li>
-                        <li><a href="cookie-policy.html" target="_blank">Cookie Policy</a></li>
-                        <li><a href="security.html" target="_blank">Security</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Stay Updated</h4>
-                    <p style="font-size: 12px; color: #B0B0B0; margin-bottom: 16px;">Get the latest insights and market analysis delivered to your inbox</p>
-                    <div class="newsletter">
-                        <input type="email" placeholder="Enter your email">
-                        <button>Subscribe</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2024 Crane Intelligence Platform. All rights reserved. | Professional Crane Valuation & Market Analysis</p>
-            </div>
-        </div>
-    </footer>
+    <!-- Unified Footer Component -->
+    <div data-component="unified-footer"></div>
 
     <script>
         // Safe localStorage wrapper to handle tracking prevention
@@ -2854,6 +2803,7 @@
                     fmvReports.drafts = drafts;
                     fmvReports.submitted = [];
                     displayFMVReports();
+                    checkAndOpenReportFromUrl();
                     return;
                 }
 
@@ -2879,6 +2829,9 @@
 
                 // Display reports based on current tab
                 displayFMVReports();
+                
+                // Check if report_id is in URL and open modal automatically
+                checkAndOpenReportFromUrl();
             } catch (error) {
                 console.error('Error loading FMV reports:', error);
                 // Still show drafts even if API fails
@@ -2886,6 +2839,25 @@
                 fmvReports.drafts = drafts;
                 fmvReports.submitted = [];
                 displayFMVReports();
+                
+                // Check if report_id is in URL and open modal automatically
+                checkAndOpenReportFromUrl();
+            }
+        }
+        
+        // Check URL for report_id parameter and open modal if present
+        function checkAndOpenReportFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportIdFromUrl = urlParams.get('report_id');
+            if (reportIdFromUrl) {
+                // Wait a bit for reports to be fully loaded and displayed
+                setTimeout(() => {
+                    console.log(`📧 Opening report modal from email link: ${reportIdFromUrl}`);
+                    openReportModal(reportIdFromUrl);
+                    // Clean up URL to remove the parameter
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }, 800);
             }
         }
         
@@ -3148,6 +3120,9 @@
             `;
 
             container.innerHTML = html;
+            
+            // Cards now have direct onclick handlers, so no event delegation needed
+            // This prevents double-click issues and ensures immediate response
         }
 
         // Generate HTML for a single report card
@@ -3199,7 +3174,7 @@
             }
 
             return `
-                <div class="fmv-report-card" onclick="openReportModal('${reportIdStr}')" style="cursor: pointer;">
+                <div class="fmv-report-card" data-report-id="${reportIdStr}" style="cursor: pointer;" onclick="event.stopPropagation(); openReportModal('${reportIdStr}');">
                     <div class="fmv-report-header">
                         <div class="fmv-report-type">${reportTypeDisplay}</div>
                         <div class="fmv-report-status fmv-status-${statusClass}">${formatFMVStatus(status)}</div>
@@ -3207,7 +3182,7 @@
                     <div class="fmv-report-crane">${craneName}</div>
                     <div class="fmv-report-details">${craneDetails}</div>
                     ${report.turnaround_deadline ? `
-                        <div id="dashboard-timer-${reportIdStr}" data-turnaround-timer data-report-id="${reportIdStr}" data-deadline="${report.turnaround_deadline}" style="margin-top: 12px;"></div>
+                        <div id="dashboard-timer-${reportIdStr}" data-turnaround-timer data-report-id="${reportIdStr}" data-deadline="${report.turnaround_deadline}" style="margin-top: 12px; pointer-events: none;"></div>
                     ` : ''}
                     <div class="fmv-report-meta">
                         <div class="fmv-report-date">${date}</div>
@@ -3272,11 +3247,32 @@
             return statusMap[status.toLowerCase()] || status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
         }
 
-        function formatDate(dateString) {
+        function formatDate(dateString, includeTime = false) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // Use user's browser timezone
+            };
+            if (includeTime) {
+                options.hour = 'numeric';
+                options.minute = '2-digit';
+                options.hour12 = true;
+                options.timeZoneName = 'short'; // Add timezone abbreviation (EST, PST, etc.)
+                return date.toLocaleString('en-US', options);
+            }
             return date.toLocaleDateString('en-US', options);
+        }
+        
+        // Get user's timezone for API calls
+        function getUserTimezone() {
+            try {
+                return Intl.DateTimeFormat().resolvedOptions().timeZone;
+            } catch (e) {
+                return 'UTC';
+            }
         }
 
         // Display empty state
@@ -3304,10 +3300,14 @@
                 // Store full report data for pre-filling
                 window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
                 window.safeStorage.setItem('continue_draft', draftId);
+                // CRITICAL: Store the draft report ID to prevent duplicate creation
+                window.safeStorage.setItem('current_draft_report_id', String(draftId));
                 console.log('📋 Storing report data for pre-fill:', report);
+                console.log('📋 Storing current_draft_report_id to prevent duplicates:', draftId);
             } else {
                 // Fallback: just store ID if report not found
                 window.safeStorage.setItem('continue_draft', draftId);
+                window.safeStorage.setItem('current_draft_report_id', String(draftId));
             }
             
             window.location.href = '/report-generation.html';
@@ -3402,10 +3402,39 @@
                                      reportType === 'fleet_valuation' ? 'FLEET VALUATION' : 
                                      reportType.toUpperCase();
             
+            // Check if this is bulk processing (check multiple possible flags)
+            const isBulkProcessing = craneData.is_bulk_processing || craneData.is_bulk_entry || reportType === 'fleet_valuation';
+            
             // Determine if report has payment and can show receipt
             const hasPayment = report.payment_intent_id && report.amount_paid && report.amount_paid > 0;
             const statusDisplay = formatFMVStatus(status);
             const statusClass = status.replace(/_/g, '-');
+            
+            // Parse service_record_files - handle both JSON string and array
+            let serviceRecordFiles = [];
+            if (report.service_record_files) {
+                if (typeof report.service_record_files === 'string') {
+                    try {
+                        serviceRecordFiles = JSON.parse(report.service_record_files);
+                    } catch (e) {
+                        // If parsing fails, treat as single URL string
+                        serviceRecordFiles = [report.service_record_files];
+                    }
+                } else if (Array.isArray(report.service_record_files)) {
+                    serviceRecordFiles = report.service_record_files;
+                } else {
+                    serviceRecordFiles = [report.service_record_files];
+                }
+            }
+            
+            // For bulk processing, ensure bulk_file_url is included in service_record_files if it exists
+            if (isBulkProcessing && craneData.bulk_file_url && !serviceRecordFiles.includes(craneData.bulk_file_url)) {
+                // Add bulk file URL to service_record_files if not already present
+                serviceRecordFiles = [...serviceRecordFiles, craneData.bulk_file_url];
+            }
+            
+            // Filter out null, undefined, and empty strings
+            serviceRecordFiles = serviceRecordFiles.filter(url => url && url.trim && url.trim() !== '' || (typeof url === 'string' && url.trim() !== ''));
             
             // Build modal content
             let modalContent = `
@@ -3520,27 +3549,123 @@
                             ` : ''}
                         </div>
                         
-                        ${report.service_record_files && report.service_record_files.length > 0 ? `
+                        ${isBulkProcessing ? `
                         <div class="report-detail-section">
-                            <h3>📎 Service Records & Documents</h3>
+                            <h3>📊 Bulk Processing Details</h3>
+                            <div style="margin-bottom: 20px;">
+                                <div class="report-detail-grid">
+                                    <div class="report-detail-item">
+                                        <span class="report-detail-label">Total Cranes:</span>
+                                        <span class="report-detail-value">${craneData.total_cranes || report.unit_count || 'N/A'}</span>
+                                    </div>
+                                    <div class="report-detail-item">
+                                        <span class="report-detail-label">Successful:</span>
+                                        <span class="report-detail-value" style="color: #00FF85;">${craneData.success_count || 0}</span>
+                                    </div>
+                                    <div class="report-detail-item">
+                                        <span class="report-detail-label">Errors:</span>
+                                        <span class="report-detail-value" style="color: #FF4444;">${craneData.error_count || 0}</span>
+                                    </div>
+                                    <div class="report-detail-item">
+                                        <span class="report-detail-label">Pricing Tier:</span>
+                                        <span class="report-detail-value">${craneData.pricing_tier || report.fleet_pricing_tier || 'N/A'}</span>
+                                    </div>
+                                    <div class="report-detail-item">
+                                        <span class="report-detail-label">Total Price:</span>
+                                        <span class="report-detail-value" style="color: #FFD600;">$${(craneData.total_price || report.amount_paid || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            ${craneData.bulk_records && Array.isArray(craneData.bulk_records) && craneData.bulk_records.length > 0 ? `
+                            <div style="overflow-x: auto; margin-top: 20px;">
+                                <h4 style="color: #FFD600; margin-bottom: 12px;">Bulk Processing Records</h4>
+                                <table style="width: 100%; border-collapse: collapse; background: #1A1A1A; border-radius: 8px; overflow: hidden;">
+                                    <thead>
+                                        <tr style="background: #2A2A2A; border-bottom: 2px solid #FFD600;">
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">#</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Crane</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Year</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Capacity</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Hours</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Region</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Est. Value</th>
+                                            <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${craneData.bulk_records.slice(0, 20).map((record, index) => `
+                                        <tr style="border-bottom: 1px solid #333;">
+                                            <td style="padding: 10px; color: #fff;">${record.rowNumber || index + 1}</td>
+                                            <td style="padding: 10px; color: #fff;">${record.crane || 'N/A'}</td>
+                                            <td style="padding: 10px; color: #fff;">${record.year || 'N/A'}</td>
+                                            <td style="padding: 10px; color: #fff;">${typeof record.capacity === 'number' ? record.capacity + 'T' : record.capacity || 'N/A'}</td>
+                                            <td style="padding: 10px; color: #fff;">${typeof record.hours === 'number' ? record.hours.toLocaleString() : record.hours || 'N/A'}</td>
+                                            <td style="padding: 10px; color: #fff;">${record.region || 'N/A'}</td>
+                                            <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#888'}; font-weight: 600;">
+                                                ${record.status === 'success' && record.estimatedValue ? '$' + record.estimatedValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
+                                            </td>
+                                            <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#FF4444'}; font-weight: 600;">
+                                                ${record.status === 'success' ? '✓' : '✗'}
+                                            </td>
+                                        </tr>
+                                        `).join('')}
+                                        ${craneData.bulk_records.length > 20 ? `
+                                        <tr>
+                                            <td colspan="8" style="padding: 10px; text-align: center; color: #888; font-style: italic;">
+                                                ... and ${craneData.bulk_records.length - 20} more records
+                                            </td>
+                                        </tr>
+                                        ` : ''}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                        
+                        ${(() => {
+                            // Debug service records
+                            console.log('📎 Dashboard modal - Service records check for report', report.id, ':', {
+                                has_service_record_files: !!report.service_record_files,
+                                service_record_files: report.service_record_files,
+                                type: typeof report.service_record_files,
+                                is_array: Array.isArray(report.service_record_files),
+                                length: Array.isArray(report.service_record_files) ? report.service_record_files.length : (report.service_record_files ? 1 : 0)
+                            });
+                            return '';
+                        })()}
+                        ${serviceRecordFiles && (Array.isArray(serviceRecordFiles) ? serviceRecordFiles.length > 0 : serviceRecordFiles) ? `
+                        <div class="report-detail-section">
+                            <h3>📎 ${isBulkProcessing ? 'Bulk Processing File' : 'Service Records & Documents'}</h3>
                             <div style="display: flex; flex-direction: column; gap: 10px;">
-                                ${(Array.isArray(report.service_record_files) ? report.service_record_files : [report.service_record_files]).map((fileUrl, index) => {
+                                ${(Array.isArray(serviceRecordFiles) ? serviceRecordFiles : [serviceRecordFiles]).filter(url => url && url.trim() !== '').map((fileUrl, index) => {
                                     const fileName = typeof fileUrl === 'string' ? fileUrl.split('/').pop() : (fileUrl.name || `Document ${index + 1}`);
                                     let fileUrlStr = typeof fileUrl === 'string' ? fileUrl : (fileUrl.url || fileUrl);
+                                    
+                                    // Ensure we have a valid URL
+                                    if (!fileUrlStr || fileUrlStr.trim() === '') {
+                                        return '';
+                                    }
+                                    
                                     // Handle legacy local file paths (convert to CDN redirect endpoint for backward compatibility)
                                     if (fileUrlStr.startsWith('/uploads/service-records/')) {
                                         const filename = fileUrlStr.replace('/uploads/service-records/', '');
                                         fileUrlStr = `/api/v1/fmv-reports/service-records/${filename}`;
+                                    } else if (!fileUrlStr.startsWith('http') && !fileUrlStr.startsWith('/api/')) {
+                                        // If it's just a filename, construct the API URL (will redirect to CDN)
+                                        fileUrlStr = `/api/v1/fmv-reports/service-records/${fileUrlStr}`;
                                     }
                                     // CDN URLs (starting with http/https) are used directly
+                                    
                                     return `
                                     <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #1a1a1a; border-radius: 6px;">
                                         <span>📄</span>
                                         <span style="flex: 1; color: #fff;">${fileName}</span>
-                                        <a href="${fileUrlStr}" download="${fileName}" style="padding: 6px 12px; background: #00FF85; color: #000; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">Download</a>
+                                        <a href="${fileUrlStr}" download="${fileName}" target="_blank" style="padding: 6px 12px; background: #00FF85; color: #000; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; margin-right: 5px;">Download</a>
+                                        <a href="${fileUrlStr}" target="_blank" style="padding: 6px 12px; background: #2196F3; color: #fff; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">View</a>
                                     </div>
                                 `;
-                                }).join('')}
+                                }).filter(html => html !== '').join('')}
                             </div>
                         </div>
                         ` : ''}
@@ -3554,6 +3679,21 @@
                         </div>
                         ` : ''}
                         
+                        ${status === 'need_more_info' && (report.need_more_info_reason || report.rejection_reason) ? `
+                        <div class="report-detail-section">
+                            <h3>⚠️ Information Requested</h3>
+                            <div style="background-color: rgba(255, 214, 0, 0.15); border: 1px solid #FFD600; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                                <div style="color: #FFD600; font-weight: 600; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">📝 Admin Request</div>
+                                <p style="color: #FFFFFF; white-space: pre-wrap; line-height: 1.8; margin: 0; font-size: 14px;">${report.need_more_info_reason || report.rejection_reason || 'Additional information is required to complete your report.'}</p>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 214, 0, 0.3);">
+                                    <p style="color: #B0B0B0; font-size: 12px; margin: 0; line-height: 1.6;">
+                                        <strong style="color: #FFD600;">⏸️ Report Status:</strong> Your report valuation has been put on hold until we receive your response. Please reply to the email notification or contact support with the requested information.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
                         <div class="report-detail-section">
                             <h3>📋 Report Information</h3>
                             <div class="report-detail-grid">
@@ -3561,10 +3701,47 @@
                                     <span class="report-detail-label">Report ID:</span>
                                     <span class="report-detail-value">#${reportId}</span>
                                 </div>
-                                <div class="report-detail-item">
-                                    <span class="report-detail-label">Created:</span>
-                                    <span class="report-detail-value">${formatDate(report.created_at || report.saved_at)}</span>
-                                </div>
+                                ${(() => {
+                                    // Determine which timestamp to display based on status
+                                    let timestampLabel = 'Created:';
+                                    let timestampValue = null;
+                                    
+                                    if (status === 'draft') {
+                                        // Draft: Show draft creation time
+                                        timestampLabel = 'Draft Created:';
+                                        timestampValue = report.created_at || report.saved_at;
+                                    } else if (status === 'submitted' || (status !== 'draft' && (report.paid_at || report.submitted_at))) {
+                                        // Submitted/Paid: Show payment time
+                                        timestampLabel = 'Payment Completed:';
+                                        timestampValue = report.paid_at || report.submitted_at || report.created_at;
+                                    } else if (status === 'in_progress' && report.in_progress_at) {
+                                        timestampLabel = 'In Progress Since:';
+                                        timestampValue = report.in_progress_at;
+                                    } else if (status === 'completed' && report.completed_at) {
+                                        timestampLabel = 'Completed:';
+                                        timestampValue = report.completed_at;
+                                    } else if (status === 'delivered' && report.delivered_at) {
+                                        timestampLabel = 'Delivered:';
+                                        timestampValue = report.delivered_at;
+                                    } else if (status === 'need_more_info' && report.need_more_info_at) {
+                                        timestampLabel = 'Info Requested:';
+                                        timestampValue = report.need_more_info_at;
+                                    } else if (status === 'overdue' && report.overdue_at) {
+                                        timestampLabel = 'Overdue Since:';
+                                        timestampValue = report.overdue_at;
+                                    } else {
+                                        // Fallback to created_at
+                                        timestampLabel = 'Created:';
+                                        timestampValue = report.created_at || report.saved_at;
+                                    }
+                                    
+                                    return `
+                                        <div class="report-detail-item">
+                                            <span class="report-detail-label">${timestampLabel}</span>
+                                            <span class="report-detail-value">${timestampValue ? formatDate(timestampValue, true) : 'N/A'}</span>
+                                        </div>
+                                    `;
+                                })()}
                                 ${report.amount_paid ? `
                                 <div class="report-detail-item">
                                     <span class="report-detail-label">Amount Paid:</span>
@@ -3626,10 +3803,14 @@
                 // Store full report data for pre-filling
                 window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
                 window.safeStorage.setItem('continue_draft', reportId);
+                // CRITICAL: Store the draft report ID to prevent duplicate creation
+                window.safeStorage.setItem('current_draft_report_id', String(reportId));
                 console.log('📋 Storing report data for pre-fill:', report);
+                console.log('📋 Storing current_draft_report_id to prevent duplicates:', reportId);
             } else {
                 // Fallback: just store ID if report not found
                 window.safeStorage.setItem('continue_draft', reportId);
+                window.safeStorage.setItem('current_draft_report_id', String(reportId));
             }
             
             window.location.href = '/report-generation.html';

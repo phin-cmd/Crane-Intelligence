@@ -1,72 +1,89 @@
 #!/bin/bash
-# Script to restart the FastAPI/uvicorn backend server
+# Script to fix Docker issues and restart the backend service
 
-echo "🔄 Restarting FastAPI backend server..."
+set -e
 
-# Find and kill the existing uvicorn process
-echo "📋 Finding existing uvicorn process..."
-PID=$(pgrep -f "uvicorn app.main:app")
-if [ -n "$PID" ]; then
-    echo "🛑 Stopping process $PID..."
-    kill $PID
+echo "=== Fixing Docker Issues and Restarting Backend ==="
+
+# Step 1: Check and start Docker daemon
+echo "Step 1: Checking Docker daemon status..."
+if ! sudo systemctl is-active --quiet docker; then
+    echo "Docker daemon is not running. Starting it..."
+    sudo systemctl start docker
     sleep 2
-    # Force kill if still running
-    if kill -0 $PID 2>/dev/null; then
-        echo "⚠️  Process still running, force killing..."
-        kill -9 $PID
-        sleep 1
+else
+    echo "Docker daemon is running."
+fi
+
+# Step 2: Fix Docker socket permissions
+echo "Step 2: Fixing Docker socket permissions..."
+sudo chmod 666 /var/run/docker.sock 2>/dev/null || echo "Note: Could not modify socket permissions (may need different approach)"
+
+# Step 3: Check Docker connection
+echo "Step 3: Testing Docker connection..."
+if docker ps > /dev/null 2>&1; then
+    echo "✓ Docker connection successful"
+    DOCKER_CMD="docker"
+    COMPOSE_CMD="docker compose"
+else
+    echo "⚠ Docker connection failed, trying with sudo..."
+    if sudo docker ps > /dev/null 2>&1; then
+        echo "✓ Docker connection successful with sudo"
+        DOCKER_CMD="sudo docker"
+        COMPOSE_CMD="sudo docker compose"
+    else
+        echo "✗ Docker connection failed. Please check Docker installation."
+        exit 1
     fi
-    echo "✅ Process stopped"
-else
-    echo "ℹ️  No existing process found"
 fi
 
-# Wait a moment
-sleep 1
+# Step 4: Navigate to project directory
+cd /root/crane || { echo "Error: Could not navigate to /root/crane"; exit 1; }
 
-# Navigate to backend directory
-cd /root/crane/backend || exit 1
-
-# Start the server in the background
-echo "🚀 Starting uvicorn server..."
-
-# Try to find the correct Python
-if [ -f "/usr/local/bin/python3.11" ]; then
-    PYTHON_CMD="/usr/local/bin/python3.11"
-elif [ -f "/usr/bin/python3" ]; then
-    PYTHON_CMD="/usr/bin/python3"
+# Step 5: Try Docker Compose v2 first, then fallback to v1
+echo "Step 4: Attempting to restart backend with Docker Compose..."
+if $COMPOSE_CMD restart backend 2>/dev/null; then
+    echo "✓ Backend restarted successfully using docker compose"
+elif docker-compose restart backend 2>/dev/null; then
+    echo "✓ Backend restarted successfully using docker-compose"
 else
-    PYTHON_CMD=$(which python3)
+    echo "⚠ Docker Compose failed, trying direct Docker restart..."
+    # Find backend container
+    CONTAINER_ID=$($DOCKER_CMD ps -q -f "name=backend" -f "name=crane.*backend" | head -1)
+    if [ -z "$CONTAINER_ID" ]; then
+        CONTAINER_ID=$($DOCKER_CMD ps -a | grep backend | awk '{print $1}' | head -1)
+    fi
+    
+    if [ -n "$CONTAINER_ID" ]; then
+        echo "Found container: $CONTAINER_ID"
+        $DOCKER_CMD restart $CONTAINER_ID
+        echo "✓ Backend container restarted directly"
+    else
+        echo "✗ Could not find backend container. Listing all containers:"
+        $DOCKER_CMD ps -a
+        exit 1
+    fi
 fi
 
-echo "📝 Using Python: $PYTHON_CMD"
+# Step 6: Wait for service to start
+echo "Step 5: Waiting for backend to start..."
+sleep 5
 
-# Try uvicorn as module (most reliable method)
-if $PYTHON_CMD -m uvicorn --version >/dev/null 2>&1; then
-    echo "✅ Using: $PYTHON_CMD -m uvicorn"
-    cd /root/crane/backend
-    nohup $PYTHON_CMD -m uvicorn app.main:app --host 0.0.0.0 --port 8003 > /tmp/uvicorn.log 2>&1 &
-elif command -v uvicorn >/dev/null 2>&1; then
-    echo "✅ Using: uvicorn command"
-    cd /root/crane/backend
-    nohup uvicorn app.main:app --host 0.0.0.0 --port 8003 > /tmp/uvicorn.log 2>&1 &
+# Step 7: Check logs for consultation router
+echo "Step 6: Checking consultation router status..."
+if $COMPOSE_CMD logs --tail=100 backend 2>/dev/null | grep -i "consultation router" | head -5; then
+    echo ""
+    echo "✓ Consultation router found in logs"
+elif docker-compose logs --tail=100 backend 2>/dev/null | grep -i "consultation router" | head -5; then
+    echo ""
+    echo "✓ Consultation router found in logs"
 else
-    echo "❌ uvicorn not found. Please install dependencies first:"
-    echo "   cd /root/crane/backend && $PYTHON_CMD -m pip install -r requirements.txt --break-system-packages"
-    exit 1
+    echo "⚠ Consultation router message not found in recent logs"
+    echo "Showing last 20 lines of backend logs:"
+    $DOCKER_CMD logs --tail=20 $(docker ps -q -f "name=backend" | head -1) 2>/dev/null || echo "Could not retrieve logs"
 fi
 
-# Wait a moment for it to start
-sleep 2
-
-# Check if it's running
-NEW_PID=$(pgrep -f "uvicorn app.main:app")
-if [ -n "$NEW_PID" ]; then
-    echo "✅ Server restarted successfully! PID: $NEW_PID"
-    echo "📝 Logs are being written to: /tmp/uvicorn.log"
-    echo "🔍 Check status with: ps aux | grep uvicorn"
-else
-    echo "❌ Failed to start server. Check logs: /tmp/uvicorn.log"
-    exit 1
-fi
-
+echo ""
+echo "=== Restart Complete ==="
+echo "Backend service has been restarted."
+echo "Check the logs above to verify the consultation router is loaded."

@@ -37,89 +37,109 @@ class NotificationSystem {
         container.innerHTML = `
             <style>
                 .notification-container {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    z-index: 10000;
-                    max-width: 400px;
-                    pointer-events: none;
+                    position: fixed !important;
+                    top: 20px !important;
+                    right: 20px !important;
+                    z-index: 10000 !important;
+                    max-width: 400px !important;
+                    min-width: 300px !important;
+                    width: auto !important;
+                    pointer-events: none !important;
+                    box-sizing: border-box !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: flex-end !important;
                 }
 
                 .notification {
-                    background: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                    margin-bottom: 12px;
-                    padding: 16px 20px;
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 12px;
-                    pointer-events: auto;
-                    animation: slideInRight 0.3s ease-out;
-                    border-left: 4px solid #007BFF;
-                    max-width: 100%;
-                    word-wrap: break-word;
+                    background: #ffffff !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+                    margin-bottom: 12px !important;
+                    padding: 16px 20px !important;
+                    display: flex !important;
+                    align-items: flex-start !important;
+                    gap: 12px !important;
+                    pointer-events: auto !important;
+                    animation: slideInRight 0.3s ease-out !important;
+                    border-left: 4px solid #007BFF !important;
+                    width: 100% !important;
+                    max-width: 400px !important;
+                    min-width: 300px !important;
+                    word-wrap: break-word !important;
+                    box-sizing: border-box !important;
+                    position: relative !important;
+                    overflow: hidden !important;
                 }
 
                 .notification.success {
-                    border-left-color: #28A745;
-                    background: #d4edda;
+                    border-left-color: #28A745 !important;
+                    background: #d4edda !important;
                 }
 
                 .notification.error {
-                    border-left-color: #DC3545;
-                    background: #f8d7da;
+                    border-left-color: #DC3545 !important;
+                    background: #f8d7da !important;
                 }
 
                 .notification.warning {
-                    border-left-color: #FFC107;
-                    background: #fff3cd;
+                    border-left-color: #FFC107 !important;
+                    background: #fff3cd !important;
                 }
 
                 .notification.info {
-                    border-left-color: #17A2B8;
-                    background: #d1ecf1;
+                    border-left-color: #17A2B8 !important;
+                    background: #d1ecf1 !important;
                 }
 
                 .notification-icon {
-                    flex-shrink: 0;
-                    width: 20px;
-                    height: 20px;
-                    margin-top: 2px;
+                    flex-shrink: 0 !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    margin-top: 2px !important;
+                    display: block !important;
                 }
 
                 .notification-content {
-                    flex: 1;
-                    min-width: 0;
+                    flex: 1 !important;
+                    min-width: 0 !important;
+                    overflow: hidden !important;
+                    word-wrap: break-word !important;
+                    overflow-wrap: break-word !important;
                 }
 
                 .notification-title {
-                    font-weight: 600;
-                    font-size: 14px;
-                    margin: 0 0 4px 0;
-                    color: #333;
+                    font-weight: 600 !important;
+                    font-size: 14px !important;
+                    margin: 0 0 4px 0 !important;
+                    color: #333 !important;
+                    line-height: 1.4 !important;
+                    word-wrap: break-word !important;
                 }
 
                 .notification-message {
-                    font-size: 13px;
-                    margin: 0;
-                    color: #666;
-                    line-height: 1.4;
+                    font-size: 13px !important;
+                    margin: 0 !important;
+                    color: #666 !important;
+                    line-height: 1.4 !important;
+                    word-wrap: break-word !important;
+                    overflow-wrap: break-word !important;
                 }
 
                 .notification-close {
-                    background: none;
-                    border: none;
-                    font-size: 18px;
-                    cursor: pointer;
-                    color: #999;
-                    padding: 0;
-                    width: 20px;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
+                    background: none !important;
+                    border: none !important;
+                    font-size: 18px !important;
+                    cursor: pointer !important;
+                    color: #999 !important;
+                    padding: 0 !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    flex-shrink: 0 !important;
+                    line-height: 1 !important;
                 }
 
                 .notification-close:hover {
@@ -185,31 +205,34 @@ class NotificationSystem {
 
                 /* Confirmation Modal Styles */
                 .confirmation-modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
-                    z-index: 10001;
-                    display: none;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background: rgba(0, 0, 0, 0.5) !important;
+                    z-index: 10001 !important;
+                    display: none !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: 20px !important;
+                    box-sizing: border-box !important;
                 }
 
                 .confirmation-modal.show {
-                    display: flex;
+                    display: flex !important;
                 }
 
                 .confirmation-dialog {
-                    background: white;
-                    border-radius: 8px;
-                    padding: 24px;
-                    max-width: 500px;
-                    width: 100%;
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-                    animation: modalSlideIn 0.3s ease-out;
+                    background: white !important;
+                    border-radius: 8px !important;
+                    padding: 24px !important;
+                    max-width: 500px !important;
+                    width: 100% !important;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+                    animation: modalSlideIn 0.3s ease-out !important;
+                    box-sizing: border-box !important;
+                    position: relative !important;
                 }
 
                 @keyframes modalSlideIn {
@@ -224,33 +247,39 @@ class NotificationSystem {
                 }
 
                 .confirmation-title {
-                    font-size: 18px;
-                    font-weight: 600;
-                    margin: 0 0 12px 0;
-                    color: #333;
+                    font-size: 18px !important;
+                    font-weight: 600 !important;
+                    margin: 0 0 12px 0 !important;
+                    color: #333 !important;
+                    line-height: 1.4 !important;
+                    word-wrap: break-word !important;
                 }
 
                 .confirmation-message {
-                    font-size: 14px;
-                    margin: 0 0 20px 0;
-                    color: #666;
-                    line-height: 1.5;
+                    font-size: 14px !important;
+                    margin: 0 0 20px 0 !important;
+                    color: #666 !important;
+                    line-height: 1.5 !important;
+                    word-wrap: break-word !important;
                 }
 
                 .confirmation-actions {
-                    display: flex;
-                    gap: 12px;
-                    justify-content: flex-end;
+                    display: flex !important;
+                    gap: 12px !important;
+                    justify-content: flex-end !important;
+                    flex-wrap: wrap !important;
                 }
 
                 .confirmation-btn {
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    cursor: pointer;
-                    font-weight: 500;
-                    min-width: 80px;
+                    padding: 10px 20px !important;
+                    border: none !important;
+                    border-radius: 6px !important;
+                    font-size: 14px !important;
+                    cursor: pointer !important;
+                    font-weight: 500 !important;
+                    min-width: 80px !important;
+                    box-sizing: border-box !important;
+                    white-space: nowrap !important;
                 }
 
                 .confirmation-btn-primary {
@@ -349,27 +378,33 @@ class NotificationSystem {
                 /* Mobile responsiveness */
                 @media (max-width: 768px) {
                     .notification-container {
-                        top: 10px;
-                        right: 10px;
-                        left: 10px;
-                        max-width: none;
+                        top: 10px !important;
+                        right: 10px !important;
+                        left: 10px !important;
+                        max-width: calc(100% - 20px) !important;
+                        min-width: auto !important;
+                        width: auto !important;
                     }
 
                     .notification {
-                        padding: 12px 16px;
+                        padding: 12px 16px !important;
+                        max-width: 100% !important;
+                        min-width: auto !important;
+                        width: 100% !important;
                     }
 
                     .confirmation-dialog {
-                        margin: 20px;
-                        padding: 20px;
+                        margin: 20px !important;
+                        padding: 20px !important;
+                        max-width: calc(100% - 40px) !important;
                     }
 
                     .confirmation-actions {
-                        flex-direction: column;
+                        flex-direction: column !important;
                     }
 
                     .confirmation-btn {
-                        width: 100%;
+                        width: 100% !important;
                     }
                 }
             </style>

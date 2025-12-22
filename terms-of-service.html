@@ -71,18 +71,39 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         .page-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 40px 32px;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        
+        /* Ensure content doesn't touch screen edges on all screen sizes */
+        @media (min-width: 1200px) {
+            .page-container {
+                padding: 40px 48px;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .page-container {
+                padding: 40px 64px;
+            }
         }
         
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             .page-container {
-                padding: 20px 16px !important;
+                padding: 20px 20px !important;
             }
             
             .page-title {
@@ -117,7 +138,7 @@
         
         @media (max-width: 480px) {
             .page-container {
-                padding: 16px 12px !important;
+                padding: 16px 16px !important;
             }
             
             .page-title {
@@ -1307,6 +1328,7 @@
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <script>
         // Authentication and User Management
         window.addEventListener('load', () => {
@@ -1480,7 +1502,7 @@
         </div>
         
         <div class="last-updated">
-            <strong>Last Updated:</strong> December 15, 2024
+            <strong>Last Updated:</strong> January 2025
         </div>
         
         <div class="content-section">
@@ -1493,12 +1515,15 @@
         <div class="content-section">
             <h2 class="section-title">2. Description of Service</h2>
             <div class="section-content">
-                <p>CRANE INTELLIGENCE provides professional-grade crane valuation, market analysis, and fleet optimization services. Our platform includes:</p>
+                <p>CRANE INTELLIGENCE provides professional-grade crane valuation, market analysis, and reporting services. Our platform includes:</p>
                 <ul>
-                    <li>Advanced crane valuation engine</li>
-                    <li>Market comparables and trend analysis</li>
-                    <li>Fleet optimization recommendations</li>
-                    <li>Real-time market data and insights</li>
+                    <li>Advanced crane valuation and Fair Market Value (FMV) report generation</li>
+                    <li>Professional FMV reports for business and legal purposes</li>
+                    <li>User account management with subscription tiers</li>
+                    <li>Consultation request system for free consultations</li>
+                    <li>Newsletter subscription and email communications</li>
+                    <li>Contact form for inquiries and support</li>
+                    <li>Admin panel for managing consultations and user accounts</li>
                 </ul>
             </div>
         </div>
@@ -1521,17 +1546,16 @@
             <h2 class="section-title">4. Subscription Plans and Billing</h2>
             <div class="section-content">
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px;">Subscription Tiers</h3>
-                <ul>
-                    <li><strong>Basic Plan:</strong> $999/month - Basic valuation and market comparables</li>
-                    <li><strong>Professional Plan:</strong> $1,999/month - Advanced features and API access</li>
-                </ul>
+                <p>Our platform offers different subscription tiers based on your needs. Subscription plans may include monthly or annual billing options. Please refer to our pricing page for current subscription details and features available in each tier.</p>
                 
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px; margin-top: 30px;">Billing Terms</h3>
                 <ul>
-                    <li>Subscriptions are billed monthly or annually</li>
-                    <li>Payment is due in advance of each billing period</li>
-                    <li>All fees are non-refundable unless otherwise stated</li>
-                    <li>We may change pricing with 30 days' notice</li>
+                    <li>Subscriptions are billed monthly or annually as selected during signup</li>
+                    <li>Payment is processed through secure payment gateways</li>
+                    <li>All fees are non-refundable unless otherwise stated in your subscription agreement</li>
+                    <li>We reserve the right to change pricing with 30 days' advance notice</li>
+                    <li>Subscription renewals are automatic unless cancelled before the renewal date</li>
+                    <li>You may cancel your subscription at any time through your account settings</li>
                 </ul>
             </div>
         </div>
@@ -1616,8 +1640,8 @@
         <div class="content-section">
             <h2 class="section-title">11. Governing Law and Disputes</h2>
             <div class="section-content">
-                <p>These Terms shall be governed by and construed in accordance with the laws of the State of California, without regard to conflict of law principles.</p>
-                <p>Any disputes arising from these Terms or your use of the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p>
+                <p>These Terms shall be governed by and construed in accordance with the laws of the Commonwealth of Virginia, United States, without regard to conflict of law principles.</p>
+                <p>Any disputes arising from these Terms or your use of the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association, or through the appropriate courts in Richmond, Virginia.</p>
             </div>
         </div>
         
@@ -1638,9 +1662,11 @@
             <h3>Questions About These Terms?</h3>
             <p>If you have any questions about these Terms of Service, please contact us:</p>
             <p>
-                <strong>Email:</strong> <a href="mailto:legal@craneintelligence.com">legal@craneintelligence.com</a><br>
-                <strong>Phone:</strong> <a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a><br>
-                <strong>Address:</strong> 123 Technology Drive, San Francisco, CA 94105
+                <strong>Email:</strong> <a href="mailto:pgenerelly@craneintelligence.com">pgenerelly@craneintelligence.com</a><br>
+                <strong>Phone:</strong> <a href="tel:+14345317566">+1 (434) 531-7566</a><br>
+                <strong>Address:</strong> EAST COAST EQUIPMENT EXCHANGE LLC<br>
+                4420 W Grace St, Richmond, VA 23230-3808<br>
+                <strong>Office Hours:</strong> Monday - Friday: 9:00 AM - 6:00 PM EST, Saturday: 10:00 AM - 4:00 PM EST
             </p>
         </div>
     </div>

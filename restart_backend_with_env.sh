@@ -2,9 +2,9 @@
 # Restart backend with BREVO_API_KEY and Stripe environment variables
 # This ensures verification emails and Stripe integration work correctly
 
-BREVO_API_KEY="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"
-STRIPE_PUBLISHABLE_KEY="pk_test_51SJKv7BME5ZRi6spdiFi7Vjl0OYR0JxIppswByoC6v4zpBDcGa8hZxsiiAzXgVLRK3tFJ8UlZDvImAfYv5o0accj00IZw9Rl4R"
-STRIPE_SECRET_KEY="sk_test_51SJKv7BME5ZRi6spDsiedaGw4VWwCxgokO4ahK0ad6ORGqWdIao6t8gW9MXy3TGuZSnOjdXx0kwOPg51GvFd3Zri000q3mJFhQ"
+BREVO_API_KEY="${BREVO_API_KEY:-your-brevo-api-key-here}"
+STRIPE_PUBLISHABLE_KEY="${STRIPE_PUBLISHABLE_KEY:-your-stripe-publishable-key-here}"
+STRIPE_SECRET_KEY="${STRIPE_SECRET_KEY:-your-stripe-secret-key-here}"
 
 # Kill existing uvicorn process
 echo "Stopping existing server..."

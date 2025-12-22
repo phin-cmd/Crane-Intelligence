@@ -15,18 +15,40 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         .page-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 40px 32px;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        
+        /* Ensure content doesn't touch screen edges on all screen sizes */
+        @media (min-width: 1200px) {
+            .page-container {
+                padding: 40px 48px;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .page-container {
+                padding: 40px 64px;
+            }
         }
         
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             .page-container {
-                padding: 20px 16px !important;
+                padding: 20px 20px !important;
             }
             
             .page-title {
@@ -61,7 +83,7 @@
         
         @media (max-width: 480px) {
             .page-container {
-                padding: 16px 12px !important;
+                padding: 16px 16px !important;
             }
             
             .page-title {
@@ -923,6 +945,7 @@
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <script>
         // Mobile Menu Toggle
         function toggleMobileMenu() {
@@ -1120,7 +1143,7 @@
         </div>
         
         <div class="last-updated">
-            <strong>Last Updated:</strong> December 15, 2024
+            <strong>Last Updated:</strong> January 2025
         </div>
         
         <div class="content-section">
@@ -1135,13 +1158,13 @@
             <h2 class="section-title">2. Information We Collect</h2>
             <div class="section-content">
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px;">Personal Information</h3>
-                <p>We may collect the following types of personal information:</p>
+                <p>We collect the following types of personal information when you use our services:</p>
                 <ul>
-                    <li>Name and contact information (email address, phone number)</li>
-                    <li>Company information and job title</li>
-                    <li>Account credentials and preferences</li>
-                    <li>Payment and billing information</li>
-                    <li>Communication preferences</li>
+                    <li><strong>Account Registration:</strong> Full name, email address, company name, and password</li>
+                    <li><strong>Consultation Requests:</strong> Name, email address, company name, subject (optional), and message content</li>
+                    <li><strong>Newsletter Subscriptions:</strong> Email address, first name, last name, company name, and subscription preferences</li>
+                    <li><strong>Authentication:</strong> JWT access tokens and refresh tokens stored in your browser's local storage</li>
+                    <li><strong>User Preferences:</strong> Subscription tier, account settings, and notification preferences</li>
                 </ul>
                 
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px; margin-top: 30px;">Usage Information</h3>
@@ -1149,9 +1172,11 @@
                 <ul>
                     <li>Device information and IP address</li>
                     <li>Browser type and version</li>
+                    <li>User agent strings for security and analytics</li>
                     <li>Pages visited and time spent on our platform</li>
-                    <li>Search queries and valuation requests</li>
+                    <li>Crane valuation requests and report generation activity</li>
                     <li>Error logs and performance data</li>
+                    <li>Form submission timestamps and source information</li>
                 </ul>
             </div>
         </div>
@@ -1161,12 +1186,15 @@
             <div class="section-content">
                 <p>We use the collected information for the following purposes:</p>
                 <ul>
-                    <li>Provide and maintain our services</li>
-                    <li>Process transactions and manage your account</li>
-                    <li>Improve our platform and develop new features</li>
-                    <li>Send you technical notices and support messages</li>
-                    <li>Respond to your inquiries and provide customer support</li>
-                    <li>Comply with legal obligations and enforce our terms</li>
+                    <li>Provide and maintain our crane valuation and reporting services</li>
+                    <li>Process consultation requests and send confirmation emails</li>
+                    <li>Manage user accounts and authenticate access to the platform</li>
+                    <li>Send newsletter communications and marketing materials (with your consent)</li>
+                    <li>Send technical notices, support messages, and service updates</li>
+                    <li>Respond to your inquiries submitted through contact forms</li>
+                    <li>Notify admin users of new consultation requests</li>
+                    <li>Improve our platform functionality and develop new features</li>
+                    <li>Comply with legal obligations and enforce our terms of service</li>
                 </ul>
             </div>
         </div>
@@ -1183,7 +1211,7 @@
                 </ul>
                 
                 <div class="highlight-box">
-                    <strong>Important:</strong> We never share your personal crane data or valuation information with third parties without your explicit consent.
+                    <strong>Important:</strong> We never share your personal crane data, valuation information, or consultation requests with third parties without your explicit consent. Your data is stored securely in our database and is only accessible to authorized admin users for the purpose of responding to your requests.
                 </div>
             </div>
         </div>
@@ -1274,9 +1302,11 @@
             <h3>Questions About This Privacy Policy?</h3>
             <p>If you have any questions about this Privacy Policy or our data practices, please contact us:</p>
             <p>
-                <strong>Email:</strong> <a href="mailto:privacy@craneintelligence.com">privacy@craneintelligence.com</a><br>
-                <strong>Phone:</strong> <a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a><br>
-                <strong>Address:</strong> 123 Technology Drive, San Francisco, CA 94105
+                <strong>Email:</strong> <a href="mailto:pgenerelly@craneintelligence.com">pgenerelly@craneintelligence.com</a><br>
+                <strong>Phone:</strong> <a href="tel:+14345317566">+1 (434) 531-7566</a><br>
+                <strong>Address:</strong> EAST COAST EQUIPMENT EXCHANGE LLC<br>
+                4420 W Grace St, Richmond, VA 23230-3808<br>
+                <strong>Office Hours:</strong> Monday - Friday: 9:00 AM - 6:00 PM EST
             </p>
         </div>
     </div>

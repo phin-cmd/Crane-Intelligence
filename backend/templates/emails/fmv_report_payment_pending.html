@@ -149,6 +149,9 @@
                 <p><strong>Amount Due:</strong> ${{ "%.2f"|format(amount) }}</p>
                 <p><strong>Report ID:</strong> #{{ report_id }}</p>
             
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ dashboard_url }}?report_id={{ report_id }}" class="button-primary">📊 View Report Status</a>
+            </div>
         </div>
         
         <div class="email-footer">

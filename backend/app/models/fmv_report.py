@@ -75,6 +75,8 @@ class FMVReport(Base):
     delivered_at = Column(DateTime(timezone=True), nullable=True)
     need_more_info_at = Column(DateTime(timezone=True), nullable=True)  # When admin requests more info
     overdue_at = Column(DateTime(timezone=True), nullable=True)  # When report becomes overdue
+    # Note: deleted_at column removed - not present in database table
+    # deleted_at = Column(DateTime(timezone=True), nullable=True)  # When report was deleted (soft delete)
     # Legacy fields kept for backward compatibility (paid_at maps to submitted_at)
     paid_at = Column(DateTime(timezone=True), nullable=True)  # Deprecated - use submitted_at
     

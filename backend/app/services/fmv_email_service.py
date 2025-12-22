@@ -8,19 +8,26 @@ import logging
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from datetime import datetime
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # Fallback for Python < 3.9
+    from backports.zoneinfo import ZoneInfo
 
 from .brevo_email_service import BrevoEmailService
+from .email_service_unified import UnifiedEmailService
 from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 class FMVEmailService:
-    """Email service for FMV report notifications using Brevo"""
+    """Email service for FMV report notifications using Brevo API or SMTP"""
     
     def __init__(self):
         try:
-            self.email_service = BrevoEmailService()
+            # Use UnifiedEmailService which respects USE_BREVO_API setting and falls back to SMTP
+            self.email_service = UnifiedEmailService()
             self.template_dir = Path(settings.email_templates_dir)
         except Exception as e:
             logger.warning(f"Failed to initialize FMV email service: {e}")
@@ -33,12 +40,100 @@ class FMVEmailService:
             return "User"
         return user_name.split()[0] if user_name.split() else user_name
     
-    def send_submitted_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def _get_user_timezone(self, user_timezone: Optional[str] = None) -> str:
+        """Get user timezone, defaulting to UTC if not provided"""
+        if user_timezone:
+            return user_timezone
+        # Default to UTC if no timezone specified
+        return 'UTC'
+    
+    def _format_datetime_with_timezone(self, dt: datetime, user_timezone: Optional[str] = None, include_timezone: bool = True) -> str:
+        """Format datetime in user's timezone
+        
+        Args:
+            dt: UTC datetime object
+            user_timezone: User's timezone (e.g., 'America/New_York')
+            include_timezone: Whether to include timezone abbreviation in output
+        
+        Returns:
+            Formatted datetime string in user's timezone
+        """
+        if not dt:
+            return 'N/A'
+        
+        try:
+            tz = self._get_user_timezone(user_timezone)
+            # Convert UTC to user's timezone
+            if dt.tzinfo is None:
+                # Assume UTC if no timezone info
+                dt = dt.replace(tzinfo=ZoneInfo('UTC'))
+            
+            user_dt = dt.astimezone(ZoneInfo(tz))
+            
+            # Format with timezone abbreviation
+            if include_timezone:
+                # Format: "Dec 19, 2024, 3:45 PM EST"
+                return user_dt.strftime('%B %d, %Y at %I:%M %p %Z')
+            else:
+                # Format: "Dec 19, 2024, 3:45 PM"
+                return user_dt.strftime('%B %d, %Y at %I:%M %p')
+        except Exception as e:
+            logger.warning(f"Error formatting datetime with timezone {user_timezone}: {e}")
+            # Fallback to UTC formatting
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=ZoneInfo('UTC'))
+            return dt.strftime('%B %d, %Y at %I:%M %p UTC')
+    
+    def _convert_amount_to_dollars(self, amount: Any) -> float:
+        """Convert amount from cents to dollars if needed
+        
+        Args:
+            amount: Amount value (could be in cents or dollars)
+        
+        Returns:
+            Amount in dollars
+        """
+        if not amount:
+            return 0.0
+        
+        # Convert to float
+        try:
+            amount_float = float(amount)
+        except (ValueError, TypeError):
+            return 0.0
+        
+        # If amount is >= 10000, it's definitely in cents (e.g., 149500 = $1495.00)
+        # If amount is between 1000-9999, check if it's a round number divisible by 100
+        # (common cent values like 25000, 99500, 149500)
+        if amount_float >= 10000:
+            # Definitely in cents, convert to dollars
+            return amount_float / 100.0
+        elif amount_float >= 1000:
+            # Check if it's a round cent value (divisible by 100 with no remainder when divided by 100)
+            # This catches values like 25000, 99500, 149500
+            if isinstance(amount, (int, float)) and amount_float % 100 == 0 and amount_float >= 1000:
+                return amount_float / 100.0
+        
+        # Otherwise, assume it's already in dollars
+        return amount_float
+    
+    def send_submitted_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report is submitted with PDF receipt attachment"""
         if not self.email_service:
             return False
         try:
             first_name = self._extract_first_name(user_name)
+            # Get submitted_at from report_data or use current time
+            submitted_dt = report_data.get('submitted_at')
+            if submitted_dt:
+                if isinstance(submitted_dt, str):
+                    from dateutil import parser
+                    submitted_dt = parser.parse(submitted_dt)
+                elif not isinstance(submitted_dt, datetime):
+                    submitted_dt = None
+            if not submitted_dt:
+                submitted_dt = datetime.now(ZoneInfo('UTC'))
+            
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
                 "user_name": user_name,
@@ -46,7 +141,7 @@ class FMVEmailService:
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
                 "report_type": report_data.get('report_type', 'N/A').replace('_', ' ').title(),
-                "submitted_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "submitted_date": self._format_datetime_with_timezone(submitted_dt, user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -62,12 +157,12 @@ class FMVEmailService:
                     receipt_data = {
                         "receipt_number": f"RPT-{report_data.get('report_id', 'N/A')}",
                         "transaction_id": report_data.get('payment_intent_id', report_data.get('transaction_id', 'N/A')),
-                        "payment_date": datetime.now().isoformat(),
+                        "payment_date": datetime.now(ZoneInfo('UTC')).isoformat(),
                         "customer_name": user_name,
                         "customer_email": user_email,
                         "report_id": report_data.get('report_id'),
                         "report_type": report_data.get('report_type', 'N/A'),
-                        "amount": report_data.get('amount', 0),
+                        "amount": self._convert_amount_to_dollars(report_data.get('amount', 0)),
                         "currency": "USD",
                         "company_name": settings.app_name
                     }
@@ -104,7 +199,7 @@ class FMVEmailService:
             logger.error(f"Error sending submitted notification: {e}")
             return False
     
-    def send_draft_reminder_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_draft_reminder_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send reminder notification when report is in DRAFT status (payment not completed)
         Sends periodic reminders at different intervals (1 hour, 6 hours, 24 hours, 48 hours, etc.)"""
         if not self.email_service:
@@ -131,6 +226,13 @@ class FMVEmailService:
                 # Format report type for display (e.g., "spot_check" -> "Spot Check")
                 report_type_display = report_type.replace('_', ' ').title()
             
+            # Convert amount from cents to dollars if needed (amounts > 1000 are likely in cents)
+            amount_raw = report_data.get('amount', 0)
+            amount_dollars = amount_raw
+            if amount_raw and amount_raw > 1000:
+                # Assume amounts > 1000 are in cents, convert to dollars
+                amount_dollars = amount_raw / 100.0
+            
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
                 "user_name": user_name,
@@ -139,7 +241,7 @@ class FMVEmailService:
                 "report_id": report_data.get('report_id'),
                 "report_type": report_type,
                 "report_type_display": report_type_display or "FMV Report",
-                "amount": report_data.get('amount', 0),
+                "amount": amount_dollars,
                 "payment_url": report_data.get('payment_url', f"{settings.frontend_url}/payment.html?report_id={report_data.get('report_id')}"),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
@@ -169,7 +271,7 @@ class FMVEmailService:
             logger.error(f"Error sending draft reminder notification: {e}")
             return False
     
-    def send_draft_created_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_draft_created_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when a DRAFT report is first created (payment required)"""
         if not self.email_service:
             return False
@@ -183,16 +285,20 @@ class FMVEmailService:
                 # Format report type for display (e.g., "spot_check" -> "Spot Check")
                 report_type_display = report_type.replace('_', ' ').title()
             
-            # Calculate amount based on report type
-            amount = report_data.get('amount', 0)
+            # Get amount and convert from cents to dollars if needed
+            amount_raw = report_data.get('amount', 0)
+            amount = self._convert_amount_to_dollars(amount_raw)
+            
             if not amount:
                 # Default amounts if not provided (centralized pricing)
                 try:
                     from .fmv_pricing_config import get_base_price_dollars
                     if report_type == 'fleet_valuation':
-                        amount = get_base_price_dollars(report_type, unit_count=report_data.get('unit_count') or 1)
+                        amount_cents = get_base_price_dollars(report_type, unit_count=report_data.get('unit_count') or 1)
+                        amount = self._convert_amount_to_dollars(amount_cents)
                     else:
-                        amount = get_base_price_dollars(report_type)
+                        amount_cents = get_base_price_dollars(report_type)
+                        amount = self._convert_amount_to_dollars(amount_cents)
                 except Exception:
                     # Fallback to safe legacy defaults if pricing config is unavailable
                     if report_type == 'spot_check':
@@ -216,7 +322,7 @@ class FMVEmailService:
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html",
-                "created_date": datetime.now().strftime('%B %d, %Y at %I:%M %p')
+                "created_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone)
             }
             
             # Try to use draft created template, fallback to draft reminder template
@@ -244,7 +350,7 @@ class FMVEmailService:
         """Send notification when payment is pending (deprecated - use send_draft_reminder_notification)"""
         return self.send_draft_reminder_notification(user_email, user_name, report_data)
     
-    def send_paid_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_paid_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when payment is received"""
         if not self.email_service:
             return False
@@ -258,7 +364,7 @@ class FMVEmailService:
                 "report_id": report_data.get('report_id'),
                 "amount": report_data.get('amount', 0),
                 "payment_intent_id": report_data.get('payment_intent_id', 'N/A'),
-                "payment_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "payment_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -277,7 +383,7 @@ class FMVEmailService:
             logger.error(f"Error sending paid notification: {e}")
             return False
     
-    def send_payment_receipt(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_payment_receipt(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send payment receipt email"""
         if not self.email_service:
             return False
@@ -290,7 +396,7 @@ class FMVEmailService:
                 "report_id": report_data.get('report_id'),
                 "amount": report_data.get('amount', 0),
                 "transaction_id": report_data.get('transaction_id') or report_data.get('payment_intent_id', 'N/A'),
-                "payment_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "payment_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -309,7 +415,7 @@ class FMVEmailService:
             logger.error(f"Error sending payment receipt: {e}")
             return False
     
-    def send_in_review_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_in_review_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report enters review"""
         if not self.email_service:
             return False
@@ -322,7 +428,7 @@ class FMVEmailService:
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
                 "assigned_analyst": report_data.get('assigned_analyst'),
-                "review_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "review_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -341,7 +447,7 @@ class FMVEmailService:
             logger.error(f"Error sending in_review notification: {e}")
             return False
     
-    def send_in_progress_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_in_progress_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report processing starts"""
         if not self.email_service:
             return False
@@ -353,7 +459,7 @@ class FMVEmailService:
                 "first_name": first_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
-                "progress_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "progress_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -372,7 +478,7 @@ class FMVEmailService:
             logger.error(f"Error sending in_progress notification: {e}")
             return False
     
-    def send_completed_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_completed_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report is completed"""
         if not self.email_service:
             return False
@@ -384,7 +490,7 @@ class FMVEmailService:
                 "first_name": first_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
-                "completed_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "completed_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -403,7 +509,7 @@ class FMVEmailService:
             logger.error(f"Error sending completed notification: {e}")
             return False
     
-    def send_deleted_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_deleted_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report is deleted"""
         if not self.email_service:
             return False
@@ -431,7 +537,7 @@ class FMVEmailService:
                 "report_type": report_type,
                 "report_type_display": report_type_display or 'N/A',
                 "crane_details": crane_details,
-                "deleted_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "deleted_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -450,7 +556,7 @@ class FMVEmailService:
             logger.error(f"Error sending deleted notification: {e}")
             return False
     
-    def send_delivered_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_delivered_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report is delivered"""
         if not self.email_service:
             return False
@@ -465,7 +571,7 @@ class FMVEmailService:
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
                 "pdf_url": pdf_url,
-                "delivered_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "delivered_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -484,7 +590,7 @@ class FMVEmailService:
             logger.error(f"Error sending delivered notification: {e}")
             return False
     
-    def send_need_more_info_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_need_more_info_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when admin needs more information"""
         if not self.email_service:
             return False
@@ -492,14 +598,45 @@ class FMVEmailService:
             first_name = self._extract_first_name(user_name)
             need_more_info_reason = report_data.get('need_more_info_reason') or report_data.get('rejection_reason', 'Additional information is required to complete your report.')
             
+            # Get report type and format it for display
+            report_type = report_data.get('report_type', '')
+            report_type_display = report_data.get('report_type_display')
+            if not report_type_display and report_type:
+                # Format report type for display (e.g., "spot_check" -> "Spot Check")
+                report_type_display = report_type.replace('_', ' ').title()
+            
+            # Extract crane details
+            crane_details = report_data.get('crane_details') or {}
+            if isinstance(crane_details, str):
+                try:
+                    import json
+                    crane_details = json.loads(crane_details)
+                except:
+                    crane_details = {}
+            
+            crane_manufacturer = crane_details.get('manufacturer') or ''
+            crane_model = crane_details.get('model') or ''
+            crane_year = crane_details.get('year') or ''
+            
+            # Get amount paid (convert from cents to dollars if needed)
+            amount_paid = report_data.get('amount_paid')
+            if amount_paid:
+                amount_paid = self._convert_amount_to_dollars(amount_paid)
+            
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
                 "user_name": user_name,
                 "first_name": first_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
+                "report_type": report_type,
+                "report_type_display": report_type_display or "FMV Report",
                 "need_more_info_reason": need_more_info_reason,
-                "request_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "request_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
+                "crane_manufacturer": crane_manufacturer,
+                "crane_model": crane_model,
+                "crane_year": str(crane_year) if crane_year else '',
+                "amount_paid": amount_paid,
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -523,7 +660,7 @@ class FMVEmailService:
         # Map to need_more_info for backward compatibility
         return self.send_need_more_info_notification(user_email, user_name, report_data)
     
-    def send_cancelled_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any]) -> bool:
+    def send_cancelled_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send notification when report is cancelled"""
         if not self.email_service:
             return False
@@ -535,7 +672,7 @@ class FMVEmailService:
                 "first_name": first_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
-                "cancelled_date": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                "cancelled_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
                 "support_email": settings.mail_from_email,
                 "dashboard_url": f"{settings.frontend_url}/dashboard.html"
@@ -581,7 +718,7 @@ class FMVEmailService:
                     "user_email": user_email,
                     "report_type": report_data.get('report_type', 'N/A').replace('_', ' ').title(),
                     "status": notification_type,
-                    "timestamp": datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                    "timestamp": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), None),  # Admin notifications use UTC for now
                     "platform_name": settings.app_name,
                     "admin_dashboard_url": f"{settings.admin_url}/admin/fmv-reports.html"
                 }

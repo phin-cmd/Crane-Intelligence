@@ -151,6 +151,7 @@ class FMVReportResponse(BaseModel):
     need_more_info_reason: Optional[str] = None
     assigned_analyst: Optional[str] = None
     # Legacy fields kept for backward compatibility
+    # Legacy fields kept for backward compatibility
     paid_at: Optional[datetime] = None  # Deprecated - maps to submitted_at
     rejected_at: Optional[datetime] = None  # Deprecated
     cancelled_at: Optional[datetime] = None  # Deprecated

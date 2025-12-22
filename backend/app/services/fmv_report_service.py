@@ -15,7 +15,31 @@ from ..models.user import User
 from ..schemas.fmv_report import (
     FMVReportCreate, StatusTransition, FMVReportUpdate, FleetPricingRequest
 )
-from ..services.fmv_pricing_config import get_base_price_dollars
+from ..core.config import settings
+# Optional import - fallback if module doesn't exist
+try:
+    from ..services.fmv_pricing_config import get_base_price_dollars
+except ImportError:
+    # Fallback pricing function if pricing config module doesn't exist
+    def get_base_price_dollars(report_type: str, unit_count: int = 1) -> int:
+        """Fallback pricing function"""
+        pricing = {
+            "spot_check": 25000,  # $250
+            "professional": 99500,  # $995
+            "fleet_valuation": 149500  # $1,495 base
+        }
+        base = pricing.get(report_type, 99500)
+        if report_type == "fleet_valuation" and unit_count > 1:
+            # Simple tiered pricing fallback
+            if unit_count <= 5:
+                return 149500
+            elif unit_count <= 10:
+                return 249500
+            elif unit_count <= 25:
+                return 499500
+            else:
+                return 799500
+        return base
 
 logger = logging.getLogger(__name__)
 
@@ -179,18 +203,60 @@ class FMVReportService:
         # Determine initial status
         initial_status = FMVReportStatus.DRAFT
         
+        # Convert report_type to Enum if needed (FMVReportType is already imported at top)
+        try:
+            if isinstance(report_data.report_type, FMVReportType):
+                report_type_enum = report_data.report_type
+            elif hasattr(report_data.report_type, 'value'):
+                # It's a Pydantic enum, get the value and convert to SQLAlchemy enum
+                report_type_value = report_data.report_type.value
+                logger.info(f"Converting Pydantic enum value '{report_type_value}' to FMVReportType enum")
+                report_type_enum = FMVReportType(report_type_value)
+            else:
+                # It's a string, convert to enum
+                report_type_str = str(report_data.report_type)
+                logger.info(f"Converting string '{report_type_str}' to FMVReportType enum")
+                report_type_enum = FMVReportType(report_type_str)
+            logger.info(f"✅ Report type enum: {report_type_enum}, value: {report_type_enum.value}")
+        except Exception as enum_error:
+            logger.error(f"❌ Error converting report_type to enum: {enum_error}", exc_info=True)
+            raise ValueError(f"Invalid report_type: {report_data.report_type}. Error: {str(enum_error)}")
+        
+        # Convert fleet_pricing_tier to Enum if needed (FleetPricingTier is already imported at top)
+        fleet_tier_enum = None
+        if report_data.fleet_pricing_tier:
+            try:
+                if isinstance(report_data.fleet_pricing_tier, FleetPricingTier):
+                    fleet_tier_enum = report_data.fleet_pricing_tier
+                elif hasattr(report_data.fleet_pricing_tier, 'value'):
+                    fleet_tier_enum = FleetPricingTier(report_data.fleet_pricing_tier.value)
+                else:
+                    fleet_tier_enum = FleetPricingTier(str(report_data.fleet_pricing_tier))
+                logger.info(f"✅ Fleet tier enum: {fleet_tier_enum}, value: {fleet_tier_enum.value if fleet_tier_enum else None}")
+            except Exception as tier_error:
+                logger.warning(f"⚠️ Error converting fleet_pricing_tier to enum: {tier_error}, using None")
+                fleet_tier_enum = None
+        
         # Create report
-        report = FMVReport(
-            user_id=user_id,
-            report_type=report_data.report_type.value if hasattr(report_data.report_type, 'value') else str(report_data.report_type),
-            status=initial_status,
-            crane_details=crane_details,
-            service_records=service_records,
-            service_record_files=service_record_files,
-            fleet_pricing_tier=report_data.fleet_pricing_tier.value if report_data.fleet_pricing_tier and hasattr(report_data.fleet_pricing_tier, 'value') else (str(report_data.fleet_pricing_tier) if report_data.fleet_pricing_tier else None),
-            unit_count=report_data.unit_count,
-            payment_intent_id=payment_intent_id if payment_intent_id else None  # Set payment_intent_id if provided in metadata
-        )
+        logger.info(f"Creating FMVReport with: user_id={user_id}, report_type={report_type_enum}, status={initial_status}")
+        try:
+            report = FMVReport(
+                user_id=user_id,
+                report_type=report_type_enum,
+                status=initial_status,
+                crane_details=crane_details,
+                service_records=service_records,
+                service_record_files=service_record_files,
+                fleet_pricing_tier=fleet_tier_enum,
+                unit_count=report_data.unit_count,
+                payment_intent_id=payment_intent_id if payment_intent_id else None  # Set payment_intent_id if provided in metadata
+            )
+            logger.info(f"✅ FMVReport object created successfully")
+        except Exception as create_error:
+            logger.error(f"❌ Error creating FMVReport object: {create_error}", exc_info=True)
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            raise
         
         # If payment already succeeded, set payment status
         if payment_succeeded and payment_intent_id:
@@ -270,13 +336,14 @@ class FMVReportService:
                     amount = 1495.00
             
             # Use draft reminder notification as the ONLY initial email
+            # Note: amount from get_base_price_dollars is in cents, email service will convert to dollars
             email_service.send_draft_reminder_notification(
                 user_email=user.email,
                 user_name=user.full_name or user.email,
                 report_data={
                     "report_id": report.id,
                     "report_type": report_type,
-                    "amount": amount,
+                    "amount": amount,  # In cents, will be converted to dollars in email service
                     "hours_since_creation": 0,
                     "reminder_interval": "initial",
                     "payment_url": f"{settings.frontend_url}/report-generation.html?report_id={report.id}",
@@ -620,7 +687,8 @@ class FMVReportService:
                 duplicate_report = self.get_report(report_id)
                 if duplicate_report:
                     duplicate_report.status = FMVReportStatus.DELETED
-                    duplicate_report.deleted_at = datetime.utcnow()
+                    # deleted_at column doesn't exist in database, skip it
+                    # duplicate_report.deleted_at = datetime.utcnow()
                     logger.info(f"✅ Marked duplicate report {report_id} as DELETED (replaced by report {existing_report.id} with same payment)")
                     self.db.commit()
             else:

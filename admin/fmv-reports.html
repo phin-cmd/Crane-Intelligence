@@ -467,11 +467,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            min-height: 60px;
         }
 
         .modal-header h2 {
             font-size: 24px;
             font-weight: 700;
+            flex: 1;
+            padding-right: 20px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin: 0;
         }
 
         .close {
@@ -480,6 +487,15 @@
             font-weight: bold;
             cursor: pointer;
             line-height: 1;
+            min-width: 32px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            top: 0;
+            right: 0;
             transition: all 0.3s ease;
         }
 
@@ -696,6 +712,7 @@
                 <button class="filter-btn" onclick="filterReports('delivered')">Delivered</button>
                 <button class="filter-btn" onclick="filterReports('need_more_info')">Need More Info</button>
                 <button class="filter-btn" onclick="filterReports('overdue')">Overdue</button>
+                <button class="filter-btn" onclick="filterReports('deleted')">Deleted</button>
             </div>
             <button class="refresh-btn" onclick="loadReports()">🔄 Refresh</button>
         </div>
@@ -1436,6 +1453,8 @@
                         return reportStatus === 'pending' || reportStatus === 'draft' || reportStatus === 'submitted';
                     } else if (currentFilter === 'submitted') {
                         return reportStatus === 'submitted';
+                    } else if (currentFilter === 'deleted') {
+                        return reportStatus === 'deleted';
                     } else if (currentFilter === 'in_progress') {
                         return reportStatus === 'in_progress';
                     } else if (currentFilter === 'completed') {
@@ -1741,9 +1760,44 @@
             });
             
             // Debug: Log service record files specifically
+            console.log('📎 Service record files check for report', report.id, ':', {
+                has_service_record_files: !!report.service_record_files,
+                service_record_files: report.service_record_files,
+                type: typeof report.service_record_files,
+                is_array: Array.isArray(report.service_record_files),
+                length: Array.isArray(report.service_record_files) ? report.service_record_files.length : (report.service_record_files ? 1 : 0)
+            });
+            
+            // Check if this is bulk processing (check multiple possible flags)
+            const craneData = report.crane_data || report.crane_details || {};
+            const reportType = report.report_type || 'professional';
+            const isBulkProcessing = craneData.is_bulk_processing || craneData.is_bulk_entry || reportType === 'fleet_valuation';
+            
+            // Parse service_record_files - handle both JSON string and array
+            let serviceRecordFiles = [];
             if (report.service_record_files) {
-                console.log('📎 Service record files for report', report.id, ':', report.service_record_files);
+                if (typeof report.service_record_files === 'string') {
+                    try {
+                        serviceRecordFiles = JSON.parse(report.service_record_files);
+                    } catch (e) {
+                        // If parsing fails, treat as single URL string
+                        serviceRecordFiles = [report.service_record_files];
+                    }
+                } else if (Array.isArray(report.service_record_files)) {
+                    serviceRecordFiles = report.service_record_files;
+                } else {
+                    serviceRecordFiles = [report.service_record_files];
+                }
             }
+            
+            // For bulk processing, ensure bulk_file_url is included in service_record_files if it exists
+            if (isBulkProcessing && craneData.bulk_file_url && !serviceRecordFiles.includes(craneData.bulk_file_url)) {
+                // Add bulk file URL to service_record_files if not already present
+                serviceRecordFiles = [...serviceRecordFiles, craneData.bulk_file_url];
+            }
+            
+            // Filter out null, undefined, and empty strings
+            serviceRecordFiles = serviceRecordFiles.filter(url => url && url.trim && url.trim() !== '' || (typeof url === 'string' && url.trim() !== ''));
             
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
@@ -1896,17 +1950,107 @@
                     ` : ''}
                 </div>
 
-                <!-- Service Records & Documents -->
-                ${((report.service_record_files && report.service_record_files.length > 0) || (report.service_records && Object.keys(report.service_records).length > 0) || (report.crane_data || report.crane_details || {}).is_manual_entry) ? `
+                ${isBulkProcessing ? `
+                <!-- Bulk Processing Details -->
                 <div class="detail-section">
-                    <h3>📎 Service Records & Documents</h3>
-                    ${report.service_record_files && report.service_record_files.length > 0 ? `
+                    <h3>📊 Bulk Processing Details</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Total Cranes</span>
+                            <span class="detail-value">${(report.crane_data || report.crane_details || {}).total_cranes || report.unit_count || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Successful</span>
+                            <span class="detail-value" style="color: #00FF85;">${(report.crane_data || report.crane_details || {}).success_count || 0}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Errors</span>
+                            <span class="detail-value" style="color: #FF4444;">${(report.crane_data || report.crane_details || {}).error_count || 0}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pricing Tier</span>
+                            <span class="detail-value">${(report.crane_data || report.crane_details || {}).pricing_tier || report.fleet_pricing_tier || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Price</span>
+                            <span class="detail-value" style="color: #FFD600;">$${((report.crane_data || report.crane_details || {}).total_price || report.amount_paid || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                    ${(report.crane_data || report.crane_details || {}).bulk_records && Array.isArray((report.crane_data || report.crane_details || {}).bulk_records) && (report.crane_data || report.crane_details || {}).bulk_records.length > 0 ? `
+                    <div style="margin-top: 20px; overflow-x: auto;">
+                        <h4 style="color: #FFD600; margin-bottom: 12px;">Bulk Processing Records</h4>
+                        <table style="width: 100%; border-collapse: collapse; background: #1A1A1A; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background: #2A2A2A; border-bottom: 2px solid #FFD600;">
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">#</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Crane</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Year</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Capacity</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Hours</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Region</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Est. Value</th>
+                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(report.crane_data || report.crane_details || {}).bulk_records.slice(0, 20).map((record, index) => `
+                                <tr style="border-bottom: 1px solid #333;">
+                                    <td style="padding: 10px; color: #fff;">${record.rowNumber || index + 1}</td>
+                                    <td style="padding: 10px; color: #fff;">${record.crane || 'N/A'}</td>
+                                    <td style="padding: 10px; color: #fff;">${record.year || 'N/A'}</td>
+                                    <td style="padding: 10px; color: #fff;">${typeof record.capacity === 'number' ? record.capacity + 'T' : record.capacity || 'N/A'}</td>
+                                    <td style="padding: 10px; color: #fff;">${typeof record.hours === 'number' ? record.hours.toLocaleString() : record.hours || 'N/A'}</td>
+                                    <td style="padding: 10px; color: #fff;">${record.region || 'N/A'}</td>
+                                    <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#888'}; font-weight: 600;">
+                                        ${record.status === 'success' && record.estimatedValue ? '$' + record.estimatedValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
+                                    </td>
+                                    <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#FF4444'}; font-weight: 600;">
+                                        ${record.status === 'success' ? '✓' : '✗'}
+                                    </td>
+                                </tr>
+                                `).join('')}
+                                ${(report.crane_data || report.crane_details || {}).bulk_records.length > 20 ? `
+                                <tr>
+                                    <td colspan="8" style="padding: 10px; text-align: center; color: #888; font-style: italic;">
+                                        ... and ${(report.crane_data || report.crane_details || {}).bulk_records.length - 20} more records
+                                    </td>
+                                </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+                </div>
+                ` : ''}
+
+                <!-- Service Records & Documents -->
+                ${(() => {
+                    // Check if service records exist (handle both array and single value)
+                    const hasServiceRecordFiles = serviceRecordFiles && 
+                        (Array.isArray(serviceRecordFiles) ? serviceRecordFiles.length > 0 : serviceRecordFiles);
+                    const hasServiceRecords = report.service_records && Object.keys(report.service_records).length > 0;
+                    const isManualEntry = craneData.is_manual_entry;
+                    return hasServiceRecordFiles || hasServiceRecords || isManualEntry;
+                })() ? `
+                <div class="detail-section">
+                    <h3>📎 ${isBulkProcessing ? 'Bulk Processing File' : 'Service Records & Documents'}</h3>
+                    ${(() => {
+                        // Check if service_record_files exists and has content
+                        const hasFiles = serviceRecordFiles && 
+                            (Array.isArray(serviceRecordFiles) ? serviceRecordFiles.length > 0 : serviceRecordFiles);
+                        return hasFiles;
+                    })() ? `
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #00FF88; margin-bottom: 10px;">Uploaded Documents:</h4>
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            ${(Array.isArray(report.service_record_files) ? report.service_record_files : [report.service_record_files]).map((fileUrl, index) => {
+                            ${(Array.isArray(serviceRecordFiles) ? serviceRecordFiles : [serviceRecordFiles]).filter(url => url && url.trim() !== '').map((fileUrl, index) => {
                                 const fileName = typeof fileUrl === 'string' ? fileUrl.split('/').pop() : (fileUrl.name || `Document ${index + 1}`);
                                 let fileUrlStr = typeof fileUrl === 'string' ? fileUrl : (fileUrl.url || fileUrl);
+                                
+                                // Ensure we have a valid URL
+                                if (!fileUrlStr || fileUrlStr.trim() === '') {
+                                    return '';
+                                }
                                 
                                 // Convert relative URLs to API endpoint URLs
                                 // Handle legacy local file paths (convert to CDN redirect endpoint for backward compatibility)
@@ -1931,7 +2075,7 @@
                                     </a>
                                 </div>
                             `;
-                            }).join('')}
+                            }).filter(html => html !== '').join('')}
                         </div>
                     </div>
                     ` : ((report.crane_data || report.crane_details || {}).is_manual_entry ? `

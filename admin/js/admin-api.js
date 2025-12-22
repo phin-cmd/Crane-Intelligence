@@ -144,6 +144,70 @@ class AdminAPI {
         }
     }
 
+    // Convenience methods that return Response-like objects for compatibility
+    async get(endpoint, options = {}) {
+        const data = await this.request(endpoint, { ...options, method: 'GET' });
+        // Return a Response-like object
+        return {
+            ok: true,
+            status: 200,
+            json: async () => data,
+            data: data
+        };
+    }
+
+    async post(endpoint, body, options = {}) {
+        const data = await this.request(endpoint, {
+            ...options,
+            method: 'POST',
+            body: typeof body === 'object' ? JSON.stringify(body) : body
+        });
+        return {
+            ok: true,
+            status: 200,
+            json: async () => data,
+            data: data
+        };
+    }
+
+    async patch(endpoint, body, options = {}) {
+        const data = await this.request(endpoint, {
+            ...options,
+            method: 'PATCH',
+            body: typeof body === 'object' ? JSON.stringify(body) : body
+        });
+        return {
+            ok: true,
+            status: 200,
+            json: async () => data,
+            data: data
+        };
+    }
+
+    async put(endpoint, body, options = {}) {
+        const data = await this.request(endpoint, {
+            ...options,
+            method: 'PUT',
+            body: typeof body === 'object' ? JSON.stringify(body) : body
+        });
+        return {
+            ok: true,
+            status: 200,
+            json: async () => data,
+            data: data
+        };
+    }
+
+    async delete(endpoint, options = {}) {
+        const data = await this.request(endpoint, { ...options, method: 'DELETE' });
+        return {
+            ok: true,
+            status: 200,
+            json: async () => data,
+            data: data
+        };
+    }
+
     // Authentication methods
     async login(email, password) {
         const response = await this.request('/admin/auth/login', {

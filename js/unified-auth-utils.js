@@ -151,10 +151,12 @@ async function loadUserInfo() {
                 console.log('User display updated from API:', result.user);
             }
         } else if (response.status === 401) {
-            // Token expired or invalid
-            console.log('Authentication failed, clearing session');
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('user_data');
+            // Token expired or invalid - but don't clear immediately
+            // Only clear if we're certain the token is invalid (e.g., after multiple failed attempts)
+            console.warn('⚠️ Authentication check returned 401 - token may be expired');
+            // Don't clear tokens immediately - user might still be logged in
+            // Only clear if explicitly logging out or if token refresh fails
+            // This prevents accidental logout when navigating between pages
         }
     } catch (error) {
         console.error('Error loading user info:', error);

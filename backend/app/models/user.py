@@ -43,6 +43,9 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     last_login = Column(DateTime)
     
+    # User timezone for displaying times in user's local timezone
+    timezone = Column(String(50), nullable=True)  # e.g., 'America/New_York', 'America/Los_Angeles', 'UTC'
+    
     # Company relationship
     company_id = Column(Integer, nullable=True)
     

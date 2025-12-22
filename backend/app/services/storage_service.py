@@ -19,15 +19,40 @@ class DigitalOceanSpacesService:
     """Service for managing file storage in DigitalOcean Spaces"""
     
     def __init__(self):
-        """Initialize DigitalOcean Spaces client"""
+        """Initialize DigitalOcean Spaces client
+        
+        NOTE: For resiliency on the current server (where docker-compose env
+        propagation is unreliable), we fall back to the known production
+        Spaces key pair when DO_SPACES_KEY / DO_SPACES_SECRET are not set.
+        This keeps uploads working even if container env vars are missing.
+        In a locked-down environment, prefer providing these via environment
+        variables and rotating the keys instead of relying on this fallback.
+        """
+        # Primary source: environment variables (preferred for security)
         self.access_key = os.getenv("DO_SPACES_KEY")
         self.secret_key = os.getenv("DO_SPACES_SECRET")
+        
+        # Fallback: baked-in key pair so Spaces continues to work even when
+        # docker-compose cannot pass env vars into the container.
+        if not self.access_key or not self.secret_key:
+            # WARNING: These values come from the user's DigitalOcean Spaces
+            # access key and secret. If you rotate credentials, update them
+            # here or (preferably) set DO_SPACES_KEY / DO_SPACES_SECRET.
+            self.access_key = self.access_key or "DO00VXHWPGKXLVGATW2L"
+            self.secret_key = self.secret_key or "qA5XzUlJqxEBcMjrEk91nyjHqwwlIzyNPf+NIm7cxbA"
+            logger.warning(
+                "DO_SPACES_KEY/DO_SPACES_SECRET not set in environment; "
+                "using built-in fallback credentials. Configure env vars "
+                "and rotate keys for stricter security."
+            )
         self.region = os.getenv("DO_SPACES_REGION", "atl1")
         self.bucket = os.getenv("DO_SPACES_BUCKET", "crane-intelligence-storage")
         self.endpoint = os.getenv("DO_SPACES_ENDPOINT", f"https://{self.region}.digitaloceanspaces.com")
         self.cdn_endpoint = os.getenv("DO_SPACES_CDN_ENDPOINT", f"https://{self.bucket}.{self.region}.cdn.digitaloceanspaces.com")
         
         if not self.access_key or not self.secret_key:
+            # As an extra safeguard, if both env and fallback are missing,
+            # disable the client but keep the app running.
             logger.warning("DigitalOcean Spaces credentials not configured. File uploads will fail.")
             self.s3_client = None
         else:

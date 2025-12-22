@@ -222,7 +222,7 @@ class AdminLayout {
         
         // Define which pages belong to which categories for auto-expansion
         const categoryPages = {
-            'user-management': ['users.html', 'admin-users.html'],
+            'user-management': ['users.html', 'admin-users.html', 'consultations.html'],
             'reports-analytics': ['fmv-reports.html', 'valuations.html'],
             'financial': ['payments.html', 'payment-reconciliation.html', 'refunds.html'],
             'system-management': ['cranes.html', 'algorithm.html', 'system-health.html'],
@@ -289,6 +289,14 @@ class AdminLayout {
                                             <circle cx="12" cy="7" r="4"></circle>
                                         </svg>
                                         Admin Users
+                                    </a>
+                                </li>
+                                <li style="margin: 0;">
+                                    <a href="consultations.html" class="${currentPage === 'consultations.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        Consultations
                                     </a>
                                 </li>
                             </ul>

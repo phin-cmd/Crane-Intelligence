@@ -15,12 +15,20 @@ class ComponentLoader {
      * Load a component from file
      */
     async loadComponent(componentName) {
+        // Force reload unified-footer to ensure latest styles are loaded
+        if (componentName === 'unified-footer' && this.loadedComponents.has(componentName)) {
+            this.loadedComponents.delete(componentName);
+            delete this.components[componentName];
+        }
+        
         if (this.loadedComponents.has(componentName)) {
             return this.components[componentName];
         }
 
         try {
-            const response = await fetch(`/components/${componentName}.html`);
+            // Add cache-busting parameter to ensure fresh component loads
+            const cacheBuster = `?v=${Date.now()}`;
+            const response = await fetch(`/components/${componentName}.html${cacheBuster}`);
             if (!response.ok) {
                 throw new Error(`Failed to load component: ${componentName}`);
             }

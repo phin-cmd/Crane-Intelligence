@@ -32,6 +32,7 @@ services:
       - ./login.html:/usr/share/nginx/html/login.html:ro
       - ./signup.html:/usr/share/nginx/html/signup.html:ro
       - ./reset-password.html:/usr/share/nginx/html/reset-password.html:ro
+      - ./verify-email.html:/usr/share/nginx/html/verify-email.html:ro
       - ./account-settings.html:/usr/share/nginx/html/account-settings.html:ro
     environment:
       - NODE_ENV=production
@@ -48,16 +49,19 @@ services:
       - DATABASE_URL=postgresql://crane_user:crane_password@db:5432/crane_intelligence
       - REDIS_URL=redis://redis:6379
       - SECRET_KEY=crane-intelligence-secret-key-2024
-      - BREVO_API_KEY=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
+      - BREVO_API_KEY=${BREVO_API_KEY:-your-brevo-api-key-here}
       - BREVO_SMTP_PASSWORD=CraneIntel123!
       - MAIL_FROM_EMAIL=pgenerelly@craneintelligence.tech
+      - MAIL_USERNAME=99e09b001@smtp-brevo.com
+      - MAIL_SERVER=smtp-relay.brevo.com
+      - MAIL_PORT=587
+      - USE_BREVO_API=true
       - MAIL_FROM_NAME=Crane Intelligence Platform
       - STRIPE_PUBLISHABLE_KEY=pk_test_51SJKv7BME5ZRi6spdiFi7Vjl0OYR0JxIppswByoC6v4zpBDcGa8hZxsiiAzXgVLRK3tFJ8UlZDvImAfYv5o0accj00IZw9Rl4R
       - STRIPE_SECRET_KEY=sk_test_51SJKv7BME5ZRi6spDsiedaGw4VWwCxgokO4ahK0ad6ORGqWdIao6t8gW9MXy3TGuZSnOjdXx0kwOPg51GvFd3Zri000q3mJFhQ
       - GITHUB_TOKEN=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
-      - USE_BREVO_API=true
-      - DO_SPACES_KEY=${DO_SPACES_KEY}
-      - DO_SPACES_SECRET=${DO_SPACES_SECRET}
+      - DO_SPACES_KEY=DO00VXHWPGKXLVGATW2L
+      - DO_SPACES_SECRET=qA5XzUlJqxEBcMjrEk91nyjHqwwlIzyNPf+NIm7cxbA
       - DO_SPACES_REGION=atl1
       - DO_SPACES_BUCKET=crane-intelligence-storage
       - DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com

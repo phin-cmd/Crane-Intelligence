@@ -37,6 +37,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            box-sizing: border-box;
         }
         
         /* Mobile Responsive Design */
@@ -219,15 +220,20 @@
         .contact-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-bottom: 60px;
+            gap: 40px;
+            margin-bottom: 40px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .contact-form {
             background: #1A1A1A;
-            padding: 40px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 12px;
             border: 1px solid #333333;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .form-group {
@@ -283,16 +289,18 @@
 
         .contact-info {
             background: #1A1A1A;
-            padding: 40px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 12px;
             border: 1px solid #333333;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         
         .contact-item {
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 16px;
             background: #2A2A2A;
-            border-radius: 10px;
+            border-radius: 8px;
             border-left: 4px solid #00FF85;
         }
         
@@ -318,16 +326,20 @@
 
         .office-hours {
             background: #1A1A1A;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid #333333;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
         }
         
         .office-hours h3 {
             color: #00FF85;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+            margin-bottom: 16px;
+            font-size: 1.3rem;
         }
 
         .hours-list {
@@ -357,10 +369,14 @@
         
         .map-container {
             background: #1A1A1A;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid #333333;
             text-align: center;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
         }
         
         .map-placeholder {
@@ -1148,6 +1164,7 @@
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <script>
         // Authentication and User Management
         window.addEventListener('load', () => {
@@ -1390,76 +1407,137 @@
                 
                 <div class="contact-item">
                     <h3>📧 Email</h3>
-                            <p><a href="mailto:support@craneintelligence.com">support@craneintelligence.com</a></p>
-                    <p><a href="mailto:sales@craneintelligence.com">sales@craneintelligence.com</a></p>
+                    <p><a href="mailto:pgenerelly@craneintelligence.com">pgenerelly@craneintelligence.com</a></p>
                         </div>
                         
                 <div class="contact-item">
                     <h3>📞 Phone</h3>
-                    <p><a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a></p>
+                    <p><a href="tel:+14345317566">+1 (434) 531-7566</a></p>
                     <p>Mon-Fri: 9 AM - 6 PM EST</p>
                         </div>
                         
                 <div class="contact-item">
-                    <h3>💬 Live Chat</h3>
-                    <p>Available 24/7 on our platform</p>
-                    <p>Average response time: 2 minutes</p>
-                        </div>
-                        
-                <div class="contact-item">
                     <h3>🏢 Address</h3>
-                    <p>CRANE INTELLIGENCE HQ</p>
-                    <p>123 Technology Drive</p>
-                    <p>San Francisco, CA 94105</p>
-                            </div>
-                        </div>
-                    </div>
-        
-        <div class="office-hours">
-            <h3>Office Hours</h3>
-                        <ul class="hours-list">
-                <li>
-                    <span class="day">Monday - Friday</span>
-                    <span class="time">9:00 AM - 6:00 PM EST</span>
-                </li>
-                <li>
-                    <span class="day">Saturday</span>
-                    <span class="time">10:00 AM - 4:00 PM EST</span>
-                </li>
-                <li>
-                    <span class="day">Sunday</span>
-                    <span class="time">Closed</span>
-                </li>
-                <li>
-                    <span class="day">Emergency Support</span>
-                    <span class="time">24/7 Available</span>
-                </li>
-                        </ul>
-                    </div>
-                    
-        <div class="map-container">
-            <h3 style="color: #00FF85; margin-bottom: 20px;">Visit Our Office</h3>
-            <div class="map-placeholder">
-                📍 Interactive Map Coming Soon<br>
-                <small>123 Technology Drive, San Francisco, CA 94105</small>
-                    </div>
-            <p style="color: #B0B0B0;">We're located in the heart of San Francisco's tech district, easily accessible by public transportation and car.</p>
-                    </div>
+                    <p>EAST COAST EQUIPMENT EXCHANGE LLC</p>
+                    <p>4420 W Grace St</p>
+                    <p>Richmond, VA 23230-3808</p>
                 </div>
+                
+                <div class="contact-item">
+                    <h3>🕐 Office Hours</h3>
+                    <ul class="hours-list" style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span style="font-weight: 600; color: #E0E0E0;">Monday - Friday</span>
+                            <span style="color: #00FF85;">9:00 AM - 6:00 PM EST</span>
+                        </li>
+                        <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span style="font-weight: 600; color: #E0E0E0;">Saturday</span>
+                            <span style="color: #00FF85;">10:00 AM - 4:00 PM EST</span>
+                        </li>
+                        <li style="display: flex; justify-content: space-between; padding: 8px 0;">
+                            <span style="font-weight: 600; color: #E0E0E0;">Sunday</span>
+                            <span style="color: #00FF85;">Closed</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+                    
+    </div>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        // Get API base URL
+        function getApiBaseUrl() {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8003';
+            }
+            return window.location.origin;
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const form = this;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            
             // Get form data
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                company: document.getElementById('company').value.trim(),
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value.trim(),
+                type: 'contact_request'
+            };
             
-            // Show success message
-            alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+            // Validate required fields
+            if (!formData.name || !formData.email || !formData.message || !formData.subject) {
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Validation Error', 'Please fill in all required fields.');
+                } else {
+                    alert('Please fill in all required fields.');
+                }
+                return;
+            }
             
-            // Reset form
-            this.reset();
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Invalid Email', 'Please enter a valid email address.');
+                } else {
+                    alert('Please enter a valid email address.');
+                }
+                return;
+            }
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch(`${getApiBaseUrl()}/api/v1/consultation/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.id) {
+                    // Success
+                    if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                        notificationSystem.showSuccess('Message Sent!', 'Thank you for your message! We\'ll get back to you within 24 hours.');
+                    } else {
+                        alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+                    }
+                    
+                    // Reset form
+                    form.reset();
+                } else {
+                    // Error
+                    const errorMessage = result.message || result.error || 'Failed to send message. Please try again.';
+                    if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                        notificationSystem.showError('Error', errorMessage);
+                    } else {
+                        alert(errorMessage);
+                    }
+                }
+            } catch (error) {
+                console.error('Contact form submission error:', error);
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Error', 'Unable to send message. Please check your connection and try again.');
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            } finally {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
         });
     </script>
 

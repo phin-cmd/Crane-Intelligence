@@ -1,6 +1,6 @@
 import secrets
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -43,7 +43,7 @@ class SubscriptionService:
                     existing_subscription.last_name = subscription_data.last_name
                     existing_subscription.company = subscription_data.company
                     existing_subscription.unsubscribed_at = None
-                    existing_subscription.updated_at = datetime.utcnow()
+                    existing_subscription.updated_at = datetime.now(timezone.utc)
                     
                     if subscription_data.preferences:
                         import json
@@ -125,8 +125,8 @@ class SubscriptionService:
 
             # Update subscription status
             subscription.status = "unsubscribed"
-            subscription.unsubscribed_at = datetime.utcnow()
-            subscription.updated_at = datetime.utcnow()
+            subscription.unsubscribed_at = datetime.now(timezone.utc)
+            subscription.updated_at = datetime.now(timezone.utc)
             
             # If token provided, mark it as used
             if token:
@@ -138,7 +138,7 @@ class SubscriptionService:
                 
                 if unsubscribe_token:
                     unsubscribe_token.is_used = True
-                    unsubscribe_token.used_at = datetime.utcnow()
+                    unsubscribe_token.used_at = datetime.now(timezone.utc)
 
             self.db.commit()
 
@@ -163,7 +163,7 @@ class SubscriptionService:
         token = secrets.token_urlsafe(32)
         
         # Create token record
-        expires_at = datetime.utcnow() + timedelta(days=30)  # Token expires in 30 days
+        expires_at = datetime.now(timezone.utc) + timedelta(days=30)  # Token expires in 30 days
         
         unsubscribe_token = UnsubscribeToken(
             email=email,
@@ -231,7 +231,7 @@ class SubscriptionService:
 
             import json
             subscription.preferences = json.dumps(preferences)
-            subscription.updated_at = datetime.utcnow()
+            subscription.updated_at = datetime.now(timezone.utc)
             
             self.db.commit()
 

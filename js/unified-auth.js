@@ -40,7 +40,13 @@ class UnifiedAuth {
     async checkAuthStatus() {
         const token = this.getToken();
         if (!token) {
-            this.clearAuthData();
+            // No token - user is not logged in, but don't clear if data exists
+            const userData = this.getUserData();
+            if (userData) {
+                // User data exists but no token - might be a temporary issue
+                // Don't clear user data, just return false for auth status
+                return false;
+            }
             return false;
         }
 
@@ -51,12 +57,17 @@ class UnifiedAuth {
                 this.setUserData(userData);
                 return true;
             } else {
-                this.clearAuthData();
+                // User data not found, but token exists
+                // Don't clear immediately - might be a temporary API issue
+                // Only clear if we're certain the token is invalid
+                console.warn('⚠️ Token exists but user data not found - not clearing auth data');
                 return false;
             }
         } catch (error) {
             console.error('Auth status check failed:', error);
-            this.clearAuthData();
+            // Network error or API issue - don't clear auth data
+            // User might still be logged in, just can't verify right now
+            console.warn('⚠️ Auth check failed due to error - preserving auth data');
             return false;
         }
     }
@@ -75,10 +86,39 @@ class UnifiedAuth {
         const token = this.getToken();
         if (!token) return null;
 
-        // For now, if we have a token but no user data, clear everything
-        // In production, you would want to fetch from a /profile endpoint
-        console.warn('Token exists but no user data found. Clearing authentication.');
-        this.clearAuthData();
+        // If we have a token but no user data, try to fetch from API
+        // Don't clear auth data immediately - might be a temporary issue
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/profile`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.user || result.data) {
+                    const userData = result.user || result.data;
+                    this.setUserData(userData);
+                    return userData;
+                }
+            } else if (response.status === 401) {
+                // Token is invalid - but don't clear immediately
+                // Only clear if explicitly requested (e.g., logout)
+                console.warn('⚠️ Token validation failed (401) - but preserving auth data');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching user data from API:', error);
+            // Network error - don't clear auth data
+            return null;
+        }
+
+        // If we reach here, token exists but couldn't fetch user data
+        // Don't clear auth data - might be a temporary API issue
+        console.warn('Token exists but could not fetch user data - preserving auth data');
         return null;
     }
 
@@ -361,21 +401,7 @@ class UnifiedAuth {
         // Update user role display - show user_role instead of subscription tier
         const userRole = document.getElementById('userRole');
         if (userRole) {
-            // Get user data from parameter or localStorage
-            let user = null;
-            if (userData) {
-                user = userData;
-            } else {
-                const storedUserData = localStorage.getItem('user_data');
-                if (storedUserData) {
-                    try {
-                        user = JSON.parse(storedUserData);
-                    } catch (e) {
-                        console.error('Error parsing user data:', e);
-                    }
-                }
-            }
-            
+            // User data is already available from this.getUserData() above
             if (user) {
                 try {
                     // Display user_role (not subscription tier)

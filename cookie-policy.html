@@ -15,19 +15,41 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
 
         .page-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 40px 32px;
+            width: 100%;
             margin-top: 0;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        
+        /* Ensure content doesn't touch screen edges on all screen sizes */
+        @media (min-width: 1200px) {
+            .page-container {
+                padding: 40px 48px;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .page-container {
+                padding: 40px 64px;
+            }
         }
         
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             .page-container {
-                padding: 20px 16px !important;
+                padding: 20px 20px !important;
             }
             
             .page-title {
@@ -62,7 +84,7 @@
         
         @media (max-width: 480px) {
             .page-container {
-                padding: 16px 12px !important;
+                padding: 16px 16px !important;
             }
             
             .page-title {
@@ -854,6 +876,8 @@
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
+    <script src="js/notification-system.js"></script>
     <script>
         // Mobile Menu Toggle
         function toggleMobileMenu() {
@@ -904,11 +928,11 @@
             const yearlyPrice = subscriptionPlan.yearly_price || 0;
             
             if (monthlyPrice > 0) {
-                else if (monthlyPrice >= 2499) return 'professional';
+                if (monthlyPrice >= 2499) return 'professional';
                 else if (monthlyPrice >= 999) return 'starter';
                 else return 'basic';
             } else if (yearlyPrice > 0) {
-                else if (yearlyPrice >= 25490) return 'professional';
+                if (yearlyPrice >= 25490) return 'professional';
                 else if (yearlyPrice >= 10188) return 'starter';
                 else return 'basic';
             } else {
@@ -1051,8 +1075,8 @@
                 </div>
         
         <div class="last-updated">
-            <strong>Last Updated:</strong> December 15, 2024
-                </div>
+            <strong>Last Updated:</strong> January 2025
+        </div>
                 
         <div class="content-section">
             <h2 class="section-title">1. What Are Cookies?</h2>
@@ -1108,24 +1132,32 @@
             <h2 class="section-title">3. Specific Cookies We Use</h2>
             <div class="section-content">
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px;">Essential Cookies</h3>
+                <p>Our platform uses browser local storage (not traditional cookies) for essential functionality:</p>
                 <ul>
-                    <li><strong>session_id:</strong> Maintains your login session</li>
-                    <li><strong>csrf_token:</strong> Protects against cross-site request forgery</li>
-                    <li><strong>user_preferences:</strong> Stores basic user settings</li>
-            </ul>
+                    <li><strong>access_token:</strong> JWT authentication token stored in localStorage to maintain your login session</li>
+                    <li><strong>refresh_token:</strong> Token used to refresh your authentication session</li>
+                    <li><strong>user_data:</strong> Stores your user profile information for display purposes</li>
+                    <li><strong>Session Management:</strong> Browser session data for maintaining authentication state</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <strong>Note:</strong> Our platform primarily uses browser localStorage for authentication tokens rather than traditional HTTP cookies. This provides enhanced security and user control over authentication data.
+                </div>
                 
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px; margin-top: 30px;">Analytics Cookies</h3>
+                <p>We may use analytics services that set cookies to help us understand how visitors use our website:</p>
                 <ul>
-                    <li><strong>_ga:</strong> Google Analytics - distinguishes users</li>
-                    <li><strong>_gid:</strong> Google Analytics - distinguishes users</li>
-                    <li><strong>_gat:</strong> Google Analytics - throttles request rate</li>
-            </ul>
+                    <li><strong>_ga:</strong> Google Analytics - distinguishes users (if enabled)</li>
+                    <li><strong>_gid:</strong> Google Analytics - distinguishes users (if enabled)</li>
+                    <li><strong>_gat:</strong> Google Analytics - throttles request rate (if enabled)</li>
+                </ul>
             
                 <h3 style="color: #FFFFFF; font-size: 1.3rem; margin-bottom: 15px; margin-top: 30px;">Preference Cookies</h3>
+                <p>We may store user preferences in browser storage:</p>
                 <ul>
-                    <li><strong>theme_preference:</strong> Remembers your UI theme choice</li>
-                    <li><strong>language_setting:</strong> Stores your language preference</li>
-                    <li><strong>notification_settings:</strong> Remembers notification preferences</li>
+                    <li><strong>Newsletter Preferences:</strong> Your subscription preferences and email communication settings</li>
+                    <li><strong>Cookie Preferences:</strong> Your cookie consent choices</li>
+                    <li><strong>User Settings:</strong> Any customizations you make to your account</li>
                 </ul>
             </div>
         </div>
@@ -1133,15 +1165,13 @@
         <div class="content-section">
             <h2 class="section-title">4. Third-Party Cookies</h2>
             <div class="section-content">
-                <p>We use third-party services that may set cookies on our website:</p>
+                <p>We use third-party services that may set cookies or use similar technologies on our website:</p>
                 <ul>
-                    <li><strong>Google Analytics:</strong> Website traffic analysis</li>
-                    <li><strong>Google Maps:</strong> Location services and maps</li>
-                    <li><strong>Stripe:</strong> Payment processing</li>
-                    <li><strong>Intercom:</strong> Customer support chat</li>
-                    <li><strong>HubSpot:</strong> Marketing automation</li>
-            </ul>
-                <p>These third parties have their own privacy policies and cookie practices. We recommend reviewing their policies for more information.</p>
+                    <li><strong>Email Service Providers:</strong> For sending consultation confirmations and newsletter communications (Brevo/Sendinblue)</li>
+                    <li><strong>Payment Processors:</strong> For processing subscription payments (if applicable)</li>
+                    <li><strong>Analytics Services:</strong> For understanding website usage and improving our services</li>
+                </ul>
+                <p>These third parties have their own privacy policies and cookie practices. We recommend reviewing their policies for more information. We only share data necessary for these services to function.</p>
             </div>
             </div>
         
@@ -1247,11 +1277,13 @@
         
         <div class="contact-info">
             <h3>Questions About Our Cookie Policy?</h3>
-            <p>If you have any questions about our use of cookies, please contact us:</p>
+            <p>If you have any questions about our use of cookies and browser storage, please contact us:</p>
             <p>
-                <strong>Email:</strong> <a href="mailto:privacy@craneintelligence.com">privacy@craneintelligence.com</a><br>
-                <strong>Phone:</strong> <a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a><br>
-                <strong>Address:</strong> 123 Technology Drive, San Francisco, CA 94105
+                <strong>Email:</strong> <a href="mailto:pgenerelly@craneintelligence.com">pgenerelly@craneintelligence.com</a><br>
+                <strong>Phone:</strong> <a href="tel:+14345317566">+1 (434) 531-7566</a><br>
+                <strong>Address:</strong> EAST COAST EQUIPMENT EXCHANGE LLC<br>
+                4420 W Grace St, Richmond, VA 23230-3808<br>
+                <strong>Office Hours:</strong> Monday - Friday: 9:00 AM - 6:00 PM EST, Saturday: 10:00 AM - 4:00 PM EST
             </p>
         </div>
         </div>
@@ -1262,13 +1294,21 @@
         }
         
         function savePreferences() {
-            alert('Your cookie preferences have been saved!');
+            if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                notificationSystem.showSuccess('Preferences Saved', 'Your cookie preferences have been saved!');
+            } else {
+                alert('Your cookie preferences have been saved!');
+            }
         }
         
         function acceptAll() {
             const toggles = document.querySelectorAll('.toggle-switch');
             toggles.forEach(toggle => toggle.classList.add('active'));
-            alert('All cookies have been accepted!');
+            if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                notificationSystem.showSuccess('Cookies Accepted', 'All cookies have been accepted!');
+            } else {
+                alert('All cookies have been accepted!');
+            }
         }
     </script>
 

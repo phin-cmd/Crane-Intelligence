@@ -88,9 +88,13 @@
             color: #00FF85;
         }
         .hidden {
-            display: none;
+            display: none !important;
+        }
+        #success-state {
+            display: block !important;
         }
     </style>
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
 </head>
 <body>
     <div class="container">
@@ -121,66 +125,140 @@
     </div>
 
     <script>
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        
-        console.log('Verification token from URL:', token);
+        (function() {
+            'use strict';
+            
+            console.log('=== Email Verification Script Started ===');
+            
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            console.log('Token from URL:', token ? token.substring(0, 30) + '...' : 'MISSING');
+            console.log('Full URL:', window.location.href);
 
-        // Verify email
-        async function verifyEmail() {
-            if (!token) {
-                showError('Invalid verification link. Please check your email and try again.');
-                return;
-            }
-
-            try {
-                // Detect API URL based on environment
-                const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:8004'
-                    : window.location.origin.replace(/:\d+$/, ':8004');
-                
-                const response = await fetch(`${apiBaseUrl}/api/v1/auth/verify-email`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: token })
-                });
-
-                const data = await response.json();
-                console.log('Verification response:', data);
-
-                if (response.ok && data.success) {
-                    showSuccess();
-                    // Redirect to login after 3 seconds
-                    setTimeout(() => {
-                        window.location.href = '/login.html';
-                    }, 3000);
-                } else {
-                    showError(data.error || data.message || 'Verification failed. Please try again.');
+            // Simple show/hide functions
+            function hideElement(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
                 }
-            } catch (error) {
-                console.error('Verification error:', error);
-                showError('An error occurred during verification. Please try again later.');
             }
-        }
 
-        function showSuccess() {
-            document.getElementById('loading-state').classList.add('hidden');
-            document.getElementById('error-state').classList.add('hidden');
-            document.getElementById('success-state').classList.remove('hidden');
-        }
+            function showElement(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('hidden');
+                    el.style.display = 'block';
+                    el.style.setProperty('display', 'block', 'important');
+                    el.style.setProperty('visibility', 'visible', 'important');
+                    console.log('Shown element:', id, 'display:', window.getComputedStyle(el).display);
+                }
+            }
 
-        function showError(message) {
-            document.getElementById('loading-state').classList.add('hidden');
-            document.getElementById('success-state').classList.add('hidden');
-            document.getElementById('error-message').textContent = message;
-            document.getElementById('error-state').classList.remove('hidden');
-        }
+            function showSuccess() {
+                console.log('=== showSuccess() called ===');
+                hideElement('loading-state');
+                hideElement('error-state');
+                showElement('success-state');
+                
+                // Force it visible multiple ways
+                const successEl = document.getElementById('success-state');
+                if (successEl) {
+                    successEl.removeAttribute('class');
+                    successEl.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                    console.log('Success element forced visible');
+                }
+            }
 
-        // Start verification when page loads
-        verifyEmail();
+            function showError(message) {
+                console.log('=== showError() called ===', message);
+                hideElement('loading-state');
+                hideElement('success-state');
+                const errorEl = document.getElementById('error-state');
+                const errorMsg = document.getElementById('error-message');
+                if (errorMsg) errorMsg.textContent = message;
+                showElement('error-state');
+            }
+
+            // Verify email
+            async function verifyEmail() {
+                if (!token) {
+                    console.error('No token found');
+                    showError('Invalid verification link. Please check your email and try again.');
+                    return;
+                }
+
+                console.log('Starting verification...');
+                
+                try {
+                    const apiUrl = '/api/v1/auth/verify-email';
+                    console.log('Calling:', apiUrl);
+                    console.log('Token:', token.substring(0, 30) + '...');
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ token: token }),
+                        credentials: 'same-origin'
+                    });
+
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+
+                    let data;
+                    try {
+                        const text = await response.text();
+                        console.log('Response text:', text);
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        showError('Invalid response from server.');
+                        return;
+                    }
+
+                    console.log('Parsed data:', data);
+                    console.log('data.success:', data.success, 'type:', typeof data.success);
+
+                    // Check for success - be very lenient
+                    const isSuccess = response.ok && response.status === 200 && (
+                        data.success === true || 
+                        data.success === 'true' || 
+                        data.success === 1 ||
+                        (data.message && data.message.toLowerCase().includes('verified')) ||
+                        !data.error
+                    );
+
+                    console.log('isSuccess:', isSuccess);
+
+                    if (isSuccess) {
+                        console.log('✅ SUCCESS - Showing success message');
+                        showSuccess();
+                        
+                        // Redirect after 3 seconds
+                        setTimeout(() => {
+                            console.log('Redirecting to login...');
+                            window.location.href = '/login.html';
+                        }, 3000);
+                    } else {
+                        const errorMsg = data.error || data.message || 'Verification failed.';
+                        console.error('❌ FAILED:', errorMsg);
+                        showError(errorMsg);
+                    }
+                } catch (error) {
+                    console.error('Exception:', error);
+                    showError('An error occurred. Please try again later.');
+                }
+            }
+
+            // Start verification when page loads
+            console.log('Starting verification process...');
+            verifyEmail();
+        })();
     </script>
 </body>
 </html>

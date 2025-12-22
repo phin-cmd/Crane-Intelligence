@@ -2,6 +2,9 @@
 .env
 *.env
 !.env.example
+!*.env.template
+config/*.env
+!config/*.env.template
 
 # Node modules
 node_modules/

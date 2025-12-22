@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Requests - Crane Intelligence Admin</title>
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
+    <script src="../js/notification-system.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
+    <style>
+        .consultations-container {
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .consultations-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .filters-section {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            min-width: 150px;
+        }
+
+        .consultations-table {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 60px 1fr 1.5fr 1fr 1fr 1fr 120px;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--hover-bg);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 1.5fr 1fr 1fr 1fr 120px;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .table-row:hover {
+            background: var(--hover-bg);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-new {
+            background: rgba(255, 214, 0, 0.2);
+            color: #FFD600;
+        }
+
+        .status-contacted {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007BFF;
+        }
+
+        .status-scheduled {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 133, 0.2);
+            color: #00FF85;
+        }
+
+        .status-cancelled {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background-color: var(--secondary-bg);
+            margin: 2% auto;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+
+        .close {
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .consultation-detail {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .consultation-detail label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .consultation-detail .value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            padding: var(--spacing-sm);
+            background: var(--hover-bg);
+            border-radius: var(--radius-sm);
+        }
+
+        .consultation-message {
+            margin-top: var(--spacing-md);
+        }
+
+        .consultation-message .value {
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .status-select {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            min-width: 150px;
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-yellow);
+            color: #0F0F0F;
+        }
+
+        .btn-primary:hover {
+            background: #FFC107;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+        }
+
+        .loading {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div id="admin-layout-container"></div>
+
+    <div class="consultations-container">
+        <div class="page-header">
+            <h1 class="page-title">Consultation Requests</h1>
+        </div>
+
+        <div class="consultations-stats" id="consultationsStats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">-</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="newCount">-</div>
+                <div class="stat-label">New</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="contactedCount">-</div>
+                <div class="stat-label">Contacted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="scheduledCount">-</div>
+                <div class="stat-label">Scheduled</div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <select class="filter-select" id="statusFilter" onchange="loadConsultations()">
+                <option value="">All Statuses</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="consultations-table">
+            <div class="table-header">
+                <div>ID</div>
+                <div>Name</div>
+                <div>Email</div>
+                <div>Company</div>
+                <div>Subject</div>
+                <div>Status</div>
+                <div>Date</div>
+            </div>
+            <div id="consultationsList">
+                <div class="loading">Loading consultations...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consultation Details Modal -->
+    <div id="consultationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Consultation Request Details</h3>
+                <span class="close" onclick="closeConsultationModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="consultation-detail">
+                    <label>Request ID</label>
+                    <div class="value" id="modalId">-</div>
+                </div>
+                <div class="consultation-detail">
+                    <label>Name</label>
+                    <div class="value" id="modalName">-</div>
+                </div>
+                <div class="consultation-detail">
+                    <label>Email</label>
+                    <div class="value" id="modalEmail">-</div>
+                </div>
+                <div class="consultation-detail">
+                    <label>Company</label>
+                    <div class="value" id="modalCompany">-</div>
+                </div>
+                <div class="consultation-detail">
+                    <label>Subject</label>
+                    <div class="value" id="modalSubject">-</div>
+                </div>
+                <div class="consultation-detail consultation-message">
+                    <label>Message</label>
+                    <div class="value" id="modalMessage">-</div>
+                </div>
+                <div class="consultation-detail">
+                    <label>Status</label>
+                    <select class="status-select" id="modalStatus" onchange="updateConsultationStatus()">
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="consultation-detail">
+                    <label>Submitted</label>
+                    <div class="value" id="modalCreatedAt">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConsultationModal()">Close</button>
+                <button class="btn btn-primary" onclick="updateConsultationStatus()">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use global adminAPI instance if available, otherwise create new one
+        const adminAPI = window.adminAPI || new AdminAPI();
+        let currentConsultationId = null;
+
+        async function loadConsultations() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const statusParam = statusFilter ? `?status_filter=${statusFilter}` : '';
+            
+            try {
+                const response = await adminAPI.get(`/consultation${statusParam}`);
+                const data = await response.json();
+                
+                if (data && data.success) {
+                    displayConsultations(data.data || []);
+                    updateStats(data.data || []);
+                } else {
+                    document.getElementById('consultationsList').innerHTML = 
+                        '<div class="empty-state">Failed to load consultations</div>';
+                }
+            } catch (error) {
+                console.error('Error loading consultations:', error);
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Load Error', 'Failed to load consultations. Please try again.');
+                }
+                document.getElementById('consultationsList').innerHTML = 
+                    '<div class="empty-state">Error loading consultations</div>';
+            }
+        }
+
+        function displayConsultations(consultations) {
+            const listContainer = document.getElementById('consultationsList');
+            
+            if (consultations.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state">No consultation requests found</div>';
+                return;
+            }
+
+            listContainer.innerHTML = consultations.map(consultation => {
+                const date = new Date(consultation.created_at);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                return `
+                    <div class="table-row" onclick="openConsultationModal(${consultation.id})">
+                        <div>#${consultation.id}</div>
+                        <div>${consultation.name}</div>
+                        <div>${consultation.email}</div>
+                        <div>${consultation.company || '-'}</div>
+                        <div>${consultation.subject || '-'}</div>
+                        <div><span class="status-badge status-${consultation.status}">${consultation.status}</span></div>
+                        <div>${formattedDate}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats(consultations) {
+            const total = consultations.length;
+            const newCount = consultations.filter(c => c.status === 'new').length;
+            const contactedCount = consultations.filter(c => c.status === 'contacted').length;
+            const scheduledCount = consultations.filter(c => c.status === 'scheduled').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('newCount').textContent = newCount;
+            document.getElementById('contactedCount').textContent = contactedCount;
+            document.getElementById('scheduledCount').textContent = scheduledCount;
+        }
+
+        async function openConsultationModal(id) {
+            currentConsultationId = id;
+            try {
+                const response = await adminAPI.get(`/consultation/${id}`);
+                const consultation = await response.json();
+                
+                if (!consultation || !consultation.id) {
+                    throw new Error('Invalid consultation data received');
+                }
+                
+                document.getElementById('modalId').textContent = `#${consultation.id}`;
+                document.getElementById('modalName').textContent = consultation.name;
+                document.getElementById('modalEmail').textContent = consultation.email;
+                document.getElementById('modalCompany').textContent = consultation.company || '-';
+                document.getElementById('modalSubject').textContent = consultation.subject || '-';
+                document.getElementById('modalMessage').textContent = consultation.message;
+                document.getElementById('modalStatus').value = consultation.status;
+                
+                const date = new Date(consultation.created_at);
+                document.getElementById('modalCreatedAt').textContent = 
+                    date.toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                
+                document.getElementById('consultationModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading consultation details:', error);
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Load Error', 'Failed to load consultation details');
+                } else {
+                    alert('Failed to load consultation details');
+                }
+            }
+        }
+
+        function closeConsultationModal() {
+            document.getElementById('consultationModal').style.display = 'none';
+            currentConsultationId = null;
+        }
+
+        async function updateConsultationStatus() {
+            if (!currentConsultationId) return;
+            
+            const newStatus = document.getElementById('modalStatus').value;
+            
+            try {
+                const response = await adminAPI.patch(`/consultation/${currentConsultationId}`, {
+                    status: newStatus
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data) {
+                    if (typeof notificationSystem !== 'undefined' && notificationSystem.showSuccess) {
+                        notificationSystem.showSuccess('Status Updated', 'Consultation status updated successfully');
+                    }
+                    closeConsultationModal();
+                    loadConsultations();
+                } else {
+                    if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                        notificationSystem.showError('Update Failed', data?.message || 'Failed to update consultation status');
+                    } else {
+                        alert('Failed to update consultation status');
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating consultation status:', error);
+                if (typeof notificationSystem !== 'undefined' && notificationSystem.showError) {
+                    notificationSystem.showError('Update Error', 'Failed to update consultation status');
+                } else {
+                    alert('Failed to update consultation status');
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('consultationModal');
+            if (event.target === modal) {
+                closeConsultationModal();
+            }
+        }
+
+        // Load consultations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConsultations();
+        });
+    </script>
+</body>
+</html>
+

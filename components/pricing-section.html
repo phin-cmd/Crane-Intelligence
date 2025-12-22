@@ -211,9 +211,9 @@
 
 .pricing-cta {
     width: 100%;
-    background: transparent;
-    color: #00FF85;
-    border: 1px solid #00FF85;
+    background: var(--accent-yellow);
+    color: #000000;
+    border: 1px solid var(--accent-yellow);
     padding: 12px 24px;
     font-size: 11px;
     font-weight: 600;
@@ -225,17 +225,20 @@
 }
 
 .pricing-cta:hover:not(:disabled) {
-    background: #00FF85;
+    background: #FFE066;
+    border-color: #FFE066;
     color: #000000;
 }
 
 .pricing-card.featured .pricing-cta {
-    background: #00FF85;
+    background: var(--accent-yellow);
     color: #000000;
+    border-color: var(--accent-yellow);
 }
 
 .pricing-card.featured .pricing-cta:hover:not(:disabled) {
-    background: #00CC6A;
+    background: #E6C200;
+    border-color: #E6C200;
 }
 
 .pricing-cta:disabled {

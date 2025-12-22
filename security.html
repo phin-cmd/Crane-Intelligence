@@ -15,18 +15,40 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 40px 32px;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        
+        /* Ensure content doesn't touch screen edges on all screen sizes */
+        @media (min-width: 1200px) {
+            .page-container {
+                padding: 40px 48px;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .page-container {
+                padding: 40px 64px;
+            }
         }
         
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             .page-container {
-                padding: 20px 16px !important;
+                padding: 20px 20px !important;
             }
             
             .page-title {
@@ -66,7 +88,7 @@
         
         @media (max-width: 480px) {
             .page-container {
-                padding: 16px 12px !important;
+                padding: 16px 16px !important;
             }
             
             .page-title {
@@ -843,6 +865,7 @@
     <link rel="stylesheet" href="css/brand-framework.css?v=19">
     <link rel="stylesheet" href="css/uniform-design.css?v=20">
     <link rel="stylesheet" href="css/unified-header.css?v=1">
+    <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <script>
         // Mobile Menu Toggle
         function toggleMobileMenu() {
@@ -1039,8 +1062,8 @@
         <div class="content-section">
             <h2 class="section-title">Our Security Commitment</h2>
             <div class="section-content">
-                <p>At CRANE INTELLIGENCE, security is not just a feature—it's a fundamental principle that guides everything we do. We understand that our platform handles sensitive business data and financial information, which is why we've implemented enterprise-grade security measures to protect your information.</p>
-                <p>Our security program is designed to meet the highest industry standards and is regularly audited by independent third parties to ensure compliance and effectiveness.</p>
+                <p>At CRANE INTELLIGENCE, security is a fundamental principle that guides everything we do. We understand that our platform handles sensitive business data, consultation requests, and user information, which is why we've implemented robust security measures to protect your information.</p>
+                <p>Our security practices are designed to protect user data, secure authentication, and ensure the confidentiality of consultation requests and newsletter subscriptions.</p>
             </div>
         </div>
         
@@ -1079,8 +1102,15 @@
                     <div class="security-feature">
                         <div class="security-feature-icon">🔑</div>
                         <div class="security-feature-text">
-                            <div class="security-feature-title">Role-Based Access</div>
-                            <div class="security-feature-desc">Granular permissions based on job function</div>
+                            <div class="security-feature-title">JWT Authentication</div>
+                            <div class="security-feature-desc">Secure token-based authentication system</div>
+                        </div>
+                    </div>
+                    <div class="security-feature">
+                        <div class="security-feature-icon">👥</div>
+                        <div class="security-feature-text">
+                            <div class="security-feature-title">Admin Access Controls</div>
+                            <div class="security-feature-desc">Separate admin panel with restricted access</div>
                         </div>
                     </div>
                 </div>
@@ -1109,43 +1139,45 @@
         <div class="content-section">
             <h2 class="section-title">Infrastructure Security</h2>
             <div class="section-content">
-                <p>Our infrastructure is built on secure, enterprise-grade cloud platforms with multiple layers of protection:</p>
+                <p>Our infrastructure is built with security best practices:</p>
                 <ul>
-                    <li><strong>Secure Data Centers:</strong> Tier III+ facilities with 99.99% uptime SLA</li>
-                    <li><strong>Network Security:</strong> Firewalls, DDoS protection, and intrusion detection systems</li>
-                    <li><strong>Backup & Recovery:</strong> Automated backups with point-in-time recovery capabilities</li>
-                    <li><strong>Disaster Recovery:</strong> Multi-region redundancy and failover systems</li>
-                    <li><strong>Physical Security:</strong> Biometric access controls and 24/7 surveillance</li>
+                    <li><strong>Database Security:</strong> SQLAlchemy ORM with parameterized queries to prevent SQL injection</li>
+                    <li><strong>API Security:</strong> FastAPI with authentication middleware and rate limiting</li>
+                    <li><strong>Data Encryption:</strong> Sensitive data encrypted in transit using HTTPS/TLS</li>
+                    <li><strong>Password Security:</strong> Passwords are hashed using secure algorithms before storage</li>
+                    <li><strong>Token Management:</strong> JWT tokens with expiration and refresh token rotation</li>
+                    <li><strong>Email Security:</strong> Secure email transmission for consultation confirmations and notifications</li>
+                    <li><strong>Input Validation:</strong> Pydantic schemas validate all user inputs to prevent injection attacks</li>
                     </ul>
                 </div>
             </div>
 
         <div class="content-section">
-            <h2 class="section-title">Compliance & Certifications</h2>
+            <h2 class="section-title">Security Practices & Standards</h2>
             <div class="compliance-grid">
                 <div class="compliance-item">
-                    <h4>SOC 2 Type II</h4>
-                    <p>Audited controls for security, availability, and confidentiality</p>
+                    <h4>Data Protection</h4>
+                    <p>Secure storage and transmission of user data and consultation requests</p>
                 </div>
                 <div class="compliance-item">
-                    <h4>ISO 27001</h4>
-                    <p>International standard for information security management</p>
+                    <h4>Authentication</h4>
+                    <p>JWT-based authentication with secure token management</p>
                 </div>
                 <div class="compliance-item">
-                    <h4>GDPR</h4>
-                    <p>Full compliance with European data protection regulations</p>
+                    <h4>Input Validation</h4>
+                    <p>Comprehensive input validation to prevent security vulnerabilities</p>
                 </div>
                 <div class="compliance-item">
-                    <h4>CCPA</h4>
-                    <p>California Consumer Privacy Act compliance</p>
+                    <h4>Email Security</h4>
+                    <p>Secure email transmission for notifications and confirmations</p>
                 </div>
                 <div class="compliance-item">
-                    <h4>HIPAA</h4>
-                    <p>Healthcare data protection standards (where applicable)</p>
+                    <h4>Access Control</h4>
+                    <p>Role-based access control for admin panel and user accounts</p>
                 </div>
                 <div class="compliance-item">
-                    <h4>PCI DSS</h4>
-                    <p>Payment card industry data security standards</p>
+                    <h4>Privacy Compliance</h4>
+                    <p>Adherence to privacy best practices and data protection principles</p>
                 </div>
                 </div>
             </div>
@@ -1207,16 +1239,18 @@
     </div>
 
         <div class="highlight-box">
-            <strong>Security Contact:</strong> If you discover a security vulnerability or have security concerns, please contact us immediately at <a href="mailto:security@craneintelligence.com" style="color: #00FF85;">security@craneintelligence.com</a>. We take all security reports seriously and will respond within 24 hours.
-    </div>
+            <strong>Security Contact:</strong> If you discover a security vulnerability or have security concerns, please contact us immediately at <a href="mailto:pgenerelly@craneintelligence.com" style="color: #00FF85;">pgenerelly@craneintelligence.com</a>. We take all security reports seriously and will respond within 24 hours.
+        </div>
 
         <div class="contact-info">
             <h3>Questions About Our Security?</h3>
             <p>If you have any questions about our security measures or need additional information, please contact us:</p>
             <p>
-                <strong>Security Team:</strong> <a href="mailto:security@craneintelligence.com">security@craneintelligence.com</a><br>
-                <strong>General Inquiries:</strong> <a href="mailto:support@craneintelligence.com">support@craneintelligence.com</a><br>
-                <strong>Phone:</strong> <a href="tel:+1-555-CRANE-01">+1 (555) CRANE-01</a>
+                <strong>Email:</strong> <a href="mailto:pgenerelly@craneintelligence.com">pgenerelly@craneintelligence.com</a><br>
+                <strong>Phone:</strong> <a href="tel:+14345317566">+1 (434) 531-7566</a><br>
+                <strong>Address:</strong> EAST COAST EQUIPMENT EXCHANGE LLC<br>
+                4420 W Grace St, Richmond, VA 23230-3808<br>
+                <strong>Office Hours:</strong> Monday - Friday: 9:00 AM - 6:00 PM EST, Saturday: 10:00 AM - 4:00 PM EST
             </p>
         </div>
     </div>

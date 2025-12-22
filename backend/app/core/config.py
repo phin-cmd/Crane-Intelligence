@@ -41,15 +41,15 @@ class Settings(BaseSettings):
     # Email Settings - Brevo (formerly Sendinblue)
     # Note: Pydantic Settings will read from .env file automatically
     brevo_api_key: str = ""
-    mail_server: str = "smtp-relay.brevo.com"
-    mail_port: int = 587
-    mail_username: str = "pgenerelly@craneintelligence.tech"
+    mail_server: str = os.getenv("MAIL_SERVER", "smtp-relay.brevo.com")
+    mail_port: int = int(os.getenv("MAIL_PORT", "587"))
+    mail_username: str = os.getenv("MAIL_USERNAME", "pgenerelly@craneintelligence.tech")
     mail_password: str = os.getenv("BREVO_SMTP_PASSWORD", "")  # Brevo SMTP password (different from API key)
     mail_use_tls: bool = True
     mail_use_ssl: bool = False
     mail_from_name: str = "Crane Intelligence Platform"
     mail_from_email: str = "pgenerelly@craneintelligence.tech"
-    use_brevo_api: bool = True  # Use Brevo API instead of SMTP when True
+    use_brevo_api: bool = os.getenv("USE_BREVO_API", "false").lower() == "true"  # Use Brevo API instead of SMTP when True
     
     # Email Templates (use absolute path to avoid permission issues)
     # Try to detect the correct path based on where the code is running

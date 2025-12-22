@@ -479,6 +479,23 @@ try:
 except Exception as e:
     logger.warning(f"Could not load admin GDPR router: {e}")
 
+# Include consultation router
+try:
+    from app.api.v1.consultation import router as consultation_router
+    app.include_router(consultation_router, prefix="/api/v1", tags=["consultation"])
+    logger.info(f"✓ Consultation router registered at prefix: /api/v1, router prefix: {consultation_router.prefix}")
+    logger.info(f"✓ Consultation routes: {[r.path for r in consultation_router.routes]}")
+except Exception as e:
+    logger.error(f"Could not load consultation router: {e}", exc_info=True)
+
+# Include newsletter router
+try:
+    from app.api.v1.newsletter import router as newsletter_router
+    app.include_router(newsletter_router, prefix="/api/v1", tags=["newsletter"])
+    logger.info("✓ Newsletter router registered")
+except Exception as e:
+    logger.warning(f"Could not load newsletter router: {e}")
+
 # ==================== HEALTH CHECK ENDPOINTS ====================
 
 @app.get("/api/v1/health")

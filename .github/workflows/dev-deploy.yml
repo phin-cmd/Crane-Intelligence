@@ -1,0 +1,33 @@
+name: Deploy to Dev Environment
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Deploy to dev server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
+            git fetch origin
+            git checkout develop
+            git pull origin develop
+            docker compose -f docker-compose.dev.yml -p crane-dev build --no-cache
+            docker compose -f docker-compose.dev.yml -p crane-dev up -d
+            docker compose -f docker-compose.dev.yml -p crane-dev ps
+
