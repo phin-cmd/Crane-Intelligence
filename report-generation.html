@@ -8833,18 +8833,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.notificationSystem) {
                         window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
                     }
-                } catch (error) {
-                    console.error('❌ Payment failed:', error);
-                if (window.notificationSystem) {
-                    window.notificationSystem.showError('Payment Failed', error.message || 'An error occurred during payment processing.');
                 }
-                // Reset button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PROCESS PAYMENT';
-                // Clear any loading indicators
-                const loadingDiv = document.getElementById('payment-loading');
-                if (loadingDiv) loadingDiv.remove();
-            }
+                catch (error) {
+                    console.error('❌ Payment failed:', error);
+                    if (window.notificationSystem) {
+                        window.notificationSystem.showError('Payment Failed', error.message || 'An error occurred during payment processing.');
+                    }
+                    // Reset button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PROCESS PAYMENT';
+                    // Clear any loading indicators
+                    const loadingDiv = document.getElementById('payment-loading');
+                    if (loadingDiv) loadingDiv.remove();
+                }
         });
     }
 });
