@@ -1945,11 +1945,6 @@
             const professionalCard = document.querySelector('.report-type-card[data-type="professional"]');
             const fleetCard = document.querySelector('.report-type-card[data-type="fleet_valuation"]');
             
-                spotCheck: !!spotCheckCard,
-                professional: !!professionalCard,
-                fleet: !!fleetCard
-            });
-            
             if (isBulkTab) {
                 // Disable SPOT CHECK and PROFESSIONAL, enable only FLEET VALUATION
                 if (spotCheckCard) {
@@ -7304,10 +7299,6 @@ window.purchaseReport = async function() {
             // The report already has all manual entry details and service records
             // No need to update - just use the existing draft
         } else if (!draftReportId) {
-                url: '/api/v1/fmv-reports/submit',
-                method: 'POST',
-                body: reportData
-            });
             
             try {
                 const reportResponse = await fetch('/api/v1/fmv-reports/submit', {
