@@ -4515,6 +4515,30 @@
     <script src="/js/auto-init-auth.js"></script>
 
     <script>
+    // Early initialization of loadSampleData to prevent "not available" errors
+    // Full implementation will be defined later in the script
+    if (!window.loadSampleData) {
+        window.loadSampleData = function() {
+            console.warn('⚠️ loadSampleData called before full initialization - waiting...');
+            // Wait for the full function to load
+            let attempts = 0;
+            const maxAttempts = 20;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (window.loadSampleData && window.loadSampleData.toString().length > 500) {
+                    clearInterval(checkInterval);
+                    console.log('✅ Full loadSampleData function loaded, calling it now');
+                    return window.loadSampleData();
+                }
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    if (window.notificationSystem) {
+                        window.notificationSystem.showError('Error', 'Please wait for the page to fully load.');
+                    }
+                }
+            }, 100);
+        };
+    }
     let selectedReportType = ''; // Start with no selection - user must choose
     let selectedPrice = 0;
     let selectedReportName = '';
