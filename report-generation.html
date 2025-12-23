@@ -8348,9 +8348,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Continue to fallback logic below
                     }
                     } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
-                } catch (err) {
-                    console.error('❌ Error in payment intent handling:', err);
-                }
                     
                     // Fallback: If payment-by-intent failed, try to find/create report manually
                     // This should rarely happen, but provides a backup
