@@ -4519,7 +4519,7 @@
     // Full implementation will be defined later in the script
     if (!window.loadSampleData) {
         let loadSampleDataCheckInterval = null;
-        window.loadSampleData = function() {
+        const stubFunction = function() {
             if (loadSampleDataCheckInterval) {
                 // Already waiting, don't create another interval
                 return;
@@ -4531,13 +4531,15 @@
             loadSampleDataCheckInterval = setInterval(() => {
                 attempts++;
                 // Check if the function has been replaced with the real implementation
-                // The real function will be much longer than this stub
-                const funcString = window.loadSampleData.toString();
-                if (funcString.length > 500 && funcString.includes('function loadSampleData')) {
+                // The real function will be much longer than this stub (stub is ~600 chars)
+                const currentFunc = window.loadSampleData;
+                const funcString = currentFunc.toString();
+                // Real function will be > 2000 characters and won't be this stub
+                if (funcString.length > 2000 && currentFunc !== stubFunction) {
                     clearInterval(loadSampleDataCheckInterval);
                     loadSampleDataCheckInterval = null;
                     console.log('✅ Full loadSampleData function loaded, calling it now');
-                    window.loadSampleData();
+                    currentFunc();
                     return;
                 }
                 if (attempts >= maxAttempts) {
@@ -4549,6 +4551,7 @@
                 }
             }, 100);
         };
+        window.loadSampleData = stubFunction;
     }
     let selectedReportType = ''; // Start with no selection - user must choose
     let selectedPrice = 0;
