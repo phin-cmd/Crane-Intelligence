@@ -8865,7 +8865,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
                 }
-            } catch (error) {
+                } catch (error) {
                 console.error('❌ Payment failed:', error);
                 if (window.notificationSystem) {
                     window.notificationSystem.showError('Payment Failed', error.message || 'An error occurred during payment processing.');
