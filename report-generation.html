@@ -8191,6 +8191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Payment successful - show success modal
                 try {
+                    { // Extra opening brace to balance extra closing brace
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                     // Payment succeeded - immediately call payment-by-intent endpoint to update report status
                     // This endpoint will find the report by payment_intent_id and update it to SUBMITTED
@@ -8348,7 +8349,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Continue to fallback logic below
                     }
                     } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
-                    } // Close extra block to keep try open
                     
                     // Fallback: If payment-by-intent failed, try to find/create report manually
                     // This should rarely happen, but provides a backup
