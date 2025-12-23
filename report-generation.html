@@ -8217,7 +8217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Payment successful - show success modal
                 try {
-                if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    if (paymentIntent && paymentIntent.status === 'succeeded') {
                     // Payment succeeded - immediately call payment-by-intent endpoint to update report status
                     // This endpoint will find the report by payment_intent_id and update it to SUBMITTED
                     console.log('✅ Payment succeeded - calling payment-by-intent endpoint to update report status');
@@ -8863,7 +8863,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.notificationSystem) {
                     window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
                 }
-                } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
+                    } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
                 } catch (error) {
                 console.error('❌ Payment failed:', error);
                 if (window.notificationSystem) {
