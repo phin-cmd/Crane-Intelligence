@@ -8833,8 +8833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.notificationSystem) {
                         window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
                     }
-                }
-                catch (error) {
+                } catch (error) {
                     console.error('❌ Payment failed:', error);
                     if (window.notificationSystem) {
                         window.notificationSystem.showError('Payment Failed', error.message || 'An error occurred during payment processing.');
