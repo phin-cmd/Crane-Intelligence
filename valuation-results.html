@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuation Results - Crane Intelligence</title>
+    <link rel="stylesheet" href="css/unified-header.css">
+    <link rel="stylesheet" href="css/responsive-global.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/notification-system.js"></script>
+    <script src="/js/unified-auth-utils.js" defer></script>
+    <script src="js/component-loader.js" defer></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 120px 20px;
+        }
+        .results-header {
+            margin-bottom: 30px;
+        }
+        .results-header h1 {
+            color: #00FF85;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .results-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .result-card {
+            background: #1A1A1A;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #333333;
+            text-align: center;
+        }
+        .result-value {
+            color: #00FF85;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .result-label {
+            color: #888;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .analysis-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #333333;
+            margin-bottom: 30px;
+        }
+        .analysis-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #B0B0B0;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .analysis-tab.active {
+            color: #00FF85;
+            border-bottom-color: #00FF85;
+        }
+        .tab-content {
+            display: none;
+            padding-bottom: 40px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: transparent;
+            color: #00FF85;
+            border: 2px solid #00FF85;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: #00FF85;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="unified-header-placeholder"></div>
+    
+    <div class="main-content">
+        <a href="report-generation.html" class="back-button">← Back to Report Generation</a>
+        
+        <div class="results-header">
+            <h1>Crane Valuation Results</h1>
+        </div>
+        
+        <!-- Key Metrics Cards -->
+        <div class="results-cards">
+            <div class="result-card">
+                <div class="result-value" id="resultsEstimatedValue">--</div>
+                <div class="result-label">ESTIMATED VALUE</div>
+                <div class="result-sublabel" id="resultsValueDifference" style="color: #FF4444; font-size: 12px; margin-top: 5px;">--</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value" id="resultsConfidenceScore">--</div>
+                <div class="result-label">CONFIDENCE SCORE</div>
+                <div class="result-sublabel" id="resultsConfidenceLevel" style="color: #888; font-size: 12px; margin-top: 5px;">--</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value" id="resultsDealGrade">--</div>
+                <div class="result-label">DEAL GRADE</div>
+                <div class="result-sublabel" id="resultsDealRecommendation" style="color: #888; font-size: 12px; margin-top: 5px;">--</div>
+            </div>
+        </div>
+        
+        <!-- Analysis Tabs -->
+        <div class="analysis-tabs">
+            <button class="analysis-tab active" onclick="switchResultsTab('overview', this)" data-tab="overview">📊 EXECUTIVE SUMMARY</button>
+            <button class="analysis-tab" onclick="switchResultsTab('breakdown', this)" data-tab="breakdown">💰 FINANCIAL</button>
+            <button class="analysis-tab" onclick="switchResultsTab('rental', this)" data-tab="rental">📈 RENTAL vs PURCHASE</button>
+            <button class="analysis-tab" onclick="switchResultsTab('comparables', this)" data-tab="comparables">⚖️ COMPARISON</button>
+            <button class="analysis-tab" onclick="switchResultsTab('risk', this)" data-tab="risk">⚠️ RISK & RESALE</button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div id="resultsTabContent">
+            <div class="tab-content active" id="overview-tab">
+                <div id="overviewContent">
+                    <p style="color: #888;">Loading results...</p>
+                </div>
+            </div>
+            <div class="tab-content" id="breakdown-tab">
+                <div id="breakdownContent">
+                    <p style="color: #888;">Loading breakdown...</p>
+                </div>
+            </div>
+            <div class="tab-content" id="rental-tab">
+                <div id="rentalContent">
+                    <p style="color: #888;">Loading rental analysis...</p>
+                </div>
+            </div>
+            <div class="tab-content" id="comparables-tab">
+                <div id="comparablesContent">
+                    <p style="color: #888;">Loading comparables...</p>
+                </div>
+            </div>
+            <div class="tab-content" id="risk-tab">
+                <div id="riskContent">
+                    <p style="color: #888;">Loading risk analysis...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load results from URL parameters or localStorage
+        function loadValuationResults() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportId = urlParams.get('reportId');
+            const resultsData = urlParams.get('data');
+            
+            // Try to get from localStorage if not in URL
+            let results = null;
+            if (resultsData) {
+                try {
+                    results = JSON.parse(decodeURIComponent(resultsData));
+                } catch (e) {
+                    console.error('Error parsing results data:', e);
+                }
+            } else {
+                const stored = localStorage.getItem('valuationResults');
+                if (stored) {
+                    try {
+                        results = JSON.parse(stored);
+                    } catch (e) {
+                        console.error('Error parsing stored results:', e);
+                    }
+                }
+            }
+            
+            if (results) {
+                displayResults(results);
+            } else {
+                document.getElementById('resultsEstimatedValue').textContent = 'No data available';
+                console.warn('No valuation results data found');
+            }
+        }
+        
+        function displayResults(results) {
+            // Display key metrics
+            if (results.estimatedValue) {
+                document.getElementById('resultsEstimatedValue').textContent = 
+                    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(results.estimatedValue);
+            }
+            
+            if (results.confidenceScore) {
+                document.getElementById('resultsConfidenceScore').textContent = results.confidenceScore + '%';
+            }
+            
+            if (results.dealGrade) {
+                document.getElementById('resultsDealGrade').textContent = results.dealGrade;
+            }
+            
+            // Load tab content
+            loadTabContent('overview', results);
+        }
+        
+        function switchResultsTab(tabName, button) {
+            // Update tab buttons
+            document.querySelectorAll('.analysis-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Load tab content if needed
+            const urlParams = new URLSearchParams(window.location.search);
+            const resultsData = urlParams.get('data');
+            let results = null;
+            if (resultsData) {
+                try {
+                    results = JSON.parse(decodeURIComponent(resultsData));
+                } catch (e) {
+                    console.error('Error parsing results data:', e);
+                }
+            } else {
+                const stored = localStorage.getItem('valuationResults');
+                if (stored) {
+                    try {
+                        results = JSON.parse(stored);
+                    } catch (e) {
+                        console.error('Error parsing stored results:', e);
+                    }
+                }
+            }
+            
+            if (results) {
+                loadTabContent(tabName, results);
+            }
+        }
+        
+        function loadTabContent(tabName, results) {
+            // This would load the specific tab content based on the results data
+            // For now, just show a placeholder
+            const contentDiv = document.getElementById(tabName + 'Content');
+            if (contentDiv) {
+                contentDiv.innerHTML = '<p style="color: #888;">Content for ' + tabName + ' tab</p>';
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadValuationResults();
+        });
+    </script>
+</body>
+</html>
+
