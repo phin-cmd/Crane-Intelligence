@@ -5244,17 +5244,16 @@ window.saveManualEntry = async function() {
         // Debug: Check which form section is visible and get values from correct section
         // Note: fallbackForm is already declared above, reuse it
         const fallbackInputSection = document.getElementById('fallbackInputSection');
-        });
         if (fallbackFormSection) {
-                manufacturer: fallbackFormSection.querySelector('#fallbackManufacturer')?.value,
-                model: fallbackFormSection.querySelector('#fallbackModel')?.value,
-                year: fallbackFormSection.querySelector('#fallbackYear')?.value,
-                capacity: fallbackFormSection.querySelector('#fallbackCapacity')?.value,
-                craneType: fallbackFormSection.querySelector('#fallbackCraneType')?.value,
-                operatingHours: fallbackFormSection.querySelector('#fallbackOperatingHours')?.value,
-                region: fallbackFormSection.querySelector('#fallbackRegion')?.value,
-                condition: fallbackFormSection.querySelector('#fallbackCondition')?.value
-            });
+            // Get form element values from fallbackFormSection
+            const fallbackManufacturer = fallbackFormSection.querySelector('#fallbackManufacturer')?.value;
+            const fallbackModel = fallbackFormSection.querySelector('#fallbackModel')?.value;
+            const fallbackYear = fallbackFormSection.querySelector('#fallbackYear')?.value;
+            const fallbackCapacity = fallbackFormSection.querySelector('#fallbackCapacity')?.value;
+            const fallbackCraneType = fallbackFormSection.querySelector('#fallbackCraneType')?.value;
+            const fallbackOperatingHours = fallbackFormSection.querySelector('#fallbackOperatingHours')?.value;
+            const fallbackRegion = fallbackFormSection.querySelector('#fallbackRegion')?.value;
+            const fallbackCondition = fallbackFormSection.querySelector('#fallbackCondition')?.value;
         }
         
         // Validate required fields - check for empty strings, NaN, null, undefined, or 0 for numeric fields
