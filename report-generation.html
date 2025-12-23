@@ -62,7 +62,9 @@
     // ========== UTILITY FUNCTIONS (Deduplication) ==========
     // Helper function to get auth token (consolidates multiple patterns)
     function getAuthToken() {
-        return getAuthToken() || 
+        return safeStorage.getItem('access_token') || 
+               safeStorage.getItem('auth_token') || 
+               safeStorage.getItem('crane_auth_token') || 
                null;
     }
     
@@ -1935,9 +1937,6 @@
             console.log('🔓 Unlocking bulk processing for all users');
             bulkLockedState.style.display = 'none';
             bulkUnlockedState.style.display = 'block';
-                lockedState_display: bulkLockedState.style.display,
-                unlockedState_display: bulkUnlockedState.style.display
-            });
         };
         
         // Define report type card update function
@@ -5245,10 +5244,6 @@ window.saveManualEntry = async function() {
         // Debug: Check which form section is visible and get values from correct section
         // Note: fallbackForm is already declared above, reuse it
         const fallbackInputSection = document.getElementById('fallbackInputSection');
-            fallbackFormSection_visible: fallbackFormSection?.style.display !== 'none',
-            fallbackInputSection_visible: fallbackInputSection?.style.display !== 'none',
-            fallbackFormSection_display: fallbackFormSection?.style.display,
-            fallbackInputSection_display: fallbackInputSection?.style.display
         });
         if (fallbackFormSection) {
                 manufacturer: fallbackFormSection.querySelector('#fallbackManufacturer')?.value,
@@ -10678,12 +10673,6 @@ window.processBulkData = async function(jsonData, uploadArea) {
     if (bulkFileInput && bulkFileInput.files && bulkFileInput.files.length > 0) {
         window.bulkProcessingFile = bulkFileInput.files[0];
     }
-    
-        totalCranes: totalCranes,
-        successCount: successCount,
-        errorCount: errorCount,
-        totalPrice: pricing.total
-    });
     
     // Display results with pricing
     displayBulkResults(allRecords, successCount, errorCount, pricing);
