@@ -8048,11 +8048,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     };
                     
-                        url: '/api/v1/fmv-reports/submit',
-                        method: 'POST',
-                        body: reportData
-                    });
-                    
                     try {
                         const reportResponse = await fetch('/api/v1/fmv-reports/submit', {
                             method: 'POST',
