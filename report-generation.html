@@ -59,6 +59,90 @@
     // Global reference for backward compatibility (use var to avoid redeclaration)
     var safeStorage = window.safeStorage;
     
+    // ========== UTILITY FUNCTIONS (Deduplication) ==========
+    // Helper function to get auth token (consolidates multiple patterns)
+    function getAuthToken() {
+        return getAuthToken() || 
+               null;
+    }
+    
+    // Helper function to get user data (consolidates multiple patterns)
+    function getUserData() {
+        const userData = safeStorage.getItem('user_data');
+        if (userData) {
+            try {
+                return JSON.parse(userData);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    // Helper function to show notification (consolidates notification system calls)
+    function showNotification(type, title, message) {
+        if (window.notificationSystem) {
+            if (type === 'success') {
+                window.notificationSystem.showSuccess(title, message);
+            } else if (type === 'error') {
+                window.notificationSystem.showError(title, message);
+            } else {
+                window.notificationSystem.showInfo(title, message);
+            }
+        }
+    }
+    
+    // Helper function to get form element value safely
+    function getFormValue(id, defaultValue = '') {
+        const el = document.getElementById(id);
+        return el ? el.value : defaultValue;
+    }
+    
+    // Helper function to get manufacturer value (handles "Other" option)
+    function getManufacturerValue() {
+        let manufacturer = getFormValue('manufacturer');
+        if (manufacturer === 'Other') {
+            manufacturer = getFormValue('manufacturerOther');
+        }
+        return manufacturer;
+    }
+    
+    // Helper function to get model value (handles fallback)
+    function getModelValue() {
+        let model = getFormValue('model');
+        if (!model) {
+            model = getFormValue('fallbackModel');
+        }
+        return model;
+    }
+    
+    // Helper function to create FormData for file uploads
+    function createFileUploadFormData(files) {
+        const formData = new FormData();
+        if (Array.isArray(files)) {
+            files.forEach(file => formData.append('files', file));
+        } else {
+            formData.append('file', files);
+        }
+        return formData;
+    }
+    
+    // Helper function to make authenticated fetch request
+    async function authenticatedFetch(url, options = {}) {
+        const token = getAuthToken();
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, {
+            ...options,
+            headers
+        });
+    }
+    
     (function() {
         'use strict';
         // CRITICAL: Reset all payment state on page load
@@ -1851,7 +1935,6 @@
             console.log('🔓 Unlocking bulk processing for all users');
             bulkLockedState.style.display = 'none';
             bulkUnlockedState.style.display = 'block';
-            console.log('✅ Bulk processing unlocked:', {
                 lockedState_display: bulkLockedState.style.display,
                 unlockedState_display: bulkUnlockedState.style.display
             });
@@ -1859,12 +1942,10 @@
         
         // Define report type card update function
         window.updateReportTypeCardsForTab = function(isBulkTab) {
-            console.log('🔄 Updating report type cards for tab:', isBulkTab ? 'bulk' : 'single');
             const spotCheckCard = document.querySelector('.report-type-card[data-type="spot_check"]');
             const professionalCard = document.querySelector('.report-type-card[data-type="professional"]');
             const fleetCard = document.querySelector('.report-type-card[data-type="fleet_valuation"]');
             
-            console.log('📋 Found cards:', {
                 spotCheck: !!spotCheckCard,
                 professional: !!professionalCard,
                 fleet: !!fleetCard
@@ -1987,7 +2068,6 @@
                 }
                 // Small delay to ensure DOM is ready
                 setTimeout(() => {
-                    console.log('🔄 Checking bulk processing access...');
                     if (typeof window.checkBulkProcessingAccess === 'function') {
                         window.checkBulkProcessingAccess();
                     } else {
@@ -2060,15 +2140,10 @@
             
             if (!token || !userData) {
                 console.log('⚠️  Access denied: User not authenticated');
-                console.log('📋 Token:', token ? 'exists' : 'missing');
-                console.log('📋 User data:', userData ? 'exists' : 'missing');
-                console.log('🔄 Redirecting to homepage...');
                 window.location.href = '/homepage.html';
             } else {
-                console.log('✅ Access granted: User authenticated');
                 try {
                     const user = JSON.parse(userData);
-                    console.log('👤 User:', user.full_name || user.email || 'Unknown');
                 } catch(e) {
                     console.log('⚠️  Could not parse user data');
                 }
@@ -4538,7 +4613,6 @@
                 if (funcString.length > 2000 && currentFunc !== stubFunction) {
                     clearInterval(loadSampleDataCheckInterval);
                     loadSampleDataCheckInterval = null;
-                    console.log('✅ Full loadSampleData function loaded, calling it now');
                     currentFunc();
                     return;
                 }
@@ -4685,7 +4759,6 @@
                     selectedReportName = reportNames[type] || type;
                     window.selectedReportName = selectedReportName; // Set on window for purchaseReport validation
                     
-                    console.log(`✅ Report type selected: ${type}, price: $${price/100}, name: ${selectedReportName}`);
                     
                     // Show/hide Fleet unit count field
                     const fleetUnitCountGroup = document.getElementById('fleetUnitCountGroup');
@@ -4799,7 +4872,6 @@ window.craneDatabase['Kato'] = [{"model": "NK-500E-V", "capacity": 50, "type": "
 window.manufacturerModels['IHI'] = ["CCH500-3", "CCH800-5"];
 window.craneDatabase['IHI'] = [{"model": "CCH500-3", "capacity": 50, "type": "Crawler Crane", "boomLength": 140}];
 
-console.log("✅ Crane database loaded:", Object.keys(window.manufacturerModels).length, "manufacturers");
 
 // ============================================================================
 // MANUFACTURER → MODEL CASCADE LOGIC (Updated for autocomplete)
@@ -5017,7 +5089,6 @@ function updateModelOptions(manufacturer) {
                 options += `<option value="${model}">${model}</option>`;
             });
             modelSelect.innerHTML = options;
-            console.log(`✅ Populated ${models.length} models for ${manufacturer}`);
         } else {
             modelSelect.innerHTML = '<option value="">No models available</option>';
         }
@@ -5055,7 +5126,6 @@ window.toggleFallbackForm = function() {
                 }
             }
         });
-        console.log('✅ Equipment Information fields made optional for manual entry');
     } else {
         formSection.style.display = 'none';
         toggleBtn.textContent = 'Enter Details';
@@ -5069,7 +5139,6 @@ window.toggleFallbackForm = function() {
                 field.removeAttribute('data-was-required');
             }
         });
-        console.log('✅ Equipment Information fields restored to required');
     }
 };
 
@@ -5173,18 +5242,15 @@ window.saveManualEntry = async function() {
             usageHistory: getFormElementValue('fallbackUsageHistory') || null
         };
         
-        console.log('📝 Manual entry data collected:', manualEntryData);
         // Debug: Check which form section is visible and get values from correct section
         // Note: fallbackForm is already declared above, reuse it
         const fallbackInputSection = document.getElementById('fallbackInputSection');
-        console.log('📝 Form sections:', {
             fallbackFormSection_visible: fallbackFormSection?.style.display !== 'none',
             fallbackInputSection_visible: fallbackInputSection?.style.display !== 'none',
             fallbackFormSection_display: fallbackFormSection?.style.display,
             fallbackInputSection_display: fallbackInputSection?.style.display
         });
         if (fallbackFormSection) {
-            console.log('📝 Form element values from fallbackFormSection:', {
                 manufacturer: fallbackFormSection.querySelector('#fallbackManufacturer')?.value,
                 model: fallbackFormSection.querySelector('#fallbackModel')?.value,
                 year: fallbackFormSection.querySelector('#fallbackYear')?.value,
@@ -5241,7 +5307,7 @@ window.saveManualEntry = async function() {
         
         // Get user info - ensure safeStorage is available
         const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         let userEmail = null;
         let userId = null;
         
@@ -5304,7 +5370,6 @@ window.saveManualEntry = async function() {
                 if (uploadResponse.ok) {
                     const uploadResult = await uploadResponse.json();
                     serviceRecordFileUrls = uploadResult.files || [];
-                    console.log('✅ Files uploaded:', serviceRecordFileUrls);
                 } else {
                     console.warn('⚠️ File upload failed, continuing without files');
                 }
@@ -5390,9 +5455,6 @@ window.saveManualEntry = async function() {
             window.manualEntryData = manualEntryData;
             // Store service record URLs for use in purchase flow
             window.manualEntryServiceRecordUrls = serviceRecordFileUrls;
-            console.log('✅ Manual entry DRAFT report created:', result.id);
-            console.log('✅ Manual entry data stored:', manualEntryData);
-            console.log('✅ Service record URLs stored:', serviceRecordFileUrls);
         }
         
         // Show preview of saved entry
@@ -5488,7 +5550,6 @@ window.showManualEntryPreview = function(report, manualEntryData, serviceRecordF
 window.proceedToPurchase = function(reportId) {
     // Set the report ID to prevent duplicate creation
     window.currentDraftReportId = reportId;
-    console.log('✅ Using existing manual entry DRAFT report for purchase:', reportId);
     
     // Get selected report type
     const selectedReportCard = document.querySelector('.report-type-card.selected');
@@ -5606,7 +5667,6 @@ function setupServiceRecordsUpload() {
             
             // File is valid and new - add it
             window.serviceRecordFiles.push(file);
-            console.log('✅ File added to list:', file.name, 'Size:', file.size, 'bytes');
             updateFileList();
         });
     }
@@ -5766,7 +5826,6 @@ function autofillCraneSpecs(manufacturer, model) {
             setTimeout(() => { boomLengthInput.style.borderColor = ''; }, 2000);
         }
         
-        console.log(`✅ Auto-filled specs for ${manufacturer} ${model}`);
     }
 }
 
@@ -5810,7 +5869,6 @@ window.loadSampleData = function loadSampleData() {
         if (regionEl) regionEl.value = 'North America';
         // Removed fields: jibIncluded, jibLength, askingPrice
         
-        console.log('✅ Sample data loaded');
         if (window.notificationSystem) {
             window.notificationSystem.showSuccess('Sample Data Loaded', 'Sample crane data has been populated in the form.');
         }
@@ -5830,7 +5888,6 @@ function clearForm() {
     if (modelSelect) {
         modelSelect.innerHTML = '<option value="">Select Model</option>';
     }
-    console.log('✅ Form cleared');
 }
 
 // ============================================================================
@@ -5851,7 +5908,6 @@ if (!window.purchaseReport) {
             await new Promise(resolve => setTimeout(resolve, 100));
             // Check if the real function is now available (it will have more code)
             if (window.purchaseReport && window.purchaseReport.toString().length > 200) {
-                console.log('✅ Full purchaseReport function loaded, calling it now');
                 return window.purchaseReport();
             }
             attempts++;
@@ -5896,30 +5952,21 @@ function purchaseReport() {
 // ============================================================================
 
 function getUserId() {
-    // Ensure safeStorage is available
-    const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
-    
     // Try to get from unified auth
     if (window.unifiedAuth && window.unifiedAuth.user && window.unifiedAuth.user.id) {
         return window.unifiedAuth.user.id;
     }
     
     // Try user_data (main auth system)
-    const userData = safeStorage.getItem('user_data');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            if (user.id) return user.id;
-        } catch (e) {
-            console.error('Error parsing user_data:', e);
-        }
+    const user = getUserData();
+    if (user && user.id) {
+        return user.id;
     }
     
     // Try to decode JWT token to get user ID
-    const token = safeStorage.getItem('access_token') || safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token');
+    const token = getAuthToken();
     if (token) {
         try {
-            // Decode JWT token (simple base64 decode, no verification)
             const payload = JSON.parse(atob(token.split('.')[1]));
             if (payload.sub) return parseInt(payload.sub);
         } catch (e) {
@@ -5931,23 +5978,15 @@ function getUserId() {
 }
 
 function getUserEmail() {
-    // Ensure safeStorage is available
-    const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
-    
     // Try to get from unified auth
     if (window.unifiedAuth && window.unifiedAuth.user && window.unifiedAuth.user.email) {
         return window.unifiedAuth.user.email;
     }
     
     // Try user_data (main auth system)
-    const userData = safeStorage.getItem('user_data');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            if (user.email) return user.email;
-        } catch (e) {
-            console.error('Error parsing user_data:', e);
-        }
+    const user = getUserData();
+    if (user && user.email) {
+        return user.email;
     }
     
     // Fallback to currentUser
@@ -5967,7 +6006,7 @@ function getUserEmail() {
 // Refresh user data from backend after subscription upgrade
 async function refreshUserData() {
     try {
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) {
             console.warn('No auth token found, cannot refresh user data');
             return;
@@ -5986,7 +6025,6 @@ async function refreshUserData() {
             if (userData.data && userData.data.user) {
                 const user = userData.data.user;
                 safeStorage.setItem('user_data', JSON.stringify(user));
-                console.log('✅ User data refreshed:', user);
                 
                 // Update unified auth if available
                 if (window.unifiedAuth && window.unifiedAuth.updateUserData) {
@@ -6060,7 +6098,7 @@ async function retryFailedPaymentMarkings() {
         
         console.log(`🔄 Retrying ${failedPayments.length} failed payment markings...`);
         
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         const remainingPayments = [];
         
         for (const payment of failedPayments) {
@@ -6165,7 +6203,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const manufacturer = this.value;
             updateModelOptions(manufacturer);
         });
-        console.log('✅ Manufacturer listener attached');
     }
     
     // Setup model change listener
@@ -6176,7 +6213,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const model = this.value;
             autofillCraneSpecs(manufacturer, model);
         });
-        console.log('✅ Model listener attached');
     }
     
     // Setup report type selection
@@ -6186,13 +6222,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadSampleBtn = document.getElementById('loadSampleBtn');
     if (loadSampleBtn) {
         loadSampleBtn.addEventListener('click', loadSampleData);
-        console.log('✅ Load Sample Data button attached');
     }
     
     const clearFormBtn = document.getElementById('clearFormBtn');
     if (clearFormBtn) {
         clearFormBtn.addEventListener('click', clearForm);
-        console.log('✅ Clear Form button attached');
     }
     
     const purchaseBtn = document.getElementById('purchaseReportBtn');
@@ -6203,7 +6237,6 @@ document.addEventListener('DOMContentLoaded', function() {
         purchaseBtn.style.cursor = 'not-allowed';
         
         purchaseBtn.addEventListener('click', purchaseReport);
-        console.log('✅ Purchase Report button attached (initially disabled)');
     }
     
     // Load draft if continuing from dashboard
@@ -6212,7 +6245,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup auto-save for drafts
     setupAutoSaveDraft();
     
-    console.log('✅ Report Generation Page - Ready!');
 });
 
 // ============================================================================
@@ -6230,11 +6262,9 @@ async function loadDraftIfExists() {
     
     if (storedDraftReportId) {
         window.currentDraftReportId = storedDraftReportId;
-        console.log('📋 Loaded current_draft_report_id from storage:', storedDraftReportId);
     }
     
     if (continueDraftId) {
-        console.log('📋 Loading draft:', continueDraftId);
         
         let report = null;
         
@@ -6242,7 +6272,6 @@ async function loadDraftIfExists() {
         if (continueDraftData) {
             try {
                 report = JSON.parse(continueDraftData);
-                console.log('✅ Using stored report data:', report);
             } catch (e) {
                 console.error('Error parsing stored report data:', e);
             }
@@ -6276,7 +6305,6 @@ async function loadDraftIfExists() {
                         const result = await response.json();
                         if (result.success && result.data) {
                             report = result.data;
-                            console.log('✅ Fetched report from API:', report);
                         }
                     }
                 }
@@ -6289,7 +6317,6 @@ async function loadDraftIfExists() {
             // Get crane data (handle both crane_data and crane_details)
             const craneData = report.crane_data || report.crane_details || {};
             
-            console.log('📋 Pre-filling form with data:', craneData);
             
             // Wait for form elements to be available
             const waitForElement = (id, callback, maxAttempts = 20) => {
@@ -6341,7 +6368,6 @@ async function loadDraftIfExists() {
                     const craneTypeValue = craneData.crane_type || craneData.craneType;
                     el.value = craneTypeValue;
                     el.dispatchEvent(new Event('change', { bubbles: true }));
-                    console.log('✅ Pre-filled craneType:', craneTypeValue);
                 }
             });
             
@@ -6349,7 +6375,6 @@ async function loadDraftIfExists() {
                 if (craneData.region) {
                     el.value = craneData.region;
                     el.dispatchEvent(new Event('change', { bubbles: true }));
-                    console.log('✅ Pre-filled region:', craneData.region);
                 }
             });
             
@@ -6357,14 +6382,12 @@ async function loadDraftIfExists() {
                 if (craneData.operating_hours || craneData.operatingHours) {
                     const hours = craneData.operating_hours || craneData.operatingHours;
                     el.value = hours;
-                    console.log('✅ Pre-filled operatingHours:', hours);
                 }
             });
             
             waitForElement('mileage', (el) => {
                 if (craneData.mileage !== undefined && craneData.mileage !== null && craneData.mileage !== '') {
                     el.value = craneData.mileage;
-                    console.log('✅ Pre-filled mileage:', craneData.mileage);
                 }
             });
             
@@ -6372,7 +6395,6 @@ async function loadDraftIfExists() {
                 if (craneData.boom_length || craneData.boomLength) {
                     const boomLength = craneData.boom_length || craneData.boomLength;
                     el.value = boomLength;
-                    console.log('✅ Pre-filled boomLength:', boomLength);
                 }
             });
             
@@ -6393,7 +6415,6 @@ async function loadDraftIfExists() {
             // If it has manual entry fields or is marked as manual entry, open the manual entry form
             if (isManualEntry || hasManualEntryFields) {
                 if (isManualEntry) {
-                console.log('📝 Manual entry detected - opening manual entry form and pre-filling fields');
                 
                 // Store manual entry data for use in purchase flow
                 window.manualEntryData = craneData;
@@ -6416,7 +6437,6 @@ async function loadDraftIfExists() {
                                     field.removeAttribute('required');
                                 }
                             });
-                            console.log('✅ Manual entry form opened');
                         }
                     }
                 }, 800);
@@ -6556,7 +6576,6 @@ async function loadDraftIfExists() {
                                 fileListItems.appendChild(fileItem);
                             });
                             
-                            console.log('✅ Service record files displayed in file list');
                         }
                     }, 1000);
                 }
@@ -6577,7 +6596,6 @@ async function loadDraftIfExists() {
                         const selectBtn = reportCard.querySelector('.select-report-btn');
                         if (selectBtn) {
                             selectBtn.click();
-                            console.log('✅ Report type selected:', reportType);
                         } else {
                             // Fallback: click the card itself
                             reportCard.click();
@@ -6591,7 +6609,6 @@ async function loadDraftIfExists() {
             // Set current draft report ID to prevent duplicate submissions
             if (report.id) {
                 window.currentDraftReportId = String(report.id);
-                console.log('📋 Set currentDraftReportId:', window.currentDraftReportId);
             }
             
             console.log('✅ Draft loaded and form pre-filled successfully');
@@ -6616,7 +6633,6 @@ function setupAutoSaveDraft() {
         clearInterval(autoSaveInterval);
     });
     
-    console.log('✅ Auto-save draft enabled (every 30 seconds)');
 }
 
 function saveDraft() {
@@ -6674,11 +6690,9 @@ function saveDraft() {
         if (existingIndex >= 0) {
             // Update existing draft
             drafts[existingIndex] = { ...drafts[existingIndex], ...draft, id: drafts[existingIndex].id };
-            console.log('📝 Updated existing draft');
         } else {
             // Add new draft
             drafts.push(draft);
-            console.log('📝 Saved new draft');
         }
         
         // Keep only last 10 drafts
@@ -6761,7 +6775,6 @@ async function initializeStripe() {
         if (config.stripe_publishable_key) {
             stripe = Stripe(config.stripe_publishable_key);
             window.stripe = stripe; // Make stripe globally accessible
-            console.log('✅ Stripe initialized');
             return true;
         } else {
             console.error('❌ No Stripe publishable key found in config');
@@ -6944,7 +6957,6 @@ window.purchaseReport = async function() {
     
     if (isBulkMode) {
         // Bulk processing mode - skip form validation, use bulk data
-        console.log('✅ Bulk processing mode detected - skipping form validation');
         // Set dummy values for compatibility (won't be used in bulk mode)
         manufacturer = 'Bulk Processing';
         model = 'Multiple';
@@ -7012,7 +7024,6 @@ window.purchaseReport = async function() {
         capacity = manualData.capacity;
         operatingHours = manualData.operatingHours;
         region = manualData.region;
-        console.log('✅ Using manual entry data for purchase:', manualData);
     }
     
     // Check if user has selected a report type (subscription tier) in the form
@@ -7118,7 +7129,6 @@ window.purchaseReport = async function() {
                 success_count: window.bulkProcessingData.successCount,
                 error_count: window.bulkProcessingData.errorCount
             };
-            console.log('✅ Using bulk processing data for purchase:', craneDetails);
         } else if (window.manualEntryData && isManualEntry) {
             // Use manual entry data
             craneDetails = {
@@ -7148,7 +7158,6 @@ window.purchaseReport = async function() {
                 usage_history: window.manualEntryData.usage_history || window.manualEntryData.usageHistory || null,
                 is_manual_entry: true
             };
-            console.log('✅ Using manual entry data for purchase:', craneDetails);
         } else {
             // Use regular form fields
             craneDetails = {
@@ -7171,10 +7180,8 @@ window.purchaseReport = async function() {
         if (window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0) {
             // Use restored service record URLs from manual entry (when continuing from draft)
             serviceRecordFileUrls = window.manualEntryServiceRecordUrls.filter(url => url && url.trim() !== '');
-            console.log('✅ Using restored service record URLs from manual entry:', serviceRecordFileUrls);
         } else if (window.serviceRecordFiles && window.serviceRecordFiles.length > 0) {
             // New files uploaded - upload them now if not already uploaded
-            console.log('📤 Uploading service record files before creating draft report...');
             try {
                 const formData = new FormData();
                 window.serviceRecordFiles.forEach((file) => {
@@ -7193,7 +7200,6 @@ window.purchaseReport = async function() {
                 if (uploadResponse.ok) {
                     const uploadResult = await uploadResponse.json();
                     serviceRecordFileUrls = uploadResult.files || [];
-                    console.log('✅ Service record files uploaded:', serviceRecordFileUrls);
                     // Store for later use
                     window.manualEntryServiceRecordUrls = serviceRecordFileUrls;
                 } else {
@@ -7296,17 +7302,14 @@ window.purchaseReport = async function() {
             if (storedDraftId) {
                 draftReportId = storedDraftId;
                 window.currentDraftReportId = draftReportId;
-                console.log('📋 Loaded draft report ID from storage:', draftReportId);
             }
         }
         
         // If manual entry was used, use that draft report (it already has all data including service records)
         if (draftReportId && window.manualEntryData) {
-            console.log('✅ Using existing manual entry DRAFT report:', draftReportId);
             // The report already has all manual entry details and service records
             // No need to update - just use the existing draft
         } else if (!draftReportId) {
-            console.log('📤 Creating DRAFT report IMMEDIATELY on Purchase button click:', {
                 url: '/api/v1/fmv-reports/submit',
                 method: 'POST',
                 body: reportData
@@ -7325,7 +7328,6 @@ window.purchaseReport = async function() {
                 if (reportResponse.ok) {
                     const reportResult = await reportResponse.json();
                     draftReportId = reportResult.id;
-                    console.log('✅ DRAFT report created IMMEDIATELY:', draftReportId);
                     // Store for later use in payment flow
                     window.currentDraftReportId = draftReportId;
                 } else {
@@ -7398,7 +7400,6 @@ window.purchaseReport = async function() {
                 return;
             }
         } else {
-            console.log('✅ Using existing DRAFT report (prevented duplicate):', draftReportId);
         }
         
         // Skip subscription check and proceed directly to payment modal setup below
@@ -7408,7 +7409,7 @@ window.purchaseReport = async function() {
         // Only check subscription if user hasn't selected a report type
         // Ensure safeStorage is available
         const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         let canProceed = false;
         let subscriptionData = null;
         
@@ -7968,7 +7969,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let bulkFileUrl = null;
                 if (isBulkMode && window.bulkProcessingFile) {
                     try {
-                        console.log('📤 Uploading bulk processing file to DigitalOcean Spaces...');
                         const formData = new FormData();
                         formData.append('file', window.bulkProcessingFile);
                         
@@ -7984,7 +7984,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             const uploadResult = await uploadResponse.json();
                             if (uploadResult.files && uploadResult.files.length > 0) {
                                 bulkFileUrl = uploadResult.files[0];
-                                console.log('✅ Bulk file uploaded:', bulkFileUrl);
                             }
                         } else {
                             console.warn('⚠️ Failed to upload bulk file, continuing without it');
@@ -8026,7 +8025,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else if (window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0) {
                     serviceRecordFileUrls = window.manualEntryServiceRecordUrls;
-                    console.log('✅ Using existing service record URLs:', serviceRecordFileUrls);
                 }
                 
                 if (!draftReportId) {
@@ -8065,7 +8063,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     };
                     
-                    console.log('📤 Creating DRAFT report (fallback - should already exist):', {
                         url: '/api/v1/fmv-reports/submit',
                         method: 'POST',
                         body: reportData
@@ -8085,7 +8082,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             const reportResult = await reportResponse.json();
                             draftReportId = reportResult.id;
                             window.currentDraftReportId = draftReportId;
-                            console.log('✅ DRAFT report created (fallback):', draftReportId);
                         } else {
                             const errorData = await reportResponse.json().catch(() => ({ detail: 'Unknown error' }));
                             console.warn('⚠️ Failed to create DRAFT report, continuing with payment:', errorData);
@@ -8096,7 +8092,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Continue anyway - payment intent creation will handle it
                     }
                 } else {
-                    console.log('✅ Using existing DRAFT report:', draftReportId);
                 }
                 
                 // Step 3: Create payment intent (with report_id if available)
@@ -8116,7 +8111,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Log for debugging
                 if (draftReportId) {
-                    console.log('📋 Using existing draft report ID to prevent duplicate:', draftReportId);
                 } else {
                     console.warn('⚠️ No draft report ID available - new report will be created');
                 }
@@ -8278,7 +8272,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Refresh reports in dashboard if on dashboard page
                             if (typeof loadFMVReports === 'function') {
                                 setTimeout(() => {
-                                    console.log('🔄 Refreshing FMV reports in dashboard...');
                                     loadFMVReports();
                                 }, 1000);
                             }
@@ -8485,7 +8478,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // Refresh reports in dashboard if on dashboard page
                                     if (typeof loadFMVReports === 'function') {
                                         setTimeout(() => {
-                                            console.log('🔄 Refreshing FMV reports in dashboard...');
                                             loadFMVReports();
                                         }, 1000);
                                     }
@@ -8590,7 +8582,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             // Use existing draft report
                             reportId = window.currentDraftReportId;
-                            console.log('✅ Using existing DRAFT report (prevented duplicate):', reportId);
                         }
                         
                         if (!reportId) {
@@ -8687,7 +8678,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // Refresh reports in dashboard if on dashboard page
                                     if (typeof loadFMVReports === 'function') {
                                         setTimeout(() => {
-                                            console.log('🔄 Refreshing FMV reports in dashboard...');
                                             loadFMVReports();
                                         }, 1000);
                                     }
@@ -8745,7 +8735,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                         // Refresh reports in dashboard if on dashboard page
                                         if (typeof loadFMVReports === 'function') {
                                             setTimeout(() => {
-                                                console.log('🔄 Refreshing FMV reports in dashboard...');
                                                 loadFMVReports();
                                             }, 1000);
                                         }
@@ -9145,7 +9134,6 @@ function viewValuationResults() {
     closeSuccessModal();
     
     // NOW show results - payment is confirmed
-    console.log('✅ User clicked VIEW RESULTS - showing results now');
     
     // Remove blur from results section and make it interactive
     const resultsSection = document.getElementById('valuationResultsSection');
@@ -9155,7 +9143,6 @@ function viewValuationResults() {
         resultsSection.style.setProperty('pointer-events', 'auto', 'important');
         resultsSection.style.setProperty('display', 'block', 'important');
         resultsSection.style.setProperty('visibility', 'visible', 'important');
-        console.log('✅ Removed blur from results section');
     }
     
     // Also remove blur from resultsTabContent if it exists
@@ -9163,7 +9150,6 @@ function viewValuationResults() {
     if (resultsTabContent) {
         resultsTabContent.style.setProperty('filter', 'none', 'important');
         resultsTabContent.style.setProperty('pointer-events', 'auto', 'important');
-        console.log('✅ Removed blur from resultsTabContent');
     }
     
     // Get crane details from stored payment data or form
@@ -9213,7 +9199,7 @@ function viewValuationResults() {
         
         // Only display results if user has paid or has active subscription
         // For free tier users, they need to purchase first
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         if (token && !window.paymentCompleted) {
             // Check subscription - if free tier, show paywall instead of results
             fetch('/api/v1/payments/subscription-info', {
@@ -9401,7 +9387,7 @@ function displayValuationResults(results) {
     // Only show results if payment has been completed or user has active subscription
     // Check if this is a paid report (has payment intent) or user has subscription
     const hasPayment = window.lastPaymentDetails || window.paymentCompleted === true;
-    const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+    const token = getAuthToken();
     
     // If no payment and user is free tier, don't show results - show paywall instead
     if (!hasPayment && token) {
@@ -9452,7 +9438,7 @@ function showResultsSection(results) {
     if (!window.canShowResults || !window.canShowResults()) {
         console.log('🚫 BLOCKED: showResultsSection called without payment');
         // Show paywall instead
-        const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('access_token');
+        const token = getAuthToken();
         if (token && typeof window.showSubscriptionPaywall === 'function') {
             fetch('/api/v1/payments/subscription-info', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -9473,7 +9459,6 @@ function showResultsSection(results) {
         resultsSection.style.setProperty('pointer-events', 'auto', 'important');
         resultsSection.style.setProperty('display', 'block', 'important');
         resultsSection.style.setProperty('visibility', 'visible', 'important');
-        console.log('✅ Results section unblurred and made visible');
     }
     
     // Also remove blur from resultsTabContent if it exists
@@ -9481,7 +9466,6 @@ function showResultsSection(results) {
     if (resultsTabContent) {
         resultsTabContent.style.setProperty('filter', 'none', 'important');
         resultsTabContent.style.setProperty('pointer-events', 'auto', 'important');
-        console.log('✅ Removed blur from resultsTabContent');
     }
     
     // Populate all results data into all tabs
@@ -9760,7 +9744,6 @@ function populateAllValuationResults(results) {
     // Initialize trend chart
     initializeTrendChart(results);
     
-    console.log('✅ All valuation results populated');
 }
 
 // Initialize trend chart with actual data
@@ -10092,7 +10075,6 @@ window.showSubscriptionPaywall = function(tier, subscriptionData) {
         paywallModal.style.setProperty('opacity', '1', 'important');
         paywallModal.style.setProperty('z-index', '10000', 'important');
         
-        console.log('✅ Paywall modal displayed with flex (overriding !important)');
         console.log('   Modal display:', paywallModal.style.display);
         console.log('   Modal visibility:', paywallModal.style.visibility);
         console.log('   Modal computed display:', window.getComputedStyle(paywallModal).display);
@@ -10180,7 +10162,6 @@ window.unblurResults = function() {
         
         if (typeof performValuationCalculation === 'function') {
             performValuationCalculation(craneData).then(results => {
-                console.log('✅ Valuation calculation completed:', results);
                 if (typeof currentValuationResults !== 'undefined') {
                     currentValuationResults = results;
                 }
@@ -10698,7 +10679,6 @@ window.processBulkData = async function(jsonData, uploadArea) {
         window.bulkProcessingFile = bulkFileInput.files[0];
     }
     
-    console.log('✅ Bulk processing data stored:', {
         totalCranes: totalCranes,
         successCount: successCount,
         errorCount: errorCount,
