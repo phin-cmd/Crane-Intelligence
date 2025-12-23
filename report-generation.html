@@ -4518,20 +4518,31 @@
     // Early initialization of loadSampleData to prevent "not available" errors
     // Full implementation will be defined later in the script
     if (!window.loadSampleData) {
+        let loadSampleDataCheckInterval = null;
         window.loadSampleData = function() {
+            if (loadSampleDataCheckInterval) {
+                // Already waiting, don't create another interval
+                return;
+            }
             console.warn('⚠️ loadSampleData called before full initialization - waiting...');
             // Wait for the full function to load
             let attempts = 0;
             const maxAttempts = 20;
-            const checkInterval = setInterval(() => {
+            loadSampleDataCheckInterval = setInterval(() => {
                 attempts++;
-                if (window.loadSampleData && window.loadSampleData.toString().length > 500) {
-                    clearInterval(checkInterval);
+                // Check if the function has been replaced with the real implementation
+                // The real function will be much longer than this stub
+                const funcString = window.loadSampleData.toString();
+                if (funcString.length > 500 && funcString.includes('function loadSampleData')) {
+                    clearInterval(loadSampleDataCheckInterval);
+                    loadSampleDataCheckInterval = null;
                     console.log('✅ Full loadSampleData function loaded, calling it now');
-                    return window.loadSampleData();
+                    window.loadSampleData();
+                    return;
                 }
                 if (attempts >= maxAttempts) {
-                    clearInterval(checkInterval);
+                    clearInterval(loadSampleDataCheckInterval);
+                    loadSampleDataCheckInterval = null;
                     if (window.notificationSystem) {
                         window.notificationSystem.showError('Error', 'Please wait for the page to fully load.');
                     }
