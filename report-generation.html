@@ -8862,7 +8862,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.notificationSystem) {
                     window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
                 }
-                } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
             } catch (error) {
                 console.error('❌ Payment failed:', error);
                 if (window.notificationSystem) {
