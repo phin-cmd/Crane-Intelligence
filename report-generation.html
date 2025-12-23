@@ -8954,7 +8954,20 @@ window.addEventListener('load', async () => {
                     
                     // Mark payment as completed (but don't show results yet)
                     window.paymentCompleted = true;
-                    window.lastPaymentCraneData = craneDetails;
+                    
+                    // Get crane details from payment intent metadata if available
+                    if (paymentIntent.metadata) {
+                        const craneDetails = {
+                            manufacturer: paymentIntent.metadata.crane_manufacturer,
+                            model: paymentIntent.metadata.crane_model,
+                            year: paymentIntent.metadata.crane_year,
+                            capacity_tons: paymentIntent.metadata.crane_capacity,
+                            hours: paymentIntent.metadata.crane_hours,
+                            region: paymentIntent.metadata.crane_region,
+                            crane_type: paymentIntent.metadata.crane_type
+                        };
+                        window.lastPaymentCraneData = craneDetails;
+                    }
                     
                     // Show success modal
                     showPaymentSuccessModal({
