@@ -8347,7 +8347,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('❌ Payment-by-intent endpoint error:', err);
                         // Continue to fallback logic below
                     }
-                catch (err) {
+                    } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
+                } catch (err) {
                     console.error('❌ Error in payment intent handling:', err);
                 }
                     
