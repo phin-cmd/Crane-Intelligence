@@ -6392,8 +6392,7 @@ async function loadDraftIfExists() {
             
             // If it has manual entry fields or is marked as manual entry, open the manual entry form
             if (isManualEntry || hasManualEntryFields) {
-            
-            if (isManualEntry) {
+                if (isManualEntry) {
                 console.log('📝 Manual entry detected - opening manual entry form and pre-filling fields');
                 
                 // Store manual entry data for use in purchase flow
