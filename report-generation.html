@@ -8190,7 +8190,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 // Payment successful - show success modal
-                try {{
+                try {
+                    {
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                     // Payment succeeded - immediately call payment-by-intent endpoint to update report status
                     // This endpoint will find the report by payment_intent_id and update it to SUBMITTED
