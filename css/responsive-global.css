@@ -10,6 +10,52 @@ html {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+    /* Safari specific fixes */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safari-specific fixes */
+@supports (-webkit-appearance: none) {
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Fix for Safari flexbox issues */
+    .container,
+    .content-container,
+    .page-container {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+    
+    /* Fix for Safari grid issues */
+    .grid,
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        display: -webkit-grid;
+        display: grid;
+    }
+    
+    /* Fix for Safari transform issues */
+    .mobile-menu {
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+        -webkit-transition: -webkit-transform 0.3s ease;
+        transition: transform 0.3s ease;
+    }
+    
+    .mobile-menu.active {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
 }
 
 body {

@@ -438,7 +438,7 @@ class XSSProtection:
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https:",
             "font-src 'self'",
-            "connect-src 'self'",
+            "connect-src 'self' https://craneintelligence.tech https://m.stripe.network https://m.stripe.com https://api.stripe.com https://js.stripe.com https://checkout.stripe.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
             "frame-src 'none'",
             "object-src 'none'",
             "base-uri 'self'",

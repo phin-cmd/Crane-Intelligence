@@ -8203,658 +8203,111 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(error.message);
                 }
                 
-                // Payment successful - show success modal
-                try {
-                    { // Extra opening brace #1 to balance extra closing brace
-                    { // Extra opening brace #2 to keep try open
-                    { // Extra opening brace #3 to keep try open
-                    { // Extra opening brace #4 to keep try open
-                    if (paymentIntent && paymentIntent.status === 'succeeded') {
-                    // Payment succeeded - immediately call payment-by-intent endpoint to update report status
-                    // This endpoint will find the report by payment_intent_id and update it to SUBMITTED
-                    console.log('✅ Payment succeeded - calling payment-by-intent endpoint to update report status');
-                    
-                    const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token');
+                // Payment successful - finalize state, update backend, then show success
+                if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    console.log('✅ Payment succeeded:', paymentIntent.id);
+
+                    const token2 = safeStorage.getItem('access_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('auth_token');
                     let paymentMarked = false;
-                    
+
+                    // Best-effort: tell backend the payment succeeded so the report moves to SUBMITTED/PAID
                     try {
-                        const paymentByIntentResponse = await fetch(`/api/v1/fmv-reports/payment-by-intent`, {
+                        const markRes = await fetch('/api/v1/fmv-reports/payment-by-intent', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Authorization': token ? `Bearer ${token}` : ''
+                                'Authorization': token2 ? `Bearer ${token2}` : ''
                             },
                             body: JSON.stringify({
                                 payment_intent_id: paymentIntent.id,
-                                amount: paymentIntent.amount / 100
+                                amount: (paymentIntent.amount || 0) / 100
                             })
                         });
-                        
-                        if (paymentByIntentResponse.ok) {
-                            const paymentResult = await paymentByIntentResponse.json();
-                            console.log('✅ Payment status updated to SUBMITTED via payment-by-intent endpoint');
-                            console.log('   Report ID:', paymentResult.id);
-                            console.log('   Report Status:', paymentResult.status);
-                            console.log('   Updated report:', paymentResult);
+
+                        if (markRes.ok) {
+                            const markJson = await markRes.json().catch(() => null);
+                            console.log('✅ Payment marked via payment-by-intent', markJson || '');
                             paymentMarked = true;
-                            
-                            // Update window.currentDraftReportId to the actual report ID
-                            if (paymentResult.id) {
-                                window.currentDraftReportId = paymentResult.id;
+
+                            // Refresh user data (tier upgrades, etc.) if helper exists
+                            if (typeof refreshUserData === 'function') {
+                                await refreshUserData();
                             }
-                            
-                            // Show success message
-                            if (window.notificationSystem) {
-                                window.notificationSystem.showSuccess(
-                                    'Payment Successful!',
-                                    `Your payment of $${(paymentIntent.amount / 100).toFixed(2)} has been received. Report #${paymentResult.id} has been submitted successfully.`
-                                );
-                            }
-                            
-                            // Check if user subscription was upgraded
-                            if (paymentResult.user_upgraded) {
-                                console.log('🎉 User subscription upgraded to:', paymentResult.new_subscription_tier);
-                                // Refresh user data from backend
-                                if (typeof refreshUserData === 'function') {
-                                    await refreshUserData();
-                                }
-                                // Show upgrade notification
-                                if (window.notificationSystem) {
-                                    window.notificationSystem.showSuccess(
-                                        'Subscription Upgraded!',
-                                        `Your subscription has been upgraded to ${paymentResult.new_subscription_tier.replace('_', ' ').toUpperCase()}.`
-                                    );
-                                }
-                            }
-                            
-                            // Refresh reports in dashboard if on dashboard page
+                            // Refresh dashboard reports if helper exists
                             if (typeof loadFMVReports === 'function') {
                                 setTimeout(() => {
-                                    loadFMVReports();
+                                    try { loadFMVReports(); } catch (_) {}
                                 }, 1000);
                             }
-                            
-                            // Re-enable submit button first
-                            if (submitButton) {
-                                submitButton.disabled = false;
-                                submitButton.innerHTML = 'Complete Purchase';
-                            }
-                            
-                            // Close payment modal
-                            closeStripeModal();
-                            
-                            // Store crane data for results display
-                            try {
-                                const manufacturer = document.getElementById('manufacturer')?.value || '';
-                                const model = document.getElementById('model')?.value || '';
-                                if (manufacturer && model) {
-                                    window.lastPaymentCraneData = {
-                                        manufacturer: manufacturer,
-                                        model: model,
-                                        year: parseInt(document.getElementById('year')?.value) || null,
-                                        capacity: parseFloat(document.getElementById('capacity')?.value) || null
-                                    };
-                                }
-                            } catch (e) {
-                                console.warn('Could not store crane data:', e);
-                            }
-                            
-                            // Show payment success modal
-                            const reportTypeDisplay = paymentResult.report_type === 'spot_check' ? 'Spot Check' :
-                                                      paymentResult.report_type === 'professional' ? 'Professional' :
-                                                      paymentResult.report_type === 'fleet_valuation' ? 'Fleet Valuation' :
-                                                      paymentResult.report_type || 'FMV Report';
-                            
-                            const craneDetails = paymentResult.crane_details || {};
-                            const craneModel = craneDetails.manufacturer && craneDetails.model 
-                                ? `${craneDetails.manufacturer} ${craneDetails.model}` 
-                                : 'N/A';
-                            
-                            console.log('🎉 Showing payment success modal with details:', {
-                                transactionId: paymentResult.payment_intent_id || paymentIntent.id,
-                                paymentIntentId: paymentIntent.id,
-                                reportType: reportTypeDisplay,
-                                craneModel: craneModel,
-                                amount: paymentIntent.amount,
-                                reportId: paymentResult.id
-                            });
-                            
-                            // Call showPaymentSuccessModal function
-                            if (typeof showPaymentSuccessModal === 'function') {
-                                showPaymentSuccessModal({
-                                    transactionId: paymentResult.payment_intent_id || paymentIntent.id || 'N/A',
-                                    paymentIntentId: paymentIntent.id || 'N/A',
-                                    reportType: reportTypeDisplay,
-                                    craneModel: craneModel,
-                                    amount: paymentIntent.amount,
-                                    reportId: paymentResult.id
-                                });
-                            } else if (typeof window.showPaymentSuccessModal === 'function') {
-                                window.showPaymentSuccessModal({
-                                    transactionId: paymentResult.payment_intent_id || paymentIntent.id || 'N/A',
-                                    paymentIntentId: paymentIntent.id || 'N/A',
-                                    reportType: reportTypeDisplay,
-                                    craneModel: craneModel,
-                                    amount: paymentIntent.amount,
-                                    reportId: paymentResult.id
-                                });
-                            } else {
-                                console.error('❌ showPaymentSuccessModal function not found');
-                                // Fallback: redirect to dashboard after short delay
-                                if (window.notificationSystem) {
-                                    window.notificationSystem.showSuccess(
-                                        'Payment Successful!',
-                                        'Redirecting to dashboard...'
-                                    );
-                                }
-                                setTimeout(() => {
-                                    window.location.href = '/dashboard.html';
-                                }, 2000);
-                            }
-                            
-                            // Exit early - payment already processed, emails sent, notifications created
-                            return;
                         } else {
-                            const errorData = await paymentByIntentResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                            console.error('❌ Payment-by-intent endpoint failed:', errorData);
-                            console.error('   Payment Intent ID:', paymentIntent.id);
-                            console.error('   Amount:', paymentIntent.amount / 100);
-                            // Continue to fallback logic below
+                            const errJson = await markRes.json().catch(() => ({ detail: 'Unknown error' }));
+                            console.warn('⚠️ Could not mark payment via payment-by-intent:', errJson);
                         }
-                    } catch (err) {
-                        console.error('❌ Payment-by-intent endpoint error:', err);
-                        // Continue to fallback logic below
+                    } catch (markErr) {
+                        console.warn('⚠️ payment-by-intent call failed:', markErr);
                     }
-                    } // End of if (paymentIntent && paymentIntent.status === 'succeeded')
-                    } // Close extra block #3
-                    } // Close extra block #2
-                    } // Close extra block #1
-                    
-                    // Fallback: If payment-by-intent failed, try to find/create report manually
-                    // This should rarely happen, but provides a backup
+
+                    // If not marked, store for retry
                     if (!paymentMarked) {
-                        console.warn('⚠️ Payment-by-intent failed, attempting fallback report update');
-                        
-                        // Submit FMV report to backend
-                        let craneDetails = null; // Declare outside try block for catch block access
                         try {
-                            const token = safeStorage.getItem('auth_token') || safeStorage.getItem('crane_auth_token');
-                        const receiptEmailInput = document.getElementById('receiptEmail');
-                        const receiptEmail = receiptEmailInput ? receiptEmailInput.value : '';
-                        
-                        // Get manufacturer (handle "Other" option)
-                        let manufacturer = document.getElementById('manufacturer').value;
-                        if (manufacturer === 'Other') {
-                            manufacturer = document.getElementById('manufacturerOther').value;
-                        }
-                        
-                        // Get model (handle fallback input)
-                        let model = document.getElementById('model').value;
-                        if (!model && document.getElementById('fallbackModel').value) {
-                            model = document.getElementById('fallbackModel').value;
-                            manufacturer = document.getElementById('fallbackManufacturer').value || manufacturer;
-                        }
-                        
-                        craneDetails = {
-                            manufacturer: manufacturer,
-                            model: model,
-                            year: parseInt(document.getElementById('year').value),
-                            capacity_tons: parseFloat(document.getElementById('capacity').value),
-                            hours: parseInt(document.getElementById('operatingHours').value),
-                            region: document.getElementById('region').value,
-                            crane_type: document.getElementById('craneType').value,
-                            operating_hours: parseInt(document.getElementById('operatingHours').value),
-                            boom_length: parseFloat(document.getElementById('boomLength').value) || null,
-                            mileage: parseInt(document.getElementById('mileage').value) || null
-                        };
-                        
-                        // Upload service record files if any
-                        let serviceRecordUrls = [];
-                        if (window.serviceRecordFiles && window.serviceRecordFiles.length > 0) {
-                            try {
-                                const formData = new FormData();
-                                window.serviceRecordFiles.forEach((file, index) => {
-                                    formData.append(`service_records`, file);
-                                });
-                                
-                                const uploadResponse = await fetch('/api/v1/fmv-reports/upload-service-records', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Authorization': token ? `Bearer ${token}` : ''
-                                    },
-                                    body: formData
-                                });
-                                
-                                if (uploadResponse.ok) {
-                                    const uploadResult = await uploadResponse.json();
-                                    serviceRecordUrls = uploadResult.file_urls || [];
-                                }
-                            } catch (err) {
-                                console.error('Error uploading service records:', err);
-                            }
-                        }
-                        
-                        // CRITICAL: Use existing DRAFT report if already created, don't create duplicate
-                        // After payment succeeds, we should NOT create a new report - just mark payment received
-                        let reportId = window.currentDraftReportId || null;
-                        
-                        // If we have a payment intent ID, try to find the report by it first
-                        if (!reportId && paymentIntent && paymentIntent.id) {
-                            // Payment succeeded - call payment-by-intent endpoint which will find the report
-                            // This is the most reliable way to ensure we update the correct report
-                            console.log('✅ Payment succeeded - calling payment-by-intent endpoint to update report status');
-                            
-                            // Call payment-by-intent endpoint immediately - it will find the report by payment_intent_id
-                            try {
-                                const paymentByIntentResponse = await fetch(`/api/v1/fmv-reports/payment-by-intent`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': token ? `Bearer ${token}` : ''
-                                    },
-                                    body: JSON.stringify({
-                                        payment_intent_id: paymentIntent.id,
-                                        amount: paymentIntent.amount / 100
-                                    })
-                                });
-                                
-                                if (paymentByIntentResponse.ok) {
-                                    const paymentResult = await paymentByIntentResponse.json();
-                                    reportId = paymentResult.id;
-                                    window.currentDraftReportId = reportId;
-                                    console.log('✅ Payment status updated via payment-by-intent endpoint. Report ID:', reportId);
-                                    console.log('   Report status:', paymentResult.status);
-                                    
-                                    // Payment is already marked, emails sent, notifications created
-                                    // Skip the rest of the report creation/update logic
-                                    paymentMarked = true;
-                                    
-                                    // Show success message
-                                    if (window.notificationSystem) {
-                                        window.notificationSystem.showSuccess(
-                                            'Payment Successful!',
-                                            `Your payment of $${(paymentIntent.amount / 100).toFixed(2)} has been received. Report #${reportId} has been submitted successfully.`
-                                        );
-                                    }
-                                    
-                                    // Refresh reports in dashboard if on dashboard page
-                                    if (typeof loadFMVReports === 'function') {
-                                        setTimeout(() => {
-                                            loadFMVReports();
-                                        }, 1000);
-                                    }
-                                    
-                                    // Store crane data for results display
-                                    if (craneDetails) {
-                                        window.lastPaymentCraneData = craneDetails;
-                                    }
-                                    
-                                    // Close payment modal and show success
-                                    const paymentModal = document.getElementById('paymentModal');
-                                    if (paymentModal) {
-                                        paymentModal.style.display = 'none';
-                                    }
-                                    
-                                    // Show success modal or redirect
-                                    // (existing success modal code continues below)
-                                    return; // Exit early - payment already processed
-                                } else {
-                                    const errorData = await paymentByIntentResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                                    console.warn('⚠️ Payment-by-intent endpoint failed, will try to find/create report:', errorData);
-                                }
-                            } catch (err) {
-                                console.warn('⚠️ Payment-by-intent endpoint error, will try to find/create report:', err);
-                            }
-                        }
-                        
-                        if (!reportId) {
-                            // Get the ACTUAL selected report type from the UI card, not from variable
-                            const selectedReportCard = document.querySelector('.report-type-card.selected');
-                            const actualReportType = selectedReportCard?.dataset.type || 
-                                                   (selectedReport?.type) || 
-                                                   (window.selectedReportType) || 
-                                                   'spot_check';
-                            
-                            console.log('📋 Payment flow - Using report type from UI:', actualReportType, 'selectedReportType variable:', selectedReportType);
-                            
-                            const reportData = {
-                                report_type: actualReportType,
-                                crane_details: craneDetails
-                            };
-                            
-                            // Only include service_record_files if there are any
-                            if (serviceRecordUrls.length > 0) {
-                                reportData.service_record_files = serviceRecordUrls;
-                            }
-                            
-                            console.log('Submitting report with service_record_files:', serviceRecordUrls);
-                            
-                            // Only include fleet_valuation fields if it's actually a fleet (1-50 units)
-                            if (actualReportType === 'fleet_valuation') {
-                                const unitCount = parseInt(document.getElementById('unitCount')?.value || '1');
-                                if (unitCount >= 1 && unitCount <= 50) {
-                                    // Calculate pricing tier based on unit count
-                                    const pricing = calculateFleetPrice(unitCount);
-                                    reportData.fleet_pricing_tier = pricing.tier;
-                                    reportData.unit_count = unitCount;
-                                } else {
-                                    // Invalid unit count - change to professional report type
-                                    reportData.report_type = 'professional';
-                                }
-                            }
-                            
-                            // Include user email from payment metadata or form for unauthenticated users
-                            // CRITICAL: Include payment_intent_id in metadata to bypass subscription check
-                            if (receiptEmail) {
-                                reportData.metadata = {
-                                    user_email: receiptEmail,
-                                    receipt_email: receiptEmail,
-                                    payment_intent_id: paymentIntent.id,
-                                    payment_succeeded: true,
-                                    amount_paid: paymentIntent.amount / 100
-                                };
-                            } else {
-                                // Even without receipt email, include payment info to bypass subscription check
-                                reportData.metadata = {
-                                    payment_intent_id: paymentIntent.id,
-                                    payment_succeeded: true,
-                                    amount_paid: paymentIntent.amount / 100
-                                };
-                            }
-                            
-                            const reportResponse = await fetch('/api/v1/fmv-reports/submit', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': token ? `Bearer ${token}` : ''
-                                },
-                                body: JSON.stringify(reportData)
+                            const failed = JSON.parse(safeStorage.getItem('failed_payment_intents') || '[]');
+                            failed.push({
+                                payment_intent_id: paymentIntent.id,
+                                amount: (paymentIntent.amount || 0) / 100,
+                                report_id: window.currentDraftReportId || window.currentReportId || null,
+                                timestamp: new Date().toISOString(),
+                                retry_count: 0
                             });
-                            
-                            if (reportResponse.ok) {
-                                const reportResult = await reportResponse.json();
-                                reportId = reportResult.id;
-                                window.currentDraftReportId = reportId; // Store to prevent duplicates
-                                console.log('✅ Report created after payment:', reportId);
-                            } else {
-                                // If creation failed, try to use existing draft
-                                reportId = window.currentDraftReportId;
-                                console.warn('⚠️ Report creation failed, using existing draft:', reportId);
-                            }
-                        } else {
-                            // Use existing draft report
-                            reportId = window.currentDraftReportId;
+                            safeStorage.setItem('failed_payment_intents', JSON.stringify(failed));
+                            console.log('💾 Stored payment intent for retry:', paymentIntent.id);
+                        } catch (storageErr) {
+                            console.warn('⚠️ Could not store failed payment intent:', storageErr);
                         }
-                        
-                        if (!reportId) {
-                            // Try to get error data from reportResponse if it exists
-                            let errorData = { detail: 'Unknown error' };
-                            if (typeof reportResponse !== 'undefined' && reportResponse) {
-                                try {
-                                    errorData = await reportResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                                } catch (e) {
-                                    errorData = { detail: 'Failed to parse error response' };
-                                }
-                            }
-                            console.error('Report submission failed:', errorData);
-                            // Try to find existing report by payment_intent_id
-                            // This handles case where report was created but submission failed
-                            console.warn('Report submission failed but payment succeeded - trying to find existing report');
-                    
-                            // Try to find report by payment_intent_id from metadata
-                            // Get user ID from token or email
-                            const userId = getUserId();
-                            const userEmail = getUserEmail();
-                            if ((userId || userEmail) && craneDetails) {
-                                // Get user reports and find the one matching this payment
-                                const userIdentifier = userId || userEmail;
-                                const userReportsResponse = await fetch(`/api/v1/fmv-reports/user/${userIdentifier}`, {
-                                    headers: {
-                                        'Authorization': token ? `Bearer ${token}` : ''
-                                    }
-                                });
-                                if (userReportsResponse.ok) {
-                                    const userReports = await userReportsResponse.json();
-                                    // Find the most recent draft report for this user matching the crane details
-                                    const draftReports = userReports.filter(r => {
-                                        const status = (r.status || '').toLowerCase();
-                                        return status === 'draft' && 
-                                            r.crane_details?.manufacturer === craneDetails.manufacturer &&
-                                            r.crane_details?.model === craneDetails.model;
-                                    });
-                                    if (draftReports.length > 0) {
-                                        // Sort by created_at descending and get the most recent
-                                        draftReports.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                                        reportId = draftReports[0].id;
-                                    }
-                                }
-                            }
-                        } else if (typeof reportResponse !== 'undefined' && reportResponse && reportResponse.ok) {
-                            // Only try to parse reportResponse if it exists and is ok
-                            try {
-                                const reportResult = await reportResponse.json();
-                                reportId = reportResult.id || reportId;
-                            } catch (e) {
-                                console.warn('⚠️ Could not parse reportResponse, using existing reportId:', reportId);
-                            }
-                        }
-                            
-                            // Try to mark payment received - use payment-by-intent endpoint first (more reliable)
-                            let paymentMarked = false;
-                            
-                            // First, try the payment-by-intent endpoint (finds report automatically)
-                            try {
-                                const paymentByIntentResponse = await fetch(`/api/v1/fmv-reports/payment-by-intent`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': token ? `Bearer ${token}` : ''
-                                    },
-                                    body: JSON.stringify({
-                                        payment_intent_id: paymentIntent.id,
-                                        amount: paymentIntent.amount / 100
-                                    })
-                                });
-                                
-                                if (paymentByIntentResponse.ok) {
-                                    const paymentResult = await paymentByIntentResponse.json();
-                                    console.log('✅ Payment status updated to PAID via payment-by-intent endpoint');
-                                    console.log('   Report ID:', paymentResult.id);
-                                    console.log('   Updated report:', paymentResult);
-                                    paymentMarked = true;
-                                    
-                                    // Check if user subscription was upgraded
-                                    if (paymentResult.user_upgraded) {
-                                        console.log('🎉 User subscription upgraded to:', paymentResult.new_subscription_tier);
-                                        // Refresh user data from backend
-                                        await refreshUserData();
-                                        // Show upgrade notification
-                                        if (window.notificationSystem) {
-                                            window.notificationSystem.showSuccess(
-                                                'Subscription Upgraded!',
-                                                `Your subscription has been upgraded to ${paymentResult.new_subscription_tier.replace('_', ' ').toUpperCase()}.`
-                                            );
-                                        }
-                                    }
-                                    
-                                    // Refresh reports in dashboard if on dashboard page
-                                    if (typeof loadFMVReports === 'function') {
-                                        setTimeout(() => {
-                                            loadFMVReports();
-                                        }, 1000);
-                                    }
-                                } else {
-                                    const errorData = await paymentByIntentResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                                    console.warn('⚠️ Payment-by-intent endpoint failed, trying report ID endpoint:', errorData);
-                                }
-                            } catch (err) {
-                                console.warn('⚠️ Payment-by-intent endpoint error, trying report ID endpoint:', err);
-                            }
-                            
-                            // Fallback: If payment-by-intent failed and we have a reportId, try the report ID endpoint
-                            if (!paymentMarked && reportId) {
-                                try {
-                                    const paymentResponse = await fetch(`/api/v1/fmv-reports/${reportId}/payment`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'Authorization': token ? `Bearer ${token}` : ''
-                                        },
-                                        body: JSON.stringify({
-                                            payment_intent_id: paymentIntent.id,
-                                            amount: paymentIntent.amount / 100
-                                        })
-                                    });
-                                    
-                                    if (!paymentResponse.ok) {
-                                        const paymentError = await paymentResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                                        console.error('❌ Failed to mark payment received via report ID endpoint:', paymentError);
-                                        console.error('   Report ID:', reportId);
-                                        console.error('   Payment Intent ID:', paymentIntent.id);
-                                        console.error('   Amount:', paymentIntent.amount / 100);
-                                        console.error('   ⚠️ Report may need manual status update');
-                                    } else {
-                                        const paymentResult = await paymentResponse.json();
-                                        console.log('✅ Payment status updated to PAID via report ID endpoint');
-                                        console.log('   Report ID:', reportId);
-                                        console.log('   Updated report:', paymentResult);
-                                        paymentMarked = true;
-                                        
-                                        // Check if user subscription was upgraded
-                                        if (paymentResult.user_upgraded) {
-                                            console.log('🎉 User subscription upgraded to:', paymentResult.new_subscription_tier);
-                                            // Refresh user data from backend
-                                            await refreshUserData();
-                                            // Show upgrade notification
-                                            if (window.notificationSystem) {
-                                                window.notificationSystem.showSuccess(
-                                                    'Subscription Upgraded!',
-                                                    `Your subscription has been upgraded to ${paymentResult.new_subscription_tier.replace('_', ' ').toUpperCase()}.`
-                                                );
-                                            }
-                                        }
-                                        
-                                        // Refresh reports in dashboard if on dashboard page
-                                        if (typeof loadFMVReports === 'function') {
-                                            setTimeout(() => {
-                                                loadFMVReports();
-                                            }, 1000);
-                                        }
-                                    }
-                                } catch (err) {
-                                    console.error('❌ Error marking payment via report ID endpoint:', err);
-                                }
-                            }
-                            
-                            if (!paymentMarked) {
-                                console.error('❌ CRITICAL: Could not mark payment received for payment intent:', paymentIntent.id);
-                                console.error('   This report will need manual status update or will be auto-fixed on next load');
-                                
-                                // Store payment intent for retry later
-                                const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {}, getItem: () => null };
-                                try {
-                                    const failedPayments = JSON.parse(safeStorage.getItem('failed_payment_intents') || '[]');
-                                    failedPayments.push({
-                                        payment_intent_id: paymentIntent.id,
-                                        amount: paymentIntent.amount / 100,
-                                        report_id: reportId,
-                                        timestamp: new Date().toISOString(),
-                                        retry_count: 0
-                                    });
-                                    safeStorage.setItem('failed_payment_intents', JSON.stringify(failedPayments));
-                                    console.log('💾 Stored payment intent for retry:', paymentIntent.id);
-                                } catch (e) {
-                                    console.warn('⚠️ Could not store payment intent for retry:', e);
-                                }
-                                
-                                // Show user a warning
-                                if (window.notificationSystem) {
-                                    // Use showInfo instead of showWarning - payment succeeded, just status update had issues
-                                    window.notificationSystem.showInfo(
-                                        'Payment Recorded',
-                                        'Your payment was successful. The report status will be updated automatically. You can view your report in the dashboard.'
-                                    );
-                                }
-                            }
-                        
-                        // Store crane data for results display regardless of report submission status
-                        if (craneDetails) {
-                            window.lastPaymentCraneData = craneDetails;
-                        }
-                    } catch (err) {
-                        console.error("Failed to submit FMV report:", err);
-                        // Even if report submission failed, payment succeeded - show success modal
-                        // Try to get craneDetails from form if not already set
-                        if (!craneDetails) {
-                            try {
-                                let manufacturer = document.getElementById('manufacturer')?.value || '';
-                                if (manufacturer === 'Other') {
-                                    manufacturer = document.getElementById('manufacturerOther')?.value || '';
-                                }
-                                let model = document.getElementById('model')?.value || '';
-                                if (!model) {
-                                    model = document.getElementById('fallbackModel')?.value || '';
-                                }
-                                if (manufacturer && model) {
-                                    craneDetails = {
-                                        manufacturer: manufacturer,
-                                        model: model,
-                                        year: parseInt(document.getElementById('year')?.value) || null,
-                                        capacity_tons: parseFloat(document.getElementById('capacity')?.value) || null
-                                    };
-                                }
-                            } catch (e) {
-                                console.warn('Could not extract craneDetails from form:', e);
-                            }
-                        }
-                        if (craneDetails) {
-                            window.lastPaymentCraneData = craneDetails;
-                        }
-                        // Show info message that payment succeeded but report submission had issues
+
                         if (window.notificationSystem) {
                             window.notificationSystem.showInfo(
                                 'Payment Successful',
-                                'Your payment was processed successfully. The report will be created automatically. Please check your dashboard in a moment.'
+                                'Your payment was processed successfully. The report status will be updated automatically. You can view your report in the dashboard shortly.'
                             );
                         }
                     }
-                } // End of if (!paymentMarked)
-                    
-                // Show results immediately after payment success
-                console.log('✅ Payment succeeded, showing success modal only (results will show on VIEW RESULTS click)...');
-                
-                // Mark payment as completed (but don't show results yet - user must click VIEW RESULTS)
-                window.paymentCompleted = true;
-                
-                // Reset submit button state (payment succeeded)
-                submitButton.disabled = false;
-                submitButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PROCESS PAYMENT';
-                
-                // Clear any loading indicators
-                const loadingDiv = document.getElementById('payment-loading');
-                if (loadingDiv) loadingDiv.remove();
-                
-                // Close payment modal first (with !important override)
-                closeStripeModal();
-                
-                // Small delay to ensure payment modal closes before showing success modal
-                setTimeout(() => {
-                    // Show success modal
-                    const transactionId = paymentIntent.id.substring(0, 8) + '...';
-                    const reportName = selectedReport?.name || selectedReportType || 'FMV Report';
-                    showPaymentSuccessModal({
-                        transactionId: transactionId,
-                        paymentIntentId: paymentIntent.id,
-                        amount: paymentIntent.amount,
-                        reportType: reportName,
-                        craneModel: (document.getElementById('manufacturer')?.value || '') + ' ' + (document.getElementById('model')?.value || '') + ' (' + (document.getElementById('year')?.value || '') + ')'
-                    });
-                }, 100);
-                
-                    if (window.notificationSystem) {
-                        window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
-                    }
-                } catch (error) {
+
+                    // Persist crane data for results (best effort)
+                    try {
+                        if (typeof craneDetails !== 'undefined' && craneDetails) {
+                            window.lastPaymentCraneData = craneDetails;
+                        }
+                    } catch (_) {}
+
+                    // Mark payment complete and reset UI
+                    window.paymentCompleted = true;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PROCESS PAYMENT';
+
+                    const loadingDiv = document.getElementById('payment-loading');
+                    if (loadingDiv) loadingDiv.remove();
+
+                    // Close payment modal then show success modal
+                    closeStripeModal();
+                    setTimeout(() => {
+                        const transactionId = paymentIntent.id.substring(0, 8) + '...';
+                        const reportName = (typeof selectedReport !== 'undefined' && selectedReport && selectedReport.name) ? selectedReport.name : (typeof selectedReportType !== 'undefined' && selectedReportType) ? selectedReportType : 'FMV Report';
+                        showPaymentSuccessModal({
+                            transactionId: transactionId,
+                            paymentIntentId: paymentIntent.id,
+                            amount: paymentIntent.amount,
+                            reportType: reportName,
+                            craneModel: (document.getElementById('manufacturer')?.value || '') + ' ' + (document.getElementById('model')?.value || '') + ' (' + (document.getElementById('year')?.value || '') + ')'
+                        });
+
+                        if (window.notificationSystem) {
+                            window.notificationSystem.showSuccess('Payment Successful', 'Your FMV report request has been submitted.');
+                        }
+                    }, 100);
+                } else {
+                    throw new Error('Payment was not completed. Please try again.');
+                }
+} catch (error) {
                     console.error('❌ Payment failed:', error);
                     if (window.notificationSystem) {
                         window.notificationSystem.showError('Payment Failed', error.message || 'An error occurred during payment processing.');

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>CRANE INTELLIGENCE - Professional Dashboard</title>
     
     <!-- Aggressive Cache Busting -->
@@ -16,6 +19,7 @@
     <link rel="stylesheet" href="css/responsive-global.css?v=1">
     <link rel="icon" type="image/x-icon" href="images/logos/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/safari-compat.js"></script>
     <script src="js/live-data-framework.js"></script>
     <script src="js/notification-system.js"></script>
     <script src="/js/unified-auth-utils.js" defer></script>
@@ -39,6 +43,16 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            /* Safari specific fixes */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            /* Fix Safari rendering */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
         
         /* Header styles are now handled by unified-header.css */
@@ -458,12 +472,12 @@
             border-radius: 4px;
             flex-shrink: 0;
             position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
+            top: 20px;
+            right: 24px;
             margin: 0;
             line-height: 1;
             transition: background-color 0.2s ease;
+            z-index: 10;
         }
         
         .report-modal-close:hover {
@@ -517,6 +531,7 @@
             display: flex;
             gap: 12px;
             justify-content: flex-end;
+            align-items: center;
         }
         
         .report-modal-btn {
@@ -527,6 +542,13 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-sizing: border-box;
         }
         
         .report-modal-btn.primary {
@@ -3756,9 +3778,9 @@
                             <button class="report-modal-btn primary" onclick="continueDraftFromModal('${reportId}')">Continue to Payment</button>
                             <button class="report-modal-btn" onclick="closeReportModal(); setTimeout(() => deleteDraft('${reportId}'), 100);">Delete</button>
                         ` : (status === 'delivered' || status === 'completed') && report.pdf_url ? `
-                            <a href="${report.pdf_url}" target="_blank" class="report-modal-btn primary">Download PDF</a>
+                            <a href="${report.pdf_url}" target="_blank" class="report-modal-btn primary" style="min-width: 120px;">Download PDF</a>
                         ` : ''}
-                        <button class="report-modal-btn" onclick="closeReportModal()">Close</button>
+                        <button class="report-modal-btn" onclick="closeReportModal()" style="min-width: 120px;">Close</button>
                     </div>
                 </div>
             `;
