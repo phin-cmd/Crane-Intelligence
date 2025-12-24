@@ -4600,21 +4600,33 @@
             loadSampleDataCheckInterval = setInterval(() => {
                 attempts++;
                 // Check if the function has been replaced with the real implementation
-                // The real function will be much longer than this stub (stub is ~600 chars)
                 const currentFunc = window.loadSampleData;
-                const funcString = currentFunc.toString();
-                // Real function will be > 2000 characters and won't be this stub
-                if (funcString.length > 2000 && currentFunc !== stubFunction) {
-                    clearInterval(loadSampleDataCheckInterval);
-                    loadSampleDataCheckInterval = null;
-                    currentFunc();
-                    return;
+                // Check if it's not the stub function itself
+                // The real function will have a different implementation
+                if (currentFunc && currentFunc !== stubFunction) {
+                    const funcString = currentFunc.toString();
+                    // Real function will be longer than stub and won't reference stubFunction
+                    if (funcString.length > 1000 && !funcString.includes('stubFunction') && !funcString.includes('loadSampleDataCheckInterval')) {
+                        clearInterval(loadSampleDataCheckInterval);
+                        loadSampleDataCheckInterval = null;
+                        // Call the real function
+                        try {
+                            currentFunc();
+                        } catch (error) {
+                            console.error('Error calling loadSampleData:', error);
+                            if (window.notificationSystem) {
+                                window.notificationSystem.showError('Error', 'Failed to load sample data. Please try again.');
+                            }
+                        }
+                        return;
+                    }
                 }
                 if (attempts >= maxAttempts) {
                     clearInterval(loadSampleDataCheckInterval);
                     loadSampleDataCheckInterval = null;
+                    console.error('❌ loadSampleData not loaded after', maxAttempts, 'attempts');
                     if (window.notificationSystem) {
-                        window.notificationSystem.showError('Error', 'Please wait for the page to fully load.');
+                        window.notificationSystem.showError('Error', 'Please wait for the page to fully load, then try again.');
                     }
                 }
             }, 100);
