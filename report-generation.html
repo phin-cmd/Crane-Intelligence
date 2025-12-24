@@ -4605,8 +4605,10 @@
                 // The real function will have a different implementation
                 if (currentFunc && currentFunc !== stubFunction) {
                     const funcString = currentFunc.toString();
-                    // Real function will be longer than stub and won't reference stubFunction
-                    if (funcString.length > 1000 && !funcString.includes('stubFunction') && !funcString.includes('loadSampleDataCheckInterval')) {
+                    // Real function will contain sample data markers and won't reference stubFunction
+                    if ((funcString.includes('Liebherr') || funcString.includes('manufacturerEl') || funcString.includes('LTM 1499')) && 
+                        !funcString.includes('stubFunction') && 
+                        !funcString.includes('loadSampleDataCheckInterval')) {
                         clearInterval(loadSampleDataCheckInterval);
                         loadSampleDataCheckInterval = null;
                         // Call the real function
