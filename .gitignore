@@ -122,6 +122,9 @@ local/
 # Backup directories
 .backups/
 
+# Git rewrite temporary files
+.git-rewrite/
+
 # Audit reports
 audit_report.json
 OPTIMIZATION_CHANGELOG.md
