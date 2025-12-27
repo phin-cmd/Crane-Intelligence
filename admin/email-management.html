@@ -139,10 +139,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadTemplates();
                 } else {
-                    setTimeout(() => loadTemplates();, 1000);
+                    setTimeout(() => loadTemplates(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function loadTemplates() {
@@ -154,12 +153,27 @@
                     window.location.href = '/admin/login.html';
                     return;
                 }
+                
+                // Check if response is JSON before parsing
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
+                }
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+                }
+                
                 const data = await response.json();
                 renderTemplates(data);
             } catch (error) {
                 console.error('Error loading templates:', error);
+                const errorMessage = error.message || 'Failed to load email templates';
                 document.getElementById('templates-table-body').innerHTML = 
-                    '<tr><td colspan="7">Error loading templates</td></tr>';
+                    `<tr><td colspan="7" style="color: #FF4444; text-align: center; padding: 20px;">${errorMessage}</td></tr>`;
             }
         }
 

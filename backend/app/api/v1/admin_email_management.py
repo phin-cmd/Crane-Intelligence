@@ -69,32 +69,74 @@ async def list_email_templates(
     db: Session = Depends(get_db)
 ):
     """List all email templates"""
-    query = db.query(EmailTemplate)
-    
-    if template_type:
-        query = query.filter(EmailTemplate.template_type == template_type)
-    if active_only:
-        query = query.filter(EmailTemplate.is_active == True)
-    
-    templates = query.order_by(EmailTemplate.name).all()
-    
-    return [
-        EmailTemplateResponse(
-            id=t.id,
-            name=t.name,
-            subject=t.subject,
-            body_html=t.body_html,
-            body_text=t.body_text,
-            template_type=t.template_type,
-            variables=t.variables,
-            is_active=t.is_active,
-            usage_count=t.usage_count,
-            last_used=t.last_used,
-            created_at=t.created_at,
-            updated_at=t.updated_at
-        )
-        for t in templates
-    ]
+    try:
+        # Check if EmailTemplate model exists
+        try:
+            query = db.query(EmailTemplate)
+        except Exception as e:
+            # If EmailTemplate table doesn't exist, return empty list
+            return []
+        
+        if template_type:
+            query = query.filter(EmailTemplate.template_type == template_type)
+        if active_only:
+            query = query.filter(EmailTemplate.is_active == True)
+        
+        templates = query.order_by(EmailTemplate.name).all()
+        
+        result = []
+        import json
+        for t in templates:
+            # Parse variables if it's a string (JSON column might return string)
+            variables = t.variables
+            
+            # Handle different types of variables field
+            if variables is None:
+                variables = []
+            elif isinstance(variables, str):
+                # Strip whitespace and check if it's empty
+                variables_str = variables.strip()
+                if not variables_str or variables_str == '':
+                    variables = []
+                else:
+                    try:
+                        # Try to parse as JSON
+                        variables = json.loads(variables_str)
+                        # Ensure it's a list after parsing
+                        if not isinstance(variables, list):
+                            variables = []
+                    except (json.JSONDecodeError, ValueError, TypeError):
+                        # If parsing fails, default to empty list
+                        variables = []
+            elif not isinstance(variables, list):
+                # If it's not a string, None, or list, default to empty list
+                variables = []
+            
+            result.append(
+                EmailTemplateResponse(
+                    id=t.id,
+                    name=t.name,
+                    subject=t.subject,
+                    body_html=t.body_html,
+                    body_text=t.body_text,
+                    template_type=t.template_type,
+                    variables=variables,
+                    is_active=t.is_active,
+                    usage_count=t.usage_count or 0,
+                    last_used=t.last_used,
+                    created_at=t.created_at,
+                    updated_at=t.updated_at
+                )
+            )
+        
+        return result
+    except Exception as e:
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error loading email templates: {str(e)}", exc_info=True)
+        # Return empty list if there's any error (table doesn't exist, etc.)
+        return []
 
 
 @router.post("/templates", response_model=EmailTemplateResponse)
@@ -173,6 +215,19 @@ async def update_email_template(
     db.commit()
     db.refresh(template)
     
+    # Parse variables if it's a string
+    variables = template.variables
+    if isinstance(variables, str):
+        try:
+            import json
+            variables = json.loads(variables) if variables else []
+        except (json.JSONDecodeError, ValueError):
+            variables = []
+    elif variables is None:
+        variables = []
+    if not isinstance(variables, list):
+        variables = []
+    
     return EmailTemplateResponse(
         id=template.id,
         name=template.name,
@@ -180,9 +235,9 @@ async def update_email_template(
         body_html=template.body_html,
         body_text=template.body_text,
         template_type=template.template_type,
-        variables=template.variables,
+        variables=variables,
         is_active=template.is_active,
-        usage_count=template.usage_count,
+        usage_count=template.usage_count or 0,
         last_used=template.last_used,
         created_at=template.created_at,
         updated_at=template.updated_at

@@ -172,6 +172,14 @@ class FMVReportUpdate(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
 
 
+class FMVReportDraftUpdate(BaseModel):
+    """Update draft FMV report fields (user-facing)"""
+    report_type: Optional[FMVReportType] = None
+    crane_details: Optional[CraneDetails] = None
+    service_record_files: Optional[List[str]] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
 class FleetPricingRequest(BaseModel):
     """Fleet pricing tier selection"""
     tier: FleetPricingTier

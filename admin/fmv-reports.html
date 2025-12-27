@@ -1494,8 +1494,40 @@
                         ${(report.crane_data || report.crane_details || {}).is_manual_entry ? '<div style="font-size: 11px; color: #FFD600; margin-top: 4px;">📝 Manual Entry</div>' : ''}
                     </td>
                     <td><strong>${(() => {
-                        // Calculate amount: use amount_paid if available, otherwise use report type default price
+                        // Calculate amount: prioritize calculated price from metadata for fleet_valuation, then amount_paid, then defaults
                         let displayAmount = '$0.00';
+                        const reportType = (report.report_type || '').toLowerCase();
+                        
+                        // CRITICAL: For fleet_valuation, check metadata for calculated price first
+                        if (reportType === 'fleet_valuation' && report.metadata) {
+                            // Check fleet_price_cents first (most accurate)
+                            if (report.metadata.fleet_price_cents) {
+                                const priceCents = parseInt(report.metadata.fleet_price_cents) || 0;
+                                if (priceCents > 0) {
+                                    displayAmount = formatCurrency(priceCents);
+                                    return displayAmount;
+                                }
+                            }
+                            // Fallback to total_price in metadata
+                            if (report.metadata.total_price) {
+                                const priceCents = parseInt(report.metadata.total_price) || 0;
+                                if (priceCents > 0) {
+                                    displayAmount = formatCurrency(priceCents);
+                                    return displayAmount;
+                                }
+                            }
+                            // Also check crane_details for total_price (legacy support)
+                            const craneData = report.crane_data || report.crane_details || {};
+                            if (craneData.total_price) {
+                                const priceCents = typeof craneData.total_price === 'number' ? craneData.total_price : parseInt(craneData.total_price) || 0;
+                                if (priceCents > 0) {
+                                    displayAmount = formatCurrency(priceCents);
+                                    return displayAmount;
+                                }
+                            }
+                        }
+                        
+                        // For all report types, check amount_paid and amount
                         if (report.amount && report.amount > 0) {
                             displayAmount = formatCurrency(report.amount);
                         } else if (report.amount_paid && report.amount_paid > 0) {
@@ -1503,14 +1535,13 @@
                         } else if (report.payment_status === 'succeeded') {
                             displayAmount = 'Payment Received';
                         } else {
-                            // Show default price based on report type for unpaid reports
-                            const reportType = (report.report_type || '').toLowerCase();
+                            // Show default price based on report type for unpaid reports (only if no calculated price found)
                             if (reportType === 'spot_check') {
                                 displayAmount = '$495.00';
                             } else if (reportType === 'professional') {
                                 displayAmount = '$995.00';
                             } else if (reportType === 'fleet_valuation') {
-                                // Fleet pricing varies, show default
+                                // Fleet pricing varies, show default only if no calculated price found
                                 displayAmount = '$1,495.00+';
                             } else {
                                 displayAmount = '$995.00'; // Default (professional)
@@ -1778,10 +1809,16 @@
             if (report.service_record_files) {
                 if (typeof report.service_record_files === 'string') {
                     try {
-                        serviceRecordFiles = JSON.parse(report.service_record_files);
+                        // Try parsing as JSON first
+                        const parsed = JSON.parse(report.service_record_files);
+                        serviceRecordFiles = Array.isArray(parsed) ? parsed : [parsed];
                     } catch (e) {
-                        // If parsing fails, treat as single URL string
-                        serviceRecordFiles = [report.service_record_files];
+                        // If parsing fails, treat as single URL string or comma-separated list
+                        if (report.service_record_files.includes(',')) {
+                            serviceRecordFiles = report.service_record_files.split(',').map(url => url.trim()).filter(url => url);
+                        } else {
+                            serviceRecordFiles = [report.service_record_files];
+                        }
                     }
                 } else if (Array.isArray(report.service_record_files)) {
                     serviceRecordFiles = report.service_record_files;
@@ -1790,14 +1827,57 @@
                 }
             }
             
+            console.log('📎 [Admin] Parsed service_record_files for report', reportId, ':', {
+                original: report.service_record_files,
+                parsed: serviceRecordFiles,
+                count: serviceRecordFiles.length,
+                isBulkProcessing: isBulkProcessing,
+                bulk_file_url: craneData.bulk_file_url
+            });
+
             // For bulk processing, ensure bulk_file_url is included in service_record_files if it exists
-            if (isBulkProcessing && craneData.bulk_file_url && !serviceRecordFiles.includes(craneData.bulk_file_url)) {
-                // Add bulk file URL to service_record_files if not already present
-                serviceRecordFiles = [...serviceRecordFiles, craneData.bulk_file_url];
+            if (isBulkProcessing && craneData.bulk_file_url) {
+                const bulkFileUrlStr = typeof craneData.bulk_file_url === 'string' ? craneData.bulk_file_url : String(craneData.bulk_file_url);
+                // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
+                if (bulkFileUrlStr && bulkFileUrlStr.trim() !== '' && (bulkFileUrlStr.startsWith('http://') || bulkFileUrlStr.startsWith('https://')) && !serviceRecordFiles.some(url => String(url) === bulkFileUrlStr)) {
+                    serviceRecordFiles.push(bulkFileUrlStr);
+                    console.log('✅ [Admin] Added bulk_file_url to serviceRecordFiles:', bulkFileUrlStr);
+                }
             }
             
-            // Filter out null, undefined, and empty strings
-            serviceRecordFiles = serviceRecordFiles.filter(url => url && url.trim && url.trim() !== '' || (typeof url === 'string' && url.trim() !== ''));
+            // Also check metadata for bulk_file_url - check if it exists and is not empty/null
+            if (isBulkProcessing && report.metadata && typeof report.metadata === 'object') {
+                const metadataBulkUrl = report.metadata.bulk_file_url;
+                // CRITICAL: Check if it exists (not undefined/null) and is not empty string
+                if (metadataBulkUrl !== undefined && metadataBulkUrl !== null) {
+                    const metadataBulkUrlStr = typeof metadataBulkUrl === 'string' ? metadataBulkUrl : String(metadataBulkUrl);
+                    // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
+                    if (metadataBulkUrlStr && metadataBulkUrlStr.trim() !== '' && (metadataBulkUrlStr.startsWith('http://') || metadataBulkUrlStr.startsWith('https://')) && !serviceRecordFiles.some(url => String(url) === metadataBulkUrlStr)) {
+                        serviceRecordFiles.push(metadataBulkUrlStr);
+                        console.log('✅ [Admin] Added bulk_file_url from metadata to serviceRecordFiles:', metadataBulkUrlStr);
+                    } else if (metadataBulkUrlStr && metadataBulkUrlStr.trim() === '') {
+                        console.warn('⚠️ [Admin] metadata.bulk_file_url exists but is empty string');
+                    }
+                }
+            }
+
+            // Filter out null/undefined/empty strings
+            serviceRecordFiles = serviceRecordFiles.filter(url => {
+                if (!url) return false;
+                if (typeof url !== 'string') {
+                    // Convert to string if it's not already
+                    url = String(url);
+                }
+                return url.trim() !== '';
+            });
+            
+            console.log('📎 [Admin] Final serviceRecordFiles after filtering:', {
+                count: serviceRecordFiles.length,
+                files: serviceRecordFiles,
+                isBulkProcessing: isBulkProcessing,
+                craneData_bulk_file_url: craneData.bulk_file_url,
+                metadata_bulk_file_url: report.metadata && report.metadata.bulk_file_url
+            });
             
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
@@ -1834,7 +1914,39 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Amount Paid</span>
-                            <span class="detail-value">${report.amount && report.amount > 0 ? formatCurrency(report.amount) : (report.amount_paid && report.amount_paid > 0 ? formatCurrency(report.amount_paid * 100) : (report.payment_status === 'succeeded' ? 'Payment Received' : '$0.00'))}</span>
+                            <span class="detail-value">${(() => {
+                                // CRITICAL: For draft reports, amount paid should always be $0.00
+                                const reportStatus = (report.status || '').toLowerCase();
+                                if (reportStatus === 'draft') {
+                                    return '$0.00';
+                                }
+                                
+                                // Only show amount paid if payment was actually completed
+                                // Check payment_status first - if not succeeded, return $0.00
+                                if (report.payment_status && report.payment_status.toLowerCase() !== 'succeeded') {
+                                    return '$0.00';
+                                }
+                                
+                                // If payment succeeded, show the actual amount paid
+                                if (report.amount_paid && report.amount_paid > 0) {
+                                    return formatCurrency(report.amount_paid * 100);
+                                } else if (report.amount && report.amount > 0 && report.payment_status === 'succeeded') {
+                                    return formatCurrency(report.amount);
+                                } else if (report.payment_status === 'succeeded') {
+                                    // Payment succeeded but no amount - check metadata for calculated price
+                                    if (report.metadata && report.metadata.fleet_price_cents) {
+                                        const priceCents = parseInt(report.metadata.fleet_price_cents) || 0;
+                                        return formatCurrency(priceCents);
+                                    } else if (report.metadata && report.metadata.total_price) {
+                                        const priceCents = parseInt(report.metadata.total_price) || 0;
+                                        return formatCurrency(priceCents);
+                                    } else {
+                                        return 'Payment Received';
+                                    }
+                                } else {
+                                    return '$0.00';
+                                }
+                            })()}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Status</span>
@@ -1973,53 +2085,146 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Total Price</span>
-                            <span class="detail-value" style="color: #FFD600;">$${((report.crane_data || report.crane_details || {}).total_price || report.amount_paid || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            <span class="detail-value" style="color: #FFD600;">${(() => {
+                                // Check metadata for calculated fleet price first
+                                let price = 0;
+                                if (report.metadata && report.metadata.fleet_price_cents) {
+                                    price = parseInt(report.metadata.fleet_price_cents) || 0;
+                                } else if (report.metadata && report.metadata.total_price) {
+                                    price = parseInt(report.metadata.total_price) || 0;
+                                } else if ((report.crane_data || report.crane_details || {}).total_price) {
+                                    price = parseFloat((report.crane_data || report.crane_details || {}).total_price) * 100 || 0;
+                                } else if (report.amount_paid) {
+                                    price = report.amount_paid * 100 || 0;
+                                } else if (report.amount) {
+                                    price = report.amount || 0;
+                                }
+                                return `$${(price / 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                            })()}</span>
                         </div>
                     </div>
-                    ${(report.crane_data || report.crane_details || {}).bulk_records && Array.isArray((report.crane_data || report.crane_details || {}).bulk_records) && (report.crane_data || report.crane_details || {}).bulk_records.length > 0 ? `
+                    ${(() => {
+                        // CRITICAL: Check multiple sources for bulk_records
+                        const craneData = report.crane_data || report.crane_details || {};
+                        const metadata = report.metadata || {};
+                        
+                        // Try to get bulk_records from multiple sources
+                        let bulkRecords = null;
+                        if (craneData.bulk_records && Array.isArray(craneData.bulk_records) && craneData.bulk_records.length > 0) {
+                            bulkRecords = craneData.bulk_records;
+                        } else if (metadata.bulk_records && Array.isArray(metadata.bulk_records) && metadata.bulk_records.length > 0) {
+                            bulkRecords = metadata.bulk_records;
+                        } else if (report.bulk_records && Array.isArray(report.bulk_records) && report.bulk_records.length > 0) {
+                            bulkRecords = report.bulk_records;
+                        }
+                        
+                        // Also check if bulk_records is stored as JSON string
+                        if (!bulkRecords) {
+                            const bulkRecordsStr = craneData.bulk_records || metadata.bulk_records || report.bulk_records;
+                            if (bulkRecordsStr && typeof bulkRecordsStr === 'string') {
+                                try {
+                                    const parsed = JSON.parse(bulkRecordsStr);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        bulkRecords = parsed;
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not parse bulk_records JSON:', e);
+                                }
+                            }
+                        }
+                        
+                        console.log('📊 [Admin] Bulk records check:', {
+                            hasCraneDataRecords: !!craneData.bulk_records,
+                            hasMetadataRecords: !!metadata.bulk_records,
+                            hasReportRecords: !!report.bulk_records,
+                            finalBulkRecords: bulkRecords ? bulkRecords.length : 0,
+                            totalRecords: bulkRecords ? bulkRecords.length : 0
+                        });
+                        
+                        if (bulkRecords && bulkRecords.length > 0) {
+                            const totalRecords = bulkRecords.length;
+                            // Display ALL records (removed .slice(0, 20) limit)
+                            return `
                     <div style="margin-top: 20px; overflow-x: auto;">
-                        <h4 style="color: #FFD600; margin-bottom: 12px;">Bulk Processing Records</h4>
-                        <table style="width: 100%; border-collapse: collapse; background: #1A1A1A; border-radius: 8px; overflow: hidden;">
-                            <thead>
+                                <h4 style="color: #FFD600; margin-bottom: 12px;">Bulk Processing Records (${totalRecords} total)</h4>
+                                <div style="max-height: 600px; overflow-y: auto; border: 1px solid #333; border-radius: 8px;">
+                                    <table style="width: 100%; border-collapse: collapse; background: #1A1A1A;">
+                                        <thead style="position: sticky; top: 0; z-index: 10; background: #2A2A2A;">
                                 <tr style="background: #2A2A2A; border-bottom: 2px solid #FFD600;">
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">#</th>
-                                    <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Crane</th>
+                                                <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Manufacturer</th>
+                                                <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Model</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Year</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Capacity</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Hours</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Region</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Est. Value</th>
+                                                <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Confidence</th>
+                                                <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Grade</th>
                                     <th style="padding: 10px; text-align: left; color: #FFD600; font-weight: 600; font-size: 12px;">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${(report.crane_data || report.crane_details || {}).bulk_records.slice(0, 20).map((record, index) => `
+                                            ${bulkRecords.map((record, index) => {
+                                                const rowNumber = record.rowNumber || record.row_number || (index + 1);
+                                                const manufacturer = record.manufacturer || record.Manufacturer || '';
+                                                const model = record.model || record.Model || '';
+                                                const crane = record.crane || (manufacturer + ' ' + model).trim() || 'N/A';
+                                                const year = record.year || record.Year || 'N/A';
+                                                const capacity = typeof record.capacity === 'number' ? record.capacity + 'T' : (record.capacity || record['Capacity (Tons)'] || record.Capacity || 'N/A');
+                                                const hours = typeof record.hours === 'number' ? record.hours.toLocaleString() : (record.hours || record['Operating Hours'] || record['Operating_Hours'] || record.operatingHours || 'N/A');
+                                                const region = record.region || record.Region || 'N/A';
+                                                const estimatedValue = record.estimatedValue || record.estimated_value || record['Estimated Value'] || null;
+                                                const confidence = record.confidence || record.confidence_score || record['Confidence'] || null;
+                                                const grade = record.grade || record.deal_grade || record['Grade'] || record['Deal Grade'] || null;
+                                                const status = record.status || 'pending';
+                                                const statusColor = status === 'success' ? '#00FF85' : (status === 'error' ? '#FF4444' : '#FFD600');
+                                                const statusIcon = status === 'success' ? '✓' : (status === 'error' ? '✗' : '⏳');
+                                                
+                                                return `
                                 <tr style="border-bottom: 1px solid #333;">
-                                    <td style="padding: 10px; color: #fff;">${record.rowNumber || index + 1}</td>
-                                    <td style="padding: 10px; color: #fff;">${record.crane || 'N/A'}</td>
-                                    <td style="padding: 10px; color: #fff;">${record.year || 'N/A'}</td>
-                                    <td style="padding: 10px; color: #fff;">${typeof record.capacity === 'number' ? record.capacity + 'T' : record.capacity || 'N/A'}</td>
-                                    <td style="padding: 10px; color: #fff;">${typeof record.hours === 'number' ? record.hours.toLocaleString() : record.hours || 'N/A'}</td>
-                                    <td style="padding: 10px; color: #fff;">${record.region || 'N/A'}</td>
-                                    <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#888'}; font-weight: 600;">
-                                        ${record.status === 'success' && record.estimatedValue ? '$' + record.estimatedValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
+                                                    <td style="padding: 10px; color: #fff;">${rowNumber}</td>
+                                                    <td style="padding: 10px; color: #fff;">${manufacturer || 'N/A'}</td>
+                                                    <td style="padding: 10px; color: #fff;">${model || 'N/A'}</td>
+                                                    <td style="padding: 10px; color: #fff;">${year}</td>
+                                                    <td style="padding: 10px; color: #fff;">${capacity}</td>
+                                                    <td style="padding: 10px; color: #fff;">${hours}</td>
+                                                    <td style="padding: 10px; color: #fff;">${region}</td>
+                                                    <td style="padding: 10px; color: ${estimatedValue ? '#00FF85' : '#888'}; font-weight: 600;">
+                                                        ${estimatedValue ? '$' + estimatedValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
                                     </td>
-                                    <td style="padding: 10px; color: ${record.status === 'success' ? '#00FF85' : '#FF4444'}; font-weight: 600;">
-                                        ${record.status === 'success' ? '✓' : '✗'}
+                                                    <td style="padding: 10px; color: ${confidence ? '#00FF88' : '#888'}; font-weight: 600;">
+                                                        ${confidence ? confidence + '%' : 'N/A'}
+                                                    </td>
+                                                    <td style="padding: 10px; color: ${grade ? '#00FF88' : '#888'}; font-weight: 700;">
+                                                        ${grade || 'N/A'}
+                                                    </td>
+                                                    <td style="padding: 10px; color: ${statusColor}; font-weight: 600;">
+                                                        ${statusIcon} ${status === 'success' ? 'Success' : (status === 'error' ? 'Error' : 'Pending')}
                                     </td>
                                 </tr>
-                                `).join('')}
-                                ${(report.crane_data || report.crane_details || {}).bulk_records.length > 20 ? `
-                                <tr>
-                                    <td colspan="8" style="padding: 10px; text-align: center; color: #888; font-style: italic;">
-                                        ... and ${(report.crane_data || report.crane_details || {}).bulk_records.length - 20} more records
+                                                ${status === 'error' && record.errorMessage ? `
+                                                <tr style="background: rgba(255, 68, 68, 0.1);">
+                                                    <td colspan="11" style="padding: 8px 10px; color: #FF8888; font-size: 11px; font-style: italic;">
+                                                        Error: ${record.errorMessage || record.error_message || 'Unknown error'}
                                     </td>
                                 </tr>
                                 ` : ''}
+                                                `;
+                                            }).join('')}
                             </tbody>
                         </table>
                     </div>
-                    ` : ''}
+                                <div style="margin-top: 12px; padding: 10px; background: rgba(255, 214, 0, 0.1); border-radius: 6px; color: #FFD600; font-size: 12px; text-align: center;">
+                                    <strong>Total Records:</strong> ${totalRecords} | 
+                                    <strong style="color: #00FF85;">Success:</strong> ${bulkRecords.filter(r => r.status === 'success').length} | 
+                                    <strong style="color: #FF4444;">Errors:</strong> ${bulkRecords.filter(r => r.status === 'error').length}
+                                </div>
+                            </div>
+                            `;
+                        }
+                        return '';
+                    })()}
                 </div>
                 ` : ''}
 
@@ -2030,21 +2235,131 @@
                         (Array.isArray(serviceRecordFiles) ? serviceRecordFiles.length > 0 : serviceRecordFiles);
                     const hasServiceRecords = report.service_records && Object.keys(report.service_records).length > 0;
                     const isManualEntry = craneData.is_manual_entry;
-                    return hasServiceRecordFiles || hasServiceRecords || isManualEntry;
+                    // CRITICAL: Always show section for bulk processing, even if no files found
+                    return hasServiceRecordFiles || hasServiceRecords || isManualEntry || isBulkProcessing;
                 })() ? `
                 <div class="detail-section">
-                    <h3>📎 ${isBulkProcessing ? 'Bulk Processing File' : 'Service Records & Documents'}</h3>
+                    <h3>📎 ${isBulkProcessing ? 'Bulk Processing File & Service Records' : 'Service Records & Documents'}</h3>
                     ${(() => {
-                        // Check if service_record_files exists and has content
-                        const hasFiles = serviceRecordFiles && 
-                            (Array.isArray(serviceRecordFiles) ? serviceRecordFiles.length > 0 : serviceRecordFiles);
-                        return hasFiles;
+                        // For bulk processing, ensure we show the file even if serviceRecordFiles is empty
+                        // The bulk file should be in service_record_files, but if not, check crane_details and metadata
+                        let filesToDisplay = serviceRecordFiles && serviceRecordFiles.length > 0 ? [...serviceRecordFiles] : [];
+                        
+                        if (isBulkProcessing) {
+                            // Add bulk_file_url from crane_details if not already in filesToDisplay
+                            if (craneData && craneData.bulk_file_url) {
+                                const bulkFileUrlStr = typeof craneData.bulk_file_url === 'string' ? craneData.bulk_file_url : String(craneData.bulk_file_url);
+                                if (bulkFileUrlStr && bulkFileUrlStr.trim() !== '' && !filesToDisplay.some(url => String(url).trim() === bulkFileUrlStr.trim())) {
+                                    filesToDisplay.push(bulkFileUrlStr.trim());
+                                    console.log('✅ [Admin] Added bulk_file_url from crane_details to display:', bulkFileUrlStr);
+                                }
+                            }
+                            
+                            // Add bulk_file_url from metadata if not already in filesToDisplay
+                            if (report.metadata && report.metadata.bulk_file_url) {
+                                const metadataBulkUrlStr = typeof report.metadata.bulk_file_url === 'string' ? report.metadata.bulk_file_url : String(report.metadata.bulk_file_url);
+                                if (metadataBulkUrlStr && metadataBulkUrlStr.trim() !== '' && !filesToDisplay.some(url => String(url).trim() === metadataBulkUrlStr.trim())) {
+                                    filesToDisplay.push(metadataBulkUrlStr.trim());
+                                    console.log('✅ [Admin] Added bulk_file_url from metadata to display:', metadataBulkUrlStr);
+                                }
+                            }
+                            
+                            // Also check if bulk file is in service_record_files but not yet in filesToDisplay
+                            serviceRecordFiles.forEach(url => {
+                                if (url && typeof url === 'string' && url.trim() !== '') {
+                                    const urlStr = url.trim();
+                                    // Check if this looks like a bulk processing file (contains 'bulk-processing' in path or is CSV/Excel)
+                                    if (urlStr.includes('bulk-processing') || urlStr.includes('bulk') || urlStr.match(/\.(csv|xlsx|xls)$/i)) {
+                                        if (!filesToDisplay.some(f => String(f).trim() === urlStr)) {
+                                            filesToDisplay.push(urlStr);
+                                            console.log('✅ [Admin] Added bulk file from service_record_files to display:', urlStr);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Store filesToDisplay for use in the map function
+                        window._tempAdminFilesToDisplay = filesToDisplay;
+                        
+                        // CRITICAL: For bulk processing, always return true to show section even if no files found
+                        const hasFiles = filesToDisplay.length > 0;
+                        console.log('📎 [Admin] Files to display check:', {
+                            hasFiles: hasFiles,
+                            filesToDisplayCount: filesToDisplay.length,
+                            serviceRecordFilesCount: serviceRecordFiles ? serviceRecordFiles.length : 0,
+                            isBulkProcessing: isBulkProcessing,
+                            willShowSection: isBulkProcessing || hasFiles
+                        });
+                        // Always show section for bulk processing, even if no files
+                        return isBulkProcessing || hasFiles;
                     })() ? `
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #00FF88; margin-bottom: 10px;">Uploaded Documents:</h4>
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            ${(Array.isArray(serviceRecordFiles) ? serviceRecordFiles : [serviceRecordFiles]).filter(url => url && url.trim() !== '').map((fileUrl, index) => {
-                                const fileName = typeof fileUrl === 'string' ? fileUrl.split('/').pop() : (fileUrl.name || `Document ${index + 1}`);
+                            ${(() => {
+                                // CRITICAL: Rebuild filesToDisplay here to ensure we have the latest data
+                                let filesToShow = [];
+                                
+                                // First, add files from serviceRecordFiles
+                                if (serviceRecordFiles && serviceRecordFiles.length > 0) {
+                                    filesToShow = Array.isArray(serviceRecordFiles) ? [...serviceRecordFiles] : [serviceRecordFiles];
+                                }
+                                
+                                // For bulk processing, ensure bulk_file_url is included
+                                if (isBulkProcessing) {
+                                    // Add bulk_file_url from crane_details
+                                    if (craneData && craneData.bulk_file_url) {
+                                        const bulkFileUrlStr = typeof craneData.bulk_file_url === 'string' ? craneData.bulk_file_url : String(craneData.bulk_file_url);
+                                        // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
+                                        if (bulkFileUrlStr && bulkFileUrlStr.trim() !== '' && (bulkFileUrlStr.startsWith('http://') || bulkFileUrlStr.startsWith('https://')) && !filesToShow.some(url => String(url).trim() === bulkFileUrlStr.trim())) {
+                                            filesToShow.push(bulkFileUrlStr.trim());
+                                            console.log('✅ [Admin] Added bulk_file_url from crane_details to filesToShow:', bulkFileUrlStr);
+                                        }
+                                    }
+                                    
+                                    // Add bulk_file_url from metadata - check if it exists and is not empty/null
+                                    if (report.metadata && report.metadata.bulk_file_url !== undefined && report.metadata.bulk_file_url !== null) {
+                                        const metadataBulkUrlStr = typeof report.metadata.bulk_file_url === 'string' ? report.metadata.bulk_file_url : String(report.metadata.bulk_file_url);
+                                        // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
+                                        if (metadataBulkUrlStr && metadataBulkUrlStr.trim() !== '' && (metadataBulkUrlStr.startsWith('http://') || metadataBulkUrlStr.startsWith('https://')) && !filesToShow.some(url => String(url).trim() === metadataBulkUrlStr.trim())) {
+                                            filesToShow.push(metadataBulkUrlStr.trim());
+                                            console.log('✅ [Admin] Added bulk_file_url from metadata to filesToShow:', metadataBulkUrlStr);
+                                        } else if (metadataBulkUrlStr && metadataBulkUrlStr.trim() === '') {
+                                            console.warn('⚠️ [Admin] metadata.bulk_file_url exists but is empty string');
+                                        }
+                                    }
+                                    
+                                    // Also check service_record_files for any URLs that look like bulk files
+                                    if (serviceRecordFiles && serviceRecordFiles.length > 0) {
+                                        serviceRecordFiles.forEach(url => {
+                                            if (url && typeof url === 'string' && url.trim() !== '') {
+                                                const urlStr = url.trim();
+                                                // Check if this looks like a bulk processing file
+                                                if (urlStr.includes('bulk-processing') || urlStr.includes('bulk') || urlStr.match(/\.(csv|xlsx|xls)$/i)) {
+                                                    if (!filesToShow.some(f => String(f).trim() === urlStr)) {
+                                                        filesToShow.push(urlStr);
+                                                        console.log('✅ [Admin] Added bulk file from service_record_files to filesToShow:', urlStr);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                    
+                                    console.log('📎 [Admin] Final filesToShow after all checks:', {
+                                        count: filesToShow.length,
+                                        files: filesToShow,
+                                        isBulkProcessing: isBulkProcessing
+                                    });
+                                }
+                                
+                                // If bulk processing and no files found, show message
+                                if (isBulkProcessing && filesToShow.length === 0) {
+                                    return '<div style="padding: 15px; background: #2a2a2a; border-radius: 6px; color: #888; text-align: center;"><p style="margin: 0; color: #FFD600; font-weight: 600;">⚠️ Bulk processing file URL not found</p><p style="margin: 8px 0 0 0; font-size: 12px; color: #666;">The bulk file may not have been uploaded or stored correctly.</p></div>';
+                                }
+                                
+                                return filesToShow.filter(url => url && (typeof url === 'string' ? url.trim() !== '' : true)).map((fileUrl, index) => {
+                                    const fileName = typeof fileUrl === 'string' ? fileUrl.split('/').pop() : (fileUrl.name || 'Document ' + (index + 1));
                                 let fileUrlStr = typeof fileUrl === 'string' ? fileUrl : (fileUrl.url || fileUrl);
                                 
                                 // Ensure we have a valid URL
@@ -2056,26 +2371,17 @@
                                 // Handle legacy local file paths (convert to CDN redirect endpoint for backward compatibility)
                                 if (fileUrlStr.startsWith('/uploads/service-records/')) {
                                     const filename = fileUrlStr.replace('/uploads/service-records/', '');
-                                    fileUrlStr = `/api/v1/fmv-reports/service-records/${filename}`;
+                                        fileUrlStr = '/api/v1/fmv-reports/service-records/' + filename;
                                 } else if (!fileUrlStr.startsWith('http') && !fileUrlStr.startsWith('/api/')) {
                                     // If it's just a filename, construct the API URL (will redirect to CDN)
-                                    fileUrlStr = `/api/v1/fmv-reports/service-records/${fileUrlStr}`;
+                                        fileUrlStr = '/api/v1/fmv-reports/service-records/' + fileUrlStr;
                                 }
                                 // CDN URLs (starting with http/https) are used directly
                                 
-                                return `
-                                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #2a2a2a; border-radius: 6px;">
-                                    <span style="font-size: 24px;">${fileUrlStr.endsWith('.pdf') || fileUrlStr.includes('.pdf') ? '📄' : '🖼️'}</span>
-                                    <span style="color: #fff; flex: 1; word-break: break-all;">${fileName}</span>
-                                    <a href="${fileUrlStr}" download="${fileName}" style="padding: 6px 12px; background: #00FF88; color: #000; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; margin-right: 5px;">
-                                        ⬇️ Download
-                                    </a>
-                                    <a href="${fileUrlStr}" target="_blank" style="padding: 6px 12px; background: #2196F3; color: #fff; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
-                                        👁️ View
-                                    </a>
-                                </div>
-                            `;
-                            }).filter(html => html !== '').join('')}
+                                    const fileIcon = (fileUrlStr.endsWith('.pdf') || fileUrlStr.includes('.pdf')) ? '📄' : '🖼️';
+                                    return '<div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #2a2a2a; border-radius: 6px;"><span style="font-size: 24px;">' + fileIcon + '</span><span style="color: #fff; flex: 1; word-break: break-all;">' + fileName + '</span><a href="' + fileUrlStr + '" download="' + fileName + '" style="padding: 6px 12px; background: #00FF88; color: #000; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; margin-right: 5px;">⬇️ Download</a><a href="' + fileUrlStr + '" target="_blank" style="padding: 6px 12px; background: #2196F3; color: #fff; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">👁️ View</a></div>';
+                                }).filter(html => html !== '').join('');
+                            })()}
                         </div>
                     </div>
                     ` : ((report.crane_data || report.crane_details || {}).is_manual_entry ? `

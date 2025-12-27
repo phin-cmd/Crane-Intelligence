@@ -22,7 +22,7 @@ from ...services.stripe_service import StripeService
 from ...services.storage_service import get_storage_service
 from ...schemas.fmv_report import (
     FMVReportCreate, FMVReportResponse, StatusTransition, FMVReportUpdate,
-    FMVReportTimelineResponse, FMVReportTimelineItem
+    FMVReportTimelineResponse, FMVReportTimelineItem, FMVReportDraftUpdate
 )
 from pydantic import BaseModel
 from ...models.fmv_report import FMVReport, FMVReportStatus
@@ -158,12 +158,61 @@ def convert_report_to_response(report: FMVReport) -> FMVReportResponse:
             else:
                 service_record_files = []
         
+        # CRITICAL: Ensure bulk_file_url from crane_details is included in service_record_files
+        # This ensures the bulk file is always displayed even if it wasn't added during creation
+        bulk_file_url_found = False
+        
+        # Check crane_details for bulk_file_url
+        if isinstance(crane_details, dict):
+            bulk_file_url = crane_details.get('bulk_file_url')
+            # Check if it exists and is not None/empty
+            if bulk_file_url is not None:
+                # Convert to string and validate - must be non-empty after stripping
+                bulk_file_url_str = str(bulk_file_url).strip()
+                # Must be a valid URL (starts with http:// or https://) and not empty
+                if bulk_file_url_str and len(bulk_file_url_str) > 0 and (bulk_file_url_str.startswith('http://') or bulk_file_url_str.startswith('https://')):
+                    # Check if it's already in service_record_files (as string comparison)
+                    if not any(str(url).strip() == bulk_file_url_str for url in service_record_files):
+                        service_record_files.append(bulk_file_url_str)
+                        bulk_file_url_found = True
+                        logger.info(f"✅ Added bulk_file_url from crane_details to service_record_files in response: {bulk_file_url_str}")
+                elif bulk_file_url_str:
+                    # Log if it exists but is invalid
+                    logger.warning(f"⚠️ Report {report.id}: crane_details.bulk_file_url exists but is invalid (empty or not a URL): '{bulk_file_url_str}'")
+        
+        # Also check metadata for bulk_file_url (even if found in crane_details, check metadata too)
+        if metadata and isinstance(metadata, dict):
+            bulk_file_url = metadata.get('bulk_file_url')
+            # Check if it exists and is not None/empty
+            if bulk_file_url is not None:
+                # Convert to string and validate - must be non-empty after stripping
+                bulk_file_url_str = str(bulk_file_url).strip()
+                # Must be a valid URL (starts with http:// or https://) and not empty
+                if bulk_file_url_str and len(bulk_file_url_str) > 0 and (bulk_file_url_str.startswith('http://') or bulk_file_url_str.startswith('https://')):
+                    # Check if it's already in service_record_files (as string comparison)
+                    if not any(str(url).strip() == bulk_file_url_str for url in service_record_files):
+                        service_record_files.append(bulk_file_url_str)
+                        if not bulk_file_url_found:
+                            bulk_file_url_found = True
+                        logger.info(f"✅ Added bulk_file_url from metadata to service_record_files in response: {bulk_file_url_str}")
+                elif bulk_file_url_str:
+                    # Log if it exists but is invalid
+                    logger.warning(f"⚠️ Report {report.id}: metadata.bulk_file_url exists but is invalid (empty or not a URL): '{bulk_file_url_str}'")
+        
+        # Log if bulk_file_url was not found anywhere (for debugging)
+        if not bulk_file_url_found:
+            crane_bulk_url = crane_details.get('bulk_file_url') if isinstance(crane_details, dict) else None
+            meta_bulk_url = metadata.get('bulk_file_url') if (metadata and isinstance(metadata, dict)) else None
+            logger.warning(f"⚠️ Report {report.id}: bulk_file_url not found or invalid. crane_details.bulk_file_url: {crane_bulk_url}, metadata.bulk_file_url: {meta_bulk_url}, crane_details keys: {list(crane_details.keys()) if isinstance(crane_details, dict) else 'N/A'}, metadata keys: {list(metadata.keys()) if isinstance(metadata, dict) else 'N/A'}, service_record_files count: {len(service_record_files)}")
+        
+        # Add crane_data as alias for crane_details for frontend compatibility
         report_dict = {
             "id": report.id,
             "user_id": report.user_id,
             "report_type": report_type_value,
             "status": status_value,
             "crane_details": crane_details,
+            "crane_data": crane_details,  # Alias for frontend compatibility
             "service_records": service_records,
             "service_record_files": service_record_files,
             "fleet_pricing_tier": fleet_tier_value,
@@ -313,16 +362,19 @@ async def mark_payment_received_by_intent(
                     # Send SUBMITTED notification (form filled, payment successful)
                     # NOTE: This email already includes the PDF receipt as an attachment,
                     # so we do NOT send a separate Payment Receipt email.
+                    logger.info(f"📧 Sending payment success email for report {report.id} to {user.email}")
                     email_service.send_submitted_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data={
                             "report_id": report.id,
-                            "report_type": report.report_type.value if hasattr(report.report_type, 'value', user_timezone=getattr(user, 'timezone', None)) else str(report.report_type),
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
                             "amount": payment_data.amount,
                             "payment_intent_id": payment_data.payment_intent_id
-                        }
+                        },
+                        user_timezone=getattr(user, 'timezone', None)
                     )
+                    logger.info(f"✅ Payment success email sent for report {report.id}")
                     
                     # Create user notification (single notification for payment success)
                     try:
@@ -494,33 +546,96 @@ async def create_fmv_payment(
                             fleet_pricing_tier = FleetPricingTier.TIER_26_50
                     else:
                         # Build crane_details from crane_data (single crane)
-                        crane_details = CraneDetails(
-                            manufacturer=crane_data.get("manufacturer", ""),
-                            model=crane_data.get("model", ""),
-                            year=crane_data.get("year"),
-                            capacity=crane_data.get("capacity"),
-                            operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
-                            region=crane_data.get("region", ""),
-                            craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
-                        )
+                        # Check if bulk_file_url is provided (for fleet valuation with bulk file)
+                        bulk_file_url = crane_data.get("bulk_file_url")
+                        if bulk_file_url:
+                            # If bulk_file_url exists, store it in crane_details as dict to preserve it
+                            crane_details = {
+                                "manufacturer": crane_data.get("manufacturer", ""),
+                                "model": crane_data.get("model", ""),
+                                "year": crane_data.get("year"),
+                                "capacity": crane_data.get("capacity"),
+                                "operatingHours": crane_data.get("operatingHours", crane_data.get("hours", 0)),
+                                "region": crane_data.get("region", ""),
+                                "craneType": crane_data.get("craneType", crane_data.get("crane_type", "")),
+                                "bulk_file_url": bulk_file_url
+                            }
+                        else:
+                            crane_details = CraneDetails(
+                                manufacturer=crane_data.get("manufacturer", ""),
+                                model=crane_data.get("model", ""),
+                                year=crane_data.get("year"),
+                                capacity=crane_data.get("capacity"),
+                                operatingHours=crane_data.get("operatingHours", crane_data.get("hours", 0)),
+                                region=crane_data.get("region", ""),
+                                craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
+                            )
                         unit_count = None
                         fleet_pricing_tier = None
+                    
+                    # Get service record files - check request body first, then metadata
+                    service_record_files = None
+                    # Check if service_record_files is provided directly in request body
+                    if hasattr(request, 'service_record_files') and request.service_record_files:
+                        service_record_files = request.service_record_files
+                    elif 'service_record_files' in request_data and request_data.get('service_record_files'):
+                        service_record_files = request_data.get('service_record_files')
+                    # Check metadata for service record files
+                    elif frontend_metadata.get('service_record_files'):
+                        try:
+                            import json
+                            try:
+                                service_record_files = json.loads(frontend_metadata.get('service_record_files'))
+                            except:
+                                # If JSON parse fails, try as array
+                                service_record_files = frontend_metadata.get('service_record_files')
+                        except:
+                            pass
+                    elif frontend_metadata.get('service_record_file_urls'):
+                        # Comma-separated URLs
+                        urls_str = frontend_metadata.get('service_record_file_urls')
+                        if urls_str:
+                            service_record_files = [url.strip() for url in urls_str.split(',') if url.strip()]
+                    
+                    # CRITICAL: For bulk processing, ensure bulk_file_url is in service_record_files
+                    bulk_file_url = None
+                    if is_bulk_processing and crane_data.get("bulk_file_url"):
+                        bulk_file_url = crane_data.get("bulk_file_url")
+                    elif crane_data.get("bulk_file_url"):
+                        bulk_file_url = crane_data.get("bulk_file_url")
+                    elif frontend_metadata.get("bulk_file_url"):
+                        bulk_file_url = frontend_metadata.get("bulk_file_url")
+                    
+                    if bulk_file_url:
+                        if service_record_files is None:
+                            service_record_files = []
+                        if not isinstance(service_record_files, list):
+                            service_record_files = [service_record_files] if service_record_files else []
+                        # Add bulk file URL if not already present
+                        if bulk_file_url not in service_record_files:
+                            service_record_files.append(bulk_file_url)
+                            logger.info(f"✅ Added bulk_file_url to service_record_files: {bulk_file_url}")
                     
                     # Create report data
                     report_create = FMVReportCreate(
                         report_type=report_type,
                         crane_details=crane_details,
+                        service_record_files=service_record_files,  # Include service record files if provided
                         metadata={
                             "user_email": user_email,
                             "cardholder_name": cardholder_name,
                             "receipt_email": receipt_email
                         }
                     )
+                    if service_record_files:
+                        logger.info(f"📎 Including {len(service_record_files) if isinstance(service_record_files, list) else 1} service record files in new draft report creation")
                     
                     # Create the DRAFT report
                     logger.info(f"🔄 Creating DRAFT report for user {user_id} in /create-payment endpoint...")
+                    logger.info(f"   Report type: {report_type}, Crane: {crane_data.get('manufacturer', 'N/A')} {crane_data.get('model', 'N/A')}")
                     draft_report = service.create_report(user_id, report_create)
                     draft_report_id = draft_report.id
+                    logger.info(f"✅ DRAFT report {draft_report_id} created successfully in /create-payment endpoint")
                     
                     # If bulk processing, update unit_count and fleet_pricing_tier
                     if is_bulk_processing:
@@ -637,6 +752,71 @@ async def create_fmv_payment(
                 draft_report = service.get_report(draft_report_id, user_id if user_id else None)
                 if draft_report:
                     logger.info(f"✅ Verified draft report {draft_report_id} exists and is valid")
+                    
+                    # CRITICAL: Update existing draft report with service record files if provided in metadata
+                    # This ensures files uploaded during manual entry are stored in the draft report
+                    if frontend_metadata.get('service_record_files') or frontend_metadata.get('service_record_file_urls'):
+                        try:
+                            # Parse service record files from metadata
+                            service_record_files = None
+                            if frontend_metadata.get('service_record_files'):
+                                import json
+                                service_record_files = json.loads(frontend_metadata.get('service_record_files'))
+                            elif frontend_metadata.get('service_record_file_urls'):
+                                # Comma-separated URLs
+                                service_record_files = [url.strip() for url in frontend_metadata.get('service_record_file_urls').split(',') if url.strip()]
+                            
+                            # CRITICAL: Also check for bulk_file_url in metadata or crane_data
+                            bulk_file_url = None
+                            if frontend_metadata.get('bulk_file_url'):
+                                bulk_file_url = frontend_metadata.get('bulk_file_url')
+                            elif crane_data.get('bulk_file_url'):
+                                bulk_file_url = crane_data.get('bulk_file_url')
+                            
+                            if service_record_files:
+                                # Ensure it's a list
+                                if not isinstance(service_record_files, list):
+                                    service_record_files = [service_record_files] if service_record_files else []
+                                
+                                # Add bulk_file_url if not already in the list
+                                if bulk_file_url and bulk_file_url not in service_record_files:
+                                    service_record_files.append(bulk_file_url)
+                                    logger.info(f"✅ Added bulk_file_url to service_record_files: {bulk_file_url}")
+                                
+                                # Merge with existing files if any (don't overwrite, combine)
+                                existing_files = draft_report.service_record_files or []
+                                if isinstance(existing_files, list):
+                                    # Combine and deduplicate
+                                    all_files = list(set(existing_files + service_record_files))
+                                else:
+                                    all_files = service_record_files
+                                
+                                # Update the existing draft report with service record files
+                                draft_report.service_record_files = all_files
+                                
+                                # Also update crane_details to include bulk_file_url if it's not there
+                                if bulk_file_url:
+                                    try:
+                                        import json
+                                        crane_details_dict = draft_report.crane_details
+                                        if isinstance(crane_details_dict, str):
+                                            crane_details_dict = json.loads(crane_details_dict)
+                                        if not isinstance(crane_details_dict, dict):
+                                            crane_details_dict = {}
+                                        if 'bulk_file_url' not in crane_details_dict or not crane_details_dict.get('bulk_file_url'):
+                                            crane_details_dict['bulk_file_url'] = bulk_file_url
+                                            draft_report.crane_details = json.dumps(crane_details_dict) if isinstance(draft_report.crane_details, str) else crane_details_dict
+                                            logger.info(f"✅ Updated crane_details with bulk_file_url: {bulk_file_url}")
+                                    except Exception as crane_update_error:
+                                        logger.warning(f"⚠️ Failed to update crane_details with bulk_file_url: {crane_update_error}")
+                                
+                                db.commit()
+                                db.refresh(draft_report)
+                                logger.info(f"✅ Updated draft report {draft_report_id} with service record files: {len(all_files)} total files")
+                                logger.info(f"📎 Service record files now: {all_files}")
+                        except Exception as update_error:
+                            logger.error(f"❌ Failed to update draft report {draft_report_id} with service record files: {update_error}", exc_info=True)
+                            db.rollback()
                 else:
                     logger.warning(f"⚠️ Draft report {draft_report_id} not found or doesn't belong to user - will create new one")
                     draft_report_id = None  # Reset to None so a new one is created
@@ -739,8 +919,21 @@ async def submit_fmv_report(
 ):
     """Submit a new FMV report request - Creates DRAFT report immediately when purchase button is clicked"""
     import traceback
-    logger.info(f"📥 Received /submit request: report_type={report_data.report_type if hasattr(report_data, 'report_type') else 'unknown'}")
+    logger.info("=" * 80)
+    logger.info("📥 RECEIVED /submit REQUEST")
+    logger.info(f"   Report type: {report_data.report_type if hasattr(report_data, 'report_type') else 'unknown'}")
     logger.info(f"   Request body keys: {list(report_data.dict().keys()) if hasattr(report_data, 'dict') else 'N/A'}")
+    logger.info(f"   Metadata: {report_data.metadata if hasattr(report_data, 'metadata') else 'N/A'}")
+    service_record_files = report_data.service_record_files if hasattr(report_data, 'service_record_files') else None
+    logger.info(f"   Service record files: {service_record_files}")
+    logger.info(f"   Service record files type: {type(service_record_files)}")
+    if service_record_files:
+        if isinstance(service_record_files, list):
+            logger.info(f"   Service record files count: {len(service_record_files)}")
+            logger.info(f"   Service record files (first 3): {service_record_files[:3]}")
+        else:
+            logger.info(f"   Service record files (single): {service_record_files}")
+    logger.info(f"   Authorization header: {request.headers.get('authorization', 'NOT PROVIDED')[:50]}")
     try:
         # Try to get current_user from token if provided
         current_user = None
@@ -749,8 +942,30 @@ async def submit_fmv_report(
             security = HTTPBearer(auto_error=False)
             credentials = await security(request)
             if credentials:
-                current_user = await get_current_user(credentials)
-                logger.info(f"✅ User authenticated: {current_user.get('email') if current_user else 'None'}")
+                try:
+                    current_user = await get_current_user(credentials)
+                    logger.info(f"✅ User authenticated: {current_user.get('email') if current_user else 'None'}")
+                except Exception as get_user_error:
+                    logger.warning(f"⚠️ get_current_user failed: {get_user_error}")
+                    # Try to extract user_id directly from token using jose
+                    try:
+                        from jose import jwt
+                        from ...services.auth_service import auth_service
+                        token_data = jwt.decode(
+                            credentials.credentials,
+                            auth_service.secret_key,
+                            algorithms=[auth_service.algorithm]
+                        )
+                        if token_data and token_data.get("sub"):
+                            # Create a minimal current_user dict from token
+                            current_user = {
+                                "sub": token_data.get("sub"),
+                                "email": token_data.get("email"),
+                                "full_name": token_data.get("full_name")
+                            }
+                            logger.info(f"✅ Extracted user from token: {current_user.get('email')}")
+                    except Exception as decode_error:
+                        logger.warning(f"⚠️ Token decode failed: {decode_error}")
         except Exception as auth_error:
             logger.warning(f"⚠️ Authentication check failed: {auth_error}")
             pass
@@ -774,15 +989,16 @@ async def submit_fmv_report(
             if report_data.metadata and isinstance(report_data.metadata, dict):
                 user_email = report_data.metadata.get('user_email') or report_data.metadata.get('receipt_email')
                 logger.info(f"🔍 Looking up user by email from metadata: {user_email}")
-            if user_email:
+            if user_email and user_email.strip():
                 # Try exact match first
-                user = db.query(User).filter(User.email == user_email).first()
+                user = db.query(User).filter(User.email == user_email.strip()).first()
                 if not user:
                     # Try case-insensitive match
-                    user = db.query(User).filter(User.email.ilike(user_email)).first()
+                    user = db.query(User).filter(User.email.ilike(user_email.strip())).first()
                 if user:
                     user_id = user.id
-                    logger.info(f"✅ Found user by email: {user_id}")
+                    user_email = user.email  # Use the actual email from database
+                    logger.info(f"✅ Found user by email: {user_id}, email: {user_email}")
                 else:
                     logger.warning(f"⚠️ User not found by email: {user_email}")
                     # Try email variants
@@ -792,11 +1008,13 @@ async def submit_fmv_report(
                         user_email.strip().upper(),
                     ]
                     for email_variant in email_variants:
-                        user = db.query(User).filter(User.email.ilike(email_variant)).first()
-                        if user:
-                            user_id = user.id
-                            logger.info(f"✅ Found user by email variant: {email_variant}, user_id: {user_id}")
-                            break
+                        if email_variant:
+                            user = db.query(User).filter(User.email.ilike(email_variant)).first()
+                            if user:
+                                user_id = user.id
+                                user_email = user.email  # Use the actual email from database
+                                logger.info(f"✅ Found user by email variant: {email_variant}, user_id: {user_id}")
+                                break
         
         if not user_id:
             # LAST RESORT: Try to get user_email from metadata even if it wasn't found earlier
@@ -837,13 +1055,16 @@ async def submit_fmv_report(
                 
                 if not user_id:
                     # Log detailed error for debugging
-                    logger.error(f"❌ Cannot create DRAFT report: user_id not found after all attempts.")
+                    # Log detailed error for debugging
+                    logger.error("=" * 80)
+                    logger.error("❌ CANNOT CREATE DRAFT REPORT: user_id not found after all attempts")
                     logger.error(f"   current_user: {current_user}")
                     logger.error(f"   user_email: {user_email}")
                     logger.error(f"   metadata: {report_data.metadata if hasattr(report_data, 'metadata') else 'N/A'}")
+                    logger.error(f"   Authorization header present: {bool(request.headers.get('authorization'))}")
                     
                     # If we have user_email but user doesn't exist, this is a data integrity issue
-                    if user_email:
+                    if user_email and user_email.strip():
                         # Check if any user exists with similar email
                         similar_users = db.query(User).filter(User.email.ilike(f'%{user_email.split("@")[0]}%')).limit(5).all()
                         if similar_users:
@@ -853,10 +1074,31 @@ async def submit_fmv_report(
                         else:
                             logger.error(f"   No users found with similar email pattern")
                     
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail=f"User authentication required. User with email '{user_email}' not found in database. Please ensure you are logged in with a valid account."
-                    )
+                    # List all users for debugging
+                    all_users = db.query(User).limit(10).all()
+                    logger.error(f"   Available users in database ({len(all_users)}):")
+                    for u in all_users:
+                        logger.error(f"     - ID={u.id}, Email={u.email}")
+                    
+                    # If we have a token but couldn't extract user_id, the token might be invalid
+                    if current_user:
+                        error_detail = "User authentication failed. Please log in again with a valid account."
+                        logger.error(f"   Raising 401: {error_detail}")
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=error_detail
+                        )
+                    else:
+                        # If we have an email but user doesn't exist, provide more helpful error
+                        if user_email and user_email.strip():
+                            error_detail = f"User authentication required. User with email '{user_email}' not found in database. Please ensure you are logged in with a valid account."
+                        else:
+                            error_detail = "User authentication required. Please log in to create a report, or provide a valid user email."
+                        logger.error(f"   Raising 401: {error_detail}")
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=error_detail
+                        )
         
         # Create service instance (FMVReportService is imported at top of file)
         service = FMVReportService(db)
@@ -910,6 +1152,8 @@ async def submit_fmv_report(
         try:
             response = convert_report_to_response(report)
             logger.info(f"✅ Successfully converted report {report.id} to response")
+            logger.info(f"✅ Returning DRAFT report response: id={response.id}, status={response.status}")
+            logger.info("=" * 80)
         except Exception as convert_error:
             logger.error(f"❌ Error converting report to response: {convert_error}", exc_info=True)
             import traceback
@@ -923,20 +1167,21 @@ async def submit_fmv_report(
         # DRAFT reports should always generate in-app notifications even if email
         # sending is misconfigured, so notification creation is decoupled from
         # email service availability.
+        logger.info(f"📧 Preparing to send notifications for DRAFT report {report.id}")
         try:
-            # Ensure we have user_email and user_name
-            if not user_email or not user_id:
-                user = db.query(User).filter(User.id == user_id).first()
-                if user and not user_email:
+            # Ensure we have user_email and user_name - always fetch from database to ensure accuracy
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                if not user_email:
                     user_email = user.email
                     logger.info(f"✅ Retrieved user_email from database: {user_email}")
+                user_name = (
+                    user.full_name if getattr(user, "full_name", None)
+                    else (current_user.get("full_name", "User") if current_user else "User")
+                )
             else:
-                user = db.query(User).filter(User.id == user_id).first()
-            
-            user_name = (
-                user.full_name if user and getattr(user, "full_name", None)
-                else (current_user.get("full_name", "User") if current_user else "User")
-            )
+                logger.error(f"❌ User {user_id} not found in database")
+                user_name = current_user.get("full_name", "User") if current_user else "User"
             
             # Only proceed if this is a DRAFT report
             if report.status == FMVReportStatus.DRAFT:
@@ -968,30 +1213,66 @@ async def submit_fmv_report(
                         amount = 99500  # Convert to cents for consistency
                 
                 # 1) Try to send DRAFT reminder email (if email service configured)
+                logger.info(f"📧 Attempting to send DRAFT reminder email for report {report.id} to {user_email}")
                 try:
                     email_service = get_fmv_email_service()
+                    logger.info(f"📧 Email service available: {email_service is not None}, user_email: {user_email}")
                     if email_service and user_email:
+                        # CRITICAL: Extract metadata from report to include calculated pricing
+                        report_metadata = {}
+                        if hasattr(report, 'report_metadata') and report.report_metadata:
+                            import json
+                            if isinstance(report.report_metadata, str):
+                                try:
+                                    report_metadata = json.loads(report.report_metadata)
+                                except:
+                                    report_metadata = {}
+                            elif isinstance(report.report_metadata, dict):
+                                report_metadata = report.report_metadata
+                        
+                        # Also extract crane_details for total_price and bulk_file_url
+                        crane_details_dict = {}
+                        if hasattr(report, 'crane_details') and report.crane_details:
+                            import json
+                            if isinstance(report.crane_details, str):
+                                try:
+                                    crane_details_dict = json.loads(report.crane_details)
+                                except:
+                                    crane_details_dict = {}
+                            elif isinstance(report.crane_details, dict):
+                                crane_details_dict = report.crane_details
+                        
+                        # Build report_data with metadata and crane_details for email service
+                        report_data_for_email = {
+                            "report_id": report.id,
+                            "report_type": report_type_value,
+                            "amount": amount,  # Will be converted to dollars in email service (fallback)
+                            "hours_since_creation": 0,
+                            "reminder_interval": "initial",
+                            "payment_url": f"{settings.frontend_url}/report-generation.html",
+                            "report_type_display": report_type_value.replace('_', ' ').title(),
+                            "metadata": report_metadata,  # Include metadata so email service can extract fleet_price_cents
+                            "crane_details": crane_details_dict  # Include crane_details so email service can extract total_price
+                        }
+                        
+                        logger.info(f"📧 Calling send_draft_reminder_notification for report {report.id} with metadata: {report_metadata}")
                         email_result = email_service.send_draft_reminder_notification(
                             user_email=user_email,
                             user_name=user_name,
-                            report_data={
-                                "report_id": report.id,
-                                "report_type": report_type_value,
-                                "amount": amount,  # Will be converted to dollars in email service
-                                "hours_since_creation": 0,
-                                "reminder_interval": "initial",
-                                "payment_url": f"{settings.frontend_url}/report-generation.html",
-                                "report_type_display": report_type_value.replace('_', ' ', user_timezone=getattr(user, 'timezone', None)).title()
-                            }
+                            report_data=report_data_for_email,
+                            user_timezone=getattr(user, 'timezone', None) if user else None
                         )
                         if email_result:
                             logger.info(f"✅ Sent DRAFT reminder email for report {report.id} to {user_email}")
                         else:
                             logger.warning(f"⚠️ DRAFT reminder email returned False for report {report.id}")
+                    else:
+                        logger.warning(f"⚠️ Cannot send email: email_service={email_service is not None}, user_email={bool(user_email)}")
                 except Exception as email_error:
-                    logger.error(f"Error sending draft reminder notification email: {email_error}", exc_info=True)
+                    logger.error(f"❌ Error sending draft reminder notification email: {email_error}", exc_info=True)
                 
                 # 2) Always create user notification for DRAFT report
+                logger.info(f"📧 Creating user notification for DRAFT report {report.id}, user_id={user_id}")
                 try:
                     from ...models.notification import UserNotification
                     user_notification = UserNotification(
@@ -1003,9 +1284,9 @@ async def submit_fmv_report(
                     )
                     db.add(user_notification)
                     db.commit()
-                    logger.info(f"✅ Created user notification for DRAFT report {report.id}")
+                    logger.info(f"✅ Created user notification {user_notification.id} for DRAFT report {report.id}, user_id={user_id}")
                 except Exception as notif_error:
-                    logger.warning(f"⚠️ Failed to create user notification for DRAFT report: {notif_error}", exc_info=True)
+                    logger.error(f"❌ Failed to create user notification for DRAFT report: {notif_error}", exc_info=True)
                     db.rollback()
                 
                 # 3) Always create admin notifications for DRAFT report (best-effort)
@@ -1102,12 +1383,14 @@ async def upload_service_records(
                 )
             
             # Upload to DigitalOcean Spaces
+            logger.info(f"📤 Uploading service record file: {file.filename} ({file_size} bytes)")
             cdn_url = storage_service.upload_file(
                 file_content=content,
                 filename=file.filename,
                 folder="service-records",
                 content_type=file.content_type
             )
+            logger.info(f"✅ Uploaded service record file to CDN: {cdn_url}")
             
             uploaded_files.append({
                 "filename": file.filename,
@@ -1135,6 +1418,75 @@ async def upload_service_records(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload service records: {str(e)}"
+        )
+
+
+@router.post("/upload-bulk-file", status_code=status.HTTP_200_OK)
+async def upload_bulk_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Upload bulk processing file (CSV, XLSX, XLS) to DigitalOcean Spaces - max 50MB"""
+    from pathlib import Path
+    
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB for bulk files
+    ALLOWED_EXTENSIONS = {'.csv', '.xlsx', '.xls'}
+    
+    storage_service = get_storage_service()
+    
+    try:
+        # Validate file size
+        content = await file.read()
+        file_size = len(content)
+        
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File {file.filename} exceeds 50MB limit"
+            )
+        
+        # Validate file extension
+        file_ext = Path(file.filename).suffix.lower()
+        if file_ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File {file.filename} has invalid extension. Only CSV, XLSX, XLS allowed."
+            )
+        
+        # Upload to DigitalOcean Spaces
+        logger.info(f"📤 Uploading bulk processing file: {file.filename} ({file_size} bytes)")
+        cdn_url = storage_service.upload_file(
+            file_content=content,
+            filename=file.filename,
+            folder="bulk-processing",
+            content_type=file.content_type or "application/octet-stream"
+        )
+        logger.info(f"✅ Uploaded bulk processing file to CDN: {cdn_url}")
+        
+        return {
+            "success": True,
+            "files": [cdn_url],  # Return as array for consistency
+            "file_urls": [cdn_url],  # Keep for backward compatibility
+            "file_details": [{
+                "filename": file.filename,
+                "url": cdn_url,
+                "size": file_size,
+                "type": file.content_type
+            }]
+        }
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        logger.error(f"Storage service error: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload bulk file: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Error uploading bulk file: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload bulk file: {str(e)}"
         )
 
 
@@ -1183,14 +1535,16 @@ async def submit_draft_report(
         try:
             email_service = get_fmv_email_service()
             if email_service:
+                user = db.query(User).filter(User.id == user_id).first()
                 email_service.send_submitted_notification(
-                user_email=current_user.get("email", user_timezone=getattr(user, 'timezone', None)),
-                user_name=current_user.get("full_name", "User"),
-                report_data={
-                    "report_id": report.id,
-                    "report_type": report.report_type
-                }
-            )
+                    user_email=current_user.get("email") or (user.email if user else ""),
+                    user_name=current_user.get("full_name", "User"),
+                    report_data={
+                        "report_id": report.id,
+                        "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type)
+                    },
+                    user_timezone=getattr(user, 'timezone', None) if user else None
+                )
         except Exception as e:
             logger.error(f"Error sending submitted notification: {e}")
         
@@ -1475,6 +1829,28 @@ async def update_report(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update report")
 
 
+@router.put("/{report_id}/draft", response_model=FMVReportResponse)
+async def update_draft_report(
+    report_id: int,
+    update_data: FMVReportDraftUpdate,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update draft FMV report (user-facing) - allows users to update their own DRAFT reports"""
+    try:
+        user_id = int(current_user.get("sub"))
+        
+        service = FMVReportService(db)
+        report = service.update_draft_report(report_id, user_id, update_data)
+        
+        return convert_report_to_response(report)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating draft report: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update draft report")
+
+
 @router.post("/{report_id}/payment", response_model=FMVReportResponse)
 async def mark_payment_received(
     report_id: int,
@@ -1510,16 +1886,19 @@ async def mark_payment_received(
                 email_service = get_fmv_email_service()
                 if email_service:
                     # Send SUBMITTED notification (form filled, payment successful)
+                    logger.info(f"📧 Sending payment success email for report {report.id} to {user.email}")
                     email_service.send_submitted_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data={
                             "report_id": report.id,
-                            "report_type": report.report_type.value if hasattr(report.report_type, 'value', user_timezone=getattr(user, 'timezone', None)) else str(report.report_type),
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
                             "amount": payment_data.amount,
                             "payment_intent_id": payment_data.payment_intent_id
-                        }
+                        },
+                        user_timezone=getattr(user, 'timezone', None)
                     )
+                    logger.info(f"✅ Payment success email sent for report {report.id}")
                     
                     # Create user notification
                     try:

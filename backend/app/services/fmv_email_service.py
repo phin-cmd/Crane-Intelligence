@@ -202,7 +202,9 @@ class FMVEmailService:
     def send_draft_reminder_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
         """Send reminder notification when report is in DRAFT status (payment not completed)
         Sends periodic reminders at different intervals (1 hour, 6 hours, 24 hours, 48 hours, etc.)"""
+        logger.info(f"📧 send_draft_reminder_notification called: user_email={user_email}, report_id={report_data.get('report_id')}")
         if not self.email_service:
+            logger.warning("⚠️ Email service not available in send_draft_reminder_notification")
             return False
         try:
             first_name = self._extract_first_name(user_name)
@@ -226,12 +228,56 @@ class FMVEmailService:
                 # Format report type for display (e.g., "spot_check" -> "Spot Check")
                 report_type_display = report_type.replace('_', ' ').title()
             
-            # Convert amount from cents to dollars if needed (amounts > 1000 are likely in cents)
+            # Get amount and convert from cents to dollars if needed
+            # CRITICAL: Prioritize calculated bulk price from metadata if available
             amount_raw = report_data.get('amount', 0)
-            amount_dollars = amount_raw
-            if amount_raw and amount_raw > 1000:
-                # Assume amounts > 1000 are in cents, convert to dollars
-                amount_dollars = amount_raw / 100.0
+            
+            # Check for calculated bulk price in metadata (fleet_price_cents or total_price)
+            if report_type == 'fleet_valuation':
+                # First check for calculated bulk price in metadata
+                metadata = report_data.get('metadata', {})
+                if isinstance(metadata, str):
+                    import json
+                    try:
+                        metadata = json.loads(metadata)
+                    except:
+                        metadata = {}
+                
+                # Check for fleet_price_cents (in cents) or total_price (could be in cents or dollars)
+                fleet_price_cents = metadata.get('fleet_price_cents') or report_data.get('fleet_price_cents')
+                total_price = metadata.get('total_price') or report_data.get('total_price')
+                
+                if fleet_price_cents:
+                    amount_raw = int(fleet_price_cents)
+                    logger.info(f"💰 Using fleet_price_cents from metadata: {amount_raw} cents")
+                elif total_price:
+                    # total_price might be in cents (if > 1000) or dollars
+                    total_price_val = float(total_price)
+                    if total_price_val >= 1000:
+                        amount_raw = int(total_price_val)  # Assume cents
+                    else:
+                        amount_raw = int(total_price_val * 100)  # Convert dollars to cents
+                    logger.info(f"💰 Using total_price from metadata: {amount_raw} cents")
+                elif report_data.get('crane_details'):
+                    # Check crane_details for total_price
+                    crane_details = report_data.get('crane_details', {})
+                    if isinstance(crane_details, str):
+                        import json
+                        try:
+                            crane_details = json.loads(crane_details)
+                        except:
+                            crane_details = {}
+                    if crane_details.get('total_price'):
+                        total_price_val = float(crane_details.get('total_price'))
+                        if total_price_val >= 1000:
+                            amount_raw = int(total_price_val)
+                        else:
+                            amount_raw = int(total_price_val * 100)
+                        logger.info(f"💰 Using total_price from crane_details: {amount_raw} cents")
+            
+            # Convert amount from cents to dollars if needed
+            # Use the proper conversion function that handles edge cases
+            amount_dollars = self._convert_amount_to_dollars(amount_raw)
             
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
@@ -255,6 +301,7 @@ class FMVEmailService:
             # For ALL reminders (including initial), do NOT append "(initial since creation)" in the title
             subject = f"Reminder: Complete Your FMV Report Payment - Report #{report_data.get('report_id')}"
             
+            logger.info(f"📧 Sending email via send_template_email: to={user_email}, template=fmv_report_draft_reminder.html")
             result = self.email_service.send_template_email(
                 to_emails=[user_email],
                 template_name="fmv_report_draft_reminder.html",
@@ -263,12 +310,16 @@ class FMVEmailService:
                 tags=["fmv-report", "draft-reminder", "payment-pending"]
             )
             
+            logger.info(f"📧 Email send result: {result}")
+            success = result.get("success", False)
+            logger.info(f"📧 Email send success: {success}")
+            
             # Also send admin notification
             self._send_admin_notification("draft_reminder", report_data, user_name, user_email)
             
-            return result.get("success", False)
+            return success
         except Exception as e:
-            logger.error(f"Error sending draft reminder notification: {e}")
+            logger.error(f"❌ Error sending draft reminder notification: {e}", exc_info=True)
             return False
     
     def send_draft_created_notification(self, user_email: str, user_name: str, report_data: Dict[str, Any], user_timezone: Optional[str] = None) -> bool:
@@ -286,10 +337,55 @@ class FMVEmailService:
                 report_type_display = report_type.replace('_', ' ').title()
             
             # Get amount and convert from cents to dollars if needed
+            # CRITICAL: Prioritize calculated bulk price from metadata if available
             amount_raw = report_data.get('amount', 0)
+            
+            # Check for calculated bulk price in metadata (fleet_price_cents or total_price)
+            if report_type == 'fleet_valuation':
+                # First check for calculated bulk price in metadata
+                metadata = report_data.get('metadata', {})
+                if isinstance(metadata, str):
+                    import json
+                    try:
+                        metadata = json.loads(metadata)
+                    except:
+                        metadata = {}
+                
+                # Check for fleet_price_cents (in cents) or total_price (could be in cents or dollars)
+                fleet_price_cents = metadata.get('fleet_price_cents') or report_data.get('fleet_price_cents')
+                total_price = metadata.get('total_price') or report_data.get('total_price')
+                
+                if fleet_price_cents:
+                    amount_raw = int(fleet_price_cents)
+                    logger.info(f"💰 Using fleet_price_cents from metadata: {amount_raw} cents")
+                elif total_price:
+                    # total_price might be in cents (if > 1000) or dollars
+                    total_price_val = float(total_price)
+                    if total_price_val >= 1000:
+                        amount_raw = int(total_price_val)  # Assume cents
+                    else:
+                        amount_raw = int(total_price_val * 100)  # Convert dollars to cents
+                    logger.info(f"💰 Using total_price from metadata: {amount_raw} cents")
+                elif report_data.get('crane_details'):
+                    # Check crane_details for total_price
+                    crane_details = report_data.get('crane_details', {})
+                    if isinstance(crane_details, str):
+                        import json
+                        try:
+                            crane_details = json.loads(crane_details)
+                        except:
+                            crane_details = {}
+                    if crane_details.get('total_price'):
+                        total_price_val = float(crane_details.get('total_price'))
+                        if total_price_val >= 1000:
+                            amount_raw = int(total_price_val)
+                        else:
+                            amount_raw = int(total_price_val * 100)
+                        logger.info(f"💰 Using total_price from crane_details: {amount_raw} cents")
+            
             amount = self._convert_amount_to_dollars(amount_raw)
             
-            if not amount:
+            if not amount or amount <= 0:
                 # Default amounts if not provided (centralized pricing)
                 try:
                     from .fmv_pricing_config import get_base_price_dollars

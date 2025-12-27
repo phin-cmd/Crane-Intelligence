@@ -200,6 +200,48 @@ class FMVReportService:
         service_records = [record.dict() for record in report_data.service_records] if report_data.service_records else None
         service_record_files = report_data.service_record_files if report_data.service_record_files else None
         
+        # CRITICAL: If service_record_files is None/empty, check metadata for backup
+        # This handles cases where files were uploaded but not passed correctly
+        if not service_record_files and report_data.metadata and isinstance(report_data.metadata, dict):
+            # Check for service_record_file_urls in metadata (comma-separated or array)
+            metadata_files = report_data.metadata.get('service_record_file_urls') or report_data.metadata.get('service_record_files')
+            if metadata_files:
+                if isinstance(metadata_files, str):
+                    # Comma-separated string
+                    service_record_files = [url.strip() for url in metadata_files.split(',') if url.strip()]
+                elif isinstance(metadata_files, list):
+                    service_record_files = metadata_files
+                logger.info(f"📎 Found service_record_files in metadata: {len(service_record_files) if isinstance(service_record_files, list) else 1} files")
+        
+        # CRITICAL: For bulk processing, ensure bulk_file_url from crane_details is in service_record_files
+        bulk_file_url = None
+        crane_details_dict = report_data.crane_details.dict(exclude_none=True) if hasattr(report_data.crane_details, 'dict') else (report_data.crane_details if isinstance(report_data.crane_details, dict) else {})
+        if crane_details_dict.get('bulk_file_url'):
+            bulk_file_url = crane_details_dict.get('bulk_file_url')
+        elif report_data.metadata and isinstance(report_data.metadata, dict) and report_data.metadata.get('bulk_file_url'):
+            bulk_file_url = report_data.metadata.get('bulk_file_url')
+        
+        if bulk_file_url:
+            # Ensure service_record_files is a list
+            if not service_record_files:
+                service_record_files = []
+            elif not isinstance(service_record_files, list):
+                service_record_files = [service_record_files] if service_record_files else []
+            
+            # Add bulk_file_url if not already in the list
+            if bulk_file_url not in service_record_files:
+                service_record_files.append(bulk_file_url)
+                logger.info(f"✅ Added bulk_file_url to service_record_files: {bulk_file_url}")
+        
+        # Log service record files for debugging
+        logger.info(f"📎 Service record files received: {service_record_files}")
+        logger.info(f"📎 Service record files type: {type(service_record_files)}")
+        if service_record_files:
+            logger.info(f"📎 Service record files count: {len(service_record_files) if isinstance(service_record_files, list) else 1}")
+            logger.info(f"📎 Service record files content: {service_record_files[:3] if isinstance(service_record_files, list) else service_record_files}")  # Log first 3 URLs
+        else:
+            logger.warning(f"⚠️ No service_record_files provided - report will be created without attachments")
+        
         # Determine initial status
         initial_status = FMVReportStatus.DRAFT
         
@@ -239,6 +281,40 @@ class FMVReportService:
         
         # Create report
         logger.info(f"Creating FMVReport with: user_id={user_id}, report_type={report_type_enum}, status={initial_status}")
+        logger.info(f"📎 Setting service_record_files on report: {service_record_files}")
+        logger.info(f"📎 Service_record_files type: {type(service_record_files)}, is list: {isinstance(service_record_files, list)}")
+        
+        # CRITICAL: Ensure service_record_files is a list or None (not empty string or empty list)
+        if service_record_files:
+            if isinstance(service_record_files, str):
+                # If it's a string, try to parse as JSON or treat as single URL
+                try:
+                    import json
+                    service_record_files = json.loads(service_record_files)
+                except:
+                    service_record_files = [service_record_files] if service_record_files.strip() else None
+            elif isinstance(service_record_files, list):
+                # Filter out empty strings
+                service_record_files = [f for f in service_record_files if f and str(f).strip()]
+                if len(service_record_files) == 0:
+                    service_record_files = None
+            else:
+                # Convert to list
+                service_record_files = [service_record_files] if service_record_files else None
+        
+        logger.info(f"📎 Final service_record_files after processing: {service_record_files}")
+        
+        # CRITICAL: Store metadata from report_data if provided (for bulk processing pricing, etc.)
+        report_metadata = None
+        if report_data.metadata and isinstance(report_data.metadata, dict):
+            report_metadata = report_data.metadata.copy()
+            # CRITICAL: Remove empty bulk_file_url from metadata if it exists (empty string means it wasn't properly set)
+            # The bulk_file_url should be in service_record_files instead
+            if report_metadata.get('bulk_file_url') == '' or (report_metadata.get('bulk_file_url') and not str(report_metadata.get('bulk_file_url')).strip()):
+                logger.warning(f"⚠️ Empty bulk_file_url in metadata, removing it. bulk_file_url should be in service_record_files instead.")
+                # Don't remove the key, but log it - the URL should be in service_record_files
+            logger.info(f"📋 Storing metadata in report: {list(report_metadata.keys())}")
+        
         try:
             report = FMVReport(
                 user_id=user_id,
@@ -246,12 +322,15 @@ class FMVReportService:
                 status=initial_status,
                 crane_details=crane_details,
                 service_records=service_records,
-                service_record_files=service_record_files,
+                service_record_files=service_record_files,  # This should now be a list or None
                 fleet_pricing_tier=fleet_tier_enum,
                 unit_count=report_data.unit_count,
-                payment_intent_id=payment_intent_id if payment_intent_id else None  # Set payment_intent_id if provided in metadata
+                payment_intent_id=payment_intent_id if payment_intent_id else None,  # Set payment_intent_id if provided in metadata
+                report_metadata=report_metadata  # Store metadata for email service and other uses
             )
             logger.info(f"✅ FMVReport object created successfully")
+            logger.info(f"📎 Report.service_record_files after creation: {report.service_record_files}")
+            logger.info(f"📎 Report.service_record_files type after creation: {type(report.service_record_files)}")
         except Exception as create_error:
             logger.error(f"❌ Error creating FMVReport object: {create_error}", exc_info=True)
             import traceback
@@ -268,6 +347,7 @@ class FMVReportService:
             self.db.commit()
             self.db.refresh(report)
             logger.info(f"✅ DRAFT report {report.id} committed to database. Status: {report.status.value}, User: {user_id}")
+            logger.info(f"📎 Report.service_record_files after commit and refresh: {report.service_record_files}")
         except Exception as commit_error:
             logger.error(f"❌ Failed to commit DRAFT report to database: {commit_error}", exc_info=True)
             self.db.rollback()
@@ -335,22 +415,10 @@ class FMVReportService:
                     # Fall back to lowest fleet tier
                     amount = 1495.00
             
-            # Use draft reminder notification as the ONLY initial email
-            # Note: amount from get_base_price_dollars is in cents, email service will convert to dollars
-            email_service.send_draft_reminder_notification(
-                user_email=user.email,
-                user_name=user.full_name or user.email,
-                report_data={
-                    "report_id": report.id,
-                    "report_type": report_type,
-                    "amount": amount,  # In cents, will be converted to dollars in email service
-                    "hours_since_creation": 0,
-                    "reminder_interval": "initial",
-                    "payment_url": f"{settings.frontend_url}/report-generation.html?report_id={report.id}",
-                    "report_type_display": report_type.replace('_', ' ').title()
-                }
-            )
-            logger.info(f"✅ Sent initial DRAFT reminder email for report {report.id} to {user.email}")
+            # NOTE: Draft reminder email is now sent in the /submit endpoint, not here
+            # This prevents duplicate emails. The service method only creates the report,
+            # and the endpoint handles email sending to ensure emails are sent only once.
+            logger.info(f"📧 Draft reminder email will be sent by /submit endpoint for report {report.id} (preventing duplicates)")
         except Exception as email_error:
             logger.error(f"❌ Failed to send DRAFT reminder email for report {report.id}: {email_error}", exc_info=True)
             # Don't fail report creation if email fails
@@ -560,6 +628,70 @@ class FMVReportService:
         self.db.commit()
         self.db.refresh(report)
         
+        return report
+    
+    def update_draft_report(self, report_id: int, user_id: int, update_data) -> FMVReport:
+        """Update draft report fields (user-facing) - only allows updating DRAFT reports"""
+        from ...schemas.fmv_report import FMVReportDraftUpdate
+        import json
+        
+        report = self.db.query(FMVReport).filter(FMVReport.id == report_id).first()
+        
+        if not report:
+            raise ValueError("Report not found")
+        
+        # Verify report belongs to user
+        if report.user_id != user_id:
+            raise ValueError("Report does not belong to user")
+        
+        # Only allow updating DRAFT reports
+        if report.status != FMVReportStatus.DRAFT:
+            raise ValueError("Can only update DRAFT reports")
+        
+        # Update report type if provided
+        if update_data.report_type is not None:
+            report.report_type = update_data.report_type
+        
+        # Update crane details if provided
+        if update_data.crane_details is not None:
+            if isinstance(update_data.crane_details, dict):
+                report.crane_details = update_data.crane_details
+            else:
+                report.crane_details = update_data.crane_details.dict() if hasattr(update_data.crane_details, 'dict') else update_data.crane_details
+        
+        # Update service record files if provided
+        if update_data.service_record_files is not None:
+            # Merge with existing files, removing duplicates
+            existing_files = report.service_record_files if report.service_record_files else []
+            if isinstance(existing_files, str):
+                try:
+                    existing_files = json.loads(existing_files)
+                except:
+                    existing_files = [existing_files] if existing_files else []
+            elif not isinstance(existing_files, list):
+                existing_files = [existing_files] if existing_files else []
+            
+            new_files = update_data.service_record_files if isinstance(update_data.service_record_files, list) else [update_data.service_record_files]
+            # Merge and deduplicate
+            all_files = list(set(existing_files + new_files))
+            report.service_record_files = all_files
+            logger.info(f"✅ Updated draft report {report_id} service_record_files: {len(all_files)} total files")
+        
+        # Update metadata if provided
+        if update_data.metadata is not None:
+            existing_metadata = report.report_metadata if report.report_metadata else {}
+            if isinstance(existing_metadata, str):
+                try:
+                    existing_metadata = json.loads(existing_metadata)
+                except:
+                    existing_metadata = {}
+            existing_metadata.update(update_data.metadata)
+            report.report_metadata = existing_metadata
+        
+        self.db.commit()
+        self.db.refresh(report)
+        
+        logger.info(f"✅ Updated draft report {report_id} for user {user_id}")
         return report
     
     def get_user_reports(self, user_id: Optional[int] = None, status_filter: Optional[str] = None, exclude_cancelled: bool = True, include_deleted: bool = False) -> List[FMVReport]:

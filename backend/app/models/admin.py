@@ -370,6 +370,7 @@ class EmailTemplate(Base):
     body_html = Column(Text, nullable=False)
     body_text = Column(Text)
     template_type = Column(String, nullable=False)  # notification, marketing, system
+    target_audience = Column(String, default="all")  # user, guest, admin, all
     
     # Variables
     variables = Column(JSON)  # Array of available variables

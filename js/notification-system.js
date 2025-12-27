@@ -40,7 +40,7 @@ class NotificationSystem {
                     position: fixed !important;
                     top: 20px !important;
                     right: 20px !important;
-                    z-index: 10000 !important;
+                    z-index: 99999 !important;
                     max-width: 400px !important;
                     min-width: 300px !important;
                     width: auto !important;

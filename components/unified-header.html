@@ -1305,10 +1305,50 @@
         .then(response => {
             clearTimeout(timeoutId);
             console.log('[UNIFIED-HEADER] Notifications response status:', response.status);
+            
+            // Handle 401 Unauthorized - token expired
+            if (response.status === 401) {
+                return response.json().then(errorData => {
+                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - token may be expired:', errorData);
+                    // Try to get fresh token from storage
+                    const freshToken = window.safeStorage?.getItem('access_token') || 
+                                     window.safeStorage?.getItem('auth_token') || 
+                                     window.safeStorage?.getItem('crane_auth_token');
+                    if (freshToken && freshToken !== auth.token) {
+                        console.log('[UNIFIED-HEADER] Found fresh token, retrying...');
+                        // Retry with fresh token after a short delay
+                        setTimeout(() => loadNotifications(), 500);
+                        return { success: false, data: [], error: 'Authentication required', retrying: true };
+                    }
+                    // Return empty array to prevent errors, but log the issue
+                    return { success: false, data: [], error: 'Authentication required' };
+                });
+            }
+            
+            // Handle other non-OK responses
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(`HTTP ${response.status}: ${errorData.detail || response.statusText}`);
+                });
+            }
+            
             return response.json();
         })
         .then(data => {
             console.log('[UNIFIED-HEADER] Notifications data:', data);
+            
+            // If authentication failed, show empty notifications (unless retrying)
+            if (data.error === 'Authentication required' && !data.retrying) {
+                console.log('[UNIFIED-HEADER] Showing empty notifications due to auth failure');
+                updateNotificationUI([]);
+                return;
+            }
+            
+            // If retrying, don't update UI yet - wait for retry
+            if (data.retrying) {
+                return;
+            }
+            
             let notifications = [];
             if (data.success && data.data && Array.isArray(data.data)) {
                 notifications = data.data;
@@ -1329,6 +1369,8 @@
             } else {
                 console.error('[UNIFIED-HEADER] Error loading notifications:', error);
             }
+            // Show empty notifications on error to prevent UI issues
+            updateNotificationUI([]);
         });
     }
     
@@ -1361,13 +1403,40 @@
         .then(response => {
             clearTimeout(timeoutId);
             console.log('[UNIFIED-HEADER] Notifications API response status:', response.status);
+            
+            // Handle 401 Unauthorized - token expired
+            if (response.status === 401) {
+                return response.json().then(errorData => {
+                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - token may be expired:', errorData);
+                    // Try to get fresh token from storage
+                    const freshToken = window.safeStorage?.getItem('access_token') || 
+                                     window.safeStorage?.getItem('auth_token') || 
+                                     window.safeStorage?.getItem('crane_auth_token');
+                    if (freshToken && freshToken !== auth.token) {
+                        console.log('[UNIFIED-HEADER] Found fresh token, retrying dropdown load...');
+                        // Retry with fresh token after a short delay
+                        setTimeout(() => loadNotificationsIntoDropdown(dropdownElement), 500);
+                        return { success: false, data: [], error: 'Authentication required', retrying: true };
+                    }
+                    throw new Error('AUTH_REQUIRED');
+                });
+            }
+            
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                return response.json().then(errorData => {
+                    throw new Error(`HTTP ${response.status}: ${errorData.detail || response.statusText}`);
+                });
             }
             return response.json();
         })
         .then(data => {
             console.log('[UNIFIED-HEADER] Notifications data for dropdown:', data);
+            
+            // If retrying, don't update UI yet - wait for retry
+            if (data && data.retrying) {
+                return;
+            }
+            
             let notifications = [];
             if (data.success && data.data && Array.isArray(data.data)) {
                 notifications = data.data;
@@ -1384,12 +1453,26 @@
             const notificationList = dropdownElement.querySelector('#notificationList');
             if (notificationList) {
                 let errorMessage = 'Error loading notifications';
-                if (error.name === 'AbortError') {
+                if (error.message === 'AUTH_REQUIRED') {
+                    // Check if we can get a fresh token
+                    const freshToken = window.safeStorage?.getItem('access_token') || 
+                                     window.safeStorage?.getItem('auth_token') || 
+                                     window.safeStorage?.getItem('crane_auth_token');
+                    if (freshToken) {
+                        errorMessage = 'Loading notifications...';
+                        // Retry once with fresh token
+                        setTimeout(() => loadNotificationsIntoDropdown(dropdownElement), 500);
+                    } else {
+                        errorMessage = 'Please refresh the page to reload notifications';
+                    }
+                } else if (error.name === 'AbortError') {
                     errorMessage = 'Request timed out';
                 } else if (error.message && error.message.includes('Failed to fetch')) {
                     errorMessage = 'Connection error';
+                } else if (error.message && error.message.includes('401')) {
+                    errorMessage = 'Please refresh the page to reload notifications';
                 }
-                notificationList.innerHTML = `<div class="notification-empty" style="color: #FF4444;">${errorMessage}</div>`;
+                notificationList.innerHTML = `<div class="notification-empty" style="color: #FFD600; padding: 12px; text-align: center;">${errorMessage}</div>`;
             }
         });
     }
