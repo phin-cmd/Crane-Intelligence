@@ -114,10 +114,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadPayments();
                 } else {
-                    setTimeout(() => loadPayments();, 1000);
+                    setTimeout(() => loadPayments(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function loadPayments() {

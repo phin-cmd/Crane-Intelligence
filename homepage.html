@@ -20,6 +20,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/date-fns.min.js"></script>
     <script src="js/component-loader.js" defer></script>
+    <script src="js/visitor-tracker.js"></script>
     <style>
         /* ===== CRANE INTELLIGENCE - PROFESSIONAL DESIGN SYSTEM ===== */
         
@@ -3991,12 +3992,9 @@
         function getApiBaseUrl() {
             const hostname = window.location.hostname;
             
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return 'http://localhost:8004';
-            }
-            
-            // Use relative path - nginx will proxy /api/ to backend
-            // This avoids mixed content errors (HTTP from HTTPS page)
+            // Always use relative path - nginx will proxy /api/ to backend
+            // This avoids mixed content errors (HTTP from HTTPS page) and works in all environments
+            return '';
             return '';
         }
 

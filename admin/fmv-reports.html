@@ -11,6 +11,7 @@
     <script src="js/admin-notifications.js"></script>
     <script src="js/admin-api.js"></script>
     <script src="js/admin-layout.js"></script>
+    <script src="js/server-status.js"></script>
     <script src="../js/turnaround-timer.js"></script>
     
     <style>
@@ -896,8 +897,8 @@
             return classMap[statusLower] || 'status-draft';
         }
 
-        // API Base URL
-        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        // API Base URL - use relative path to work in all environments
+        const API_BASE = '/api/v1';
 
         // Helper function to get auth token
         function getAuthToken() {
@@ -1041,7 +1042,13 @@
                         window.location.href = '/admin/login.html';
                         return;
                     } else {
-                        // Token exists but API rejected it - show error message
+                        // Token exists but API rejected it - if we've tried refreshing, redirect to login
+                        if (window.refreshFailureCount >= MAX_REFRESH_FAILURES) {
+                            console.warn('⚠️ Max refresh attempts reached, redirecting to login');
+                            window.location.href = '/admin/login.html';
+                            return;
+                        }
+                        // Otherwise show error message while attempting refresh
                         console.warn('⚠️ API returned 401/403 but token exists. Showing error message.');
                         loadingEl.style.display = 'none';
                         emptyStateEl.style.display = 'block';
@@ -1108,6 +1115,15 @@
 
                 if (data.success) {
                     allReports = data.reports || [];
+                    // Cache reports in sessionStorage for offline viewing
+                    try {
+                        sessionStorage.setItem('admin_fmv_reports_cache', JSON.stringify({
+                            reports: allReports,
+                            timestamp: Date.now()
+                        }));
+                    } catch (e) {
+                        console.warn('Failed to cache reports:', e);
+                    }
                     console.log(`✅ Loaded ${allReports.length} reports from API`);
                     updateStats();
                     renderReports();
@@ -1126,6 +1142,120 @@
                 
                 if (!loadingEl || !emptyStateEl) {
                     console.error('❌ Cannot display error - DOM elements not found');
+                    return;
+                }
+                
+                // Check if error is due to server being down (502, 503, 504)
+                const isServerError = error.message && (
+                    error.message.includes('502') || 
+                    error.message.includes('503') || 
+                    error.message.includes('504') ||
+                    error.message.includes('Bad Gateway') ||
+                    error.message.includes('Service Unavailable') ||
+                    error.message.includes('Gateway Timeout')
+                );
+                
+                if (isServerError) {
+                    // Try to load cached reports from sessionStorage
+                    try {
+                        const cached = sessionStorage.getItem('admin_fmv_reports_cache');
+                        if (cached) {
+                            const cacheData = JSON.parse(cached);
+                            const cacheAge = Date.now() - (cacheData.timestamp || 0);
+                            // Use cache if it's less than 1 hour old
+                            if (cacheAge < 3600000 && cacheData.reports && cacheData.reports.length > 0) {
+                                allReports = cacheData.reports;
+                                console.log('⚠️ API unavailable, showing cached reports:', allReports.length);
+                                
+                                // Remove existing warning banner if any
+                                const existingBanner = document.querySelector('.api-warning-banner');
+                                if (existingBanner) {
+                                    existingBanner.remove();
+                                }
+                                
+                                // Show cached reports with a warning banner
+                                const warningBanner = document.createElement('div');
+                                warningBanner.className = 'api-warning-banner';
+                                warningBanner.style.cssText = 'background: rgba(255, 214, 0, 0.1); border: 1px solid rgba(255, 214, 0, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #FFD600;';
+                                warningBanner.innerHTML = `
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <span style="font-size: 20px;">⚠️</span>
+                                        <strong>Server Connection Issue</strong>
+                                    </div>
+                                    <p style="color: #B0B0B0; font-size: 14px; margin: 0 0 12px 0;">
+                                        The API server is currently unavailable (502 Bad Gateway). Showing cached reports from ${new Date(cacheData.timestamp).toLocaleTimeString()}. Data may be outdated.
+                                    </p>
+                                    <button onclick="loadReports()" style="background: #00FF85; color: #1A1A1A; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                        🔄 Retry Connection
+                                    </button>
+                                `;
+                                const reportsTableContainer = document.getElementById('reportsTable');
+                                const container = reportsTableContainer ? reportsTableContainer.parentElement : document.querySelector('.admin-content');
+                                if (container) {
+                                    container.insertBefore(warningBanner, container.firstChild);
+                                }
+                                // Continue to render reports
+                                updateStats();
+                                renderReports();
+                                loadingEl.style.display = 'none';
+                                emptyStateEl.style.display = 'none';
+                                isLoadingReports = false;
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Failed to load cached reports:', e);
+                    }
+                    
+                    // Check if we have any in-memory reports to display
+                    if (allReports && allReports.length > 0) {
+                        // Show cached reports with a warning banner
+                        console.log('⚠️ API unavailable, showing in-memory reports:', allReports.length);
+                        const warningBanner = document.createElement('div');
+                        warningBanner.className = 'api-warning-banner';
+                        warningBanner.style.cssText = 'background: rgba(255, 214, 0, 0.1); border: 1px solid rgba(255, 214, 0, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #FFD600;';
+                        warningBanner.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <span style="font-size: 20px;">⚠️</span>
+                                <strong>Server Connection Issue</strong>
+                            </div>
+                            <p style="color: #B0B0B0; font-size: 14px; margin: 0 0 12px 0;">
+                                The API server is currently unavailable (502 Bad Gateway). Showing cached reports. Data may be outdated.
+                            </p>
+                            <button onclick="loadReports()" style="background: #00FF85; color: #1A1A1A; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                🔄 Retry Connection
+                            </button>
+                        `;
+                        const reportsTableContainer = document.getElementById('reportsTable');
+                        const container = reportsTableContainer ? reportsTableContainer.parentElement : document.querySelector('.admin-content');
+                        if (container) {
+                            container.insertBefore(warningBanner, container.firstChild);
+                        }
+                        // Continue to render reports
+                        updateStats();
+                        renderReports();
+                        loadingEl.style.display = 'none';
+                        emptyStateEl.style.display = 'none';
+                        isLoadingReports = false;
+                        return;
+                    }
+                    
+                    // No cached reports, show error message
+                    emptyStateEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                            <h3 style="color: #FFD600; margin-bottom: 10px;">Server Connection Issue</h3>
+                            <p style="color: #B0B0B0; margin-bottom: 20px;">
+                                The API server is currently unavailable (502 Bad Gateway).<br>
+                                Please try refreshing the page in a few moments.
+                            </p>
+                            <button onclick="loadReports()" style="background: #00FF85; color: #1A1A1A; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                🔄 Retry
+                            </button>
+                        </div>
+                    `;
+                    emptyStateEl.style.display = 'block';
+                    loadingEl.style.display = 'none';
                     return;
                 }
                 
@@ -2872,10 +3002,41 @@
                 if (!window.adminFmvReportsInitialized) {
                     window.adminFmvReportsInitialized = true;
                     
+                    // Try to load cached reports on page load
+                    function loadCachedReportsOnInit() {
+                        try {
+                            const cached = sessionStorage.getItem('admin_fmv_reports_cache');
+                            if (cached) {
+                                const cacheData = JSON.parse(cached);
+                                const cacheAge = Date.now() - (cacheData.timestamp || 0);
+                                // Use cache if it's less than 1 hour old
+                                if (cacheAge < 3600000 && cacheData.reports && cacheData.reports.length > 0) {
+                                    allReports = cacheData.reports;
+                                    console.log('📋 Loaded cached reports on init:', allReports.length);
+                                    updateStats();
+                                    renderReports();
+                                    // Still try to refresh from API
+                                    setTimeout(() => {
+                                        if (typeof loadReports === 'function' && !isLoadingReports) {
+                                            loadReports();
+                                        }
+                                    }, 1000);
+                                    return true;
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Failed to load cached reports on init:', e);
+                        }
+                        return false;
+                    }
+                    
                     window.addEventListener('adminLayoutReady', function() {
                         console.log('Admin layout ready, loading FMV reports');
-                        if (typeof loadReports === 'function' && !isLoadingReports) {
-                            loadReports();
+                        // Try to show cached reports first, then refresh from API
+                        if (!loadCachedReportsOnInit()) {
+                            if (typeof loadReports === 'function' && !isLoadingReports) {
+                                loadReports();
+                            }
                         }
                     }, { once: true });
                     

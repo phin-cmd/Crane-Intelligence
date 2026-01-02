@@ -5,6 +5,7 @@ Handles payment processing via Stripe API
 
 import stripe
 import logging
+import os
 from typing import Dict, Any, Optional
 from ..core.config import settings
 
@@ -21,12 +22,83 @@ class StripeService:
         self.secret_key = settings.stripe_secret_key
         self.publishable_key = settings.stripe_publishable_key
         self.webhook_secret = settings.stripe_webhook_secret
+        self.environment = os.getenv("ENVIRONMENT", "prod").lower()
         
         if not self.secret_key:
             logger.warning("Stripe secret key not configured. Payment processing will fail.")
         else:
             stripe.api_key = self.secret_key
+            # Validate key types match environment
+            self._validate_stripe_keys()
             logger.info("Stripe service initialized")
+    
+    def _validate_stripe_keys(self):
+        """
+        Validate that Stripe keys match the environment configuration.
+        Production must use live keys, dev/uat must use test keys.
+        """
+        if not self.secret_key or not self.publishable_key:
+            return  # Skip validation if keys are not configured
+        
+        # Detect key types
+        is_test_secret = self.secret_key.startswith("sk_test_")
+        is_live_secret = self.secret_key.startswith("sk_live_")
+        is_test_publishable = self.publishable_key.startswith("pk_test_")
+        is_live_publishable = self.publishable_key.startswith("pk_live_")
+        
+        # Determine detected mode
+        if is_test_secret and is_test_publishable:
+            detected_mode = "test"
+        elif is_live_secret and is_live_publishable:
+            detected_mode = "live"
+        else:
+            detected_mode = "mixed"  # Mismatched key types
+        
+        # Log key type detection (without exposing actual keys)
+        logger.info(f"Stripe keys detected: {detected_mode} mode (secret: {'test' if is_test_secret else 'live' if is_live_secret else 'unknown'}, publishable: {'test' if is_test_publishable else 'live' if is_live_publishable else 'unknown'})")
+        
+        # Validate environment-key matching
+        if self.environment == "prod":
+            if detected_mode == "test":
+                logger.error(
+                    "CRITICAL: Production environment is using TEST Stripe keys! "
+                    "This will prevent real payment processing. "
+                    "Production MUST use live keys (pk_live_... and sk_live_...)."
+                )
+            elif detected_mode == "mixed":
+                logger.error(
+                    "CRITICAL: Production environment has mismatched Stripe key types! "
+                    "Both keys must be live keys (pk_live_... and sk_live_...)."
+                )
+            elif detected_mode == "live":
+                logger.info("✓ Production environment using live Stripe keys (correct)")
+        elif self.environment in ["dev", "uat"]:
+            if detected_mode == "live":
+                logger.warning(
+                    f"WARNING: {self.environment.upper()} environment is using LIVE Stripe keys! "
+                    "This could result in real charges during testing. "
+                    f"{self.environment.upper()} environment should use test keys (pk_test_... and sk_test_...)."
+                )
+            elif detected_mode == "mixed":
+                logger.warning(
+                    f"WARNING: {self.environment.upper()} environment has mismatched Stripe key types! "
+                    "Both keys should be test keys (pk_test_... and sk_test_...)."
+                )
+            elif detected_mode == "test":
+                logger.info(f"✓ {self.environment.upper()} environment using test Stripe keys (correct)")
+        
+        # Validate webhook secret
+        if not self.webhook_secret:
+            logger.warning(
+                f"Stripe webhook secret not configured for {self.environment.upper()} environment. "
+                "Webhook signature verification will fail. "
+                "Configure STRIPE_WEBHOOK_SECRET in environment variables."
+            )
+        elif not self.webhook_secret.startswith("whsec_"):
+            logger.warning(
+                f"Stripe webhook secret format may be incorrect. "
+                "Expected format: whsec_... (from Stripe dashboard -> Webhooks -> Signing secret)"
+            )
     
     def create_payment_intent(
         self,

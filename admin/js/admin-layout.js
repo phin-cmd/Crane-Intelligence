@@ -7,37 +7,64 @@ class AdminLayout {
     constructor() {
         this.adminUser = null;
         this.isAuthorized = false;
+        this.serverStatusAuthFailures = 0;
+        this.serverStatusInterval = null;
         this.init();
     }
 
     async init() {
-        // Check authorization first
-        await this.checkAuthorization();
+        // Check for admin token first - if no token, redirect immediately
+        const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token') || localStorage.getItem('access_token');
+        const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
         
-        if (!this.isAuthorized) {
+        if (!adminToken && (!adminUser || Object.keys(adminUser).length === 0)) {
+            console.log('No admin token found, redirecting to login');
             this.redirectToLogin();
             return;
         }
-
-        // Render layout components
+        
+        // If we have cached admin user, use it immediately for rendering
+        if (adminUser && Object.keys(adminUser).length > 0) {
+            this.adminUser = adminUser;
+            this.isAuthorized = true;
+        }
+        
+        // Render layout components immediately (don't wait for API check)
         this.renderHeader();
         this.renderSidebar();
         this.setupEventListeners();
         
+        // Store instance globally for modal access
+        window.adminLayout = this;
+        
         // Dispatch event to notify that layout is ready
         window.dispatchEvent(new CustomEvent('adminLayoutReady'));
+        
+        // Check authorization in background (non-blocking)
+        this.checkAuthorization().catch(error => {
+            console.warn('Background auth check failed:', error);
+            // Don't redirect if we already rendered - user might have valid cached session
+        });
     }
 
     async checkAuthorization() {
         try {
             // Check for admin token
-            const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('access_token');
+            const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token') || localStorage.getItem('access_token');
             const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
             
             if (!adminToken) {
                 console.log('No admin token found');
                 this.isAuthorized = false;
+                this.redirectToLogin();
                 return;
+            }
+
+            // If we have admin user in localStorage, use it as fallback
+            if (adminUser && Object.keys(adminUser).length > 0) {
+                this.adminUser = adminUser;
+                console.log('Using admin user from localStorage (fallback)');
+                // Still try to verify, but don't block rendering if API fails
             }
 
             // Verify token with API - try multiple endpoints
@@ -45,7 +72,20 @@ class AdminLayout {
             
             // Try /admin/auth/profile first (admin auth endpoint)
             try {
-                const response = await fetch('/api/v1/admin/auth/profile', {
+                // Determine API base URL based on current environment
+                const hostname = window.location.hostname;
+                let apiBase;
+                if (hostname === 'dev.craneintelligence.tech') {
+                    apiBase = 'https://dev.craneintelligence.tech/api/v1';
+                } else if (hostname === 'uat.craneintelligence.tech') {
+                    apiBase = 'https://uat.craneintelligence.tech/api/v1';
+                } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    apiBase = '/api/v1';
+                } else {
+                    apiBase = 'https://craneintelligence.tech/api/v1';
+                }
+                
+                const response = await fetch(`${apiBase}/admin/auth/profile`, {
                     headers: {
                         'Authorization': `Bearer ${adminToken}`,
                         'Content-Type': 'application/json'
@@ -59,10 +99,21 @@ class AdminLayout {
                     localStorage.setItem('admin_user', JSON.stringify(this.adminUser));
                     apiSuccess = true;
                     console.log('Admin profile loaded from API');
+                } else if (response.status === 401 || response.status === 403) {
+                    // Token is invalid or expired
+                    console.log('Token is invalid or expired, clearing tokens and redirecting to login');
+                    localStorage.removeItem('admin_token');
+                    localStorage.removeItem('admin_access_token');
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('admin_refresh_token');
+                    localStorage.removeItem('admin_user');
+                    this.isAuthorized = false;
+                    this.redirectToLogin();
+                    return;
                 } else if (response.status === 404) {
                     // Endpoint doesn't exist, try dashboard stats
                     console.log('Admin profile endpoint not found, trying dashboard stats');
-                    const statsResponse = await fetch('/api/v1/admin/dashboard/stats', {
+                    const statsResponse = await fetch(`${apiBase}/admin/dashboard/stats`, {
                         headers: {
                             'Authorization': `Bearer ${adminToken}`,
                             'Content-Type': 'application/json'
@@ -77,10 +128,19 @@ class AdminLayout {
                             this.isAuthorized = true;
                             console.log('Using admin user from localStorage (dashboard stats OK)');
                         }
+                    } else if (statsResponse.status === 401 || statsResponse.status === 403) {
+                        // Token is invalid
+                        console.log('Token is invalid, clearing tokens');
+                        localStorage.removeItem('admin_token');
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('admin_refresh_token');
+                        this.isAuthorized = false;
+                        return;
                     }
                 }
             } catch (e) {
                 console.log('API check failed, using localStorage fallback:', e);
+                // Don't fail authorization on network errors - use localStorage fallback
             }
             
             // If API check failed, try to get user from localStorage
@@ -142,6 +202,11 @@ class AdminLayout {
                     <h1 class="page-title">${pageTitle}</h1>
                 </div>
                 <div class="header-right">
+                    <!-- Server Status Indicator -->
+                    <div class="server-status-container" id="serverStatusContainer" style="display: flex; align-items: center; gap: 8px; margin-right: 15px; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; cursor: pointer;" onclick="window.showServerStatusDetails && window.showServerStatusDetails()">
+                        <div class="server-status-indicator" id="serverStatusIndicator" style="width: 10px; height: 10px; border-radius: 50%; background: #00FF85; animation: pulse 2s infinite;"></div>
+                        <span class="server-status-text" id="serverStatusText" style="font-size: 12px; color: #B0B0B0;">Checking...</span>
+                    </div>
                     <!-- Notification Bell -->
                     <div class="notification-bell-container">
                         <button class="notification-bell" id="adminNotificationBell" aria-label="Notifications">
@@ -215,6 +280,260 @@ class AdminLayout {
             document.body.insertBefore(headerContainer, document.body.firstChild);
         }
         headerContainer.innerHTML = headerHTML;
+        
+        // Initialize server status monitoring
+        this.initServerStatusMonitoring();
+    }
+    
+    initServerStatusMonitoring() {
+        // Fetch server status immediately
+        this.updateServerStatus();
+        
+        // Update every 30 seconds, but stop if we get too many auth errors
+        this.serverStatusInterval = setInterval(() => {
+            this.updateServerStatus();
+        }, 30000);
+    }
+    
+    async updateServerStatus() {
+        // Stop retrying if we've had auth failures
+        if (this.serverStatusAuthFailures >= 1) {
+            if (this.serverStatusInterval) {
+                clearInterval(this.serverStatusInterval);
+                this.serverStatusInterval = null;
+            }
+            return;
+        }
+        
+        try {
+            const API_BASE = window.API_BASE || '/api/v1';
+            const token = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token') || localStorage.getItem('access_token');
+            
+            if (!token) {
+                // No token, stop monitoring
+                if (this.serverStatusInterval) {
+                    clearInterval(this.serverStatusInterval);
+                    this.serverStatusInterval = null;
+                }
+                return;
+            }
+            
+            const response = await fetch(`${API_BASE}/admin/server-status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.status === 401 || response.status === 403) {
+                // Authentication failed, stop monitoring immediately (don't retry auth errors)
+                if (this.serverStatusInterval) {
+                    clearInterval(this.serverStatusInterval);
+                    this.serverStatusInterval = null;
+                }
+                // Only log once to avoid spam
+                if (!this.serverStatusAuthFailures) {
+                    console.warn('Stopping server status monitoring due to authentication failure');
+                }
+                this.serverStatusAuthFailures = 1;
+                return;
+            }
+            
+            // Reset failure counter on success
+            this.serverStatusAuthFailures = 0;
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.renderServerStatus(data);
+        } catch (error) {
+            // Only log non-auth errors to avoid spam
+            if (!error.message.includes('401') && !error.message.includes('403')) {
+                console.error('Error fetching server status:', error);
+            }
+            // Don't render error status on auth failures to avoid UI spam
+            if (this.serverStatusAuthFailures < 3) {
+                this.renderServerStatus({
+                    overall: 'unknown',
+                    servers: [],
+                    error: 'Unable to fetch server status'
+                });
+            }
+        }
+    }
+    
+    renderServerStatus(data) {
+        const indicator = document.getElementById('serverStatusIndicator');
+        const text = document.getElementById('serverStatusText');
+        const container = document.getElementById('serverStatusContainer');
+        
+        if (!indicator || !text || !container) return;
+        
+        let status = data.overall || 'unknown';
+        let statusColor = '#00FF85'; // Green
+        let statusText = 'All Systems Operational';
+        
+        // Count issues
+        const downServers = (data.servers || []).filter(s => s.status === 'down').length;
+        const degradedServers = (data.servers || []).filter(s => s.status === 'degraded').length;
+        
+        if (downServers > 0) {
+            status = 'down';
+            statusColor = '#FF4444'; // Red
+            statusText = `${downServers} Server${downServers > 1 ? 's' : ''} Down`;
+            container.style.background = 'rgba(255, 68, 68, 0.2)';
+            container.style.border = '1px solid rgba(255, 68, 68, 0.5)';
+        } else if (degradedServers > 0) {
+            status = 'degraded';
+            statusColor = '#FFD600'; // Yellow
+            statusText = `${degradedServers} Server${degradedServers > 1 ? 's' : ''} Degraded`;
+            container.style.background = 'rgba(255, 214, 0, 0.2)';
+            container.style.border = '1px solid rgba(255, 214, 0, 0.5)';
+        } else if (status === 'healthy') {
+            statusColor = '#00FF85'; // Green
+            statusText = 'All Systems Operational';
+            container.style.background = 'rgba(0, 255, 133, 0.1)';
+            container.style.border = '1px solid rgba(0, 255, 133, 0.3)';
+        } else {
+            statusColor = '#B0B0B0'; // Gray
+            statusText = 'Status Unknown';
+            container.style.background = 'rgba(255, 255, 255, 0.05)';
+            container.style.border = 'none';
+        }
+        
+        indicator.style.background = statusColor;
+        text.textContent = statusText;
+        text.style.color = statusColor;
+        
+        // Store data for details modal
+        window.serverStatusData = data;
+    }
+    
+    // Server status details modal function
+    showServerStatusDetails() {
+        const data = window.serverStatusData || { servers: [] };
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.id = 'serverStatusModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #FFFFFF;
+        `;
+        
+        let serversHTML = '';
+        if (data.servers && data.servers.length > 0) {
+            serversHTML = data.servers.map(server => {
+                let statusColor = '#00FF85';
+                let statusIcon = '✓';
+                if (server.status === 'down') {
+                    statusColor = '#FF4444';
+                    statusIcon = '✗';
+                } else if (server.status === 'degraded') {
+                    statusColor = '#FFD600';
+                    statusIcon = '⚠';
+                }
+                
+                return `
+                    <div style="padding: 20px; background: #2A2A2A; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${statusColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #FFFFFF; margin: 0; font-size: 18px;">${server.name || server.server}</h3>
+                            <span style="color: ${statusColor}; font-weight: 600; font-size: 14px;">
+                                ${statusIcon} ${server.status ? server.status.toUpperCase() : 'UNKNOWN'}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <div>
+                                <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 5px;">API Status</div>
+                                <div style="color: ${server.api_status === 'healthy' ? '#00FF85' : server.api_status === 'down' ? '#FF4444' : '#FFD600'}; font-weight: 600;">
+                                    ${server.api_status ? server.api_status.toUpperCase() : 'UNKNOWN'}
+                                </div>
+                                ${server.api_error ? `<div style="color: #FF4444; font-size: 11px; margin-top: 5px;">${server.api_error}</div>` : ''}
+                                ${server.api_response_time ? `<div style="color: #888; font-size: 11px; margin-top: 5px;">Response: ${server.api_response_time}ms</div>` : ''}
+                            </div>
+                            <div>
+                                <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 5px;">Website Status</div>
+                                <div style="color: ${server.website_status === 'healthy' ? '#00FF85' : server.website_status === 'down' ? '#FF4444' : '#FFD600'}; font-weight: 600;">
+                                    ${server.website_status ? server.website_status.toUpperCase() : 'UNKNOWN'}
+                                </div>
+                                ${server.website_error ? `<div style="color: #FF4444; font-size: 11px; margin-top: 5px;">${server.website_error}</div>` : ''}
+                                ${server.website_response_time ? `<div style="color: #888; font-size: 11px; margin-top: 5px;">Response: ${server.website_response_time}ms</div>` : ''}
+                            </div>
+                        </div>
+                        ${server.timestamp ? `<div style="color: #666; font-size: 11px; margin-top: 10px;">Last checked: ${new Date(server.timestamp).toLocaleString()}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        } else {
+            serversHTML = '<div style="text-align: center; padding: 40px; color: #B0B0B0;">No server data available</div>';
+        }
+        
+        modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="color: #00FF85; margin: 0; font-size: 24px;">Server Status</h2>
+                <button onclick="document.getElementById('serverStatusModal').remove()" style="
+                    background: transparent;
+                    border: none;
+                    color: #B0B0B0;
+                    font-size: 24px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                ${serversHTML}
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="document.getElementById('serverStatusModal').remove()" style="
+                    background: #00FF85;
+                    color: #1A1A1A;
+                    border: none;
+                    padding: 12px 32px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 14px;
+                ">Close</button>
+            </div>
+        `;
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        // Close on background click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     renderSidebar() {
@@ -223,7 +542,7 @@ class AdminLayout {
         // Define which pages belong to which categories for auto-expansion
         const categoryPages = {
             'user-management': ['users.html', 'admin-users.html', 'consultations.html'],
-            'reports-analytics': ['fmv-reports.html', 'valuations.html'],
+            'reports-analytics': ['analytics.html', 'fmv-reports.html', 'valuations.html'],
             'financial': ['payments.html', 'payment-reconciliation.html', 'refunds.html'],
             'system-management': ['cranes.html', 'algorithm.html', 'system-health.html'],
             'security-compliance': ['security-2fa.html', 'sessions.html', 'audit-logs.html', 'gdpr-compliance.html'],
@@ -263,14 +582,14 @@ class AdminLayout {
                         </li>
                         
                         <!-- User Management Category -->
-                        <li class="sidebar-category ${activeCategory === 'user-management' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>👥 User Management</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="margin: 0;">
                                     <a href="users.html" class="${currentPage === 'users.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -303,14 +622,24 @@ class AdminLayout {
                         </li>
                         
                         <!-- Reports & Analytics Category -->
-                        <li class="sidebar-category ${activeCategory === 'reports-analytics' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>📊 Reports & Analytics</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
+                                <li style="margin: 0;">
+                                    <a href="analytics.html" class="${currentPage === 'analytics.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                                        </svg>
+                                        Analytics
+                                    </a>
+                                </li>
                                 <li style="margin: 0;">
                                     <a href="fmv-reports.html" class="${currentPage === 'fmv-reports.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -334,14 +663,14 @@ class AdminLayout {
                         </li>
                         
                         <!-- Financial Management Category -->
-                        <li class="sidebar-category ${activeCategory === 'financial' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>💳 Financial Management</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="margin: 0;">
                                     <a href="payments.html" class="${currentPage === 'payments.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -374,14 +703,14 @@ class AdminLayout {
                         </li>
                         
                         <!-- System Management Category -->
-                        <li class="sidebar-category ${activeCategory === 'system-management' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>⚙️ System Management</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="margin: 0;">
                                     <a href="cranes.html" class="${currentPage === 'cranes.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -412,14 +741,14 @@ class AdminLayout {
                         </li>
                         
                         <!-- Security & Compliance Category -->
-                        <li class="sidebar-category ${activeCategory === 'security-compliance' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>🔒 Security & Compliance</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="margin: 0;">
                                     <a href="security-2fa.html" class="${currentPage === 'security-2fa.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -461,14 +790,14 @@ class AdminLayout {
                         </li>
                         
                         <!-- Settings Category -->
-                        <li class="sidebar-category ${activeCategory === 'settings' ? 'expanded' : ''}" style="margin: 0;">
+                        <li class="sidebar-category expanded" style="margin: 0;">
                             <div class="category-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; color: #808080; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;" onclick="this.parentElement.classList.toggle('expanded')">
                                 <span>⚙️ Settings</span>
                                 <svg class="category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
-                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0; max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;">
+                            <ul class="category-items" style="list-style: none; padding: 0; margin: 0;">
                                 <li style="margin: 0;">
                                     <a href="roles.html" class="${currentPage === 'roles.html' ? 'active' : ''}" style="display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 48px; color: #B0B0B0; text-decoration: none; transition: all 0.2s ease; border-left: 3px solid transparent;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -575,6 +904,20 @@ class AdminLayout {
                 }
                 .profile-dropdown.show, .notification-dropdown.show {
                     display: block;
+                }
+                .sidebar-category .category-items {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease;
+                }
+                .sidebar-category.expanded .category-items {
+                    max-height: 500px;
+                }
+                .sidebar-category .category-arrow {
+                    transition: transform 0.2s ease;
+                }
+                .sidebar-category.expanded .category-arrow {
+                    transform: rotate(180deg);
                 }
             `;
             document.head.appendChild(layoutStyle);
@@ -695,7 +1038,13 @@ class AdminLayout {
 
     async loadNotifications() {
         try {
-            const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('access_token');
+            const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token') || localStorage.getItem('access_token');
+            
+            if (!adminToken) {
+                // No token, don't try to load notifications
+                return;
+            }
+            
             const response = await fetch('/api/v1/notifications/admin/notifications', {
                 headers: {
                     'Authorization': `Bearer ${adminToken}`,
@@ -703,14 +1052,24 @@ class AdminLayout {
                 }
             });
 
+            if (response.status === 401 || response.status === 403) {
+                // Authentication failed - don't log error, just skip notifications
+                // The checkAuthorization will handle redirect
+                return;
+            }
+
             if (response.ok) {
                 const data = await response.json();
                 this.renderNotifications(data.data || []);
             } else {
+                // Only log non-auth errors
                 console.error('Failed to load notifications:', response.status, response.statusText);
             }
         } catch (error) {
-            console.error('Failed to load notifications:', error);
+            // Only log if it's not an auth-related error
+            if (!error.message.includes('401') && !error.message.includes('403')) {
+                console.error('Failed to load notifications:', error);
+            }
         }
     }
 
@@ -829,6 +1188,15 @@ class AdminLayout {
         localStorage.removeItem('admin_user');
         window.location.href = '/admin/login.html';
     }
+}
+
+// Make function globally available
+if (typeof window !== 'undefined') {
+    window.showServerStatusDetails = function() {
+        if (window.adminLayout && window.adminLayout.showServerStatusDetails) {
+            window.adminLayout.showServerStatusDetails();
+        }
+    };
 }
 
 // Initialize admin layout when DOM is ready

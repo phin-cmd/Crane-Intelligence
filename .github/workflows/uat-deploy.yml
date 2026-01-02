@@ -6,10 +6,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Smoke Tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps
+
+      - name: Run smoke tests
+        run: |
+          npm run test:smoke
+        env:
+          BASE_URL: https://uat.craneintelligence.tech
+          API_URL: https://uat.craneintelligence.tech/api/v1
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-uat
+          path: |
+            test-results/
+            playwright-report/
+
+  deploy-uat:
+    needs: test
     runs-on: ubuntu-latest
     environment:
       name: uat
+      url: https://uat.craneintelligence.tech
+    name: Deploy to UAT
       
     steps:
       - name: Checkout code
@@ -18,7 +59,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Deploy to UAT server
+      - name: Backup UAT database
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.UAT_HOST }}
@@ -29,7 +70,63 @@ jobs:
             git fetch origin
             git checkout uat
             git pull origin uat
+            
+            # Backup database before migration
+            echo "Backing up UAT database..."
+            ./scripts/database/backup-databases.sh || true
+
+      - name: Run database migrations
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.UAT_HOST }}
+          username: ${{ secrets.UAT_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
+            # Run migrations if any
+            if [ -d "backend/migrations" ] && [ "$(ls -A backend/migrations/*.sql 2>/dev/null)" ]; then
+              echo "Running database migrations..."
+              docker compose -f docker-compose.uat.yml -p crane-uat exec -T db \
+                psql -U crane_uat_user -d crane_intelligence_uat -f /app/migrations/latest.sql || echo "No migrations to run"
+            fi
+
+      - name: Deploy to UAT server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.UAT_HOST }}
+          username: ${{ secrets.UAT_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
             docker compose -f docker-compose.uat.yml -p crane-uat build --no-cache
             docker compose -f docker-compose.uat.yml -p crane-uat up -d
             docker compose -f docker-compose.uat.yml -p crane-uat ps
+
+      - name: Run smoke tests
+        run: |
+          sleep 15
+          curl -f https://uat.craneintelligence.tech/ || exit 1
+          curl -f https://uat.craneintelligence.tech/api/v1/health || exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.UAT_HOST }}
+          username: ${{ secrets.UAT_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
+            echo "Deployment failed, initiating rollback..."
+            # Restore database backup if migration failed
+            LATEST_BACKUP=$(ls -t /root/crane/backups/uat_db_*.sql.gz | head -1)
+            if [ -n "$LATEST_BACKUP" ]; then
+              echo "Restoring database from backup: $LATEST_BACKUP"
+              gunzip -c "$LATEST_BACKUP" | \
+                docker compose -f docker-compose.uat.yml -p crane-uat exec -T db \
+                psql -U crane_uat_user -d crane_intelligence_uat
+            fi
+            # Revert to previous code version
+            git reset --hard HEAD~1
+            docker compose -f docker-compose.uat.yml -p crane-uat up -d
 

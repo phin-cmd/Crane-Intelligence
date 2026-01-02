@@ -39,32 +39,35 @@ class NotificationSystem {
                 .notification-container {
                     position: fixed !important;
                     top: 20px !important;
-                    right: 20px !important;
-                    z-index: 99999 !important;
-                    max-width: 400px !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) !important;
+                    right: auto !important;
+                    z-index: 999999 !important;
+                    max-width: 500px !important;
                     min-width: 300px !important;
                     width: auto !important;
                     pointer-events: none !important;
                     box-sizing: border-box !important;
                     display: flex !important;
                     flex-direction: column !important;
-                    align-items: flex-end !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
                 }
 
                 .notification {
                     background: #ffffff !important;
                     border-radius: 8px !important;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
                     margin-bottom: 12px !important;
                     padding: 16px 20px !important;
                     display: flex !important;
                     align-items: flex-start !important;
                     gap: 12px !important;
                     pointer-events: auto !important;
-                    animation: slideInRight 0.3s ease-out !important;
+                    animation: slideInDown 0.4s ease-out !important;
                     border-left: 4px solid #007BFF !important;
                     width: 100% !important;
-                    max-width: 400px !important;
+                    max-width: 500px !important;
                     min-width: 300px !important;
                     word-wrap: break-word !important;
                     box-sizing: border-box !important;
@@ -177,30 +180,30 @@ class NotificationSystem {
                     color: white;
                 }
 
-                @keyframes slideInRight {
+                @keyframes slideInDown {
                     from {
-                        transform: translateX(100%);
+                        transform: translateY(-100%);
                         opacity: 0;
                     }
                     to {
-                        transform: translateX(0);
+                        transform: translateY(0);
                         opacity: 1;
                     }
                 }
 
-                @keyframes slideOutRight {
+                @keyframes slideOutUp {
                     from {
-                        transform: translateX(0);
+                        transform: translateY(0);
                         opacity: 1;
                     }
                     to {
-                        transform: translateX(100%);
+                        transform: translateY(-100%);
                         opacity: 0;
                     }
                 }
 
                 .notification.slide-out {
-                    animation: slideOutRight 0.3s ease-in forwards;
+                    animation: slideOutUp 0.3s ease-in forwards !important;
                 }
 
                 /* Confirmation Modal Styles */
@@ -379,11 +382,12 @@ class NotificationSystem {
                 @media (max-width: 768px) {
                     .notification-container {
                         top: 10px !important;
-                        right: 10px !important;
-                        left: 10px !important;
+                        left: 50% !important;
+                        transform: translateX(-50%) !important;
+                        right: auto !important;
                         max-width: calc(100% - 20px) !important;
                         min-width: auto !important;
-                        width: auto !important;
+                        width: calc(100% - 20px) !important;
                     }
 
                     .notification {
@@ -517,6 +521,15 @@ class NotificationSystem {
         const finalContainer = document.getElementById('notification-container');
         if (finalContainer) {
             finalContainer.appendChild(notification);
+            
+            // Smoothly scroll to top of page to ensure notification is visible
+            // Only scroll if user is scrolled down significantly
+            if (window.scrollY > 200) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
         } else {
             console.error('Cannot append notification: container not found');
         }

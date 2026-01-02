@@ -1,130 +1,48 @@
-# Environment files
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Test fixtures (auth states)
+tests/fixtures/auth-state-*.json
+
+# Environment files with secrets
 .env
-*.env
-!.env.example
-!*.env.template
-config/*.env
+.env.test
+.env.local
+config/dev.env
+config/uat.env
+config/prod.env
+# Keep template files
 !config/*.env.template
 
-# Node modules
-node_modules/
-npm-debug.log
-yarn-error.log
-package-lock.json
+# Backups and sensitive data
+backups/
+*.backup
+*.bak
 
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
-env/
-ENV/
-*.egg-info/
-dist/
-build/
 
-# Database files (sensitive data)
+# Database files
 *.db
 *.sqlite
 *.sqlite3
-fmv-reports.json
-users.json
-usage-tracking.json
-invoices.json
+
+# Git rewrite history
+.git-rewrite/
+
+# Node modules
+node_modules/
 
 # Logs
 *.log
-logs/
-server.log
+npm-debug.log*
 
 # OS files
 .DS_Store
 Thumbs.db
-.directory
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.cursor/
-.cursor-server/
-
-# Backup files
-*.backup
-*.bak
-*.old
-*backup*
-*~
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-.tmp/
-
-# Systemd private directories
-systemd-private-*/
-snap-private-tmp/
-
-# Compiled files
-*.pyc
-*.pyo
-*.class
-
-# Archives
-*.tar.gz
-*.zip
-*.rar
-
-# Sensitive configuration
-config/production.py
-config/secrets.py
-
-# Test files
-test/
-tests/
-*.test.js
-*.spec.js
-
-# Coverage reports
-htmlcov/
-.coverage
-.pytest_cache/
-
-# Build outputs
-dist/
-build/
-*.min.js
-*.min.css
-
-# Deployment
-.deploy/
-deploy.log
-
-# SSL certificates (if any)
-*.pem
-*.key
-*.crt
-*.cert
-
-# Cache
-.cache/
-*.cache
-
-# Local development
-.local/
-local/
-
-# Backup directories
-.backups/
-
-# Git rewrite temporary files
-.git-rewrite/
-
-# Audit reports
-audit_report.json
-OPTIMIZATION_CHANGELOG.md

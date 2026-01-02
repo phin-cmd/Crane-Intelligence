@@ -33,6 +33,17 @@
         .form-group label { display: block; margin-bottom: 8px; color: #B0B0B0; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #FFD600; outline: none; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #333333; }
+        .tab { padding: 12px 24px; background: transparent; border: none; color: #B0B0B0; cursor: pointer; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .tab:hover { color: #FFFFFF; }
+        .tab.active { color: #FFD600; border-bottom-color: #FFD600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .status-badge.unsubscribed { background: rgba(255, 68, 68, 0.2); color: #FF4444; }
+        .status-badge.bounced { background: rgba(255, 165, 0, 0.2); color: #FFA500; }
+        .filter-controls { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+        .filter-controls select { padding: 8px 12px; background: #0F0F0F; border: 1px solid #333333; border-radius: 4px; color: #FFFFFF; }
+        .filter-controls select:focus { border-color: #FFD600; outline: none; }
     </style>
 </head>
 <body>
@@ -46,27 +57,76 @@
                 <div class="content-header">
                     <h2>Email Management</h2>
                     <div class="header-actions">
-                        <button class="btn btn-primary btn-sm" onclick="openTemplateModal()">Create Template</button>
+                        <button class="btn btn-primary btn-sm" onclick="openTemplateModal()" id="createTemplateBtn" style="display: none;">Create Template</button>
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Subject</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Usage Count</th>
-                                <th>Last Used</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="templates-table-body">
-                            <tr><td colspan="7" class="loading">Loading templates...</td></tr>
-                        </tbody>
-                    </table>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('templates')">Email Templates</button>
+                    <button class="tab" onclick="switchTab('subscribers')">Subscribers</button>
+                </div>
+
+                <!-- Templates Tab -->
+                <div id="templates-tab" class="tab-content active">
+                    <div class="table-container">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Usage Count</th>
+                                    <th>Last Used</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="templates-table-body">
+                                <tr><td colspan="7" class="loading">Loading templates...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Subscribers Tab -->
+                <div id="subscribers-tab" class="tab-content">
+                    <div class="filter-controls">
+                        <label style="color: #B0B0B0;">Status:</label>
+                        <select id="status-filter" onchange="loadSubscribers()">
+                            <option value="">All</option>
+                            <option value="active">Active</option>
+                            <option value="unsubscribed">Unsubscribed</option>
+                            <option value="bounced">Bounced</option>
+                        </select>
+                        <label style="color: #B0B0B0;">Type:</label>
+                        <select id="type-filter" onchange="loadSubscribers()">
+                            <option value="">All</option>
+                            <option value="newsletter">Newsletter</option>
+                            <option value="blog">Blog</option>
+                            <option value="updates">Updates</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="loadSubscribers()">Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Company</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Subscribed</th>
+                                    <th>Unsubscribed</th>
+                                    <th>Emails Sent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscribers-table-body">
+                                <tr><td colspan="9" class="loading">Loading subscribers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -112,9 +172,20 @@
     <div id="admin-footer-container"></div>
 
     <script>
-        const API_BASE = 'https://craneintelligence.tech/api/v1';
+        // Determine API base URL based on current environment
+        const hostname = window.location.hostname;
+        let API_BASE;
+        if (hostname === 'dev.craneintelligence.tech' || hostname === 'localhost' || hostname === '127.0.0.1') {
+            API_BASE = 'https://dev.craneintelligence.tech/api/v1';
+        } else if (hostname === 'uat.craneintelligence.tech') {
+            API_BASE = 'https://uat.craneintelligence.tech/api/v1';
+        } else {
+            API_BASE = 'https://craneintelligence.tech/api/v1';
+        }
+        
         let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
         let currentTemplateId = null;
+        let currentTab = 'templates';
 
         if (!accessToken) {
             window.location.href = '/admin/login.html';
@@ -131,6 +202,9 @@
             window.addEventListener('adminLayoutReady', function() {
                 console.log('Admin layout ready');
                 loadTemplates();
+                if (currentTab === 'subscribers') {
+                    loadSubscribers();
+                }
             }, { once: true });
             
             // Fallback
@@ -138,11 +212,40 @@
                 const headerContainer = document.getElementById('admin-header-container');
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadTemplates();
+                    if (currentTab === 'subscribers') {
+                        loadSubscribers();
+                    }
                 } else {
-                    setTimeout(() => loadTemplates(), 1000);
+                    setTimeout(() => {
+                        loadTemplates();
+                        if (currentTab === 'subscribers') {
+                            loadSubscribers();
+                        }
+                    }, 1000);
                 }
             }, 2000);
         });
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Show/hide create template button
+            document.getElementById('createTemplateBtn').style.display = tabName === 'templates' ? 'inline-block' : 'none';
+            
+            // Load data for the active tab
+            if (tabName === 'subscribers') {
+                loadSubscribers();
+            } else if (tabName === 'templates') {
+                loadTemplates();
+            }
+        }
 
         async function loadTemplates() {
             try {
@@ -303,6 +406,399 @@
             } catch (error) {
                 console.error('Error deleting template:', error);
                 notificationSystem.showError('Error', 'Failed to delete template');
+            }
+        }
+
+        async function loadSubscribers() {
+            try {
+                const statusFilter = document.getElementById('status-filter').value;
+                const typeFilter = document.getElementById('type-filter').value;
+                
+                let url = `${API_BASE}/admin/emails/subscribers?limit=10000`;
+                if (statusFilter) {
+                    url += `&status=${encodeURIComponent(statusFilter)}`;
+                }
+                if (typeFilter) {
+                    url += `&subscription_type=${encodeURIComponent(typeFilter)}`;
+                }
+                
+                // Use proper auth headers with Content-Type
+                const headers = {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                };
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers
+                });
+                
+                if (response.status === 401) {
+                    console.error('Authentication failed, redirecting to login');
+                    window.location.href = '/admin/login.html';
+                    return;
+                }
+                
+                if (response.status === 403) {
+                    // Show helpful error message
+                    const errorText = await response.text().catch(() => 'Forbidden');
+                    let errorDetail = 'Forbidden';
+                    try {
+                        if (errorText) {
+                            const parsed = JSON.parse(errorText);
+                            errorDetail = parsed.detail || parsed.message || errorDetail;
+                        }
+                    } catch (e) {
+                        errorDetail = errorText.substring(0, 100) || errorDetail;
+                    }
+                    
+                    document.getElementById('subscribers-table-body').innerHTML = 
+                        `<tr><td colspan="9" style="color: #FFD600; text-align: center; padding: 20px;">
+                            <div style="margin-bottom: 10px;">⚠️ Access Denied (403)</div>
+                            <div style="font-size: 12px; color: #B0B0B0; margin-bottom: 15px;">${errorDetail}</div>
+                            <button class="btn btn-primary btn-sm" onclick="loadSubscribers()" style="margin-top: 15px;">🔄 Retry</button>
+                        </td></tr>`;
+                    return;
+                }
+                
+                // Check if response is JSON before parsing
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
+                }
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+                }
+                
+                const data = await response.json();
+                // Handle different response formats
+                const subscribers = Array.isArray(data) ? data : 
+                                  (data.subscribers || data.data || data.results || []);
+                console.log(`✅ Loaded ${subscribers.length} subscribers from API`);
+                
+                // Log subscriber emails for debugging
+                if (subscribers.length > 0) {
+                    console.log('Subscriber emails:', subscribers.map(s => s.email || s.id).join(', '));
+                }
+                
+                renderSubscribers(subscribers);
+            } catch (error) {
+                console.error('Error loading subscribers:', error);
+                const errorMessage = error.message || 'Failed to load subscribers';
+                document.getElementById('subscribers-table-body').innerHTML = 
+                    `<tr><td colspan="9" style="color: #FF4444; text-align: center; padding: 20px;">${errorMessage}</td></tr>`;
+            }
+        }
+
+        function renderSubscribers(subscribers) {
+            const tbody = document.getElementById('subscribers-table-body');
+            if (subscribers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9">No subscribers found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = subscribers.map(sub => {
+                // Handle both formats: first_name/last_name or name field
+                const fullName = sub.name || 
+                                [sub.first_name, sub.last_name].filter(Boolean).join(' ') || 
+                                sub.full_name || 
+                                '-';
+                const statusClass = sub.status === 'active' ? 'active' : 
+                                   sub.status === 'unsubscribed' ? 'unsubscribed' : 
+                                   sub.status === 'bounced' ? 'bounced' : 
+                                   sub.status === 'inactive' ? 'inactive' : 'active';
+                const subscribedDate = sub.subscribed_at ? new Date(sub.subscribed_at).toLocaleDateString() : '-';
+                const unsubscribedDate = sub.unsubscribed_at ? new Date(sub.unsubscribed_at).toLocaleDateString() : '-';
+                
+                const subscriberId = sub.id || 0;
+                const subscriberEmail = (sub.email || '').replace(/'/g, "\\'");
+                const isActive = sub.status === 'active';
+                
+                return `
+                    <tr>
+                        <td>${sub.email || '-'}</td>
+                        <td>${fullName}</td>
+                        <td>${sub.company || '-'}</td>
+                        <td>${sub.subscription_type || 'user'}</td>
+                        <td><span class="status-badge ${statusClass}">${sub.status || 'active'}</span></td>
+                        <td>${subscribedDate}</td>
+                        <td>${unsubscribedDate}</td>
+                        <td>${sub.email_count || 0}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                ${isActive ? `
+                                    <button onclick="unsubscribeSubscriber('${subscriberEmail}', ${subscriberId})" 
+                                            style="background: rgba(255, 68, 68, 0.1); color: #FF4444; border: 1px solid rgba(255, 68, 68, 0.3); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; white-space: nowrap;"
+                                            onmouseover="this.style.background='rgba(255, 68, 68, 0.2)'"
+                                            onmouseout="this.style.background='rgba(255, 68, 68, 0.1)'"
+                                            title="Unsubscribe">
+                                        Unsubscribe
+                                    </button>
+                                ` : `
+                                    <button onclick="resubscribeSubscriber('${subscriberEmail}', ${subscriberId})" 
+                                            style="background: rgba(0, 255, 133, 0.1); color: #00FF85; border: 1px solid rgba(0, 255, 133, 0.3); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; white-space: nowrap;"
+                                            onmouseover="this.style.background='rgba(0, 255, 133, 0.2)'"
+                                            onmouseout="this.style.background='rgba(0, 255, 133, 0.1)'"
+                                            title="Resubscribe">
+                                        Resubscribe
+                                    </button>
+                                `}
+                                <button onclick="viewSubscriberDetails('${subscriberEmail}', ${subscriberId})" 
+                                        style="background: rgba(255, 214, 0, 0.1); color: #FFD600; border: 1px solid rgba(255, 214, 0, 0.3); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; white-space: nowrap;"
+                                        onmouseover="this.style.background='rgba(255, 214, 0, 0.2)'"
+                                        onmouseout="this.style.background='rgba(255, 214, 0, 0.1)'"
+                                        title="View Details">
+                                    View
+                                </button>
+                                <button onclick="deleteSubscriber('${subscriberEmail}', ${subscriberId})" 
+                                        style="background: rgba(255, 68, 68, 0.1); color: #FF4444; border: 1px solid rgba(255, 68, 68, 0.3); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; white-space: nowrap;"
+                                        onmouseover="this.style.background='rgba(255, 68, 68, 0.2)'"
+                                        onmouseout="this.style.background='rgba(255, 68, 68, 0.1)'"
+                                        title="Delete Subscriber">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Subscriber Actions
+        async function unsubscribeSubscriber(email, subscriberId) {
+            if (!confirm(`Are you sure you want to unsubscribe ${email}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/emails/subscribers/${subscriberId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ 
+                        email: email,
+                        status: 'unsubscribed'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showSuccess('Success', 'Subscriber unsubscribed successfully');
+                    } else {
+                        alert('Subscriber unsubscribed successfully');
+                    }
+                    loadSubscribers(); // Reload the list
+                } else {
+                    const errorMsg = data.message || data.detail || 'Unknown error';
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showError('Error', 'Failed to unsubscribe: ' + errorMsg);
+                    } else {
+                        alert('Failed to unsubscribe: ' + errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('Error unsubscribing:', error);
+                const errorMsg = error.message || 'Unknown error';
+                if (typeof notificationSystem !== 'undefined') {
+                    notificationSystem.showError('Error', 'Error unsubscribing subscriber: ' + errorMsg);
+                } else {
+                    alert('Error unsubscribing subscriber: ' + errorMsg);
+                }
+            }
+        }
+        
+        async function resubscribeSubscriber(email, subscriberId) {
+            if (!confirm(`Are you sure you want to resubscribe ${email}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/emails/subscribers/${subscriberId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ 
+                        email: email,
+                        status: 'active'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showSuccess('Success', 'Subscriber resubscribed successfully');
+                    } else {
+                        alert('Subscriber resubscribed successfully');
+                    }
+                    loadSubscribers(); // Reload the list
+                } else {
+                    const errorMsg = data.message || data.detail || 'Unknown error';
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showError('Error', 'Failed to resubscribe: ' + errorMsg);
+                    } else {
+                        alert('Failed to resubscribe: ' + errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('Error resubscribing:', error);
+                const errorMsg = error.message || 'Unknown error';
+                if (typeof notificationSystem !== 'undefined') {
+                    notificationSystem.showError('Error', 'Error resubscribing subscriber: ' + errorMsg);
+                } else {
+                    alert('Error resubscribing subscriber: ' + errorMsg);
+                }
+            }
+        }
+        
+        function viewSubscriberDetails(email, subscriberId) {
+            // Find the subscriber in the current list
+            const subscribers = Array.from(document.querySelectorAll('#subscribers-table-body tr')).map(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    return {
+                        email: cells[0].textContent.trim(),
+                        name: cells[1].textContent.trim(),
+                        company: cells[2].textContent.trim(),
+                        type: cells[3].textContent.trim(),
+                        status: cells[4].querySelector('.status-badge')?.textContent.trim() || '',
+                        subscribed: cells[5].textContent.trim(),
+                        unsubscribed: cells[6].textContent.trim(),
+                        emailsSent: cells[7].textContent.trim()
+                    };
+                }
+                return null;
+            }).filter(Boolean);
+            
+            const subscriber = subscribers.find(s => s.email === email);
+            if (!subscriber) {
+                alert('Subscriber details not found');
+                return;
+            }
+            
+            // Create and show modal with subscriber details
+            const modal = document.createElement('div');
+            modal.id = 'subscriberDetailsModal';
+            modal.style.cssText = `
+                position: fixed;
+                z-index: 10000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #1A1A1A; border: 1px solid #333333; border-radius: 8px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; color: #FFFFFF;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #FFD600; margin: 0;">Subscriber Details</h3>
+                        <button onclick="document.getElementById('subscriberDetailsModal').remove()" 
+                                style="background: transparent; border: none; color: #B0B0B0; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                            ×
+                        </button>
+                    </div>
+                    <div style="display: grid; gap: 16px;">
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Email</div>
+                            <div style="color: #FFFFFF; font-size: 14px; font-weight: 500;">${subscriber.email}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Name</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.name}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Company</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.company}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Subscription Type</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.type}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Status</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.status}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Subscribed Date</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.subscribed}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Unsubscribed Date</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.unsubscribed}</div>
+                        </div>
+                        <div>
+                            <div style="color: #B0B0B0; font-size: 12px; margin-bottom: 4px;">Emails Sent</div>
+                            <div style="color: #FFFFFF; font-size: 14px;">${subscriber.emailsSent}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="document.getElementById('subscriberDetailsModal').remove()" 
+                                style="background: #2A2A2A; color: #FFFFFF; border: 1px solid #333333; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        async function deleteSubscriber(email, subscriberId) {
+            if (!confirm(`Are you sure you want to permanently delete subscriber ${email}? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/emails/subscribers/${subscriberId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showSuccess('Success', 'Subscriber deleted successfully');
+                    } else {
+                        alert('Subscriber deleted successfully');
+                    }
+                    loadSubscribers(); // Reload the list
+                } else {
+                    const errorMsg = data.message || data.detail || 'Unknown error';
+                    if (typeof notificationSystem !== 'undefined') {
+                        notificationSystem.showError('Error', 'Failed to delete subscriber: ' + errorMsg);
+                    } else {
+                        alert('Failed to delete subscriber: ' + errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting subscriber:', error);
+                const errorMsg = error.message || 'Unknown error';
+                if (typeof notificationSystem !== 'undefined') {
+                    notificationSystem.showError('Error', 'Error deleting subscriber: ' + errorMsg);
+                } else {
+                    alert('Error deleting subscriber: ' + errorMsg);
+                }
             }
         }
 

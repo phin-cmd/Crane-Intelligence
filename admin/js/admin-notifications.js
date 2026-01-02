@@ -95,9 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
             let message = 'An error occurred';
             let title = 'Error';
             
+            // Handle null or undefined error
+            if (!error) {
+                console.error('handleApiError called with null/undefined error');
+                notificationSystem.showError('Error', 'An unknown error occurred');
+                return;
+            }
+            
             if (error.response) {
                 const status = error.response.status;
-                const data = error.response.data;
+                const data = error.response.data || error.response;
                 
                 switch (status) {
                     case 400:

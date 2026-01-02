@@ -31,8 +31,138 @@ from ...schemas.admin import (
     ReportListResponse, ReportResponse,
     ActivityItem
 )
+from ...core.config import settings
+import logging
+import os
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+# Analytics Endpoint
+@router.get("/analytics")
+async def get_admin_analytics(
+    timeRange: Optional[str] = Query("30d", description="Time range: 7d, 30d, 90d, 1y"),
+    current_user: AdminUser = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive analytics for admin dashboard
+    Combines visitor tracking data with business metrics
+    Only available in production environment
+    """
+    # Check if analytics is enabled (production only)
+    environment = os.getenv("ENVIRONMENT", "prod").lower()
+    if environment not in ["prod", "production"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Analytics endpoint is only available in production environment"
+        )
+    
+    try:
+        from datetime import datetime, timedelta
+        from sqlalchemy import func
+        
+        # Calculate date range
+        end_date = datetime.now()
+        if timeRange == "7d":
+            start_date = end_date - timedelta(days=7)
+        elif timeRange == "30d":
+            start_date = end_date - timedelta(days=30)
+        elif timeRange == "90d":
+            start_date = end_date - timedelta(days=90)
+        elif timeRange == "1y":
+            start_date = end_date - timedelta(days=365)
+        else:
+            start_date = end_date - timedelta(days=30)
+        
+        # Get visitor tracking stats if table exists
+        visitor_stats = {}
+        try:
+            from ...models.visitor_tracking import VisitorTracking
+            total_visitors = db.query(func.count(func.distinct(VisitorTracking.visitor_id))).filter(
+                VisitorTracking.visited_at >= start_date,
+                VisitorTracking.visited_at <= end_date,
+                VisitorTracking.is_bot == False
+            ).scalar() or 0
+            
+            total_page_views = db.query(func.count(VisitorTracking.id)).filter(
+                VisitorTracking.visited_at >= start_date,
+                VisitorTracking.visited_at <= end_date,
+                VisitorTracking.is_bot == False
+            ).scalar() or 0
+            
+            unique_sessions = db.query(func.count(func.distinct(VisitorTracking.session_id))).filter(
+                VisitorTracking.visited_at >= start_date,
+                VisitorTracking.visited_at <= end_date,
+                VisitorTracking.is_bot == False
+            ).scalar() or 0
+            
+            visitor_stats = {
+                "total_visitors": total_visitors,
+                "total_page_views": total_page_views,
+                "unique_sessions": unique_sessions,
+                "bounce_rate": 0.0,
+                "avg_time_on_page": 0
+            }
+        except Exception as e:
+            # Table might not exist yet - that's okay
+            import logging
+            logging.getLogger(__name__).warning(f"Visitor tracking table not available: {e}")
+        
+        # Get business metrics
+        total_users = db.query(User).count()
+        active_users = db.query(User).filter(User.is_active == True).count()
+        
+        from ...models.fmv_report import FMVReport
+        total_reports = db.query(FMVReport).count()
+        reports_this_period = db.query(FMVReport).filter(
+            FMVReport.created_at >= start_date
+        ).count()
+        
+        total_revenue_result = db.query(func.sum(FMVReport.amount_paid)).filter(
+            FMVReport.amount_paid.isnot(None),
+            FMVReport.amount_paid > 0
+        ).scalar()
+        total_revenue = float(total_revenue_result) if total_revenue_result else 0.0
+        
+        revenue_this_period_result = db.query(func.sum(FMVReport.amount_paid)).filter(
+            FMVReport.amount_paid.isnot(None),
+            FMVReport.amount_paid > 0,
+            FMVReport.paid_at >= start_date
+        ).scalar()
+        revenue_this_period = float(revenue_this_period_result) if revenue_this_period_result else 0.0
+        
+        return {
+            "success": True,
+            "analytics": {
+                "overview": {
+                    "total_users": total_users,
+                    "active_users": active_users,
+                    "total_reports": total_reports,
+                    "reports_this_period": reports_this_period,
+                    "total_revenue": total_revenue,
+                    "revenue_this_period": revenue_this_period
+                },
+                "visitors": visitor_stats,
+                "period": {
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat(),
+                    "range": timeRange
+                }
+            }
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error fetching admin analytics: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error fetching analytics: {str(e)}")
+
+# Test endpoint to verify routing
+@router.get("/analytics/test")
+async def test_analytics_route():
+    """Test endpoint to verify analytics route is accessible"""
+    return {"success": True, "message": "Analytics route is working", "path": "/api/v1/admin/analytics"}
 
 # Role-based access control helpers
 def require_admin_access(current_user: AdminUser = Depends(get_current_admin_user)):

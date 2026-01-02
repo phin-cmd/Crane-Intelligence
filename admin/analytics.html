@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics & Reporting - Crane Intelligence Admin [FIXED]</title>
     <link rel="stylesheet" href="css/admin-dashboard.css?v=2024">
+    <link rel="stylesheet" href="css/admin-common.css?v=2024">
     <link rel="stylesheet" href="css/dashboard-components.css?v=2024">
     <link rel="icon" type="image/x-icon" href="../images/logos/crane-intelligence-favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/notification-system.js?v=2024"></script>
     <script src="js/admin-notifications.js?v=2024"></script>
+    <script src="js/admin-api.js"></script>
+    <script src="js/admin-layout.js"></script>
     <style>
         /* Profile Dropdown Styles */
         .admin-profile {
@@ -178,86 +181,20 @@
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Header -->
-        <header class="admin-header">
-            <div class="header-left">
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-                <div class="logo">
-                    <img src="../images/logos/crane-intelligence-logo.svg" alt="Crane Intelligence" class="logo-img">
-                </div>
-                <h1 class="page-title">Analytics & Reporting</h1>
-            </div>
-            <div class="header-right">
-                <div class="admin-profile" onclick="toggleProfileDropdown()" style="cursor: pointer;">
-                    <div class="profile-avatar">
-                        <div class="avatar-initials">AU</div>
-                    </div>
-                    <div class="profile-info">
-                        <div class="profile-name">Admin User</div>
-                        <div class="profile-role">Administrator</div>
-                    </div>
-                    <div class="profile-dropdown-btn">
-                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <!-- Profile Dropdown -->
-                <div class="profile-dropdown" id="profileDropdown">
-                    <div class="dropdown-item" onclick="navigateToProfile()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Profile</span>
-                    </div>
-                    <div class="dropdown-item" onclick="navigateToSettings()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Settings</span>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" onclick="logout()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Logout</span>
-                    </div>
-                </div>
-            </div>
-        </header>
+    <div id="admin-header-container"></div>
 
-        <!-- Sidebar -->
-        <nav class="admin-sidebar">
-            <ul class="nav-menu">
-                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="users.html" class="nav-link">Users</a></li>
-                <li><a href="content.html" class="nav-link">Content</a></li>
-                <li><a href="analytics.html" class="nav-link active">Analytics</a></li>
-                <li><a href="settings.html" class="nav-link">Settings</a></li>
-                <li><a href="security.html" class="nav-link">Security</a></li>
-                <li><a href="data.html" class="nav-link">Data</a></li>
-                <li><a href="database.html" class="nav-link">Database</a></li>
-                <li><a href="admin-users.html" class="nav-link">Admin Users</a></li>
-                <li><a href="core-logic.html" class="nav-link">Core Logic</a></li>
-            </ul>
-        </nav>
+    <div class="admin-main">
+        <div id="admin-sidebar-container"></div>
 
-        <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Analytics Controls -->
+        <div class="admin-content">
+            <div class="content-main">
+                <div class="analytics-container">
+                    <div class="analytics-header">
+                        <h1>Advanced Analytics & Visitor Tracking</h1>
+                        <p>Comprehensive website analytics including visitors, demographics, and behavior tracking</p>
+                    </div>
+
+                    <!-- Analytics Controls -->
             <div class="analytics-controls">
                 <div class="control-group">
                     <label for="timeRange">Time Range</label>
@@ -300,8 +237,56 @@
                 </div>
             </div>
 
+            <!-- Visitor Tracking Overview -->
+            <div class="analytics-overview" id="visitorStatsSection">
+                <h2 style="grid-column: 1 / -1; margin-bottom: 20px; color: #FFFFFF; font-size: 1.5rem;">Visitor Statistics</h2>
+                <div class="overview-stats">
+                    <div class="stat-card" data-metric="total-visitors">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalVisitors">0</div>
+                            <div class="stat-label">Total Visitors</div>
+                            <div class="stat-change" id="visitorChange">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-metric="page-views">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalPageViews">0</div>
+                            <div class="stat-label">Page Views</div>
+                            <div class="stat-change" id="pageViewsChange">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-metric="sessions">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="uniqueSessions">0</div>
+                            <div class="stat-label">Unique Sessions</div>
+                            <div class="stat-change" id="sessionsChange">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-metric="bounce-rate">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="bounceRate">0%</div>
+                            <div class="stat-label">Bounce Rate</div>
+                            <div class="stat-change" id="bounceRateChange">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-metric="avg-time">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avgTimeOnPage">0s</div>
+                            <div class="stat-label">Avg. Time on Page</div>
+                            <div class="stat-change" id="avgTimeChange">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Analytics Overview -->
-            <div class="analytics-overview">
+            <div class="analytics-overview" id="businessStatsSection">
+                <h2 style="grid-column: 1 / -1; margin-bottom: 20px; color: #FFFFFF; font-size: 1.5rem;">Business Metrics</h2>
                 <div class="overview-stats">
                     <div class="stat-card" data-metric="total-users">
                         <div class="stat-icon">👥</div>
@@ -401,6 +386,96 @@
                     </div>
                     <div class="chart-wrapper">
                         <canvas id="subscriptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visitor Tracking Charts -->
+            <div class="charts-grid" style="margin-top: 20px;">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Visitor Timeline</h3>
+                        <div class="chart-controls">
+                            <select id="visitorTimelineGroupBy" class="chart-select">
+                                <option value="hour">By Hour</option>
+                                <option value="day" selected>By Day</option>
+                                <option value="week">By Week</option>
+                                <option value="month">By Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="visitorTimelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demographics Section -->
+            <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Top Countries</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="countriesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Device Types</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="devicesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Browsers</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="browsersChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Operating Systems</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="osChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Traffic Sources</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="trafficSourcesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Top Pages</h3>
+                    </div>
+                    <div class="chart-wrapper" style="max-height: 400px; overflow-y: auto;">
+                        <table id="topPagesTable" style="width: 100%; color: #FFFFFF;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #333333;">
+                                    <th style="padding: 12px; text-align: left;">Page</th>
+                                    <th style="padding: 12px; text-align: right;">Views</th>
+                                    <th style="padding: 12px; text-align: right;">Visitors</th>
+                                    <th style="padding: 12px; text-align: right;">Avg. Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topPagesTableBody">
+                                <tr><td colspan="4" style="padding: 20px; text-align: center; color: #888;">Loading...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -539,7 +614,6 @@
         </main>
     </div>
 
-    <script src="js/admin-api.js"></script>
     <script src="js/analytics.js"></script>
     <script>
         // Profile Dropdown Functions
@@ -595,7 +669,7 @@
             const dropdown = document.getElementById('profileDropdown');
             const profile = document.querySelector('.admin-profile');
             
-            if (!profile.contains(event.target)) {
+            if (dropdown && profile && !profile.contains(event.target)) {
                 dropdown.classList.remove('show');
             }
         });
@@ -607,20 +681,49 @@
         let currentMetricType = 'all';
         let currentChartType = 'line';
 
+        // Visitor Tracking API
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : 'https://craneintelligence.tech/api/v1';
+
+        // Use global visitorCharts if it exists, otherwise create it
+        if (typeof window.visitorCharts === 'undefined') {
+            window.visitorCharts = {};
+        }
+        const visitorCharts = window.visitorCharts;
+
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('ANALYTICS PAGE LOADED - FIXES APPLIED [v2024]');
-            alert('Analytics page loaded with fixes!');
+            console.log('Analytics page loaded');
             
-            // Mobile menu toggle event listener
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-            }
+            // Wait for admin layout to be ready
+            window.addEventListener('adminLayoutReady', function() {
+                console.log('Admin layout ready, loading analytics...');
+                initializeAnalytics();
+                loadAnalyticsData();
+                loadVisitorTrackingData();
+                setupEventListeners();
+                initializeCharts();
+            }, { once: true });
             
-            initializeAnalytics();
-            loadAnalyticsData();
-            setupEventListeners();
-            initializeCharts();
+            // Fallback
+            setTimeout(function() {
+                const headerContainer = document.getElementById('admin-header-container');
+                if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                    initializeAnalytics();
+                    loadAnalyticsData();
+                    loadVisitorTrackingData();
+                    setupEventListeners();
+                    initializeCharts();
+                } else {
+                    setTimeout(() => {
+                        initializeAnalytics();
+                        loadAnalyticsData();
+                        loadVisitorTrackingData();
+                        setupEventListeners();
+                        initializeCharts();
+                    }, 1000);
+                }
+            }, 2000);
         });
 
         function initializeAnalytics() {
@@ -714,16 +817,38 @@
         async function loadAnalyticsData() {
             let loadingId;
             try {
+                // Check if we're in production environment
+                const hostname = window.location.hostname;
+                const isProduction = hostname === 'craneintelligence.tech' && 
+                                     !hostname.includes('dev.') && 
+                                     !hostname.includes('uat.') &&
+                                     !hostname.includes('staging.');
+                
+                if (!isProduction && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                    console.warn('Analytics only available in production environment');
+                    notificationSystem.showWarning('Analytics Restricted', 'Analytics is only available in production environment');
+                    return;
+                }
+                
                 console.log('Loading analytics data from database...');
                 loadingId = notificationSystem.showLoading('Loading analytics data...');
                 
-                const response = await fetch(`http://localhost:8003/api/v1/admin/analytics?timeRange=${currentTimeRange}`, {
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:8004/api/v1'
+                    : 'https://craneintelligence.tech/api/v1';
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+                
+                const response = await fetch(`${API_BASE}/admin/analytics?timeRange=${currentTimeRange}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                        'Authorization': `Bearer ${token || ''}`
                     }
                 });
+                
+                if (response.status === 403) {
+                    throw new Error('Analytics not available in this environment');
+                }
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -743,6 +868,12 @@
             } catch (error) {
                 console.error('Error loading analytics:', error);
                 notificationSystem.hideLoading(loadingId);
+                
+                // Check if it's an environment restriction error
+                if (error.message && error.message.includes('not available in this environment')) {
+                    notificationSystem.showWarning('Analytics Restricted', 'Analytics is only available in production environment');
+                    return;
+                }
                 
                 // Fallback to mock data for demonstration
                 analyticsData = generateMockAnalyticsData();
@@ -881,6 +1012,43 @@
         }
 
         function initializeCharts() {
+            // Check if Chart.js is available
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded');
+                return;
+            }
+            
+            // Destroy existing charts before creating new ones to avoid canvas reuse errors
+            try {
+                if (charts.userGrowth) {
+                    charts.userGrowth.destroy();
+                    charts.userGrowth = null;
+                }
+                if (charts.revenue) {
+                    charts.revenue.destroy();
+                    charts.revenue = null;
+                }
+                if (charts.subscription) {
+                    charts.subscription.destroy();
+                    charts.subscription = null;
+                }
+                if (charts.geographic) {
+                    charts.geographic.destroy();
+                    charts.geographic = null;
+                }
+                
+                // Also destroy any charts that Chart.js knows about
+                const userGrowthCtx = document.getElementById('userGrowthChart');
+                if (userGrowthCtx) {
+                    const existingChart = Chart.getChart(userGrowthCtx);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                }
+            } catch (e) {
+                console.warn('Error destroying charts:', e);
+            }
+            
             // Initialize User Growth Chart
             const userGrowthCtx = document.getElementById('userGrowthChart');
             if (userGrowthCtx) {
@@ -923,6 +1091,10 @@
             // Initialize Revenue Chart
             const revenueCtx = document.getElementById('revenueChart');
             if (revenueCtx) {
+                const existingRevenueChart = Chart.getChart(revenueCtx);
+                if (existingRevenueChart) {
+                    existingRevenueChart.destroy();
+                }
                 charts.revenue = new Chart(revenueCtx, {
                     type: 'line',
                     data: {
@@ -962,6 +1134,10 @@
             // Initialize Subscription Chart
             const subscriptionCtx = document.getElementById('subscriptionChart');
             if (subscriptionCtx) {
+                const existingSubscriptionChart = Chart.getChart(subscriptionCtx);
+                if (existingSubscriptionChart) {
+                    existingSubscriptionChart.destroy();
+                }
                 charts.subscription = new Chart(subscriptionCtx, {
                     type: 'doughnut',
                     data: {
@@ -989,6 +1165,10 @@
             // Initialize Geographic Chart
             const geographicCtx = document.getElementById('geographicChart');
             if (geographicCtx) {
+                const existingGeographicChart = Chart.getChart(geographicCtx);
+                if (existingGeographicChart) {
+                    existingGeographicChart.destroy();
+                }
                 charts.geographic = new Chart(geographicCtx, {
                     type: 'bar',
                     data: {
@@ -1276,11 +1456,16 @@
                 let loadingId;
                 loadingId = notificationSystem.showLoading('Exporting analytics data...');
                 
-                const response = await fetch('http://localhost:8003/api/v1/admin/analytics/export', {
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:8004/api/v1'
+                    : 'https://craneintelligence.tech/api/v1';
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+                
+                const response = await fetch(`${API_BASE}/admin/analytics/export`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+                        'Authorization': `Bearer ${token || ''}`
                     },
                     body: JSON.stringify({
                         dataType: dataType,
@@ -1417,6 +1602,272 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Visitor Tracking Functions
+        const VISITOR_API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8004'
+            : 'https://craneintelligence.tech/api/v1';
+
+        // Declare visitorCharts in global scope to avoid duplicate declaration
+        if (typeof window.visitorCharts === 'undefined') {
+            window.visitorCharts = {};
+        }
+
+        async function loadVisitorTrackingData() {
+            try {
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+                if (!token) {
+                    console.warn('No admin token for visitor tracking');
+                    return;
+                }
+
+                const timeRange = document.getElementById('timeRange')?.value || '30d';
+                const { startDate, endDate } = getDateRange(timeRange);
+
+                // Load visitor stats
+                const statsResponse = await fetch(`${VISITOR_API_BASE}/visitor-tracking/stats?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    updateVisitorStats(stats.stats);
+                }
+
+                // Load demographics
+                const demoResponse = await fetch(`${VISITOR_API_BASE}/visitor-tracking/demographics?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (demoResponse.ok) {
+                    const demo = await demoResponse.json();
+                    renderDemographics(demo.demographics);
+                }
+
+                // Load timeline
+                const groupBy = document.getElementById('visitorTimelineGroupBy')?.value || 'day';
+                const timelineResponse = await fetch(`${VISITOR_API_BASE}/visitor-tracking/timeline?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}&group_by=${groupBy}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (timelineResponse.ok) {
+                    const timeline = await timelineResponse.json();
+                    renderVisitorTimeline(timeline.timeline);
+                }
+
+                // Load top pages
+                const pagesResponse = await fetch(`${VISITOR_API_BASE}/visitor-tracking/pages?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}&limit=10`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (pagesResponse.ok) {
+                    const pages = await pagesResponse.json();
+                    renderTopPages(pages.pages);
+                }
+
+            } catch (error) {
+                console.error('Error loading visitor tracking data:', error);
+            }
+        }
+
+        function getDateRange(range) {
+            const endDate = new Date();
+            let startDate = new Date();
+            
+            switch(range) {
+                case '7d':
+                    startDate.setDate(endDate.getDate() - 7);
+                    break;
+                case '30d':
+                    startDate.setDate(endDate.getDate() - 30);
+                    break;
+                case '90d':
+                    startDate.setDate(endDate.getDate() - 90);
+                    break;
+                case '1y':
+                    startDate.setFullYear(endDate.getFullYear() - 1);
+                    break;
+                default:
+                    startDate.setDate(endDate.getDate() - 30);
+            }
+            
+            return { startDate, endDate };
+        }
+
+        function updateVisitorStats(stats) {
+            if (document.getElementById('totalVisitors')) {
+                document.getElementById('totalVisitors').textContent = stats.total_visitors || 0;
+            }
+            if (document.getElementById('totalPageViews')) {
+                document.getElementById('totalPageViews').textContent = stats.total_page_views || 0;
+            }
+            if (document.getElementById('uniqueSessions')) {
+                document.getElementById('uniqueSessions').textContent = stats.unique_sessions || 0;
+            }
+            if (document.getElementById('bounceRate')) {
+                document.getElementById('bounceRate').textContent = (stats.bounce_rate || 0).toFixed(1) + '%';
+            }
+            if (document.getElementById('avgTimeOnPage')) {
+                document.getElementById('avgTimeOnPage').textContent = formatTime(stats.avg_time_on_page || 0);
+            }
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return seconds + 's';
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return mins + 'm ' + secs + 's';
+        }
+
+        function renderDemographics(demo) {
+            // Countries chart
+            if (demo.countries && demo.countries.length > 0) {
+                renderPieChart('countriesChart', demo.countries.map(c => c.country || 'Unknown'), demo.countries.map(c => c.visitors), 'Top Countries');
+            }
+
+            // Devices chart
+            if (demo.devices && demo.devices.length > 0) {
+                renderPieChart('devicesChart', demo.devices.map(d => d.device || 'Unknown'), demo.devices.map(d => d.visitors), 'Device Types');
+            }
+
+            // Browsers chart
+            if (demo.browsers && demo.browsers.length > 0) {
+                renderPieChart('browsersChart', demo.browsers.map(b => b.browser || 'Unknown'), demo.browsers.map(b => b.visitors), 'Browsers');
+            }
+
+            // OS chart
+            if (demo.operating_systems && demo.operating_systems.length > 0) {
+                renderPieChart('osChart', demo.operating_systems.map(o => o.os || 'Unknown'), demo.operating_systems.map(o => o.visitors), 'Operating Systems');
+            }
+
+            // Traffic sources chart
+            if (demo.traffic_sources && demo.traffic_sources.length > 0) {
+                renderPieChart('trafficSourcesChart', demo.traffic_sources.map(t => t.source || 'Unknown'), demo.traffic_sources.map(t => t.visitors), 'Traffic Sources');
+            }
+        }
+
+        function renderPieChart(canvasId, labels, data, title) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            if (window.visitorCharts[canvasId]) {
+                window.visitorCharts[canvasId].destroy();
+            }
+
+            window.visitorCharts[canvasId] = new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FFD600', '#00FF85', '#00CC6A', '#FF6B6B', '#4ECDC4',
+                            '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA15E', '#BC6C25'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#FFFFFF' }
+                        },
+                        title: {
+                            display: true,
+                            text: title,
+                            color: '#FFFFFF'
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderVisitorTimeline(timeline) {
+            const canvas = document.getElementById('visitorTimelineChart');
+            if (!canvas) return;
+
+            if (window.visitorCharts['visitorTimelineChart']) {
+                window.visitorCharts['visitorTimelineChart'].destroy();
+            }
+
+            const labels = timeline.map(t => {
+                const date = new Date(t.period);
+                return date.toLocaleDateString();
+            });
+
+            window.visitorCharts['visitorTimelineChart'] = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Visitors',
+                            data: timeline.map(t => t.visitors),
+                            borderColor: '#FFD600',
+                            backgroundColor: 'rgba(255, 214, 0, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Page Views',
+                            data: timeline.map(t => t.page_views),
+                            borderColor: '#00FF85',
+                            backgroundColor: 'rgba(0, 255, 133, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Sessions',
+                            data: timeline.map(t => t.sessions),
+                            borderColor: '#4ECDC4',
+                            backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#FFFFFF' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#FFFFFF' }, grid: { color: '#333333' } },
+                        y: { ticks: { color: '#FFFFFF' }, grid: { color: '#333333' } }
+                    }
+                }
+            });
+        }
+
+        function renderTopPages(pages) {
+            const tbody = document.getElementById('topPagesTableBody');
+            if (!tbody) return;
+
+            if (pages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #888;">No page views found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pages.map(page => `
+                <tr style="border-bottom: 1px solid #333333;">
+                    <td style="padding: 12px;">
+                        <div style="font-weight: 500;">${page.title || 'Untitled'}</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 4px;">${page.url}</div>
+                    </td>
+                    <td style="padding: 12px; text-align: right;">${page.views || 0}</td>
+                    <td style="padding: 12px; text-align: right;">${page.unique_visitors || 0}</td>
+                    <td style="padding: 12px; text-align: right;">${formatTime(page.avg_time_on_page || 0)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Update timeline when group by changes
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'visitorTimelineGroupBy') {
+                loadVisitorTrackingData();
+            }
+            if (e.target.id === 'timeRange') {
+                loadVisitorTrackingData();
+            }
+        });
 
     </script>
 </body>

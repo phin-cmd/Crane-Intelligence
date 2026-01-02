@@ -65,6 +65,7 @@ def init_db():
     from ..models.fmv_report import FMVReport
     from ..models.fallback_request import FallbackRequest
     from ..models.consultation import ConsultationRequest
+    from ..models.visitor_tracking import VisitorTracking
     
     # Create all tables
     try:

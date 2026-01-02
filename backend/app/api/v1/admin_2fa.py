@@ -54,11 +54,28 @@ async def get_2fa_status(
     db: Session = Depends(get_db)
 ):
     """Get 2FA status for current user"""
-    return {
-        "enabled": current_user.two_factor_enabled,
-        "has_backup_codes": bool(current_user.two_factor_backup_codes),
-        "backup_codes_count": len(current_user.two_factor_backup_codes) if current_user.two_factor_backup_codes else 0
-    }
+    try:
+        backup_codes = current_user.two_factor_backup_codes
+        if backup_codes is None:
+            backup_codes = []
+        elif not isinstance(backup_codes, list):
+            # Handle case where backup_codes might be stored as a different format
+            backup_codes = []
+        
+        return {
+            "enabled": bool(current_user.two_factor_enabled),
+            "has_backup_codes": len(backup_codes) > 0,
+            "backup_codes_count": len(backup_codes),
+            "backup_codes": backup_codes if current_user.two_factor_enabled else []
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error getting 2FA status: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get 2FA status: {str(e)}"
+        )
 
 
 @router.post("/setup", response_model=Setup2FAResponse)

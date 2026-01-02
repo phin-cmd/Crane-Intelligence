@@ -127,10 +127,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadAccountSecurity();
                 } else {
-                    setTimeout(() => loadAccountSecurity();, 1000);
+                    setTimeout(() => loadAccountSecurity(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function load2FAStatus() {
@@ -138,15 +137,43 @@
                 const response = await fetch(`${API_BASE}/admin/2fa/status`, {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
+                
                 if (response.status === 401) {
                     window.location.href = '/admin/login.html';
                     return;
                 }
+                
+                if (!response.ok) {
+                    // Try to get error message from response
+                    let errorMessage = `Failed to load 2FA status (${response.status})`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.detail || errorData.message || errorMessage;
+                    } catch (e) {
+                        // Response is not JSON, try text
+                        try {
+                            const errorText = await response.text();
+                            if (errorText && errorText.length < 200) {
+                                errorMessage = errorText;
+                            }
+                        } catch (e2) {
+                            // Ignore text parsing errors
+                        }
+                    }
+                    console.error('Error loading 2FA status:', errorMessage);
+                    notificationSystem.showError('Error', errorMessage);
+                    // Show default disabled state on error
+                    render2FAStatus({ enabled: false, backup_codes: [] });
+                    return;
+                }
+                
                 const status = await response.json();
                 render2FAStatus(status);
             } catch (error) {
                 console.error('Error loading 2FA status:', error);
-                notificationSystem.showError('Error', 'Failed to load 2FA status');
+                notificationSystem.showError('Error', 'Failed to load 2FA status: ' + (error.message || 'Unknown error'));
+                // Show default disabled state on error
+                render2FAStatus({ enabled: false, backup_codes: [] });
             }
         }
 

@@ -1,0 +1,26 @@
+[Unit]
+Description=Crane Intelligence Server Health Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/crane
+ExecStart=/usr/bin/python3 /root/crane/server-monitor.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables (set these in /etc/systemd/system/server-monitor.service.d/override.conf)
+Environment="SMTP_HOST=smtp.gmail.com"
+Environment="SMTP_PORT=587"
+Environment="SMTP_USER="
+Environment="SMTP_PASSWORD="
+Environment="FROM_EMAIL=alerts@craneintelligence.tech"
+Environment="ADMIN_EMAILS="
+Environment="ALERT_API_URL=http://localhost:8000/api/v1/admin/alerts"
+
+[Install]
+WantedBy=multi-user.target
+

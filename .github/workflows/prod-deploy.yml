@@ -6,11 +6,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Smoke Tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps
+
+      - name: Run smoke tests
+        run: |
+          npm run test:smoke
+        env:
+          BASE_URL: https://craneintelligence.tech
+          API_URL: https://craneintelligence.tech/api/v1
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-prod
+          path: |
+            test-results/
+            playwright-report/
+
+  deploy-prod:
+    needs: test
     runs-on: ubuntu-latest
     environment:
       name: production
       url: https://craneintelligence.tech/
+    name: Deploy to Production
       
     steps:
       - name: Checkout code
@@ -19,7 +59,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Deploy to production server
+      - name: Backup production database
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.PROD_HOST }}
@@ -30,12 +70,91 @@ jobs:
             git fetch origin
             git checkout main
             git pull origin main
+            
+            # CRITICAL: Backup production database before any changes
+            echo "Backing up production database..."
+            ./scripts/database/backup-databases.sh
+            
+            # Verify backup was created
+            LATEST_BACKUP=$(ls -t /root/crane/backups/prod_db_*.sql.gz | head -1)
+            if [ -z "$LATEST_BACKUP" ]; then
+              echo "ERROR: Production backup failed!"
+              exit 1
+            fi
+            echo "Backup created: $LATEST_BACKUP"
+
+      - name: Run database migrations
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
+            # Run migrations if any (with extra safety checks)
+            if [ -d "backend/migrations" ] && [ "$(ls -A backend/migrations/*.sql 2>/dev/null)" ]; then
+              echo "Running database migrations..."
+              # Test migration in transaction first
+              docker compose exec -T db \
+                psql -U crane_user -d crane_intelligence \
+                -c "BEGIN; $(cat backend/migrations/latest.sql); ROLLBACK;" || {
+                  echo "ERROR: Migration test failed! Aborting."
+                  exit 1
+                }
+              # Apply migration
+              docker compose exec -T db \
+                psql -U crane_user -d crane_intelligence \
+                -f /app/migrations/latest.sql || {
+                  echo "ERROR: Migration failed! Restoring backup..."
+                  exit 1
+                }
+            else
+              echo "No migrations to run"
+            fi
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
             docker compose -f docker-compose.yml build --no-cache
             docker compose up -d
             docker compose ps
-            
-      - name: Smoke test
+
+      - name: Run smoke tests
         run: |
-          sleep 10
+          sleep 15
           curl -f https://craneintelligence.tech/ || exit 1
+          curl -f https://craneintelligence.tech/api/v1/health || exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/crane
+            echo "CRITICAL: Production deployment failed! Initiating rollback..."
+            
+            # Restore database from backup
+            LATEST_BACKUP=$(ls -t /root/crane/backups/prod_db_*.sql.gz | head -1)
+            if [ -n "$LATEST_BACKUP" ]; then
+              echo "Restoring production database from backup: $LATEST_BACKUP"
+              gunzip -c "$LATEST_BACKUP" | \
+                docker compose exec -T db \
+                psql -U crane_user -d crane_intelligence
+              echo "Database restored successfully"
+            fi
+            
+            # Revert to previous code version
+            echo "Reverting code to previous version..."
+            git reset --hard HEAD~1
+            docker compose -f docker-compose.yml up -d
+            
+            echo "Rollback complete. Please investigate the issue."
 

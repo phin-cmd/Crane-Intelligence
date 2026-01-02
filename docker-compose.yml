@@ -45,27 +45,8 @@ services:
       - "8004:8003"
     volumes:
       - ./backend:/app
-    environment:
-      - DATABASE_URL=postgresql://crane_user:crane_password@db:5432/crane_intelligence
-      - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=crane-intelligence-secret-key-2024
-      - BREVO_API_KEY=${BREVO_API_KEY:-your-brevo-api-key-here}
-      - BREVO_SMTP_PASSWORD=CraneIntel123!
-      - MAIL_FROM_EMAIL=pgenerelly@craneintelligence.tech
-      - MAIL_USERNAME=99e09b001@smtp-brevo.com
-      - MAIL_SERVER=smtp-relay.brevo.com
-      - MAIL_PORT=587
-      - USE_BREVO_API=true
-      - MAIL_FROM_NAME=Crane Intelligence Platform
-      - STRIPE_PUBLISHABLE_KEY=pk_test_51SJKv7BME5ZRi6spdiFi7Vjl0OYR0JxIppswByoC6v4zpBDcGa8hZxsiiAzXgVLRK3tFJ8UlZDvImAfYv5o0accj00IZw9Rl4R
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-your-stripe-secret-key-here}
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-your-github-token-here}
-      - DO_SPACES_KEY=${DO_SPACES_KEY:-your-do-spaces-key-here}
-      - DO_SPACES_SECRET=${DO_SPACES_SECRET:-your-do-spaces-secret-here}
-      - DO_SPACES_REGION=atl1
-      - DO_SPACES_BUCKET=crane-intelligence-storage
-      - DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com
-      - DO_SPACES_CDN_ENDPOINT=https://crane-intelligence-storage.atl1.cdn.digitaloceanspaces.com
+    env_file:
+      - ./config/prod.env
     depends_on:
       - db
       - redis

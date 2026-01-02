@@ -1,0 +1,64 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches: [ develop, uat, main ]
+  pull_request:
+    branches: [ develop, uat ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Test Suite
+    
+    strategy:
+      matrix:
+        environment: [dev, uat]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps
+
+      - name: Run test suite
+        run: |
+          if [ "${{ matrix.environment }}" == "dev" ]; then
+            npm run test:dev
+          else
+            npm run test:uat
+          fi
+        env:
+          BASE_URL: ${{ matrix.environment == 'dev' && 'https://dev.craneintelligence.tech' || 'https://uat.craneintelligence.tech' }}
+          API_URL: ${{ matrix.environment == 'dev' && 'https://dev.craneintelligence.tech/api/v1' || 'https://uat.craneintelligence.tech/api/v1' }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.environment }}
+          path: |
+            test-results/
+            playwright-report/
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (${{ matrix.environment }})
+          path: test-results/junit.xml
+          reporter: java-junit
+          list-suites: all
+

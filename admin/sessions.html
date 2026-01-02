@@ -93,10 +93,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadSessions();
                 } else {
-                    setTimeout(() => loadSessions();, 1000);
+                    setTimeout(() => loadSessions(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function loadSessions() {

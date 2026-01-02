@@ -50,6 +50,9 @@ class DigitalOceanSpacesService:
         self.endpoint = os.getenv("DO_SPACES_ENDPOINT", f"https://{self.region}.digitaloceanspaces.com")
         self.cdn_endpoint = os.getenv("DO_SPACES_CDN_ENDPOINT", f"https://{self.bucket}.{self.region}.cdn.digitaloceanspaces.com")
         
+        # Get environment name (dev, uat, prod) to prefix folder paths
+        self.environment = os.getenv("ENVIRONMENT", "prod").lower()
+        
         if not self.access_key or not self.secret_key:
             # As an extra safeguard, if both env and fallback are missing,
             # disable the client but keep the app running.
@@ -72,7 +75,7 @@ class DigitalOceanSpacesService:
                 region_name=self.region,
                 config=config
             )
-            logger.info(f"DigitalOcean Spaces client initialized for bucket: {self.bucket}")
+            logger.info(f"DigitalOcean Spaces client initialized for bucket: {self.bucket} (environment: {self.environment})")
     
     def upload_file(
         self,
@@ -100,7 +103,8 @@ class DigitalOceanSpacesService:
             # Generate unique filename to prevent collisions
             unique_id = str(uuid.uuid4())[:8]
             safe_filename = f"{unique_id}_{filename}"
-            file_key = f"{folder}/{safe_filename}"
+            # Prepend environment name to folder path for separation (e.g., dev/service-records, uat/service-records, prod/service-records)
+            file_key = f"{self.environment}/{folder}/{safe_filename}"
             
             # Determine content type if not provided
             if not content_type:
@@ -118,7 +122,7 @@ class DigitalOceanSpacesService:
             # Generate CDN URL
             cdn_url = f"{self.cdn_endpoint}/{file_key}"
             
-            logger.info(f"File uploaded to Spaces: {file_key} -> {cdn_url}")
+            logger.info(f"File uploaded to Spaces [{self.environment}]: {file_key} -> {cdn_url}")
             return cdn_url
             
         except ClientError as e:

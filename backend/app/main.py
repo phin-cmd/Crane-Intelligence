@@ -301,6 +301,14 @@ try:
 except Exception as e:
     logger.warning(f"Could not load analytics router: {e}")
 
+# Include visitor tracking router
+try:
+    from app.api.v1.visitor_tracking import router as visitor_tracking_router
+    app.include_router(visitor_tracking_router, prefix="/api/v1", tags=["visitor-tracking"])
+    logger.info("✓ Visitor tracking router registered")
+except Exception as e:
+    logger.warning(f"Could not load visitor tracking router: {e}")
+
 # Include market data router
 try:
     from app.api.v1.market_data import router as market_data_router
@@ -329,6 +337,16 @@ except Exception as e:
 try:
     from app.api.v1.admin_users import router as admin_users_router
     app.include_router(admin_users_router, prefix="/api/v1", tags=["admin-users"])
+except Exception as e:
+    logger.warning(f"Could not load admin users router: {e}")
+
+# Include server monitoring router
+try:
+    from app.api.v1.server_monitoring import router as server_monitoring_router
+    app.include_router(server_monitoring_router, prefix="/api/v1", tags=["server-monitoring"])
+    logger.info("✓ Server monitoring router registered")
+except Exception as e:
+    logger.warning(f"Could not load server monitoring router: {e}")
     logger.info("✓ Admin users router registered")
 except Exception as e:
     logger.warning(f"Could not load admin users router: {e}")
@@ -492,6 +510,13 @@ except Exception as e:
 try:
     from app.api.v1.newsletter import router as newsletter_router
     app.include_router(newsletter_router, prefix="/api/v1", tags=["newsletter"])
+    
+    # Health check endpoints
+    try:
+        from .api.v1.health import router as health_router
+        app.include_router(health_router, prefix="/api/v1", tags=["Health"])
+    except ImportError as e:
+        logger.warning(f"Health router not available: {e}")
     logger.info("✓ Newsletter router registered")
 except Exception as e:
     logger.warning(f"Could not load newsletter router: {e}")
@@ -500,11 +525,12 @@ except Exception as e:
 
 @app.get("/api/v1/health")
 async def health_check():
-    """Basic health check endpoint"""
+    """Basic health check endpoint - used by monitoring script"""
     return {
         "status": "healthy",
         "message": "Crane Intelligence API is running",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat()
     }
 
 @app.get("/health")
@@ -591,41 +617,8 @@ async def get_analytics_overview():
     }
 
 # ==================== AUTHENTICATION ENDPOINTS (Simple - for backward compatibility) ====================
-
-@app.post("/api/v1/auth/login", response_model=LoginResponse)
-async def login(user_data: UserLogin):
-    """
-    Simple login endpoint for backward compatibility
-    In production, use the full auth router at /api/v1/auth/login
-    """
-    try:
-        # Simple demo authentication
-        if user_data.email == "test@craneintelligence.com" and user_data.password == "password123":
-            # Create demo user
-            demo_user = UserResponse(
-                id=1,
-                email=user_data.email,
-                full_name="Test User",
-                username="testuser",
-                user_role="admin"
-            )
-            
-            # Create access token
-            access_token = create_access_token(data={"sub": user_data.email, "user_id": 1})
-            
-            return LoginResponse(
-                success=True,
-                message="Login successful",
-                access_token=access_token,
-                user=demo_user
-            )
-        else:
-            return LoginResponse(
-                success=False,
-                message="Invalid credentials"
-            )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# NOTE: Simple demo endpoints removed - using full auth router at /api/v1/auth/login instead
+# The full auth router provides proper password verification, email verification checks, etc.
 
 @app.post("/api/v1/auth/register", response_model=LoginResponse)
 async def register(user_data: UserRegister):

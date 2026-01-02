@@ -26,11 +26,19 @@
     <script src="js/component-loader.js" defer></script>
     <script src="js/user-profile-manager.js" defer></script>
     <script src="js/turnaround-timer.js" defer></script>
+    <script src="js/visitor-tracker.js"></script>
     <style>
         /* ===== PROFESSIONAL DASHBOARD STYLES ===== */
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
             box-sizing: border-box;
         }
 
@@ -43,6 +51,8 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
             /* Safari specific fixes */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -128,13 +138,17 @@
             min-height: calc(100vh - 160px);
             background: #0F0F0F;
             width: 100%;
+            max-width: 100vw;
             box-sizing: border-box;
+            overflow-x: hidden;
+            position: relative;
         }
 
         /* Left Sidebar */
         .sidebar {
             width: 300px !important;
             min-width: 300px !important;
+            max-width: 300px !important;
             background: #1A1A1A;
             border-right: 1px solid #333333;
             padding: 24px;
@@ -236,6 +250,8 @@
             overflow-x: hidden;
             background: #0F0F0F;
             box-sizing: border-box;
+            width: 100%;
+            position: relative;
         }
 
         .dashboard-header {
@@ -772,6 +788,7 @@
             gap: 24px;
             margin-bottom: 32px;
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
         }
 
@@ -819,6 +836,7 @@
             gap: 24px;
             margin-bottom: 32px;
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
         }
 
@@ -861,6 +879,9 @@
             margin-bottom: 24px;
             max-height: 400px;
             overflow-y: auto;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .activity-feed::-webkit-scrollbar {
@@ -891,6 +912,23 @@
 
         .activity-item:last-child {
             border-bottom: none;
+        }
+
+        .activity-loading,
+        .activity-empty {
+            padding: 20px;
+            text-align: center;
+            color: #B0B0B0;
+            font-size: 14px;
+        }
+
+        .activity-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .activity-time {
@@ -937,6 +975,9 @@
             margin-bottom: 24px;
             display: flex;
             flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .table-scroll-container {
@@ -1286,7 +1327,10 @@
 
         .table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
+            table-layout: auto;
+            box-sizing: border-box;
         }
 
         .table th {
@@ -1299,6 +1343,9 @@
             padding: 12px 8px;
             text-align: left;
             border-bottom: 1px solid #333333;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: nowrap;
         }
 
         .table td {
@@ -1306,6 +1353,9 @@
             font-size: 12px;
             padding: 12px 8px;
             border-bottom: 1px solid #333333;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 200px;
         }
 
         .table tbody tr:hover {
@@ -1363,6 +1413,7 @@
             overflow-x: hidden;
             flex-shrink: 0;
             box-sizing: border-box;
+            position: relative;
         }
         
         .right-sidebar .sidebar-section {
@@ -1377,9 +1428,11 @@
             max-width: 100% !important;
             border-collapse: collapse !important;
             font-size: 11px !important;
-            table-layout: fixed !important;
+            table-layout: auto !important;
             box-sizing: border-box !important;
             display: table !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
         }
 
         .market-data-table th {
@@ -1591,11 +1644,24 @@
             .right-sidebar {
                 width: 100% !important;
                 min-width: 100% !important;
+                max-width: 100% !important;
             }
             
             .main-content {
                 width: 100% !important;
                 min-width: 100% !important;
+                max-width: 100% !important;
+                padding: 16px !important;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .dashboard-title {
+                font-size: 24px;
             }
             
             .kpi-grid {
@@ -1854,49 +1920,42 @@
                     <div class="metric-label">Total Cranes</div>
                     <div class="metric-value">12</div>
                     <div class="metric-change positive">+2 this month</div>
-            </div>
+                </div>
                 
                 <div class="metric-card">
                     <div class="metric-label">Fleet Value</div>
                     <div class="metric-value">$2.4M</div>
                     <div class="metric-change positive">+5.2%</div>
-            </div>
+                </div>
                 
                 <div class="metric-card">
                     <div class="metric-label">Health Score</div>
                     <div class="metric-value">95%</div>
                     <div class="metric-change positive">Excellent</div>
-            </div>
+                </div>
                 
                 <div class="metric-card">
                     <div class="metric-label">Monthly ROI</div>
                     <div class="metric-value">$180K</div>
                     <div class="metric-change positive">+8.1%</div>
+                </div>
             </div>
-        </div>
 
             <div class="sidebar-section">
                 <h3 class="sidebar-title">QUICK ACTIONS</h3>
                 <div class="quick-actions">
                     <button class="action-btn" onclick="void(0)" disabled style="opacity: 0.5; cursor: not-allowed; background: #333333; color: #666666; border-color: #333333;">NEW VALUATION</button>
-                    </div>
-                    </div>
                 </div>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <div class="main-content">
             <div class="dashboard-header">
                 <h1 class="dashboard-title">PROFESSIONAL DASHBOARD</h1>
-                <div class="time-filters">
-                    <button class="time-filter active">REAL-TIME</button>
-                    <button class="time-filter">1D</button>
-                    <button class="time-filter">1W</button>
-                    <button class="time-filter">1M</button>
-                    <button class="time-filter">1Y</button>
-                    </div>
             </div>
 
-            <button class="fmv-report-button" onclick="window.location.href='/report-generation.html'">Order Professional FMV Report</button>
+            <button class="fmv-report-button" onclick="orderNewFMVReport()">Order Professional FMV Report</button>
 
             <!-- FMV Reports Tracking Section -->
             <div class="fmv-reports-section">
@@ -1937,8 +1996,8 @@
                     <div class="kpi-label">DEAL GRADE</div>
                     <div class="kpi-value" id="kpi-deal-grade">-</div>
                     <div class="kpi-change" id="kpi-deal-grade-change"></div>
-                    </div>
                 </div>
+            </div>
 
             <!-- Charts Grid -->
             <div class="charts-grid">
@@ -1957,8 +2016,8 @@
                     <div class="chart-wrapper">
                         <canvas id="marketChart"></canvas>
                     </div>
-                    </div>
                 </div>
+            </div>
 
             <!-- Recent Valuations Table -->
             <div class="valuations-table">
@@ -2013,24 +2072,11 @@
             <!-- Activity Feed -->
             <div class="activity-feed">
                 <h3 class="chart-title">RECENT ACTIVITY (Last 30 Days)</h3>
-                <div class="activity-item">
-                    <div class="activity-time">09:45</div>
-                    <div class="activity-content">Valuation completed: LTM1350-6.1 Grade: <span class="activity-grade a-plus">A+</span> ($2.14M)</div>
-                    </div>
-                <div class="activity-item">
-                    <div class="activity-time">08:32</div>
-                    <div class="activity-content">Market alert: LIEBHERR +0.8% Strong buy signal</div>
+                <div id="activityFeedContainer">
+                    <div class="activity-loading">Loading activity...</div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-time">07:15</div>
-                    <div class="activity-content">Equipment inspection scheduled: GMK5250L</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-time">06:45</div>
-                    <div class="activity-content">Market report generated: Q3 Analysis</div>
-                    </div>
-                </div>
-                        </div>
+            </div>
+        </div>
 
         <!-- Right Sidebar -->
         <div class="right-sidebar">
@@ -2040,17 +2086,17 @@
                     <div class="news-time">09:45 EST</div>
                     <div class="news-title">Liebherr Reports Strong Q3 Crane Sales</div>
                     <div class="news-source">CRANE WEEKLY</div>
-                        </div>
+                </div>
                 <div class="news-item">
                     <div class="news-time">08:32 EST</div>
                     <div class="news-title">North American Market Index Hits New High</div>
                     <div class="news-source">EQUIPMENT TODAY</div>
-                        </div>
+                </div>
                 <div class="news-item">
                     <div class="news-time">07:15 EST</div>
                     <div class="news-title">Construction Spending Up 15% YoY</div>
                     <div class="news-source">REUTERS</div>
-                    </div>
+                </div>
                 <div class="news-item">
                     <div class="news-time">06:45 EST</div>
                     <div class="news-title">Grove Launches New 250T Mobile Crane</div>
@@ -2084,9 +2130,9 @@
                         Below support level
                     </div>
                 </div>
-                </div>
             </div>
         </div>
+    </div>
 
     <!-- Unified Footer Component -->
     <div data-component="unified-footer"></div>
@@ -2300,7 +2346,7 @@
                 }
                 
                 // Fetch user's completed FMV reports to calculate KPIs
-                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/user/${userId}`, {
+                const response = await fetch(`/api/v1/fmv-reports/user/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -3142,13 +3188,56 @@
                     return;
                 }
 
-                // Load draft reports from localStorage
-                const drafts = loadDraftReports();
-                fmvReports.drafts = drafts;
+                // First, try to load cached reports from sessionStorage (faster, works offline)
+                let loadedFromCache = false;
+                try {
+                    const cached = sessionStorage.getItem('fmv_reports_cache');
+                    if (cached) {
+                        const cacheData = JSON.parse(cached);
+                        const cacheAge = Date.now() - (cacheData.timestamp || 0);
+                        // Use cache if it's less than 1 hour old
+                        if (cacheAge < 3600000 && cacheData.reports && cacheData.reports.length > 0) {
+                            const allCachedReports = cacheData.reports;
+                            fmvReports.drafts = allCachedReports.filter(report => {
+                                const status = (report.status || '').toLowerCase();
+                                return status === 'draft';
+                            });
+                            fmvReports.submitted = allCachedReports.filter(report => {
+                                const status = (report.status || '').toLowerCase();
+                                return status !== 'draft';
+                            });
+                            console.log(`📋 Loaded ${allCachedReports.length} cached reports on init (${fmvReports.drafts.length} drafts, ${fmvReports.submitted.length} submitted)`);
+                            loadedFromCache = true;
+                            
+                            // Check if report #70 is in cached reports
+                            const report70 = allCachedReports.find(r => r.id === 70 || String(r.id) === '70');
+                            if (report70) {
+                                console.log('✅ Report #70 found in cached reports on init');
+                            }
+                            
+                            // Display cached reports immediately
+                            displayFMVReports();
+                            
+                            // Still try to refresh from API in background (non-blocking)
+                            setTimeout(() => {
+                                // Continue with API call below
+                            }, 100);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load cached reports on init:', e);
+                }
+                
+                // Load draft reports from localStorage as additional fallback
+                if (!loadedFromCache) {
+                    const drafts = loadDraftReports();
+                    fmvReports.drafts = drafts;
+                }
 
-                // Load submitted reports from API using user ID
+                // Load submitted reports from API using user ID (will refresh cache if successful)
+                // This will run even if we loaded from cache, to get fresh data
                 const token = window.safeStorage.getItem('access_token') || window.safeStorage.getItem('auth_token') || window.safeStorage.getItem('crane_auth_token');
-                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/user/${userId}`, {
+                const response = await fetch(`/api/v1/fmv-reports/user/${userId}`, {
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : ''
                     }
@@ -3169,6 +3258,19 @@
                         const status = (report.status || '').toLowerCase();
                         return status !== 'draft';
                     });
+                    
+                    // Cache all reports (both drafts and submitted) in sessionStorage for offline viewing
+                    try {
+                        sessionStorage.setItem('fmv_reports_cache', JSON.stringify({
+                            reports: allReports,
+                            drafts: fmvReports.drafts,
+                            submitted: fmvReports.submitted,
+                            timestamp: Date.now()
+                        }));
+                        console.log('💾 Cached all reports to sessionStorage');
+                    } catch (e) {
+                        console.warn('Failed to cache reports:', e);
+                    }
                     
                     // Log all reports with their IDs and statuses for debugging
                     console.log(`📊 Loaded ${allReports.length} reports: ${fmvReports.drafts.length} drafts, ${fmvReports.submitted.length} submitted`);
@@ -3193,8 +3295,95 @@
                     }
                 } else {
                     console.error('Failed to load submitted reports:', response.status, response.statusText);
-                    fmvReports.submitted = [];
-                    fmvReports.drafts = [];
+                    
+                    // Store error for display purposes
+                    window.lastApiError = `HTTP ${response.status}: ${response.statusText}`;
+                    
+                    // If API fails (502, 503, etc.), try to use cached reports as fallback
+                    if (response.status >= 500) {
+                        console.warn('⚠️ API server error (' + response.status + '), trying to load cached reports');
+                        
+                        // First, try to load from sessionStorage cache (includes both drafts and submitted)
+                        let loadedFromCache = false;
+                        try {
+                            const cached = sessionStorage.getItem('fmv_reports_cache');
+                            if (cached) {
+                                const cacheData = JSON.parse(cached);
+                                const cacheAge = Date.now() - (cacheData.timestamp || 0);
+                                // Use cache if it's less than 1 hour old
+                                if (cacheAge < 3600000 && cacheData.reports && cacheData.reports.length > 0) {
+                                    const allCachedReports = cacheData.reports;
+                                    fmvReports.drafts = allCachedReports.filter(report => {
+                                        const status = (report.status || '').toLowerCase();
+                                        return status === 'draft';
+                                    });
+                                    fmvReports.submitted = allCachedReports.filter(report => {
+                                        const status = (report.status || '').toLowerCase();
+                                        return status !== 'draft';
+                                    });
+                                    console.log(`📋 Loaded ${allCachedReports.length} cached reports (${fmvReports.drafts.length} drafts, ${fmvReports.submitted.length} submitted) from sessionStorage`);
+                                    loadedFromCache = true;
+                                    
+                                    // Check if report #70 is in cached reports
+                                    const report70 = allCachedReports.find(r => r.id === 70 || String(r.id) === '70');
+                                    if (report70) {
+                                        console.log('✅ Report #70 found in cached reports');
+                                    } else {
+                                        console.warn('⚠️ Report #70 NOT found in cached reports');
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Failed to load cached reports:', e);
+                        }
+                        
+                        // If cache didn't work, fall back to localStorage drafts
+                        if (!loadedFromCache) {
+                            const localDrafts = loadDraftReports();
+                            if (localDrafts && localDrafts.length > 0) {
+                                // Merge with existing drafts, don't replace
+                                fmvReports.drafts = [...(fmvReports.drafts || []), ...localDrafts];
+                                // Remove duplicates
+                                const uniqueDrafts = [];
+                                const seenIds = new Set();
+                                fmvReports.drafts.forEach(draft => {
+                                    const id = draft.id ? String(draft.id) : draft.temp_id || `draft_${Date.now()}`;
+                                    if (!seenIds.has(id)) {
+                                        seenIds.add(id);
+                                        uniqueDrafts.push(draft);
+                                    }
+                                });
+                                fmvReports.drafts = uniqueDrafts;
+                                console.log('📋 Loaded ' + fmvReports.drafts.length + ' drafts from localStorage as fallback');
+                            } else {
+                                // Keep existing drafts if any, only clear submitted
+                                if (!fmvReports.drafts || fmvReports.drafts.length === 0) {
+                                    fmvReports.drafts = [];
+                                }
+                                fmvReports.submitted = [];
+                            }
+                        }
+                        
+                        // Show notification about API issue
+                        const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+                        if (notificationSystem && typeof notificationSystem.showWarning === 'function') {
+                            notificationSystem.showWarning(
+                                'API Connection Issue',
+                                'Unable to connect to the server. Showing cached reports. Please refresh the page once the server is back online.'
+                            );
+                        }
+                    } else {
+                        // For other errors (401, 403, etc.), keep drafts but clear submitted
+                        // Don't clear drafts on auth errors - they might still be valid
+                        if (response.status === 401 || response.status === 403) {
+                            fmvReports.submitted = [];
+                            // Keep drafts
+                        } else {
+                            fmvReports.submitted = [];
+                            fmvReports.drafts = [];
+                        }
+                        window.lastApiError = null; // Clear error for non-server errors
+                    }
                 }
 
                 // Display reports based on current tab
@@ -3404,9 +3593,16 @@
             const usedIds = new Set();
             const usedPaymentIntents = new Set();
             
+            // CRITICAL: First, find and preserve report #70 before any deduplication
+            const report70 = activeReports.find(r => (r.id === 70 || String(r.id) === '70'));
+            
             // First, add reports with payment_intent_id (deduplicated)
             paymentIntentMap.forEach(report => {
                 const reportId = report.id ? String(report.id) : '';
+                // Skip report #70 here - we'll add it separately to ensure it's always included
+                if (reportId === '70' || report.id === 70) {
+                    return;
+                }
                 if (reportId && !usedIds.has(reportId)) {
                     finalReports.push(report);
                     usedIds.add(reportId);
@@ -3421,28 +3617,15 @@
             activeReports.forEach(report => {
                 const reportId = report.id ? String(report.id) : `no-id-${Date.now()}-${Math.random()}`;
                 
-                // Special check for report #70 - always include it
-                if (report.id === 70 || String(report.id) === '70') {
-                    console.log('🔍 Found report #70 in activeReports:', {
-                        id: report.id,
-                        status: report.status,
-                        payment_intent_id: report.payment_intent_id,
-                        already_used: usedIds.has(reportId),
-                        payment_intent_used: report.payment_intent_id && usedPaymentIntents.has(report.payment_intent_id)
-                    });
+                // Skip report #70 here - we'll add it separately to ensure it's always included
+                if (reportId === '70' || report.id === 70) {
+                    return;
                 }
                 
                 if (!usedIds.has(reportId)) {
                     // If it has a payment_intent_id, check if we already have a report with that ID
                     if (report.payment_intent_id && usedPaymentIntents.has(report.payment_intent_id)) {
-                        // Special case: If this is report #70, include it anyway
-                        if (report.id === 70 || String(report.id) === '70') {
-                            console.log('⚠️ Report #70 has duplicate payment_intent_id, but including it anyway');
-                            finalReports.push(report);
-                            usedIds.add(reportId);
-                        } else {
-                            return; // Skip this duplicate
-                        }
+                        return; // Skip this duplicate
                     } else {
                         finalReports.push(report);
                         usedIds.add(reportId);
@@ -3450,27 +3633,40 @@
                             usedPaymentIntents.add(report.payment_intent_id);
                         }
                     }
-                } else {
-                    // Special case: If report #70 is already in usedIds, log it
-                    if (report.id === 70 || String(report.id) === '70') {
-                        console.warn('⚠️ Report #70 already in usedIds, might be a duplicate');
-                    }
                 }
             });
             
-            // Final check: Ensure report #70 is in finalReports
-            const report70InFinal = finalReports.find(r => r.id === 70 || String(r.id) === '70');
-            if (!report70InFinal) {
-                console.error('❌ Report #70 is NOT in finalReports after processing!');
-                console.log('Final reports IDs:', finalReports.map(r => r.id));
-                // Try to find it in activeReports and add it
-                const report70 = activeReports.find(r => r.id === 70 || String(r.id) === '70');
-                if (report70) {
-                    console.log('✅ Found report #70 in activeReports, adding to finalReports');
+            // CRITICAL: Always add report #70 at the end, ensuring it's never filtered out
+            if (report70) {
+                const report70Id = report70.id ? String(report70.id) : '';
+                if (!usedIds.has(report70Id)) {
+                    console.log('✅ Adding report #70 to finalReports');
                     finalReports.push(report70);
+                    usedIds.add(report70Id);
+                    if (report70.payment_intent_id) {
+                        usedPaymentIntents.add(report70.payment_intent_id);
+                    }
+                } else {
+                    console.warn('⚠️ Report #70 already in finalReports (duplicate check)');
+                    // Still add it if it's not already there (by reference)
+                    const alreadyIncluded = finalReports.some(r => (r.id === 70 || String(r.id) === '70'));
+                    if (!alreadyIncluded) {
+                        console.log('✅ Report #70 not found by reference, adding it');
+                        finalReports.push(report70);
+                    }
                 }
             } else {
-                console.log('✅ Report #70 is in finalReports');
+                console.warn('⚠️ Report #70 not found in activeReports');
+            }
+            
+            // Final verification: Ensure report #70 is in finalReports
+            const report70InFinal = finalReports.find(r => (r.id === 70 || String(r.id) === '70'));
+            if (!report70InFinal) {
+                console.error('❌ Report #70 is STILL NOT in finalReports after all processing!');
+                console.log('Final reports IDs:', finalReports.map(r => r.id));
+                console.log('activeReports IDs:', activeReports.map(r => r.id));
+            } else {
+                console.log('✅ Report #70 verified in finalReports');
             }
             
             // Use finalReports instead of activeReports
@@ -3493,6 +3689,67 @@
             }
 
             if (reportsToDisplay.length === 0) {
+                // Check if API failed with 502/503/504 (server errors)
+                const hasServerError = window.lastApiError && (
+                    window.lastApiError.includes('502') || 
+                    window.lastApiError.includes('503') || 
+                    window.lastApiError.includes('504') ||
+                    window.lastApiError.includes('Bad Gateway') ||
+                    window.lastApiError.includes('Service Unavailable')
+                );
+                
+                if (hasServerError) {
+                    // Show server error message with retry option, but don't hide the section
+                    const container = document.getElementById('fmvReportsContent');
+                    if (container) {
+                        // Check if there are any drafts in localStorage that we can show
+                        const localDrafts = loadDraftReports();
+                        if (localDrafts && localDrafts.length > 0) {
+                            // Show drafts with a warning banner
+                            const draftCards = localDrafts.map(draft => generateReportCard(draft)).filter(card => card.trim() !== '');
+                            if (draftCards.length > 0) {
+                                container.innerHTML = `
+                                    <div style="background: rgba(255, 214, 0, 0.1); border: 1px solid rgba(255, 214, 0, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #FFD600;">
+                                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                            <span style="font-size: 20px;">⚠️</span>
+                                            <strong>Server Connection Issue</strong>
+                                        </div>
+                                        <p style="color: #B0B0B0; font-size: 14px; margin: 0;">
+                                            The API server is currently unavailable (502 Bad Gateway). Showing locally saved drafts. Please refresh the page once the server is back online.
+                                        </p>
+                                        <button onclick="location.reload()" style="background: #00FF85; color: #1A1A1A; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 12px;">
+                                            🔄 Refresh Page
+                                        </button>
+                                    </div>
+                                    <div class="fmv-reports-grid">
+                                        ${draftCards.join('')}
+                                    </div>
+                                `;
+                                return;
+                            }
+                        }
+                        
+                        // No drafts available, show error message
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 60px 20px; color: #FFFFFF;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                                <h3 style="color: #FFD600; margin-bottom: 15px; font-size: 24px;">Server Connection Issue</h3>
+                                <p style="color: #B0B0B0; margin-bottom: 10px; font-size: 16px;">
+                                    The API server is currently unavailable (502 Bad Gateway).
+                                </p>
+                                <p style="color: #888; margin-bottom: 30px; font-size: 14px;">
+                                    Please try refreshing the page in a few moments.<br>
+                                    If the problem persists, contact support.
+                                </p>
+                                <button onclick="location.reload()" style="background: #00FF85; color: #1A1A1A; border: none; padding: 12px 32px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                                    🔄 Refresh Page
+                                </button>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+                
                 const emptyMessage = currentFMVTab === 'drafts' 
                     ? 'No draft reports found. Start a new FMV report to create a draft.'
                     : currentFMVTab === 'submitted'
@@ -3716,6 +3973,22 @@
         }
 
         // Continue editing a draft report
+        // Function to order a new FMV report - clears all draft flags for a fresh start
+        function orderNewFMVReport() {
+            console.log('📄 Ordering new FMV report - clearing all draft flags');
+            // CRITICAL: Clear all draft-related flags to ensure a fresh report generation page
+            const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+            safeStorage.removeItem('continue_draft');
+            safeStorage.removeItem('continue_draft_data');
+            safeStorage.removeItem('current_draft_report_id');
+            // Also clear any bulk processing data that might be lingering
+            safeStorage.removeItem('bulk_processing_data');
+            safeStorage.removeItem('bulk_file_url');
+            safeStorage.removeItem('bulk_file_name');
+            console.log('✅ All draft flags cleared - navigating to fresh report generation page');
+            window.location.href = '/report-generation.html';
+        }
+        
         function continueDraft(draftId) {
             // Find the report in all loaded reports
             const allReports = [...fmvReports.drafts, ...fmvReports.submitted];
@@ -3724,7 +3997,20 @@
                 return rId === String(draftId);
             });
             
+            // CRITICAL: Only allow continuing if report status is 'DRAFT'
             if (report) {
+                const reportStatus = report.status || report.report_status || '';
+                if (reportStatus.toLowerCase() !== 'draft') {
+                    console.warn('⚠️ Cannot continue payment: Report is not in DRAFT status:', reportStatus);
+                    const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+                    if (notificationSystem) {
+                        notificationSystem.show('Cannot continue payment for a report that is not in DRAFT status.', 'error');
+                    } else {
+                        alert('Cannot continue payment for a report that is not in DRAFT status.');
+                    }
+                    return; // Exit early - don't navigate
+                }
+                
                 // Store full report data for pre-filling
                 window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
                 window.safeStorage.setItem('continue_draft', draftId);
@@ -3733,7 +4019,7 @@
                 console.log('📋 Storing report data for pre-fill:', report);
                 console.log('📋 Storing current_draft_report_id to prevent duplicates:', draftId);
             } else {
-                // Fallback: just store ID if report not found
+                // Fallback: just store ID if report not found (but we'll verify status on report-generation page)
                 window.safeStorage.setItem('continue_draft', draftId);
                 window.safeStorage.setItem('current_draft_report_id', String(draftId));
             }
@@ -3775,7 +4061,7 @@
                 } else {
                     // It's a database report - call API to mark as DELETED
                     const token = window.safeStorage.getItem('access_token') || window.safeStorage.getItem('auth_token') || window.safeStorage.getItem('crane_auth_token');
-                    const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/${draftId}/delete`, {
+                    const response = await fetch(`/api/v1/fmv-reports/${draftId}/delete`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': token ? `Bearer ${token}` : '',
@@ -4006,7 +4292,14 @@
                                 </div>
                                 <div class="report-detail-item">
                                     <span class="report-detail-label">Mileage:</span>
-                                    <span class="report-detail-value">${craneData.mileage || 'N/A'}</span>
+                                    <span class="report-detail-value">${(() => {
+                                        // Check multiple possible locations for mileage
+                                        const mileage = craneData.mileage || 
+                                                       craneData.mileage_value || 
+                                                       (report.metadata && report.metadata.crane_mileage) ||
+                                                       null;
+                                        return (mileage !== null && mileage !== undefined && mileage !== '') ? mileage : 'N/A';
+                                    })()}</span>
                                 </div>
                                 <div class="report-detail-item">
                                     <span class="report-detail-label">Region:</span>
@@ -4477,7 +4770,20 @@
                 return rId === String(reportId);
             });
             
+            // CRITICAL: Only allow continuing if report status is 'DRAFT'
             if (report) {
+                const reportStatus = report.status || report.report_status || '';
+                if (reportStatus.toLowerCase() !== 'draft') {
+                    console.warn('⚠️ Cannot continue payment: Report is not in DRAFT status:', reportStatus);
+                    const notificationSystem = window.notificationSystem || (window.NotificationSystem && new window.NotificationSystem());
+                    if (notificationSystem) {
+                        notificationSystem.show('Cannot continue payment for a report that is not in DRAFT status.', 'error');
+                    } else {
+                        alert('Cannot continue payment for a report that is not in DRAFT status.');
+                    }
+                    return; // Exit early - don't navigate
+                }
+                
                 // Store full report data for pre-filling
                 window.safeStorage.setItem('continue_draft_data', JSON.stringify(report));
                 window.safeStorage.setItem('continue_draft', reportId);
@@ -4486,7 +4792,7 @@
                 console.log('📋 Storing report data for pre-fill:', report);
                 console.log('📋 Storing current_draft_report_id to prevent duplicates:', reportId);
             } else {
-                // Fallback: just store ID if report not found
+                // Fallback: just store ID if report not found (but we'll verify status on report-generation page)
                 window.safeStorage.setItem('continue_draft', reportId);
                 window.safeStorage.setItem('current_draft_report_id', String(reportId));
             }
@@ -4507,7 +4813,7 @@
                     return;
                 }
                 
-                const response = await fetch(`https://craneintelligence.tech/api/v1/fmv-reports/${reportId}/receipt`, {
+                const response = await fetch(`/api/v1/fmv-reports/${reportId}/receipt`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -4556,17 +4862,126 @@
 
         // Pagination function for bulk processing records
 
-        // Load FMV reports when page loads
+        // ===== RECENT ACTIVITY (Real-time from Notifications) =====
+        async function loadRecentActivity() {
+            const container = document.getElementById('activityFeedContainer');
+            if (!container) return;
+
+            try {
+                const token = window.safeStorage.getItem('access_token') || 
+                            window.safeStorage.getItem('auth_token') || 
+                            window.safeStorage.getItem('crane_auth_token');
+                
+                if (!token) {
+                    container.innerHTML = '<div class="activity-empty">Please log in to view activity</div>';
+                    return;
+                }
+
+                const response = await fetch('/api/v1/notifications', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        container.innerHTML = '<div class="activity-empty">Session expired. Please log in again.</div>';
+                        return;
+                    }
+                    throw new Error(`Failed to load activity: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const notifications = data.data || data.notifications || [];
+
+                if (notifications.length === 0) {
+                    container.innerHTML = '<div class="activity-empty">No recent activity</div>';
+                    return;
+                }
+
+                // Filter to last 30 days and sort by date (newest first)
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const recentNotifications = notifications
+                    .filter(notif => {
+                        const createdDate = new Date(notif.created_at || notif.timestamp || Date.now());
+                        return createdDate >= thirtyDaysAgo;
+                    })
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at || a.timestamp || 0);
+                        const dateB = new Date(b.created_at || b.timestamp || 0);
+                        return dateB - dateA;
+                    })
+                    .slice(0, 10); // Show max 10 most recent
+
+                if (recentNotifications.length === 0) {
+                    container.innerHTML = '<div class="activity-empty">No activity in the last 30 days</div>';
+                    return;
+                }
+
+                // Format notifications as activity items
+                const activityHTML = recentNotifications.map(notif => {
+                    const date = new Date(notif.created_at || notif.timestamp);
+                    const timeStr = date.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                    });
+                    
+                    // Format the message/content
+                    let content = notif.message || notif.title || 'Activity';
+                    
+                    // Add grade styling if it's a valuation completion
+                    if (content.includes('Grade:') || content.includes('grade:')) {
+                        const gradeMatch = content.match(/Grade:\s*([A-F][+-]?)/i);
+                        if (gradeMatch) {
+                            const grade = gradeMatch[1].toUpperCase();
+                            const gradeClass = grade.toLowerCase().replace('+', '-plus').replace('-', '-minus');
+                            content = content.replace(
+                                /Grade:\s*[A-F][+-]?/i,
+                                `Grade: <span class="activity-grade ${gradeClass}">${grade}</span>`
+                            );
+                        }
+                    }
+
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-time">${timeStr}</div>
+                            <div class="activity-content">${content}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = activityHTML;
+            } catch (error) {
+                console.error('[DASHBOARD] Error loading recent activity:', error);
+                container.innerHTML = '<div class="activity-empty">Failed to load activity. Please refresh the page.</div>';
+            }
+        }
+
+        // Load activity on page load and set up real-time updates
+        let activityUpdateInterval;
         window.addEventListener('DOMContentLoaded', function() {
             // Wait a bit for auth to load
-            setTimeout(loadFMVReports, 500);
+            setTimeout(() => {
+                loadFMVReports();
+                loadRecentActivity();
+                
+                // Update activity every 30 seconds
+                activityUpdateInterval = setInterval(loadRecentActivity, 30000);
+            }, 500);
         });
 
         // Cleanup on page unload
         window.addEventListener('beforeunload', function() {
             if (tickerInterval) clearInterval(tickerInterval);
+            if (activityUpdateInterval) clearInterval(activityUpdateInterval);
             if (window.resizeTimeout) clearTimeout(window.resizeTimeout);
         });
     </script>
 </body>
 </html>
+

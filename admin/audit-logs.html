@@ -175,10 +175,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadAuditLogs();
                 } else {
-                    setTimeout(() => loadAuditLogs();, 1000);
+                    setTimeout(() => loadAuditLogs(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function loadAuditLogs() {

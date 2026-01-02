@@ -36,13 +36,56 @@ class AnalyticsManager {
 
     async loadAnalyticsData() {
         try {
-            const api = new AdminAPI();
-            const data = await api.getAnalyticsData();
-            this.updateOverviewStats(data.overview);
-            this.updateCharts(data);
+            // Check if we're in production environment
+            const hostname = window.location.hostname;
+            const isProduction = hostname === 'craneintelligence.tech' && 
+                                 !hostname.includes('dev.') && 
+                                 !hostname.includes('uat.') &&
+                                 !hostname.includes('staging.');
+            
+            if (!isProduction && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                console.warn('Analytics only available in production environment');
+                this.showError('Analytics is only available in production environment');
+                return;
+            }
+            
+            // Use window.adminAPI if available, otherwise create new instance
+            const api = window.adminAPI || (typeof AdminAPI !== 'undefined' ? new AdminAPI() : null);
+            if (!api) {
+                console.warn('AdminAPI not available, using direct fetch');
+                // Fallback to direct fetch
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:8004/api/v1'
+                    : 'https://craneintelligence.tech/api/v1';
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+                
+                const response = await fetch(`${API_BASE}/admin/analytics`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 403) {
+                    throw new Error('Analytics not available in this environment');
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    this.updateOverviewStats(data.analytics?.overview || data.overview || {});
+                    this.updateCharts(data);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } else {
+                const data = await api.getAnalyticsData();
+                this.updateOverviewStats(data.analytics?.overview || data.overview || {});
+                this.updateCharts(data);
+            }
         } catch (error) {
             console.error('Error loading analytics data:', error);
-            this.showError('Failed to load analytics data');
+            if (error.message.includes('403') || error.message.includes('not available')) {
+                this.showError('Analytics is only available in production environment');
+            } else {
+                this.showError('Failed to load analytics data');
+            }
         }
     }
 
@@ -325,7 +368,10 @@ class AnalyticsManager {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
             
-            const api = new AdminAPI();
+            const api = window.adminAPI || (typeof AdminAPI !== 'undefined' ? new AdminAPI() : null);
+            if (!api) {
+                throw new Error('AdminAPI not available');
+            }
             const response = await api.generateReport(data);
             this.showSuccess('Report generated successfully');
             
@@ -348,7 +394,10 @@ class AnalyticsManager {
             const format = document.getElementById('exportFormat').value;
             const dateRange = document.getElementById('exportDateRange').value;
             
-            const api = new AdminAPI();
+            const api = window.adminAPI || (typeof AdminAPI !== 'undefined' ? new AdminAPI() : null);
+            if (!api) {
+                throw new Error('AdminAPI not available');
+            }
             const response = await api.exportData({
                 data_type: dataType,
                 format: format,
@@ -384,6 +433,34 @@ class AnalyticsManager {
 }
 
 // Initialize analytics manager when DOM is loaded
+// Wait for AdminAPI to be available before initializing
+function initializeAnalyticsManager() {
+    if (typeof AdminAPI !== 'undefined' || typeof window.adminAPI !== 'undefined') {
+        window.analyticsManager = new AnalyticsManager();
+    } else {
+        // Wait a bit and try again
+        setTimeout(initializeAnalyticsManager, 100);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    window.analyticsManager = new AnalyticsManager();
+    // Wait for admin-api.js to load
+    if (typeof AdminAPI !== 'undefined' || typeof window.adminAPI !== 'undefined') {
+        initializeAnalyticsManager();
+    } else {
+        // Wait for admin-api.js to load
+        let attempts = 0;
+        const checkAdminAPI = setInterval(() => {
+            attempts++;
+            if (typeof AdminAPI !== 'undefined' || typeof window.adminAPI !== 'undefined' || attempts > 50) {
+                clearInterval(checkAdminAPI);
+                if (attempts <= 50) {
+                    initializeAnalyticsManager();
+                } else {
+                    console.warn('AdminAPI not available after 5 seconds, initializing with fallback');
+                    window.analyticsManager = new AnalyticsManager();
+                }
+            }
+        }, 100);
+    }
 });

@@ -137,10 +137,9 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadRefunds();
                 } else {
-                    setTimeout(() => loadRefunds();, 1000);
+                    setTimeout(() => loadRefunds(), 1000);
                 }
             }, 2000);
-        });
         });
 
         async function loadRefunds() {

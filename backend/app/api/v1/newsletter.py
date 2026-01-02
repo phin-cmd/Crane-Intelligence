@@ -61,7 +61,20 @@ async def subscribe_to_newsletter(
             user_agent=user_agent
         )
         
-        if result.get("success"):
+        # Send welcome email if subscription was successful (new or reactivated)
+        # Also send if user was already subscribed (they might not have received the email)
+        should_send_email = result.get("success") or result.get("already_subscribed", False)
+        
+        # Check if user already received an email (to avoid sending duplicates)
+        if should_send_email:
+            subscription = result.get("subscription")
+            if subscription:
+                # Check if they've already received an email
+                if hasattr(subscription, 'last_email_sent') and subscription.last_email_sent:
+                    logger.info(f"User {request_data.email} already received welcome email, skipping")
+                    should_send_email = False
+        
+        if should_send_email:
             # Send welcome email using standardized template
             try:
                 email_subject = "Welcome to Crane Intelligence Newsletter"
@@ -72,6 +85,11 @@ async def subscribe_to_newsletter(
                     first_name = subscription_data.first_name
                 elif hasattr(request_data, 'first_name') and request_data.first_name:
                     first_name = request_data.first_name
+                else:
+                    # Try to get from existing subscription
+                    subscription = result.get("subscription")
+                    if subscription and hasattr(subscription, 'first_name'):
+                        first_name = subscription.first_name
                 
                 # Generate email using standardized template service
                 email_html = EmailTemplateService.newsletter_welcome(
@@ -99,6 +117,19 @@ async def subscribe_to_newsletter(
                 
                 if email_sent:
                     logger.info(f"Welcome email sent to {request_data.email} using standardized template")
+                    # Update last_email_sent and email_count in database
+                    try:
+                        subscription_service = SubscriptionService(db)
+                        subscription = subscription_service.db.query(EmailSubscription).filter(
+                            EmailSubscription.email == request_data.email
+                        ).first()
+                        if subscription:
+                            from datetime import datetime, timezone
+                            subscription.last_email_sent = datetime.now(timezone.utc)
+                            subscription.email_count = (subscription.email_count or 0) + 1
+                            subscription_service.db.commit()
+                    except Exception as db_error:
+                        logger.warning(f"Failed to update email tracking in database: {db_error}")
                 else:
                     logger.warning(f"Failed to send welcome email to {request_data.email}")
                     

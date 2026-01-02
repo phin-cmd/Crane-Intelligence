@@ -3,7 +3,9 @@
  * Handles all API communication for the admin panel
  */
 
-class AdminAPI {
+// Prevent duplicate declaration
+if (typeof AdminAPI === 'undefined') {
+    class AdminAPI {
     constructor() {
         // Use production URL or detect from window location
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -686,10 +688,16 @@ class AdminAPI {
             }
         }, 5000);
     }
-}
+    }
 
-// Create global API instance
-window.adminAPI = new AdminAPI();
+    // Create global API instance
+    window.adminAPI = new AdminAPI();
+} else {
+    // AdminAPI already exists, use existing instance
+    if (!window.adminAPI) {
+        window.adminAPI = new AdminAPI();
+    }
+}
 
 // Export for use in other modules
 // Browser environment - no module exports needed

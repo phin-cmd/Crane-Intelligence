@@ -515,11 +515,31 @@
         const userProfile = document.getElementById('userProfile');
         const notificationBellContainer = document.getElementById('notificationBellContainer');
         
+        // Log what we found for debugging
+        const elementsFound = {
+            authButtons: !!authButtons,
+            userProfile: !!userProfile,
+            notificationBellContainer: !!notificationBellContainer
+        };
+        console.log('[UNIFIED-HEADER] Elements found:', elementsFound);
+        
         if (!authButtons || !userProfile || !notificationBellContainer) {
-            console.warn('[UNIFIED-HEADER] Elements not found, retrying...');
-            setTimeout(updateAuthUI, 100);
-            return;
+            console.warn('[UNIFIED-HEADER] Elements not found, retrying...', elementsFound);
+            // Retry up to 10 times (1 second total)
+            if (!window._authUIRetryCount) window._authUIRetryCount = 0;
+            if (window._authUIRetryCount < 10) {
+                window._authUIRetryCount++;
+                setTimeout(updateAuthUI, 100);
+                return;
+            } else {
+                console.error('[UNIFIED-HEADER] Elements not found after 10 retries, giving up');
+                window._authUIRetryCount = 0; // Reset for next attempt
+                return;
+            }
         }
+        
+        // Reset retry count on success
+        window._authUIRetryCount = 0;
         
         const auth = getAuthState();
         
@@ -1276,19 +1296,32 @@
         isNotificationDropdownOpen = false;
     }
     
-    function loadNotifications() {
+    // Track retry attempts for main notification load
+    let notificationRetryCount = 0;
+    const MAX_NOTIFICATION_RETRIES = 1;
+    
+    function loadNotifications(retryCount = 0) {
+        // Prevent infinite retries
+        if (retryCount > MAX_NOTIFICATION_RETRIES) {
+            console.warn('[UNIFIED-HEADER] Max notification retries reached, showing empty state');
+            updateNotificationUI([]);
+            return;
+        }
+        
         const auth = getAuthState();
         if (!auth.isLoggedIn || !auth.token) {
             console.log('[UNIFIED-HEADER] Cannot load notifications - not logged in');
+            updateNotificationUI([]);
             return;
         }
         
         console.log('[UNIFIED-HEADER] Loading notifications...');
         
-        // Detect API URL
+        // Use relative path - nginx will proxy /api/ to backend
+        // This avoids mixed content errors and works across all environments
         const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8004'
-            : window.location.origin.replace(/:\d+$/, ':8004');
+            ? 'http://localhost:8104' // Correct dev backend port
+            : ''; // Use relative path for other environments
         
         // Create AbortController for timeout
         const controller = new AbortController();
@@ -1308,19 +1341,20 @@
             
             // Handle 401 Unauthorized - token expired
             if (response.status === 401) {
-                return response.json().then(errorData => {
-                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - token may be expired:', errorData);
-                    // Try to get fresh token from storage
-                    const freshToken = window.safeStorage?.getItem('access_token') || 
-                                     window.safeStorage?.getItem('auth_token') || 
-                                     window.safeStorage?.getItem('crane_auth_token');
-                    if (freshToken && freshToken !== auth.token) {
-                        console.log('[UNIFIED-HEADER] Found fresh token, retrying...');
-                        // Retry with fresh token after a short delay
-                        setTimeout(() => loadNotifications(), 500);
+                return response.json().then(async (errorData) => {
+                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - attempting token refresh');
+                    
+                    // Try to refresh the token
+                    const newToken = await refreshAccessToken();
+                    if (newToken && retryCount < MAX_NOTIFICATION_RETRIES) {
+                        console.log('[UNIFIED-HEADER] Token refreshed, retrying notification load...');
+                        // Retry with new token after a short delay
+                        setTimeout(() => loadNotifications(retryCount + 1), 500);
                         return { success: false, data: [], error: 'Authentication required', retrying: true };
                     }
-                    // Return empty array to prevent errors, but log the issue
+                    
+                    // No refresh token available or refresh failed
+                    console.log('[UNIFIED-HEADER] Showing empty notifications due to auth failure');
                     return { success: false, data: [], error: 'Authentication required' };
                 });
             }
@@ -1354,6 +1388,8 @@
                 notifications = data.data;
             } else if (data.success && Array.isArray(data.notifications)) {
                 notifications = data.notifications;
+            } else if (Array.isArray(data)) {
+                notifications = data;
             } else if (data.success && data.data && !Array.isArray(data.data)) {
                 console.warn('[UNIFIED-HEADER] data.data is not an array:', data.data);
             } else {
@@ -1374,19 +1410,109 @@
         });
     }
     
-    function loadNotificationsIntoDropdown(dropdownElement) {
+    // Track retry attempts per dropdown element
+    const dropdownRetryCounts = new WeakMap();
+    const MAX_DROPDOWN_RETRIES = 2;
+    
+    async function refreshAccessToken() {
+        try {
+            const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {} };
+            const refreshToken = safeStorage.getItem('refresh_token');
+            
+            if (!refreshToken) {
+                console.warn('[UNIFIED-HEADER] No refresh token available for refresh');
+                return null;
+            }
+            
+            const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:8104'
+                : '';
+            
+            console.log('[UNIFIED-HEADER] Attempting to refresh access token...');
+            const response = await fetch(`${apiBaseUrl}/api/v1/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: refreshToken })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('[UNIFIED-HEADER] Token refresh response:', data);
+                
+                // Backend returns: { success: true, message: "...", data: { access_token: "...", refresh_token: "..." } }
+                if (data.success && data.data) {
+                    const accessToken = data.data.access_token;
+                    const newRefreshToken = data.data.refresh_token;
+                    
+                    if (accessToken) {
+                        safeStorage.setItem('access_token', accessToken);
+                        console.log('[UNIFIED-HEADER] ✅ Access token refreshed successfully');
+                        
+                        if (newRefreshToken) {
+                            safeStorage.setItem('refresh_token', newRefreshToken);
+                            console.log('[UNIFIED-HEADER] ✅ Refresh token updated');
+                        }
+                        
+                        // Trigger auth state update
+                        if (window.updateAuthUI) {
+                            window.updateAuthUI();
+                        }
+                        
+                        // Dispatch event to notify other components
+                        window.dispatchEvent(new CustomEvent('tokenRefreshed', { detail: { access_token: accessToken } }));
+                        
+                        return accessToken;
+                    } else {
+                        console.warn('[UNIFIED-HEADER] Token refresh response missing access_token in data:', data);
+                    }
+                } else {
+                    console.warn('[UNIFIED-HEADER] Token refresh response format unexpected:', data);
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                console.error('[UNIFIED-HEADER] Token refresh failed:', response.status, errorData);
+                
+                // If refresh token is invalid, clear it
+                if (response.status === 401 || response.status === 403) {
+                    console.warn('[UNIFIED-HEADER] Refresh token invalid, clearing...');
+                    safeStorage.removeItem('refresh_token');
+                    safeStorage.removeItem('access_token');
+                }
+            }
+        } catch (error) {
+            console.error('[UNIFIED-HEADER] Error refreshing token:', error);
+        }
+        return null;
+    }
+    
+    function loadNotificationsIntoDropdown(dropdownElement, retryCount = 0) {
+        // Prevent infinite retries
+        if (retryCount >= MAX_DROPDOWN_RETRIES) {
+            const notificationList = dropdownElement.querySelector('#notificationList');
+            if (notificationList) {
+                notificationList.innerHTML = `<div class="notification-empty" style="color: #FFD600; padding: 12px; text-align: center;">Unable to load notifications. Please refresh the page.</div>`;
+            }
+            return;
+        }
+        
         const auth = getAuthState();
         if (!auth.isLoggedIn || !auth.token) {
             console.warn('[UNIFIED-HEADER] Cannot load notifications - not logged in or no token');
+            const notificationList = dropdownElement.querySelector('#notificationList');
+            if (notificationList) {
+                notificationList.innerHTML = `<div class="notification-empty" style="color: #FFD600; padding: 12px; text-align: center;">Please log in to view notifications</div>`;
+            }
             return;
         }
         
         console.log('[UNIFIED-HEADER] Loading notifications into dropdown...');
         
-        // Detect API URL
+        // Use relative path - nginx will proxy /api/ to backend
         const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8004'
-            : window.location.origin.replace(/:\d+$/, ':8004');
+            ? 'http://localhost:8104' // Correct dev backend port
+            : ''; // Use relative path for other environments
         
         // Create AbortController for timeout
         const controller = new AbortController();
@@ -1406,18 +1532,19 @@
             
             // Handle 401 Unauthorized - token expired
             if (response.status === 401) {
-                return response.json().then(errorData => {
-                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - token may be expired:', errorData);
-                    // Try to get fresh token from storage
-                    const freshToken = window.safeStorage?.getItem('access_token') || 
-                                     window.safeStorage?.getItem('auth_token') || 
-                                     window.safeStorage?.getItem('crane_auth_token');
-                    if (freshToken && freshToken !== auth.token) {
-                        console.log('[UNIFIED-HEADER] Found fresh token, retrying dropdown load...');
-                        // Retry with fresh token after a short delay
-                        setTimeout(() => loadNotificationsIntoDropdown(dropdownElement), 500);
+                return response.json().then(async (errorData) => {
+                    console.warn('[UNIFIED-HEADER] Authentication failed (401) - attempting token refresh');
+                    
+                    // Try to refresh the token
+                    const newToken = await refreshAccessToken();
+                    if (newToken) {
+                        console.log('[UNIFIED-HEADER] Token refreshed, retrying...');
+                        // Retry with new token after a short delay
+                        setTimeout(() => loadNotificationsIntoDropdown(dropdownElement, retryCount + 1), 500);
                         return { success: false, data: [], error: 'Authentication required', retrying: true };
                     }
+                    
+                    // No refresh token available or refresh failed
                     throw new Error('AUTH_REQUIRED');
                 });
             }
@@ -1442,6 +1569,8 @@
                 notifications = data.data;
             } else if (data.success && Array.isArray(data.notifications)) {
                 notifications = data.notifications;
+            } else if (Array.isArray(data)) {
+                notifications = data;
             }
             console.log('[UNIFIED-HEADER] Processed notifications for dropdown:', notifications.length);
             updateNotificationUIInElement(dropdownElement, notifications);
@@ -1449,22 +1578,13 @@
         .catch(error => {
             clearTimeout(timeoutId);
             console.error('[UNIFIED-HEADER] Error loading notifications into dropdown:', error);
+            
             // Show error in dropdown
             const notificationList = dropdownElement.querySelector('#notificationList');
             if (notificationList) {
-                let errorMessage = 'Error loading notifications';
+                let errorMessage = 'Unable to load notifications';
                 if (error.message === 'AUTH_REQUIRED') {
-                    // Check if we can get a fresh token
-                    const freshToken = window.safeStorage?.getItem('access_token') || 
-                                     window.safeStorage?.getItem('auth_token') || 
-                                     window.safeStorage?.getItem('crane_auth_token');
-                    if (freshToken) {
-                        errorMessage = 'Loading notifications...';
-                        // Retry once with fresh token
-                        setTimeout(() => loadNotificationsIntoDropdown(dropdownElement), 500);
-                    } else {
-                        errorMessage = 'Please refresh the page to reload notifications';
-                    }
+                    errorMessage = 'Please refresh the page to reload notifications';
                 } else if (error.name === 'AbortError') {
                     errorMessage = 'Request timed out';
                 } else if (error.message && error.message.includes('Failed to fetch')) {
@@ -1608,7 +1728,7 @@
         if (!auth.isLoggedIn || !auth.token) return;
         
         const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8004'
+            ? ''
             : window.location.origin.replace(/:\d+$/, ':8004');
         
         fetch(`${apiBaseUrl}/api/v1/notifications/${notificationId}/read`, {
@@ -1619,7 +1739,7 @@
             }
         })
         .then(() => {
-            loadNotifications();
+            throttledLoadNotifications();
         })
         .catch(error => {
             console.error('[UNIFIED-HEADER] Error marking notification as read:', error);
@@ -1631,7 +1751,7 @@
         if (!auth.isLoggedIn || !auth.token) return;
         
         const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8004'
+            ? ''
             : window.location.origin.replace(/:\d+$/, ':8004');
         
         fetch(`${apiBaseUrl}/api/v1/notifications/read-all`, {
@@ -1642,7 +1762,7 @@
             }
         })
         .then(() => {
-            loadNotifications();
+            throttledLoadNotifications();
         })
         .catch(error => {
             console.error('[UNIFIED-HEADER] Error marking all notifications as read:', error);

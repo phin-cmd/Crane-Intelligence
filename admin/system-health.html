@@ -120,10 +120,11 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     loadHealthStatus();
                 } else {
-                    setTimeout(() => loadHealthStatus();, 1000);
+                    setTimeout(() => loadHealthStatus(), 1000);
                 }
             }, 2000);
-        });
+            
+            // Set up periodic refresh
             setInterval(loadHealthStatus, 30000); // Refresh every 30 seconds
         });
 
