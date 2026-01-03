@@ -300,7 +300,20 @@ async def get_admin_reports(
             report_dict["crane_data"] = report_dict.get("crane_details", {})
             
             # Map amount_paid to amount for frontend compatibility (convert to cents)
-            report_dict["amount"] = int((report_dict.get("amount_paid") or 0) * 100) if report_dict.get("amount_paid") else 0
+            # If amount_paid is not available, calculate from report type
+            if report_dict.get("amount_paid"):
+                report_dict["amount"] = int(report_dict.get("amount_paid") * 100)
+            else:
+                # Calculate expected price based on report type for unpaid reports
+                try:
+                    from ...services.fmv_pricing_config import get_base_price_cents
+                    report_type = report_dict.get("report_type")
+                    unit_count = report_dict.get("unit_count", 1)
+                    expected_price_cents = get_base_price_cents(report_type, unit_count)
+                    report_dict["amount"] = expected_price_cents
+                except Exception as price_error:
+                    logger.warning(f"Could not calculate price for report {report.id}: {price_error}")
+                    report_dict["amount"] = 0
             
             # Calculate time remaining until deadline if turnaround_deadline exists
             if report_dict.get("turnaround_deadline"):

@@ -117,11 +117,17 @@ async def admin_login(
                         self.full_name = ''
                         self.username = self.email
                         self.two_factor_enabled = False  # Default since column doesn't exist
+                        self.two_factor_secret = None  # Default for 2FA secret
+                        self.two_factor_backup_codes = []  # Default empty backup codes list
                         self.permissions = []  # Default empty permissions list
                         self.is_verified = True  # Default to verified
                         self.last_login = None
                         self.created_at = None
                         self.updated_at = None
+                        self.failed_login_attempts = 0
+                        self.account_locked_until = None
+                        self.last_ip_address = None
+                        self.last_user_agent = None
                 
                 admin_user = SimpleAdminUser(result)
             except HTTPException:

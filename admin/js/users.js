@@ -15,7 +15,19 @@ function generateAvatarUrl(name, size = 80) {
 
 class UserManagement {
     constructor() {
-        this.api = new AdminAPI();
+        // Use window.adminAPI (created by admin-api.js) or create new instance
+        if (typeof window.adminAPI !== 'undefined') {
+            this.api = window.adminAPI;
+        } else if (typeof AdminAPI !== 'undefined') {
+            this.api = new AdminAPI();
+        } else {
+            console.error('AdminAPI is not available. Make sure admin-api.js is loaded before users.js');
+            // Create a fallback API object with error handling
+            this.api = {
+                request: async () => { throw new Error('AdminAPI not loaded'); },
+                getUsers: async () => { throw new Error('AdminAPI not loaded'); }
+            };
+        }
         this.currentPage = 1;
         this.pageSize = 25;
         this.totalUsers = 0;
@@ -292,7 +304,12 @@ class UserManagement {
 
     renderTableView() {
         const tbody = document.getElementById('users-table-body');
-        if (!tbody) return;
+        if (!tbody) {
+            console.error('Table body element not found!');
+            return;
+        }
+
+        console.log('Rendering table view with', this.users.length, 'users');
 
         if (this.users.length === 0) {
             tbody.innerHTML = `
@@ -314,44 +331,74 @@ class UserManagement {
             return;
         }
 
-        tbody.innerHTML = this.users.map(user => `
-            <tr class="user-row" data-user-id="${user.id}">
-                <td>
-                    <input type="checkbox" class="user-checkbox" data-user-id="${user.id}">
-                </td>
-                <td>
-                    <img src="${user.avatar || generateAvatarUrl(user.name || user.full_name || 'U', 32)}" 
-                         alt="${user.name}" class="user-avatar-small">
-                </td>
-                <td>
-                    <div class="user-name">${user.name || user.full_name || 'N/A'}</div>
-                </td>
-                <td>
-                    <div class="user-email">${user.email}</div>
-                </td>
-                <td>
-                    <span class="user-role">${user.user_role || user.role || 'N/A'}</span>
-                </td>
-                <td>
-                    <span class="status-badge ${this.getUserStatusClass(user)}">
-                        ${this.getUserStatusText(user)}
-                    </span>
-                </td>
-                <td>
-                    <div class="last-login">
-                        ${user.lastLogin || (user.last_login ? this.formatDate(user.last_login) : 'Never')}
-                    </div>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-secondary" onclick="userManagement.viewUser(${user.id})" title="Edit">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        try {
+            tbody.innerHTML = this.users.map(user => {
+                // Safely get values with fallbacks
+                const userId = user.id || 'unknown';
+                const userName = user.name || user.full_name || 'N/A';
+                const userEmail = user.email || 'N/A';
+                const userRole = user.user_role || user.role || 'N/A';
+                const lastLogin = user.lastLogin || user.last_login;
+                const lastLoginText = lastLogin ? this.formatDate(lastLogin) : 'Never';
+                const statusClass = this.getUserStatusClass(user);
+                const statusText = this.getUserStatusText(user);
+                
+                // Generate avatar URL safely
+                const avatarUrl = user.avatar || (typeof generateAvatarUrl === 'function' 
+                    ? generateAvatarUrl(userName, 32) 
+                    : `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><rect width='32' height='32' fill='%2300FF85'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23000' font-size='14' font-weight='bold'>${userName.charAt(0).toUpperCase()}</text></svg>`);
+                
+                return `
+                    <tr class="user-row" data-user-id="${userId}">
+                        <td>
+                            <input type="checkbox" class="user-checkbox" data-user-id="${userId}">
+                        </td>
+                        <td>
+                            <img src="${avatarUrl}" 
+                                 alt="${userName}" class="user-avatar-small">
+                        </td>
+                        <td>
+                            <div class="user-name">${userName}</div>
+                        </td>
+                        <td>
+                            <div class="user-email">${userEmail}</div>
+                        </td>
+                        <td>
+                            <span class="user-role">${userRole}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="last-login">${lastLoginText}</div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="userManagement.viewUser('${userId}')" title="Edit">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            console.log('Table rendered successfully with', this.users.length, 'rows');
+        } catch (error) {
+            console.error('Error rendering table:', error);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <div class="error-state">
+                            <p>Error rendering users: ${error.message}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
 
         // Add event listeners for checkboxes
         tbody.querySelectorAll('.user-checkbox').forEach(checkbox => {
@@ -399,7 +446,10 @@ class UserManagement {
         document.querySelectorAll('.user-row').forEach(row => {
             row.classList.remove('selected');
         });
-        document.querySelector(`[data-user-id="${user.id}"]`).classList.add('selected');
+        const selectedRow = document.querySelector(`[data-user-id="${user.id}"]`);
+        if (selectedRow) {
+            selectedRow.classList.add('selected');
+        }
     }
 
     renderGridView() {
@@ -541,7 +591,10 @@ class UserManagement {
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.getElementById(`${view}-view-btn`).classList.add('active');
+        const viewBtn = document.getElementById(`${view}-view-btn`);
+        if (viewBtn) {
+            viewBtn.classList.add('active');
+        }
 
         // Show/hide views
         document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
@@ -996,18 +1049,22 @@ class UserManagement {
 
     getUserStatusClass(user) {
         // Show "Pending" if user is not verified, even if is_active is True
-        if (!user.is_verified) {
+        const isVerified = user.is_verified !== undefined ? user.is_verified : (user.isVerified !== undefined ? user.isVerified : true);
+        if (!isVerified) {
             return 'pending';
         }
-        return user.is_active ? 'active' : 'inactive';
+        const isActive = user.is_active !== undefined ? user.is_active : (user.isActive !== undefined ? user.isActive : false);
+        return isActive ? 'active' : 'inactive';
     }
 
     getUserStatusText(user) {
         // Show "Pending" if user is not verified, even if is_active is True
-        if (!user.is_verified) {
+        const isVerified = user.is_verified !== undefined ? user.is_verified : (user.isVerified !== undefined ? user.isVerified : true);
+        if (!isVerified) {
             return 'Pending';
         }
-        return user.is_active ? 'Active' : 'Inactive';
+        const isActive = user.is_active !== undefined ? user.is_active : (user.isActive !== undefined ? user.isActive : false);
+        return isActive ? 'Active' : 'Inactive';
     }
 
     debounce(func, wait) {
@@ -1234,21 +1291,47 @@ class UserManagement {
 // Initialize user management when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing User Management...');
-    try {
-        window.userManagement = new UserManagement();
-        console.log('User Management initialized successfully');
-    } catch (error) {
-        console.error('Error initializing User Management:', error);
-    }
+    
+    // Wait for AdminAPI to be available
+    const initUserManagement = () => {
+        if (typeof window.adminAPI === 'undefined' && typeof AdminAPI === 'undefined') {
+            console.warn('AdminAPI not yet available, retrying...');
+            setTimeout(initUserManagement, 100);
+            return;
+        }
+        
+        try {
+            window.userManagement = new UserManagement();
+            console.log('User Management initialized successfully');
+        } catch (error) {
+            console.error('Error initializing User Management:', error);
+        }
+    };
+    
+    // Start initialization
+    initUserManagement();
 });
 
 // Also try to initialize if DOM is already loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM loaded, initializing User Management...');
-        window.userManagement = new UserManagement();
-    });
-} else {
-    console.log('DOM already loaded, initializing User Management immediately...');
-    window.userManagement = new UserManagement();
-}
+const initIfReady = () => {
+    if (typeof window.adminAPI === 'undefined' && typeof AdminAPI === 'undefined') {
+        setTimeout(initIfReady, 100);
+        return;
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing User Management...');
+            if (!window.userManagement) {
+                window.userManagement = new UserManagement();
+            }
+        });
+    } else {
+        console.log('DOM already loaded, initializing User Management immediately...');
+        if (!window.userManagement) {
+            window.userManagement = new UserManagement();
+        }
+    }
+};
+
+initIfReady();

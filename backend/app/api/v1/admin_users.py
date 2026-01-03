@@ -2,7 +2,7 @@
 Admin User Management API
 CRUD operations for admin users with role-based access control
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional, Dict, Any
@@ -13,13 +13,14 @@ from ...models.admin import AdminUser, AdminRole
 from ...core.admin_auth import (
     get_current_admin_user,
     require_can_manage_admin_users,
+    require_can_view_admin_users,
     require_super_admin
 )
 from ...services.auth_service import auth_service
 from ...services.admin_email_service import AdminEmailService
 from ...core.admin_permissions import get_permissions_for_role
 
-router = APIRouter(prefix="/admin/users", tags=["admin-users"])
+router = APIRouter(prefix="/admin", tags=["admin-users"])
 
 # Initialize admin email service
 admin_email_service = AdminEmailService()
@@ -61,14 +62,19 @@ class AdminUserResponse(BaseModel):
     updated_at: datetime
 
 
-@router.get("", response_model=List[AdminUserResponse])
-async def list_admin_users(
+# Removed /admin/users route to avoid conflict with /admin/users in admin.py (which returns regular website users)
+# Use /admin/admin-users instead for admin users
+
+# Route for /admin/admin-users (frontend compatibility)
+@router.get("/admin-users", response_model=List[AdminUserResponse])
+async def list_admin_users_alias(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: AdminUser = Depends(require_can_manage_admin_users),
+    current_user: AdminUser = Depends(require_can_view_admin_users),  # Changed to allow viewing for more roles
     db: Session = Depends(get_db)
 ):
-    """List all admin users (Super Admin only)"""
+    """List admin users - allows viewing for roles with VIEW_ADMIN_USERS permission"""
+    # Query admin users from database
     admin_users = db.query(AdminUser).offset(skip).limit(limit).all()
     
     result = []
@@ -209,7 +215,7 @@ async def create_admin_user(
     )
 
 
-@router.get("/{user_id}", response_model=AdminUserResponse)
+@router.get("/admin-users/{user_id}", response_model=AdminUserResponse)
 async def get_admin_user(
     user_id: int,
     current_user: AdminUser = Depends(require_can_manage_admin_users),
@@ -247,7 +253,7 @@ async def get_admin_user(
     )
 
 
-@router.put("/{user_id}", response_model=AdminUserResponse)
+@router.put("/admin-users/{user_id}", response_model=AdminUserResponse)
 async def update_admin_user(
     user_id: int,
     user_data: AdminUserUpdate,
@@ -424,7 +430,7 @@ async def update_admin_user(
     )
 
 
-@router.delete("/{user_id}")
+@router.delete("/admin-users/{user_id}")
 async def delete_admin_user(
     user_id: int,
     current_user: AdminUser = Depends(require_can_manage_admin_users),

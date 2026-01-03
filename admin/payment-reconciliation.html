@@ -134,16 +134,36 @@
                     return;
                 }
                 const data = await response.json();
-                renderPayments(data);
+                console.log('Payments API response:', data);
+                // Handle both array response and object with payments/data property
+                let paymentsList = [];
+                if (Array.isArray(data)) {
+                    paymentsList = data;
+                } else if (data && Array.isArray(data.payments)) {
+                    paymentsList = data.payments;
+                } else if (data && Array.isArray(data.data)) {
+                    paymentsList = data.data;
+                } else if (data && Array.isArray(data.items)) {
+                    paymentsList = data.items;
+                } else {
+                    console.warn('Unexpected response format:', data);
+                    paymentsList = [];
+                }
+                renderPayments(paymentsList);
             } catch (error) {
                 console.error('Error loading payments:', error);
                 document.getElementById('payments-table-body').innerHTML = 
-                    '<tr><td colspan="9">Error loading payments</td></tr>';
+                    '<tr><td colspan="9">Error loading payments: ' + error.message + '</td></tr>';
             }
         }
 
         function renderPayments(payments) {
             const tbody = document.getElementById('payments-table-body');
+            if (!Array.isArray(payments)) {
+                console.error('payments is not an array:', payments);
+                tbody.innerHTML = '<tr><td colspan="9">Error: Invalid data format</td></tr>';
+                return;
+            }
             if (payments.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9">No payments found</td></tr>';
                 return;

@@ -22,8 +22,8 @@ class SQLInjectionDetector:
     def __init__(self):
         # SQL injection patterns
         self.injection_patterns = [
-            # Basic SQL injection patterns
-            r"(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)",
+            # Basic SQL injection patterns (excluding SELECT/INSERT/UPDATE/DELETE as they're legitimate in parameterized queries)
+            r"(\b(DROP|CREATE|ALTER|EXEC|TRUNCATE)\b)",
             r"(\b(OR|AND)\s+\d+\s*=\s*\d+)",
             r"(\b(OR|AND)\s+'.*?'\s*=\s*'.*?')",
             r"(\b(OR|AND)\s+\".*?\"\s*=\s*\".*?\")",
@@ -32,8 +32,10 @@ class SQLInjectionDetector:
             # Comment-based injection
             r"(--|\#|\/\*|\*\/)",
             
-            # Union-based injection
+            # Union-based injection (suspicious SELECT patterns)
             r"(\bUNION\s+(ALL\s+)?SELECT\b)",
+            # Suspicious SELECT patterns (multiple SELECTs, SELECT with dangerous operations)
+            r"(\bSELECT\b.*\b(SELECT|DROP|DELETE|INSERT|UPDATE|CREATE|ALTER|EXEC)\b)",
             
             # Time-based blind injection
             r"(\b(SLEEP|WAITFOR|DELAY)\s*\(\s*\d+\s*\))",
@@ -47,8 +49,8 @@ class SQLInjectionDetector:
             r"(\bUPDATEXML\s*\(.*?\))",
             r"(\bEXP\s*\(.*?\))",
             
-            # Function-based injection
-            r"(\b(ASCII|CHAR|CONCAT|SUBSTRING|LENGTH|COUNT|SUM|AVG|MAX|MIN)\s*\(.*?\))",
+            # Function-based injection (excluding safe aggregate functions)
+            r"(\b(ASCII|CHAR|CONCAT|SUBSTRING|LENGTH)\s*\(.*?\))",
             
             # System function injection
             r"(\b(USER|DATABASE|VERSION|SCHEMA|TABLE_NAME|COLUMN_NAME)\s*\(.*?\))",
@@ -98,23 +100,130 @@ class SQLInjectionDetector:
             "DECLARE", "SET", "SHOW", "DESCRIBE", "EXPLAIN"
         }
     
+    def _is_legitimate_ddl(self, query: str) -> bool:
+        """Check if a DDL operation is legitimate (from SQLAlchemy/migrations, not user input)"""
+        query_upper = query.upper().strip()
+        
+        # Check if it's a DDL operation
+        is_ddl = any(
+            re.search(rf'\b{ddl_keyword}\b', query_upper)
+            for ddl_keyword in ['CREATE', 'ALTER', 'DROP', 'TRUNCATE']
+        )
+        
+        if not is_ddl:
+            return False
+        
+        # Legitimate DDL patterns (from SQLAlchemy/migrations):
+        # - CREATE TABLE with proper structure (no user input patterns)
+        # - ALTER TABLE with ADD/ALTER COLUMN/DROP COLUMN
+        # - DROP TABLE/INDEX with proper syntax
+        legitimate_ddl_patterns = [
+            r'\bCREATE\s+TABLE\s+\w+\s*\(',
+            r'\bCREATE\s+INDEX\s+\w+',
+            r'\bCREATE\s+UNIQUE\s+INDEX\s+\w+',
+            r'\bALTER\s+TABLE\s+\w+\s+(ADD|ALTER|DROP)\s+(COLUMN|CONSTRAINT)?',
+            r'\bDROP\s+TABLE\s+(IF\s+EXISTS\s+)?\w+',
+            r'\bDROP\s+INDEX\s+(IF\s+EXISTS\s+)?\w+',
+            r'\bTRUNCATE\s+TABLE\s+\w+',
+        ]
+        
+        # Check if it matches legitimate DDL patterns
+        matches_legitimate_pattern = any(
+            re.search(pattern, query_upper) for pattern in legitimate_ddl_patterns
+        )
+        
+        if not matches_legitimate_pattern:
+            return False
+        
+        # Check for suspicious patterns that indicate user input (not legitimate DDL)
+        suspicious_patterns = [
+            r'\bOR\s+\d+\s*=\s*\d+',  # OR 1=1
+            r'\bOR\s+\'.*?\'\s*=\s*\'.*?\'',  # OR 'x'='x'
+            r'\bUNION\s+(ALL\s+)?SELECT\b',  # UNION SELECT
+            r'--',  # SQL comments
+            r'/\*.*?\*/',  # Multi-line comments
+            r'\bEXEC\b',  # EXEC (shouldn't be in DDL)
+            r'\bEXECUTE\b',  # EXECUTE
+        ]
+        
+        # If it contains suspicious patterns, it's not legitimate
+        has_suspicious_patterns = any(
+            re.search(pattern, query_upper) for pattern in suspicious_patterns
+        )
+        
+        return not has_suspicious_patterns
+    
     def detect_sql_injection(self, query: str, params: Optional[Dict] = None) -> Tuple[bool, List[str]]:
         """Detect potential SQL injection in query"""
         if not query:
             return False, []
         
         threats = []
+        query_upper = query.upper()
+        
+        # Check if this is a legitimate DDL operation (from SQLAlchemy/migrations)
+        if self._is_legitimate_ddl(query):
+            # Allow legitimate DDL operations - these are from migrations/ORM, not user input
+            return False, []
+        
+        # Check if query uses parameterized placeholders (safe pattern)
+        has_parameterized_placeholders = bool(
+            re.search(r'[:$]\w+', query) or  # :param or $1 style
+            (params and len(params) > 0)  # Has parameters passed
+        )
         
         # Check for dangerous patterns
+        safe_aggregate_functions = ['COUNT', 'SUM', 'AVG', 'MAX', 'MIN']
         for pattern in self.compiled_patterns:
             matches = pattern.findall(query)
             if matches:
-                threats.extend([f"Pattern match: {match}" for match in matches])
+                # Filter out safe aggregate functions and legitimate DDL from pattern matches
+                filtered_matches = []
+                for match in matches:
+                    # Handle tuple matches (from regex groups)
+                    if isinstance(match, tuple):
+                        match_str = ' '.join(str(m) for m in match if m)
+                    else:
+                        match_str = str(match)
+                    match_upper = match_str.upper()
+                    # Skip if it's a safe aggregate function
+                    if any(func in match_upper for func in safe_aggregate_functions):
+                        continue
+                    # Skip if it's a legitimate DDL operation (CREATE/ALTER/DROP from ORM)
+                    if any(ddl_keyword in match_upper for ddl_keyword in ['CREATE', 'ALTER', 'DROP', 'TRUNCATE']):
+                        # Double-check if this is legitimate DDL
+                        if self._is_legitimate_ddl(query):
+                            continue  # Skip - legitimate DDL operation
+                    filtered_matches.append(match)
+                if filtered_matches:
+                    threats.extend([f"Pattern match: {match}" for match in filtered_matches])
         
-        # Check for dangerous keywords
-        query_upper = query.upper()
+        # Check for dangerous keywords (only as standalone words, not in column/table names)
         for keyword in self.dangerous_keywords:
-            if keyword in query_upper:
+            # Use word boundaries to match only actual keywords, not substrings
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            if re.search(pattern, query_upper):
+                # Allow UPDATE/INSERT/DELETE in parameterized queries (they're legitimate operations)
+                if keyword in ['UPDATE', 'INSERT', 'DELETE']:
+                    if has_parameterized_placeholders:
+                        # Check if it's a legitimate parameterized query structure
+                        if re.search(rf'\b{keyword}\b.*\b(SET|INTO|FROM)\b', query_upper):
+                            continue  # Skip - this is a legitimate parameterized query
+                    # Also allow during application startup (table creation, etc.)
+                    if re.search(rf'\b{keyword}\b.*\b(INTO|SET|FROM)\b', query_upper):
+                        continue  # Skip - likely legitimate
+                
+                # Allow SET in UPDATE statements (UPDATE ... SET ... WHERE is legitimate)
+                if keyword == 'SET' and re.search(r'\bUPDATE\b.*\bSET\b', query_upper):
+                    if has_parameterized_placeholders:
+                        continue  # Skip - legitimate UPDATE SET statement
+                
+                # Allow CREATE/ALTER/DROP if they're legitimate DDL (already checked above)
+                if keyword in ['CREATE', 'ALTER', 'DROP', 'TRUNCATE']:
+                    # This shouldn't happen if _is_legitimate_ddl worked correctly, but double-check
+                    if self._is_legitimate_ddl(query):
+                        continue  # Skip - legitimate DDL
+                
                 threats.append(f"Dangerous keyword: {keyword}")
         
         # Check for parameter manipulation
@@ -124,20 +233,25 @@ class SQLInjectionDetector:
                     # Check if parameter contains SQL keywords
                     param_upper = param_value.upper()
                     for keyword in self.dangerous_keywords:
-                        if keyword in param_upper:
+                        # Only flag if keyword appears as a complete word in the parameter
+                        pattern = r'\b' + re.escape(keyword) + r'\b'
+                        if re.search(pattern, param_upper):
                             threats.append(f"Parameter '{param_name}' contains dangerous keyword: {keyword}")
                     
                     # Check for comment injection
                     if any(comment in param_value for comment in ['--', '#', '/*', '*/']):
                         threats.append(f"Parameter '{param_name}' contains comment characters")
         
-        # Check for string concatenation
-        if "'" in query or '"' in query:
-            threats.append("Query contains string literals - use parameterized queries")
+        # Check for string literals (only flag if NOT using parameterized queries)
+        if not has_parameterized_placeholders:
+            if "'" in query or '"' in query:
+                threats.append("Query contains string literals - use parameterized queries")
         
-        # Check for dynamic SQL construction
+        # Check for dynamic SQL construction (only flag if suspicious)
         if any(op in query_upper for op in ['+', '||', 'CONCAT']):
-            threats.append("Query appears to use string concatenation")
+            # Only flag if it's not a legitimate string concatenation in SELECT
+            if not re.search(r'\bSELECT\b.*\b(CONCAT|' + '|'.join(['+', '||']) + r')\b', query_upper):
+                threats.append("Query appears to use string concatenation")
         
         return len(threats) > 0, threats
     

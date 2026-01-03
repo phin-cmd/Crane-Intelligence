@@ -318,13 +318,15 @@ class AdminLayout {
                 return;
             }
             
+            // Server-status endpoint doesn't require auth
+            // Don't send Authorization header to avoid validation errors
             const response = await fetch(`${API_BASE}/admin/server-status`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 }
             });
             
-            if (response.status === 401 || response.status === 403) {
+            if (response.status === 401 || response.status === 403 || response.status === 422) {
                 // Authentication failed, stop monitoring immediately (don't retry auth errors)
                 if (this.serverStatusInterval) {
                     clearInterval(this.serverStatusInterval);
@@ -1016,6 +1018,15 @@ class AdminLayout {
                 }
             });
             
+            // Mark all as read button
+            const markAllReadBtn = document.getElementById('adminMarkAllReadBtn');
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.markAllAsRead();
+                });
+            }
+            
             // Load notifications on page load
             this.loadNotifications();
             // Refresh notifications every 30 seconds
@@ -1045,7 +1056,20 @@ class AdminLayout {
                 return;
             }
             
-            const response = await fetch('/api/v1/notifications/admin/notifications', {
+            // Determine API base URL
+            const hostname = window.location.hostname;
+            let apiBase;
+            if (hostname === 'dev.craneintelligence.tech') {
+                apiBase = 'https://dev.craneintelligence.tech/api/v1';
+            } else if (hostname === 'uat.craneintelligence.tech') {
+                apiBase = 'https://uat.craneintelligence.tech/api/v1';
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                apiBase = '/api/v1';
+            } else {
+                apiBase = 'https://craneintelligence.tech/api/v1';
+            }
+            
+            const response = await fetch(`${apiBase}/notifications/admin/notifications`, {
                 headers: {
                     'Authorization': `Bearer ${adminToken}`,
                     'Content-Type': 'application/json'
@@ -1060,10 +1084,16 @@ class AdminLayout {
 
             if (response.ok) {
                 const data = await response.json();
-                this.renderNotifications(data.data || []);
+                console.log('[ADMIN NOTIFICATIONS] API response:', data);
+                // Handle both response formats: {success, data, ...} and direct array
+                const notifications = data.data || data.notifications || data || [];
+                console.log('[ADMIN NOTIFICATIONS] Parsed notifications:', notifications.length);
+                this.renderNotifications(notifications);
             } else {
                 // Only log non-auth errors
                 console.error('Failed to load notifications:', response.status, response.statusText);
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Error details:', errorData);
             }
         } catch (error) {
             // Only log if it's not an auth-related error
@@ -1077,10 +1107,17 @@ class AdminLayout {
         const list = document.getElementById('adminNotificationList');
         const badge = document.getElementById('adminNotificationBadge');
         
-        if (!list) return;
+        if (!list) {
+            console.warn('[ADMIN NOTIFICATIONS] Notification list element not found');
+            return;
+        }
 
-        // API returns 'read' field, not 'is_read'
-        const unreadCount = notifications.filter(n => !n.read).length;
+        console.log('[ADMIN NOTIFICATIONS] Rendering', notifications.length, 'notifications');
+        
+        // API returns 'read' field, not 'is_read' - handle both formats
+        const isRead = (n) => n.read !== undefined ? n.read : (n.is_read !== undefined ? n.is_read : false);
+        const unreadCount = notifications.filter(n => !isRead(n)).length;
+        console.log('[ADMIN NOTIFICATIONS] Unread count:', unreadCount);
         
         if (badge) {
             if (unreadCount > 0) {
@@ -1095,16 +1132,19 @@ class AdminLayout {
             list.innerHTML = '<div class="notification-empty">No notifications</div>';
             return;
         }
-
-        list.innerHTML = notifications.slice(0, 5).map(notif => `
-            <div class="notification-item ${notif.read ? '' : 'unread'}" data-notification-id="${notif.id}">
+        
+        list.innerHTML = notifications.slice(0, 5).map(notif => {
+            const read = isRead(notif);
+            return `
+            <div class="notification-item ${read ? '' : 'unread'}" data-notification-id="${notif.id}">
                 <div class="notification-content">
                     <div class="notification-title">${notif.title || 'Notification'}</div>
                     <div class="notification-message">${notif.message || ''}</div>
                     <div class="notification-time">${this.formatTime(notif.created_at)}</div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
         
         // Add click handlers to mark as read
         list.querySelectorAll('.notification-item').forEach(item => {
@@ -1115,7 +1155,7 @@ class AdminLayout {
                     item.classList.add('read');
                     item.classList.remove('unread');
                     // Update badge count
-                    const newUnreadCount = notifications.filter(n => !n.read && n.id != notificationId).length;
+                    const newUnreadCount = notifications.filter(n => !isRead(n) && n.id != notificationId).length;
                     if (badge) {
                         if (newUnreadCount > 0) {
                             badge.textContent = newUnreadCount;
@@ -1131,7 +1171,20 @@ class AdminLayout {
     async markAsRead(notificationId) {
         try {
             const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('access_token');
-            const response = await fetch(`/api/v1/notifications/admin/notifications/${notificationId}/read`, {
+            // Determine API base URL
+            const hostname = window.location.hostname;
+            let apiBase;
+            if (hostname === 'dev.craneintelligence.tech') {
+                apiBase = 'https://dev.craneintelligence.tech/api/v1';
+            } else if (hostname === 'uat.craneintelligence.tech') {
+                apiBase = 'https://uat.craneintelligence.tech/api/v1';
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                apiBase = '/api/v1';
+            } else {
+                apiBase = 'https://craneintelligence.tech/api/v1';
+            }
+            
+            const response = await fetch(`${apiBase}/notifications/admin/notifications/${notificationId}/read`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${adminToken}`,
@@ -1150,7 +1203,20 @@ class AdminLayout {
     async markAllAsRead() {
         try {
             const adminToken = localStorage.getItem('admin_token') || localStorage.getItem('access_token');
-            const response = await fetch('/api/v1/notifications/admin/notifications/read-all', {
+            // Determine API base URL
+            const hostname = window.location.hostname;
+            let apiBase;
+            if (hostname === 'dev.craneintelligence.tech') {
+                apiBase = 'https://dev.craneintelligence.tech/api/v1';
+            } else if (hostname === 'uat.craneintelligence.tech') {
+                apiBase = 'https://uat.craneintelligence.tech/api/v1';
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                apiBase = '/api/v1';
+            } else {
+                apiBase = 'https://craneintelligence.tech/api/v1';
+            }
+            
+            const response = await fetch(`${apiBase}/notifications/admin/notifications/read-all`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${adminToken}`,

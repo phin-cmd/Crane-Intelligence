@@ -462,10 +462,8 @@ async def get_overdue_maintenance(
     return equipment
 
 
-@router.get("/live")
-async def get_live_equipment_data(
-    db: Session = Depends(get_db)
-):
+@router.get("/live", dependencies=[])
+async def get_live_equipment_data():
     """Get live equipment data for real-time dashboard (public endpoint, no auth required)"""
     # Return empty data structure to prevent frontend errors
     # This endpoint can be enhanced later to return actual equipment data

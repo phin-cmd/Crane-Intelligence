@@ -5547,25 +5547,41 @@ function updatePricingForLoggedInUser(retryCount = 0) {
         function updateUserInterface(user) {
             console.log('[homepage] updateUserInterface called with user:', user);
             
-            // ALWAYS delegate to centralized updateAuthUI function
-            if (typeof window.updateAuthUI === 'function') {
-                console.log('[homepage] Delegating to centralized updateAuthUI');
-                window.updateAuthUI(true); // Force update
-                // Also update user profile display if user data is provided
-                if (user && typeof userProfileManager !== 'undefined') {
-                    setTimeout(() => {
-                        userProfileManager.updateProfileDisplay(user);
-                    }, 500);
+            // Wait for unified-header to be ready before updating
+            function waitForUpdateAuthUI(callback, maxRetries = 15) {
+                if (typeof window.updateAuthUI === 'function') {
+                    callback();
+                    return;
                 }
-                // Dispatch custom event for auth state change
-                window.dispatchEvent(new CustomEvent('authStateChanged'));
-                return;
+                
+                if (maxRetries > 0) {
+                    setTimeout(() => waitForUpdateAuthUI(callback, maxRetries - 1), 100);
+                    return;
+                }
+                
+                // If still not found after retries, use fallback
+                console.warn('[homepage] window.updateAuthUI not found after retries, using fallback');
+                callback(true); // Pass true to indicate fallback
             }
             
-            console.warn('[homepage] window.updateAuthUI not found, using fallback');
-            // Fallback implementation (legacy support) - only if centralized function doesn't exist
-            // Wait for component to be loaded if it's not ready yet
-            function tryUpdateUI(retries = 10) {
+            waitForUpdateAuthUI((useFallback) => {
+                if (!useFallback && typeof window.updateAuthUI === 'function') {
+                    console.log('[homepage] Delegating to centralized updateAuthUI');
+                    window.updateAuthUI(true); // Force update
+                    // Also update user profile display if user data is provided
+                    if (user && typeof userProfileManager !== 'undefined') {
+                        setTimeout(() => {
+                            userProfileManager.updateProfileDisplay(user);
+                        }, 500);
+                    }
+                    // Dispatch custom event for auth state change
+                    window.dispatchEvent(new CustomEvent('authStateChanged'));
+                    return;
+                }
+                
+                // Fallback implementation (legacy support) - only if centralized function doesn't exist
+                // Wait for component to be loaded if it's not ready yet
+                function tryUpdateUI(retries = 10) {
                 const authButtons = document.getElementById('authButtons');
                 const userProfile = document.getElementById('userProfile');
                 const userDisplayName = document.getElementById('userDisplayName');
@@ -5666,8 +5682,11 @@ function updatePricingForLoggedInUser(retryCount = 0) {
                 }
             }
             
-            // Start the update process
-            tryUpdateUI();
+            // Start the update process only if using fallback
+            if (useFallback) {
+                tryUpdateUI();
+            }
+        });
         }
 
     </script>

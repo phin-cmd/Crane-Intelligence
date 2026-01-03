@@ -152,16 +152,36 @@
                     return;
                 }
                 const data = await response.json();
-                renderRefunds(data);
+                console.log('Refunds API response:', data);
+                // Handle both array response and object with refunds/data property
+                let refundsList = [];
+                if (Array.isArray(data)) {
+                    refundsList = data;
+                } else if (data && Array.isArray(data.refunds)) {
+                    refundsList = data.refunds;
+                } else if (data && Array.isArray(data.data)) {
+                    refundsList = data.data;
+                } else if (data && Array.isArray(data.items)) {
+                    refundsList = data.items;
+                } else {
+                    console.warn('Unexpected response format:', data);
+                    refundsList = [];
+                }
+                renderRefunds(refundsList);
             } catch (error) {
                 console.error('Error loading refunds:', error);
                 document.getElementById('refunds-table-body').innerHTML = 
-                    '<tr><td colspan="9">Error loading refunds</td></tr>';
+                    '<tr><td colspan="9">Error loading refunds: ' + error.message + '</td></tr>';
             }
         }
 
         function renderRefunds(refunds) {
             const tbody = document.getElementById('refunds-table-body');
+            if (!Array.isArray(refunds)) {
+                console.error('refunds is not an array:', refunds);
+                tbody.innerHTML = '<tr><td colspan="9">Error: Invalid data format</td></tr>';
+                return;
+            }
             if (refunds.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9">No refunds found</td></tr>';
                 return;

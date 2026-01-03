@@ -3209,11 +3209,7 @@
                             console.log(`📋 Loaded ${allCachedReports.length} cached reports on init (${fmvReports.drafts.length} drafts, ${fmvReports.submitted.length} submitted)`);
                             loadedFromCache = true;
                             
-                            // Check if report #70 is in cached reports
-                            const report70 = allCachedReports.find(r => r.id === 70 || String(r.id) === '70');
-                            if (report70) {
-                                console.log('✅ Report #70 found in cached reports on init');
-                            }
+                            // Note: Removed debug code for report #70
                             
                             // Display cached reports immediately
                             displayFMVReports();
@@ -3280,19 +3276,7 @@
                         report_type: r.report_type
                     })));
                     
-                    // Check if report #70 is in the list
-                    const report70 = allReports.find(r => r.id === 70 || String(r.id) === '70');
-                    if (report70) {
-                        console.log('✅ Report #70 found:', {
-                            id: report70.id,
-                            status: report70.status,
-                            report_type: report70.report_type,
-                            in_drafts: fmvReports.drafts.includes(report70),
-                            in_submitted: fmvReports.submitted.includes(report70)
-                        });
-                    } else {
-                        console.warn('⚠️ Report #70 NOT found in API response');
-                    }
+                    // Note: Removed debug code for report #70
                 } else {
                     console.error('Failed to load submitted reports:', response.status, response.statusText);
                     
@@ -3324,13 +3308,7 @@
                                     console.log(`📋 Loaded ${allCachedReports.length} cached reports (${fmvReports.drafts.length} drafts, ${fmvReports.submitted.length} submitted) from sessionStorage`);
                                     loadedFromCache = true;
                                     
-                                    // Check if report #70 is in cached reports
-                                    const report70 = allCachedReports.find(r => r.id === 70 || String(r.id) === '70');
-                                    if (report70) {
-                                        console.log('✅ Report #70 found in cached reports');
-                                    } else {
-                                        console.warn('⚠️ Report #70 NOT found in cached reports');
-                                    }
+                                    // Note: Removed debug code for report #70
                                 }
                             }
                         } catch (e) {
@@ -3593,16 +3571,9 @@
             const usedIds = new Set();
             const usedPaymentIntents = new Set();
             
-            // CRITICAL: First, find and preserve report #70 before any deduplication
-            const report70 = activeReports.find(r => (r.id === 70 || String(r.id) === '70'));
-            
             // First, add reports with payment_intent_id (deduplicated)
             paymentIntentMap.forEach(report => {
                 const reportId = report.id ? String(report.id) : '';
-                // Skip report #70 here - we'll add it separately to ensure it's always included
-                if (reportId === '70' || report.id === 70) {
-                    return;
-                }
                 if (reportId && !usedIds.has(reportId)) {
                     finalReports.push(report);
                     usedIds.add(reportId);
@@ -3616,11 +3587,6 @@
             // Include ALL reports, even those without IDs
             activeReports.forEach(report => {
                 const reportId = report.id ? String(report.id) : `no-id-${Date.now()}-${Math.random()}`;
-                
-                // Skip report #70 here - we'll add it separately to ensure it's always included
-                if (reportId === '70' || report.id === 70) {
-                    return;
-                }
                 
                 if (!usedIds.has(reportId)) {
                     // If it has a payment_intent_id, check if we already have a report with that ID
@@ -3636,38 +3602,7 @@
                 }
             });
             
-            // CRITICAL: Always add report #70 at the end, ensuring it's never filtered out
-            if (report70) {
-                const report70Id = report70.id ? String(report70.id) : '';
-                if (!usedIds.has(report70Id)) {
-                    console.log('✅ Adding report #70 to finalReports');
-                    finalReports.push(report70);
-                    usedIds.add(report70Id);
-                    if (report70.payment_intent_id) {
-                        usedPaymentIntents.add(report70.payment_intent_id);
-                    }
-                } else {
-                    console.warn('⚠️ Report #70 already in finalReports (duplicate check)');
-                    // Still add it if it's not already there (by reference)
-                    const alreadyIncluded = finalReports.some(r => (r.id === 70 || String(r.id) === '70'));
-                    if (!alreadyIncluded) {
-                        console.log('✅ Report #70 not found by reference, adding it');
-                        finalReports.push(report70);
-                    }
-                }
-            } else {
-                console.warn('⚠️ Report #70 not found in activeReports');
-            }
-            
-            // Final verification: Ensure report #70 is in finalReports
-            const report70InFinal = finalReports.find(r => (r.id === 70 || String(r.id) === '70'));
-            if (!report70InFinal) {
-                console.error('❌ Report #70 is STILL NOT in finalReports after all processing!');
-                console.log('Final reports IDs:', finalReports.map(r => r.id));
-                console.log('activeReports IDs:', activeReports.map(r => r.id));
-            } else {
-                console.log('✅ Report #70 verified in finalReports');
-            }
+            // Note: Removed debug code for report #70
             
             // Use finalReports instead of activeReports
             const deduplicatedReports = finalReports;

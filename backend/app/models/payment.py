@@ -53,7 +53,7 @@ class Payment(Base):
     
     # Metadata
     description = Column(Text, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    payment_metadata = Column(JSON, nullable=True)  # Renamed from 'metadata' to avoid SQLAlchemy reserved name conflict
     
     # Reconciliation
     is_reconciled = Column(Boolean, default=False)

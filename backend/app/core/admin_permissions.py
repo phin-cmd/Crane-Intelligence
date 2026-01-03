@@ -97,7 +97,8 @@ ROLE_PERMISSIONS: dict[AdminRole, Set[Permission]] = {
         Permission.EDIT_USERS,
         Permission.DELETE_USERS,
         Permission.MANAGE_USER_SUBSCRIPTIONS,
-        # No admin user management
+        Permission.VIEW_ADMIN_USERS,  # Can view admin users (read-only)
+        # No admin user management (create/edit/delete)
         Permission.VIEW_REPORTS,
         Permission.CREATE_REPORTS,
         Permission.EDIT_REPORTS,
@@ -126,6 +127,7 @@ ROLE_PERMISSIONS: dict[AdminRole, Set[Permission]] = {
         Permission.EDIT_USERS,
         # No DELETE_USERS
         Permission.MANAGE_USER_SUBSCRIPTIONS,
+        Permission.VIEW_ADMIN_USERS,  # Can view admin users (read-only)
         Permission.VIEW_REPORTS,
         Permission.CREATE_REPORTS,
         Permission.EDIT_REPORTS,
@@ -151,6 +153,7 @@ ROLE_PERMISSIONS: dict[AdminRole, Set[Permission]] = {
         Permission.VIEW_USERS,
         Permission.EDIT_USERS,  # Limited editing (e.g., reset password, activate/deactivate)
         # No CREATE_USERS, DELETE_USERS
+        Permission.VIEW_ADMIN_USERS,  # Can view admin users (read-only)
         Permission.VIEW_REPORTS,
         # No CREATE_REPORTS, EDIT_REPORTS, DELETE_REPORTS
         Permission.EXPORT_REPORTS,

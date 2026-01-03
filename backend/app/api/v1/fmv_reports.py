@@ -433,16 +433,50 @@ async def create_fmv_payment(
             pass
         
         report_type = request_data.report_type
-        amount = request_data.amount  # Amount in cents
         crane_data = request_data.crane_data or {}
         cardholder_name = request_data.cardholder_name or ""
         receipt_email = request_data.receipt_email or ""
         
-        if not report_type or not amount:
+        if not report_type:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="report_type and amount are required"
+                detail="report_type is required"
             )
+        
+        # CRITICAL SECURITY: Validate payment amount server-side
+        # Get user_id for logging
+        user_id = None
+        if current_user:
+            try:
+                user_id = int(current_user.get("sub"))
+            except:
+                pass
+        
+        # Import payment validator
+        from ...security.payment_validator import payment_validator
+        
+        # Validate payment amount against server calculation
+        is_valid, server_amount, error_message = payment_validator.validate_payment_amount(
+            report_type=report_type,
+            client_amount=request_data.amount,
+            crane_data=crane_data,
+            user_id=user_id
+        )
+        
+        if not is_valid:
+            logger.error(
+                f"SECURITY: Payment manipulation attempt blocked - "
+                f"User {user_id}, Report Type: {report_type}, "
+                f"Client Amount: ${request_data.amount/100:.2f}, "
+                f"Server Amount: ${server_amount/100:.2f}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_message
+            )
+        
+        # Use server-calculated amount (not client-submitted)
+        amount = server_amount
         
         # Check if a draft_report_id is provided in metadata
         frontend_metadata = request_data.metadata or {}

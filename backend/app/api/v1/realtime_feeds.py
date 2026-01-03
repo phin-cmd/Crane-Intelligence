@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/realtime-feeds", tags=["Real-Time Price Feeds"])
 
+# Separate router for /ws endpoint at root level
+ws_router = APIRouter(tags=["WebSocket"])
+
 # Global service instance
 price_feeds_service = None
 
@@ -150,6 +153,81 @@ async def remove_market_alert(
     except Exception as e:
         logger.error(f"Error removing market alert: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@ws_router.websocket("/ws")
+async def websocket_simple(websocket: WebSocket):
+    """Simple WebSocket endpoint at /ws for frontend compatibility"""
+    await websocket.accept()
+    
+    # Extract token from query string
+    query_params = dict(websocket.query_params)
+    token = query_params.get('token')
+    
+    # Extract client_id from token if provided
+    client_id = f"client_{id(websocket)}"
+    if token:
+        try:
+            from jose import jwt
+            from ...core.config import settings
+            payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+            client_id = f"user_{payload.get('sub', client_id)}"
+        except:
+            pass
+    
+    # Use the same logic as the main websocket endpoint
+    try:
+        service = await get_price_feeds_service()
+        
+        # Subscribe to price feeds
+        async def price_callback(prices):
+            try:
+                await websocket.send_text(json.dumps({
+                    "type": "price_update",
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "prices": {symbol: feed.__dict__ for symbol, feed in prices.items() if feed}
+                }, default=str))
+            except Exception as e:
+                logger.error(f"Error sending price update to {client_id}: {e}")
+        
+        await service.subscribe_to_feeds(client_id, price_callback)
+        
+        # Keep connection alive and handle incoming messages
+        while True:
+            try:
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "ping":
+                    await websocket.send_text(json.dumps({
+                        "type": "pong",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                elif message.get("type") == "subscribe":
+                    # Handle subscription requests
+                    symbols = message.get("symbols", [])
+                    if symbols:
+                        prices = await service.get_current_prices(symbols)
+                        await websocket.send_text(json.dumps({
+                            "type": "subscription_confirmed",
+                            "symbols": symbols,
+                            "prices": {symbol: feed.__dict__ for symbol, feed in prices.items() if feed}
+                        }, default=str))
+                        
+            except WebSocketDisconnect:
+                logger.info(f"WebSocket client {client_id} disconnected")
+                break
+            except Exception as e:
+                logger.error(f"Error handling WebSocket message from {client_id}: {e}")
+                break
+                
+    except Exception as e:
+        logger.error(f"Error in WebSocket connection for {client_id}: {e}")
+    finally:
+        # Unsubscribe from price feeds
+        try:
+            await service.unsubscribe_from_feeds(client_id)
+        except:
+            pass
 
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):

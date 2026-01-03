@@ -841,7 +841,7 @@
             <div class="admin-users-container">
                 <!-- Page Header -->
                 <div class="page-header">
-                    <h1 class="page-title">Admin Users Management</h1>
+                    <h1 class="page-title">Users Management</h1>
                     <button class="add-admin-btn" onclick="addAdminUser()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -854,7 +854,7 @@
                 <!-- Search and Filters -->
                 <div class="search-filters">
                     <div class="search-box">
-                    <input type="text" class="search-input" placeholder="Search admin users..." id="searchInput">
+                    <input type="text" class="search-input" placeholder="Search users..." id="searchInput">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="M21 21l-4.35-4.35"></path>
@@ -902,7 +902,7 @@
                 <!-- Admin Users Table -->
                 <div class="admin-users-table">
                     <div class="table-header">
-                        <h3 class="table-title">Admin Portal Users</h3>
+                        <h3 class="table-title">Admin Portal Users (All Types)</h3>
                     </div>
                     <div class="table-content">
                         <table class="admin-table" id="adminUsersTable">
@@ -1079,6 +1079,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Admin users management page loaded, initializing...');
             
+            // Only load admin users - website users are on /admin/users.html
             loadAdminUsers();
             setupEventListeners();
             setupTableSorting();
@@ -1157,6 +1158,8 @@
 
         const API_BASE = 'https://craneintelligence.tech/api/v1';
         
+        // Website users are loaded on /admin/users.html, not on this page
+        
         async function loadAdminUsers() {
             let loadingId;
             try {
@@ -1173,12 +1176,47 @@
                 });
                 
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', response.status, errorText);
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                adminUsers = data.users || data.items || [];
+                console.log('Raw API response:', data);
+                // Handle both array response and object with users/items property
+                let rawUsers = [];
+                if (Array.isArray(data)) {
+                    rawUsers = data;
+                } else {
+                    rawUsers = data.users || data.items || data.data || [];
+                }
+                
+                // Transform API response to match rendering code expectations
+                adminUsers = rawUsers.map(user => {
+                    // Generate avatar initials from full_name
+                    const getAvatarInitials = (name) => {
+                        if (!name) return '??';
+                        const parts = name.trim().split(/\s+/);
+                        if (parts.length >= 2) {
+                            return (parts[0][0] || '') + (parts[1][0] || '');
+                        }
+                        return name.substring(0, 2).toUpperCase();
+                    };
+                    
+                    return {
+                        id: user.id,
+                        name: user.full_name || user.username || user.email || 'Unknown',
+                        email: user.email || '',
+                        role: user.admin_role || 'unknown',
+                        status: user.is_active ? 'active' : 'inactive',
+                        lastLogin: user.last_login || null,
+                        createdAt: user.created_at || null,
+                        avatar: getAvatarInitials(user.full_name || user.username || user.email || '')
+                    };
+                });
+                
                 console.log('Admin users loaded from database:', adminUsers.length);
+                console.log('Admin users data:', adminUsers);
                 
                 // Apply current filters
                 applyFilters();
@@ -1377,6 +1415,23 @@
             };
             return roleMap[role] || role;
         }
+        
+        function formatUserRole(role) {
+            const roleMap = {
+                'crane_rental_company': 'Crane Rental Company',
+                'equipment_dealer': 'Equipment Dealer',
+                'appraiser': 'Appraiser',
+                'investor': 'Investor',
+                'user': 'User'
+            };
+            return roleMap[role] || role;
+        }
+        
+        function editWebsiteUser(userId) {
+            // Navigate to user details or open modal
+            console.log('Edit website user:', userId);
+            // TODO: Implement user edit functionality
+        }
 
         function formatLastLogin(lastLogin) {
             if (!lastLogin) return 'Never';
@@ -1405,7 +1460,7 @@
             const dropdown = document.getElementById('profileDropdown');
             const profile = document.querySelector('.admin-profile');
             
-            if (!profile.contains(event.target)) {
+            if (dropdown && profile && !profile.contains(event.target)) {
                 dropdown.classList.remove('show');
             }
         });
@@ -1621,6 +1676,7 @@
         }
 
         async function refreshAdminUsers() {
+            // Only reload admin users - website users are on /admin/users.html
             await loadAdminUsers();
         }
 

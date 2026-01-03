@@ -55,10 +55,11 @@ async def detailed_health_check(db: Session = Depends(get_db)) -> Dict[str, Any]
     
     overall_healthy = True
     
-    # Database check
+    # Database check - Use ORM instead of raw SQL
     try:
-        db.execute(text("SELECT 1"))
-        db.commit()
+        from app.models.user import User
+        # Simple ORM query to test connection
+        db.query(User).limit(1).first()
         health_status["checks"]["database"] = {
             "status": HealthStatus.HEALTHY,
             "message": "Database connection successful"
@@ -131,14 +132,14 @@ async def database_health_check(db: Session = Depends(get_db)) -> Dict[str, Any]
     Database-specific health check
     """
     try:
-        # Test basic query
-        result = db.execute(text("SELECT 1 as test"))
-        db.commit()
+        # Test basic query using ORM
+        from app.models.user import User
+        db.query(User).limit(1).first()
         
         # Test connection pool
         pool_status = engine.pool.status()
         
-        # Get database size
+        # Get database size - this query is safe (no user input)
         size_result = db.execute(text("""
             SELECT pg_size_pretty(pg_database_size(current_database())) as size
         """))
@@ -167,9 +168,9 @@ async def readiness_check(db: Session = Depends(get_db)) -> Dict[str, Any]:
     Readiness check - indicates if service is ready to accept traffic
     """
     try:
-        # Check database
-        db.execute(text("SELECT 1"))
-        db.commit()
+        # Check database using ORM
+        from app.models.user import User
+        db.query(User).limit(1).first()
         
         return {
             "status": "ready",
@@ -234,7 +235,7 @@ async def metrics(db: Session = Depends(get_db)) -> Dict[str, Any]:
             "invalid": pool.invalid()
         }
         
-        # Database size
+        # Database size - this query is safe (no user input, system function only)
         size_result = db.execute(text("""
             SELECT pg_size_pretty(pg_database_size(current_database())) as size
         """))

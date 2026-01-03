@@ -69,6 +69,13 @@ def get_current_admin_user(
 ) -> AdminUser:
     """Get current authenticated admin user"""
     try:
+        # Check if credentials are provided
+        if not credentials or not credentials.credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing authentication token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         # Verify token
         payload = verify_token(credentials.credentials)
         
@@ -112,9 +119,16 @@ def get_current_admin_user(
                             self.full_name = ''
                             self.permissions = []
                             self.two_factor_enabled = False
+                            self.two_factor_secret = None
+                            self.two_factor_backup_codes = []
                             self.is_verified = True  # Default to verified for admin users
                             self.last_login = None
                             self.created_at = datetime.utcnow()  # Default to current time
+                            self.updated_at = datetime.utcnow()  # Default to current time
+                            self.failed_login_attempts = 0
+                            self.account_locked_until = None
+                            self.last_ip_address = None
+                            self.last_user_agent = None
                     user = SimpleAdminUser(result)
                 else:
                     user = None
@@ -266,6 +280,25 @@ def require_can_manage_admin_users(current_user: AdminUser = Depends(get_current
             detail="Invalid admin role"
         )
     return current_user
+
+
+def require_can_view_admin_users(current_user: AdminUser = Depends(get_current_admin_user)):
+    """Require permission to view admin users (read-only access)"""
+    from ..core.admin_permissions import Permission, has_permission, AdminRole
+    
+    try:
+        user_role = AdminRole(current_user.admin_role)
+        if has_permission(user_role, Permission.VIEW_ADMIN_USERS):
+            return current_user
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Viewing admin users requires VIEW_ADMIN_USERS permission"
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid admin role"
+        )
 
 
 def require_can_impersonate(current_user: AdminUser = Depends(get_current_admin_user)):

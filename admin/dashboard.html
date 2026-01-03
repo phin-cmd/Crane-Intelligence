@@ -422,13 +422,29 @@
     <div id="admin-footer-container"></div>
 
     <script>
-        const API_BASE = 'https://craneintelligence.tech/api/v1/admin';
-        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token');
+        // Determine API base URL based on current environment
+        const hostname = window.location.hostname;
+        let API_BASE;
+        if (hostname === 'dev.craneintelligence.tech') {
+            API_BASE = 'https://dev.craneintelligence.tech/api/v1/admin';
+        } else if (hostname === 'uat.craneintelligence.tech') {
+            API_BASE = 'https://uat.craneintelligence.tech/api/v1/admin';
+        } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            API_BASE = '/api/v1/admin';
+        } else {
+            API_BASE = 'https://craneintelligence.tech/api/v1/admin';
+        }
+        
+        let accessToken = localStorage.getItem('admin_token') || localStorage.getItem('admin_access_token') || localStorage.getItem('access_token');
         let adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
 
-        if (!accessToken) {
+        if (!accessToken || accessToken.trim() === '') {
             window.location.href = '/admin/login.html';
         }
+
+        let dashboardInterval = null;
+        let dashboardErrorCount = 0;
+        const MAX_DASHBOARD_ERRORS = 3;
 
         // Wait for admin-layout.js to initialize before rendering dashboard
         function initDashboard() {
@@ -436,7 +452,9 @@
             window.addEventListener('adminLayoutReady', function() {
                 console.log('Admin layout ready, fetching dashboard data');
                 fetchDashboard();
-                setInterval(fetchDashboard, 30000);
+                if (!dashboardInterval) {
+                    dashboardInterval = setInterval(fetchDashboard, 30000);
+                }
             }, { once: true });
             
             // Fallback: if event doesn't fire within 2 seconds, proceed anyway
@@ -445,13 +463,17 @@
                 if (headerContainer && headerContainer.innerHTML.trim() !== '') {
                     console.log('Admin layout detected (fallback), fetching dashboard data');
                     fetchDashboard();
-                    setInterval(fetchDashboard, 30000);
+                    if (!dashboardInterval) {
+                        dashboardInterval = setInterval(fetchDashboard, 30000);
+                    }
                 } else {
                     console.warn('Admin layout not ready, retrying...');
                     // Retry once more
                     setTimeout(() => {
                         fetchDashboard();
-                        setInterval(fetchDashboard, 30000);
+                        if (!dashboardInterval) {
+                            dashboardInterval = setInterval(fetchDashboard, 30000);
+                        }
                     }, 1000);
                 }
             }, 2000);
@@ -463,20 +485,88 @@
 
         async function fetchDashboard() {
             try {
+                // Validate token before sending
+                if (!accessToken || accessToken.trim() === '') {
+                    console.warn('No access token available, redirecting to login');
+                    stopDashboardPolling();
+                    logout();
+                    return;
+                }
+
                 const response = await fetch(`${API_BASE}/dashboard`, {
-                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                    headers: { 
+                        'Authorization': `Bearer ${accessToken.trim()}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
 
-                if (response.status === 401) {
+                if (response.status === 401 || response.status === 403) {
+                    console.warn('Authentication failed, redirecting to login');
+                    stopDashboardPolling();
                     logout();
+                    return;
+                }
+
+                if (response.status === 422) {
+                    // 422 usually means validation error - token might be invalid or expired
+                    dashboardErrorCount++;
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Validation error (422):', errorData);
+                    
+                    // Log the actual error details for debugging
+                    if (errorData.detail && Array.isArray(errorData.detail) && errorData.detail.length > 0) {
+                        console.error('Validation error details:', errorData.detail[0]);
+                    }
+                    
+                    // Stop polling after too many errors - treat 422 as auth failure
+                    if (dashboardErrorCount >= MAX_DASHBOARD_ERRORS) {
+                        console.warn('Too many validation errors, stopping dashboard polling and redirecting to login');
+                        stopDashboardPolling();
+                        // 422 validation errors usually mean the token is invalid/expired
+                        logout();
+                        return;
+                    }
+                    
+                    document.getElementById('statsGrid').innerHTML = '<div class="loading">Authentication error. Please refresh the page.</div>';
+                    return;
+                }
+
+                // Reset error count on success
+                dashboardErrorCount = 0;
+
+                if (!response.ok) {
+                    // Handle other errors
+                    dashboardErrorCount++;
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Error fetching dashboard:', response.status, errorData);
+                    
+                    if (dashboardErrorCount >= MAX_DASHBOARD_ERRORS) {
+                        stopDashboardPolling();
+                    }
+                    
+                    document.getElementById('statsGrid').innerHTML = '<div class="loading">Error loading dashboard data</div>';
                     return;
                 }
 
                 const data = await response.json();
                 renderDashboard(data);
             } catch (error) {
+                dashboardErrorCount++;
                 console.error('Error fetching dashboard:', error);
+                
+                if (dashboardErrorCount >= MAX_DASHBOARD_ERRORS) {
+                    stopDashboardPolling();
+                }
+                
                 document.getElementById('statsGrid').innerHTML = '<div class="loading">Error loading dashboard data</div>';
+            }
+        }
+
+        function stopDashboardPolling() {
+            if (dashboardInterval) {
+                clearInterval(dashboardInterval);
+                dashboardInterval = null;
+                console.log('Dashboard polling stopped');
             }
         }
 

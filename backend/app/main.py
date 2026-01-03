@@ -4,10 +4,10 @@ Consolidates: main.py and main_simple.py
 Production-ready with database initialization and all features
 """
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from jose import jwt
 from datetime import datetime, timedelta
@@ -41,13 +41,22 @@ except ImportError as e:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Import settings for environment check
+from .core.config import settings
+
+# Disable docs in production for security
+docs_url = "/docs" if settings.environment == "development" else None
+redoc_url = "/redoc" if settings.environment == "development" else None
+openapi_url = "/openapi.json" if settings.environment == "development" else None
+
 # Create FastAPI app
 app = FastAPI(
     title="Crane Intelligence API",
     version="1.0.0",
     description="Professional Crane Valuation and Market Analysis Platform",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=docs_url,
+    redoc_url=redoc_url,
+    openapi_url=openapi_url
 )
 
 # Add CORS middleware
@@ -58,6 +67,67 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add global exception handler for secure error messages
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Global exception handler that sanitizes errors"""
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    
+    # Return generic error to client (don't leak internal details)
+    return JSONResponse(
+        status_code=500,
+        content={"error": "An internal error occurred. Please try again later."}
+    )
+
+# Add bot detection middleware
+@app.middleware("http")
+async def bot_detection_middleware(request: Request, call_next):
+    """Detect and block bots, crawlers, and AI agents"""
+    try:
+        # Use absolute import to avoid relative import issues
+        try:
+            from app.security.bot_detector import BotDetector
+            from app.security.audit_logger import SecurityAuditLogger
+        except ImportError:
+            # Fallback if security modules not available
+            logger.warning("Security modules not available, skipping bot detection")
+            return await call_next(request)
+        
+        user_agent = request.headers.get("user-agent", "")
+        client_ip = request.client.host if request.client else "unknown"
+        
+        is_bot, reason = await BotDetector.check_bot_behavior(
+            client_ip,
+            request.url.path,
+            dict(request.headers)
+        )
+        
+        if is_bot:
+            logger.warning(f"Bot detected: {reason} from {client_ip}")
+            
+            # Log bot detection (non-blocking)
+            try:
+                await SecurityAuditLogger.log_bot_detection(
+                    ip_address=client_ip,
+                    user_agent=user_agent,
+                    reason=reason,
+                    request_path=request.url.path,
+                    db=None
+                )
+            except Exception as log_error:
+                logger.debug(f"Could not log bot detection: {log_error}")
+            
+            return JSONResponse(
+                status_code=403,
+                content={"error": "Access denied"}
+            )
+        
+        return await call_next(request)
+    except Exception as e:
+        logger.error(f"Error in bot detection middleware: {e}", exc_info=True)
+        # Don't block on middleware errors, continue with request
+        return await call_next(request)
 
 # ==================== PYDANTIC MODELS ====================
 
@@ -317,6 +387,22 @@ try:
 except Exception as e:
     logger.warning(f"Could not load market data router: {e}")
 
+# Equipment live endpoint - registered BEFORE equipment router to take precedence
+# This endpoint is public and doesn't require authentication
+@app.get("/api/v1/equipment/live")
+async def get_equipment_live_public():
+    """Get live equipment data (public endpoint, no auth required)"""
+    from datetime import datetime
+    return {
+        "success": True,
+        "timestamp": datetime.utcnow().isoformat(),
+        "data": {
+            "total_equipment": 0,
+            "active_equipment": 0,
+            "equipment": []
+        }
+    }
+
 # Include equipment router
 try:
     from app.api.v1.equipment import router as equipment_router
@@ -324,6 +410,15 @@ try:
     logger.info("✓ Equipment router registered")
 except Exception as e:
     logger.warning(f"Could not load equipment router: {e}")
+
+# Include realtime feeds router (WebSocket support)
+try:
+    from app.api.v1.realtime_feeds import router as realtime_feeds_router, ws_router
+    app.include_router(realtime_feeds_router, prefix="/api/v1", tags=["realtime-feeds"])
+    app.include_router(ws_router, tags=["WebSocket"])  # Register /ws endpoint at root
+    logger.info("✓ Realtime feeds router registered")
+except Exception as e:
+    logger.warning(f"Could not load realtime feeds router: {e}")
 
 # Include admin authentication router
 try:
@@ -333,10 +428,19 @@ try:
 except Exception as e:
     logger.warning(f"Could not load admin auth router: {e}")
 
-# Include admin users management router
+# Include admin router (existing admin endpoints) - register BEFORE admin_users to avoid route conflicts
+try:
+    from app.api.v1.admin import router as admin_router
+    app.include_router(admin_router, prefix="/api/v1", tags=["admin"])
+    logger.info("✓ Admin router registered")
+except Exception as e:
+    logger.warning(f"Could not load admin router: {e}")
+
+# Include admin users management router - register AFTER admin router to avoid route conflicts
 try:
     from app.api.v1.admin_users import router as admin_users_router
     app.include_router(admin_users_router, prefix="/api/v1", tags=["admin-users"])
+    logger.info("✓ Admin users router registered")
 except Exception as e:
     logger.warning(f"Could not load admin users router: {e}")
 
@@ -347,17 +451,6 @@ try:
     logger.info("✓ Server monitoring router registered")
 except Exception as e:
     logger.warning(f"Could not load server monitoring router: {e}")
-    logger.info("✓ Admin users router registered")
-except Exception as e:
-    logger.warning(f"Could not load admin users router: {e}")
-
-# Include admin router (existing admin endpoints)
-try:
-    from app.api.v1.admin import router as admin_router
-    app.include_router(admin_router, prefix="/api/v1", tags=["admin"])
-    logger.info("✓ Admin router registered")
-except Exception as e:
-    logger.warning(f"Could not load admin router: {e}")
 
 # Include admin impersonation router
 try:
@@ -598,13 +691,20 @@ async def get_market_trends():
         "data": []
     }
 
+# Equipment live endpoint - registered before equipment router to take precedence
+# This endpoint is public and doesn't require authentication
 @app.get("/api/v1/equipment/live")
-async def get_equipment_live():
-    """Get live equipment data"""
+async def get_equipment_live_public():
+    """Get live equipment data (public endpoint, no auth required)"""
+    from datetime import datetime
     return {
         "success": True,
-        "equipment": [],
-        "count": 0
+        "timestamp": datetime.utcnow().isoformat(),
+        "data": {
+            "total_equipment": 0,
+            "active_equipment": 0,
+            "equipment": []
+        }
     }
 
 @app.get("/api/v1/analytics/overview")

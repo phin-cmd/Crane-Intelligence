@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     github_repo: str = "phin-cmd/Crane-Intelligence"
     github_username: str = "phin@accranes.com"
     
+    # Environment
+    environment: str = os.getenv("ENVIRONMENT", "production")
+    
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
@@ -83,6 +86,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Environment-specific overrides
-if os.getenv("ENVIRONMENT") == "development":
+if settings.environment == "development":
     settings.debug = True
     settings.database_echo = True

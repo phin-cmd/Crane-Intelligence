@@ -1,11 +1,14 @@
 """
 Database configuration and session management
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from .config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create database engine
 # Use PostgreSQL for production, SQLite fallback for development
@@ -32,6 +35,64 @@ else:
         },
         echo=settings.database_echo
     )
+
+# SQL Injection Prevention - Register event listener
+@event.listens_for(engine, "before_cursor_execute")
+def receive_before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    """Intercept SQL queries before execution to prevent SQL injection"""
+    try:
+        from ..security.sql_injection_prevention import SQLInjectionPrevention
+        
+        # Create temporary instance for validation
+        sql_prevention = SQLInjectionPrevention()
+        
+        # Validate query for SQL injection
+        is_injection, threats = sql_prevention.detector.detect_sql_injection(
+            statement, 
+            parameters
+        )
+        
+        if is_injection:
+            logger.critical(f"SQL INJECTION ATTEMPT BLOCKED: {threats}")
+            logger.critical(f"Query: {statement[:200]}...")
+            
+            # Log security event
+            try:
+                from ..security.audit_logger import SecurityAuditLogger
+                import asyncio
+                # Get IP from context if available
+                ip_address = getattr(context, 'ip_address', 'unknown') if context else 'unknown'
+                user_id = getattr(context, 'user_id', None) if context else None
+                
+                # Run async function
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If loop is running, schedule it
+                    asyncio.create_task(SecurityAuditLogger.log_sql_injection_attempt(
+                        user_id=user_id,
+                        ip_address=ip_address,
+                        query=statement,
+                        threats=threats,
+                        db=None
+                    ))
+                else:
+                    loop.run_until_complete(SecurityAuditLogger.log_sql_injection_attempt(
+                        user_id=user_id,
+                        ip_address=ip_address,
+                        query=statement,
+                        threats=threats,
+                        db=None
+                    ))
+            except Exception as log_error:
+                logger.error(f"Failed to log SQL injection attempt: {log_error}")
+            
+            raise ValueError("SQL injection attempt detected and blocked")
+    except ValueError:
+        # Re-raise ValueError (SQL injection detected)
+        raise
+    except Exception as e:
+        # Don't block on validation errors, just log
+        logger.warning(f"Error in SQL injection prevention: {e}")
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -2,6 +2,39 @@
 // ============================================================================
 // SIMPLIFIED PURCHASE REPORT - Clean Working Implementation (OVERRIDES BROKEN VERSION)
 // ============================================================================
+
+// SECURITY: Get server-calculated price to prevent manipulation
+async function getServerCalculatedPrice(reportType, craneData, token) {
+    try {
+        const headers = {
+            "Content-Type": "application/json"
+        };
+        
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch("/api/v1/fmv-reports/calculate-price", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+                report_type: reportType,
+                crane_data: craneData
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to calculate price: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data.amount; // Server-calculated amount in cents
+    } catch (error) {
+        console.error("Error fetching server price:", error);
+        throw error;
+    }
+}
+
 window.purchaseReport = async function purchaseReport() {
     console.log("✅ purchaseReport called (simplified version)");
     
@@ -46,9 +79,38 @@ window.purchaseReport = async function purchaseReport() {
             craneType: document.getElementById("craneType")?.value || "",
             boomLength: document.getElementById("boomLength")?.value || "",
             mileage: document.getElementById("mileage")?.value || "",
-            reportType: window.selectedReportType,
-            price: window.selectedReportPrice
+            reportType: window.selectedReportType
         };
+        
+        // SECURITY: Get server-calculated price (prevents client-side manipulation)
+        let serverPrice = null;
+        try {
+            const craneData = {
+                manufacturer: formData.manufacturer,
+                model: formData.model,
+                year: formData.year,
+                capacity: formData.capacity,
+                operatingHours: formData.operatingHours,
+                region: formData.region,
+                craneType: formData.craneType
+            };
+            
+            serverPrice = await getServerCalculatedPrice(window.selectedReportType, craneData, token);
+            console.log("✅ Server-calculated price:", serverPrice, "cents");
+            
+            // Update formData with server price
+            formData.price = serverPrice;
+            window.selectedReportPrice = serverPrice.toString();
+        } catch (priceError) {
+            console.error("Failed to get server price:", priceError);
+            if (window.notificationSystem) {
+                window.notificationSystem.showError("Error", "Failed to calculate price. Please try again.");
+            } else {
+                alert("Failed to calculate price. Please try again.");
+            }
+            window._purchaseInProgress = false;
+            return;
+        }
         
         // 3. Validate required fields
         if (!formData.manufacturer || !formData.model || !formData.year || !formData.capacity) {

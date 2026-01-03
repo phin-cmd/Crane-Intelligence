@@ -77,6 +77,7 @@ class UserResponse(BaseModel):
     role: str
     is_active: bool
     is_verified: bool = False
+    last_login: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

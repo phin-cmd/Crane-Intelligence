@@ -1,7 +1,7 @@
 """
 Admin API endpoints for Crane Intelligence Platform
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
@@ -180,6 +180,33 @@ def require_can_delete(current_user: AdminUser = Depends(get_current_admin_user)
     return current_user
 
 # Dashboard Endpoints
+@router.get("/dashboard")
+async def get_dashboard(
+    current_user: AdminUser = Depends(require_admin_access),
+    db: Session = Depends(get_db)
+):
+    """Get dashboard data - main dashboard endpoint"""
+    try:
+        # Get dashboard stats
+        stats = await get_dashboard_stats(current_user, db)
+        # Get dashboard activity  
+        activity = await get_recent_activity(10, current_user, db)
+        # Get system status
+        status_info = await get_system_status(current_user, db)
+        
+        return {
+            "success": True,
+            "stats": stats.dict() if hasattr(stats, 'dict') else stats,
+            "activity": [item.dict() if hasattr(item, 'dict') else item for item in activity],
+            "status": status_info.dict() if hasattr(status_info, 'dict') else status_info
+        }
+    except Exception as e:
+        logger.error(f"Error getting dashboard data: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get dashboard data"
+        )
+
 @router.get("/dashboard/stats", response_model=DashboardStats)
 async def get_dashboard_stats(
     current_user: AdminUser = Depends(require_admin_access),
@@ -230,11 +257,26 @@ async def get_dashboard_stats(
         system_uptime = 99.9
         api_response_time = 120  # milliseconds
         
+        # Calculate users by role
+        users_by_role = {}
+        if db:
+            try:
+                from sqlalchemy import func
+                role_counts = db.query(User.user_role, func.count(User.id)).group_by(User.user_role).all()
+                for role, count in role_counts:
+                    # Convert role enum to string
+                    role_str = role.value if hasattr(role, 'value') else str(role)
+                    users_by_role[role_str] = count
+            except Exception as e:
+                logger.warning(f"Could not get users by role: {e}")
+                users_by_role = {}
+        
         return DashboardStats(
             users=UserStats(
                 total=total_users,
                 active=active_users,
                 new_today=new_users_today,
+                by_role=users_by_role,
                 by_tier={}  # No subscription tiers - using report types instead
             ),
             reports=ReportStats(
@@ -354,7 +396,7 @@ async def get_system_status(
         )
 
 # User Management Endpoints
-@router.get("/users", response_model=UserListResponse)
+@router.get("/users", response_model=UserListResponse, name="get_main_website_users")
 async def get_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -366,9 +408,24 @@ async def get_users(
     current_user: AdminUser = Depends(require_admin_access),
     db: Session = Depends(get_db)
 ):
-    """Get users with filtering and pagination"""
+    """
+    Get main website users (regular users, NOT admin users) with filtering and pagination.
+    This endpoint returns users from the User model (main website users).
+    For admin users, use /admin/admin-users endpoint.
+    """
     try:
-        query = db.query(User)
+        # Query the User model (main website users), NOT AdminUser
+        # This is critical - we want regular website users, not admin portal users
+        # Explicitly import both models to ensure we're using the right one
+        from ...models.user import User as UserModel
+        from ...models.admin import AdminUser as AdminUserModel
+        
+        # Verify we're using the correct model
+        assert UserModel is not AdminUserModel, "CRITICAL: User and AdminUser models are the same!"
+        
+        query = db.query(UserModel)
+        logger.info(f"Querying User model (main website users), not AdminUser model")
+        logger.info(f"User model class: {UserModel}, table name: {UserModel.__tablename__}")
         
         # Apply filters
         if role:
@@ -404,6 +461,18 @@ async def get_users(
         # Apply pagination
         users = query.offset(skip).limit(limit).all()
         
+        # Log what we're returning for debugging
+        logger.info(f"Found {len(users)} regular users (User model), total: {total}")
+        if users:
+            logger.info(f"Sample user email: {users[0].email}, role: {users[0].user_role}, type: {type(users[0])}")
+            # Verify we're using User model, not AdminUser
+            from ...models.user import User as UserModel
+            from ...models.admin import AdminUser as AdminUserModel
+            if isinstance(users[0], AdminUserModel):
+                logger.error("ERROR: Query returned AdminUser instead of User! This is a bug!")
+            elif isinstance(users[0], UserModel):
+                logger.info("✓ Confirmed: Query returned User model (correct)")
+        
         # Convert to response models
         user_responses = [
             UserResponse(
@@ -413,18 +482,29 @@ async def get_users(
                 role=user.user_role.value if hasattr(user.user_role, 'value') else str(user.user_role),
                 is_active=user.is_active,
                 is_verified=user.is_verified if hasattr(user, 'is_verified') else False,
+                last_login=user.last_login if hasattr(user, 'last_login') else None,
                 created_at=user.created_at,
                 updated_at=user.updated_at
             )
             for user in users
         ]
         
-        return UserListResponse(
+        logger.info(f"Returning {len(user_responses)} users in response")
+        if user_responses:
+            logger.info(f"First response user: {user_responses[0].email}, role: {user_responses[0].role}")
+        
+        # Create response object explicitly
+        response_obj = UserListResponse(
             users=user_responses,
             total=total,
             skip=skip,
             limit=limit
         )
+        
+        logger.info(f"Response object type: {type(response_obj)}, users count: {len(response_obj.users)}")
+        logger.info(f"Response will be serialized as: users={len(response_obj.users)}, total={response_obj.total}")
+        
+        return response_obj
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching users: {str(e)}")
 
