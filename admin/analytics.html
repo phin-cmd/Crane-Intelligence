@@ -1210,54 +1210,70 @@
             console.log('Updating charts with new data...');
             
             // Update User Growth Chart
-            if (charts.userGrowth && analyticsData.userGrowth) {
-                const labels = analyticsData.userGrowth.map(item => 
-                    new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                );
-                const data = analyticsData.userGrowth.map(item => item.value);
-                
-                charts.userGrowth.data.labels = labels;
-                charts.userGrowth.data.datasets[0].data = data;
-                charts.userGrowth.update();
+            if (charts.userGrowth && !charts.userGrowth.destroyed && analyticsData.userGrowth) {
+                try {
+                    const labels = analyticsData.userGrowth.map(item => 
+                        new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    );
+                    const data = analyticsData.userGrowth.map(item => item.value);
+                    
+                    charts.userGrowth.data.labels = labels;
+                    charts.userGrowth.data.datasets[0].data = data;
+                    charts.userGrowth.update();
+                } catch (error) {
+                    console.error('Error updating user growth chart:', error);
+                }
             }
 
             // Update Revenue Chart
-            if (charts.revenue && analyticsData.revenue) {
-                const labels = analyticsData.revenue.map(item => 
-                    new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                );
-                const data = analyticsData.revenue.map(item => item.value);
-                
-                charts.revenue.data.labels = labels;
-                charts.revenue.data.datasets[0].data = data;
-                charts.revenue.update();
+            if (charts.revenue && !charts.revenue.destroyed && analyticsData.revenue) {
+                try {
+                    const labels = analyticsData.revenue.map(item => 
+                        new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    );
+                    const data = analyticsData.revenue.map(item => item.value);
+                    
+                    charts.revenue.data.labels = labels;
+                    charts.revenue.data.datasets[0].data = data;
+                    charts.revenue.update();
+                } catch (error) {
+                    console.error('Error updating revenue chart:', error);
+                }
             }
 
             // Update Subscription Chart
-            if (charts.subscription && analyticsData.subscriptions) {
-                const data = [
-                    analyticsData.subscriptions.basic,
-                    analyticsData.subscriptions.premium,
-                    analyticsData.subscriptions.enterprise
-                ];
-                
-                charts.subscription.data.datasets[0].data = data;
-                charts.subscription.update();
+            if (charts.subscription && !charts.subscription.destroyed && analyticsData.subscriptions) {
+                try {
+                    const data = [
+                        analyticsData.subscriptions.basic,
+                        analyticsData.subscriptions.premium,
+                        analyticsData.subscriptions.enterprise
+                    ];
+                    
+                    charts.subscription.data.datasets[0].data = data;
+                    charts.subscription.update();
+                } catch (error) {
+                    console.error('Error updating subscription chart:', error);
+                }
             }
 
             // Update Geographic Chart
-            if (charts.geographic && analyticsData.geographic) {
-                const labels = Object.keys(analyticsData.geographic);
-                const data = Object.values(analyticsData.geographic);
-                
-                charts.geographic.data.labels = labels;
-                charts.geographic.data.datasets[0].data = data;
-                charts.geographic.update();
+            if (charts.geographic && !charts.geographic.destroyed && analyticsData.geographic) {
+                try {
+                    const labels = Object.keys(analyticsData.geographic);
+                    const data = Object.values(analyticsData.geographic);
+                    
+                    charts.geographic.data.labels = labels;
+                    charts.geographic.data.datasets[0].data = data;
+                    charts.geographic.update();
+                } catch (error) {
+                    console.error('Error updating geographic chart:', error);
+                }
             }
         }
 
         function updateUserGrowthChart(period) {
-            if (charts.userGrowth) {
+            if (charts.userGrowth && !charts.userGrowth.destroyed) {
                 // Simulate data update based on period
                 const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
                 const newData = generateTimeSeriesData(days, 'users');
@@ -1267,16 +1283,21 @@
                 );
                 const data = newData.map(item => item.value);
                 
-                charts.userGrowth.data.labels = labels;
-                charts.userGrowth.data.datasets[0].data = data;
-                charts.userGrowth.update();
-                
-                notificationSystem.showInfo('Chart Updated', `User growth chart updated for ${period}`);
+                try {
+                    if (!charts.userGrowth.destroyed) {
+                        charts.userGrowth.data.labels = labels;
+                        charts.userGrowth.data.datasets[0].data = data;
+                        charts.userGrowth.update();
+                        notificationSystem.showInfo('Chart Updated', `User growth chart updated for ${period}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating user growth chart:', error);
+                }
             }
         }
 
         function updateRevenueChart(period) {
-            if (charts.revenue) {
+            if (charts.revenue && !charts.revenue.destroyed) {
                 // Simulate data update based on period
                 const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
                 const newData = generateTimeSeriesData(days, 'revenue');
@@ -1286,11 +1307,16 @@
                 );
                 const data = newData.map(item => item.value);
                 
-                charts.revenue.data.labels = labels;
-                charts.revenue.data.datasets[0].data = data;
-                charts.revenue.update();
-                
-                notificationSystem.showInfo('Chart Updated', `Revenue chart updated for ${period}`);
+                try {
+                    if (!charts.revenue.destroyed) {
+                        charts.revenue.data.labels = labels;
+                        charts.revenue.data.datasets[0].data = data;
+                        charts.revenue.update();
+                        notificationSystem.showInfo('Chart Updated', `Revenue chart updated for ${period}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating revenue chart:', error);
+                }
             }
         }
 

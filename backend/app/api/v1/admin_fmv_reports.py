@@ -211,8 +211,9 @@ async def get_admin_reports(
                                 payment_status = getattr(payment_intent, 'status', None)
                             
                             if amount_cents:
-                                # Convert from cents to dollars
-                                report.amount_paid = amount_cents / 100.0
+                                # CRITICAL: Store amount_paid in CENTS (not dollars) for consistency
+                                # The amount_paid field should always be in cents to match Stripe's format
+                                report.amount_paid = float(amount_cents)
                                 # Also update payment_status if it's missing or incorrect
                                 if payment_status == 'succeeded' and (not report.payment_status or report.payment_status != 'succeeded'):
                                     report.payment_status = 'succeeded'

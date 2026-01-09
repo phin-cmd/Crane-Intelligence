@@ -37,6 +37,7 @@ class UserManagement {
         this.currentFilters = {};
         this.currentView = 'table';
         this.isLoading = false;
+        this.isLoadingUser = null; // Track which user is currently being loaded to prevent duplicate requests
         
         this.init();
     }
@@ -413,16 +414,17 @@ class UserManagement {
             });
         });
 
-        // Add row click handlers for user selection
+        // Add row click handlers - show full user details modal on row click
         tbody.querySelectorAll('.user-row').forEach(row => {
             row.addEventListener('click', (e) => {
                 if (e.target.type === 'checkbox' || e.target.closest('button')) return;
                 
                 const userId = parseInt(row.dataset.userId);
-                const user = this.users.find(u => u.id === userId);
-                if (user) {
-                    this.selectUser(user);
-                }
+                // Prevent duplicate calls if already loading this user
+                if (this.isLoadingUser === userId) return;
+                
+                // Show full user details modal on row click
+                this.viewUser(userId);
             });
         });
     }
@@ -782,93 +784,580 @@ class UserManagement {
     }
 
     async viewUser(userId) {
+        // Prevent multiple simultaneous calls for the same user
+        if (this.isLoadingUser === userId) {
+            console.log('User details already loading for user:', userId);
+            return;
+        }
+        
         try {
-            const user = await this.api.getUser(userId);
+            this.isLoadingUser = userId;
+            
+            // Get user from API
+            const apiUser = await this.api.getUser(userId);
+            console.log('API User Response (getUser):', apiUser);
+            console.log('API User Response fields:', Object.keys(apiUser));
+            console.log('API User - company_name:', apiUser.company_name);
+            console.log('API User - phone:', apiUser.phone);
+            console.log('API User - address:', apiUser.address);
+            console.log('API User - full_name:', apiUser.full_name);
+            
+            // Try to merge with cached user data (which might have more fields from the list endpoint)
+            const cachedUser = this.users.find(u => u.id === userId);
+            console.log('Cached User Data (from list):', cachedUser);
+            if (cachedUser) {
+                console.log('Cached User fields:', Object.keys(cachedUser));
+            }
+            
+            // Merge data sources: API response is most authoritative
+            // But we'll merge cached data for any missing fields
+            const user = {
+                ...cachedUser,    // Start with cached data (might have more fields)
+                ...apiUser        // Override with API response (most up-to-date, includes phone/address)
+            };
+            
+            // Ensure we have the latest data from API
+            if (apiUser.company_name) user.company_name = apiUser.company_name;
+            if (apiUser.phone) user.phone = apiUser.phone;
+            if (apiUser.phone_number) user.phone_number = apiUser.phone_number;
+            if (apiUser.address) user.address = apiUser.address;
+            if (apiUser.street_address) user.street_address = apiUser.street_address;
+            if (apiUser.full_address) user.full_address = apiUser.full_address;
+            if (apiUser.full_name) user.full_name = apiUser.full_name;
+            
+            console.log('Final Merged User Data:', user);
+            console.log('Final Merged User fields:', Object.keys(user));
+            console.log('Final - company_name:', user.company_name);
+            console.log('Final - phone:', user.phone);
+            console.log('Final - address:', user.address);
+            console.log('Final - full_name:', user.full_name);
             this.showUserDetails(user);
         } catch (error) {
+            console.error('Failed to load user details:', error);
             this.showError('Failed to load user details');
+        } finally {
+            // Clear the loading flag after a short delay to allow for legitimate re-fetches
+            setTimeout(() => {
+                if (this.isLoadingUser === userId) {
+                    this.isLoadingUser = null;
+                }
+            }, 1000);
         }
     }
 
     showUserDetails(user) {
-        const modal = document.getElementById('user-details-modal');
-        const content = document.getElementById('user-details-content');
+        // Try to find existing modal or create one
+        let modal = document.getElementById('user-details-modal');
+        let content = document.getElementById('user-details-content');
+        
+        // If modal doesn't exist, create it
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'user-details-modal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #333;">
+                        <h3 style="margin: 0; color: #fff;">User Account Details</h3>
+                        <span class="close" onclick="userManagement.hideUserDetailsModal()" style="font-size: 28px; font-weight: bold; color: #fff; cursor: pointer; line-height: 1;">&times;</span>
+                    </div>
+                    <div id="user-details-content" class="modal-body" style="padding: 20px;"></div>
+                    <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-top: 1px solid #333; gap: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-danger" id="modal-delete-user-btn" style="background: #DC3545; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Delete User</button>
+                            <button class="btn btn-warning" id="modal-suspend-user-btn" style="background: #FFC107; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Suspend User</button>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" id="modal-edit-user-btn" style="background: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Edit User</button>
+                            <button class="btn btn-secondary" onclick="userManagement.hideUserDetailsModal()" style="background: #6C757D; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            content = document.getElementById('user-details-content');
+            
+            // Setup action button handlers
+            document.getElementById('modal-delete-user-btn')?.addEventListener('click', () => {
+                const userId = modal.dataset.userId;
+                if (userId) this.deleteUser(parseInt(userId));
+            });
+            
+            document.getElementById('modal-suspend-user-btn')?.addEventListener('click', () => {
+                const userId = modal.dataset.userId;
+                if (userId) this.toggleUserStatus(parseInt(userId));
+            });
+            
+            document.getElementById('modal-edit-user-btn')?.addEventListener('click', () => {
+                const userId = modal.dataset.userId;
+                if (userId) this.editUser(parseInt(userId));
+            });
+        }
+        
+        // Store current user ID in modal for action buttons
+        modal.dataset.userId = user.id;
+        
+        if (!content) {
+            console.error('User details content element not found');
+            this.showError('Failed to display user details');
+            return;
+        }
+        
+        // Update suspend button text based on current status
+        const suspendBtn = document.getElementById('modal-suspend-user-btn');
+        if (suspendBtn) {
+            suspendBtn.textContent = user.is_active ? 'Suspend User' : 'Activate User';
+            suspendBtn.style.background = user.is_active ? '#FFC107' : '#28A745';
+            suspendBtn.style.color = user.is_active ? '#000' : '#fff';
+        }
+        
+        // Log user object to debug field names
+        console.log('showUserDetails - Full user object:', user);
+        console.log('showUserDetails - Available fields:', Object.keys(user));
+        console.log('showUserDetails - Raw values:', {
+            'user.full_name': user.full_name,
+            'user.company_name': user.company_name,
+            'user.phone': user.phone,
+            'user.phone_number': user.phone_number,
+            'user.address': user.address,
+            'user.street_address': user.street_address,
+            'user.full_address': user.full_address
+        });
+        
+        // Extract full name - prioritize API response
+        const fullName = user.full_name || user.name || user.fullName || 'N/A';
+        const email = user.email || 'N/A';
+        const username = user.username || 'N/A';
+        
+        // Check multiple possible field names for company (prioritize non-N/A values)
+        let company = user.company_name || user.company || user.companyName || 
+                     user.organization || user.organization_name;
+        // Only set to 'N/A' if we truly don't have a value
+        // Check if it's a valid non-empty string
+        if (!company || company === 'N/A' || company === 'null' || company === null || company === '') {
+            company = 'N/A';
+        } else {
+            // Keep the actual value, don't override it
+            company = company;
+        }
+        
+        console.log('Company extraction:', {
+            'user.company_name': user.company_name,
+            'user.company': user.company,
+            'final company': company
+        });
+        
+        // Check multiple possible field names for phone - prioritize API response
+        const phone = user.phone || user.phone_number || user.phoneNumber || 
+                     user.mobile || user.mobile_number || user.mobileNumber ||
+                     user.contact_phone || user.contact_number || 'N/A';
+        
+        // Check multiple possible field names for address - prioritize API response
+        const address = user.address || user.street_address || user.full_address || 
+                       user.address_line1 || user.address_line_1 || user.street ||
+                       user.fullAddress || user.streetAddress || 
+                       (user.address_line1 && user.city && user.state && user.zip_code 
+                        ? `${user.address_line1}, ${user.city}, ${user.state} ${user.zip_code}`
+                        : null) || 'Not provided';
+        
+        const timezone = user.timezone || user.time_zone || user.timeZone || 'Not set';
+        const role = user.user_role || user.role || 'user';
+        
+        console.log('Extracted values:', { fullName, email, company, phone, address, timezone, role });
+        console.log('Will display:', {
+            'Full Name': fullName,
+            'Company': company,
+            'Phone': phone,
+            'Address': address
+        });
+        
+        // Email preferences (default to true if not specified)
+        const emailPrefs = user.email_preferences || user.emailPreferences || {};
+        const marketingEmails = emailPrefs.marketing !== undefined ? emailPrefs.marketing : (user.marketing_emails !== undefined ? user.marketing_emails : true);
+        const reportNotifications = emailPrefs.reports !== undefined ? emailPrefs.reports : (user.report_notifications !== undefined ? user.report_notifications : true);
+        const securityAlerts = emailPrefs.security !== undefined ? emailPrefs.security : (user.security_alerts !== undefined ? user.security_alerts : true);
+        
+        // Notification preferences
+        const notifPrefs = user.notification_preferences || user.notificationPreferences || {};
+        const browserNotifications = notifPrefs.browser !== undefined ? notifPrefs.browser : (user.browser_notifications !== undefined ? user.browser_notifications : false);
+        const marketUpdates = notifPrefs.market !== undefined ? notifPrefs.market : (user.market_updates !== undefined ? user.market_updates : false);
+        const priceAlerts = notifPrefs.price !== undefined ? notifPrefs.price : (user.price_alerts !== undefined ? user.price_alerts : false);
+        
+        // Billing history (if available)
+        const billingHistory = user.billing_history || user.billingHistory || [];
         
         content.innerHTML = `
-            <div class="user-details-header">
-                <div class="user-avatar-large">
-                    <img src="${generateAvatarUrl(user.full_name, 80)}" alt="${user.full_name}">
-                </div>
-                <div class="user-details-info">
-                    <h2>${user.full_name}</h2>
-                    <p class="user-email">${user.email}</p>
-                    <p class="user-username">@${user.username}</p>
-                </div>
-                <div class="user-status-large">
-                    <span class="status-badge ${this.getUserStatusClass(user)}">
-                        ${this.getUserStatusText(user)}
-                    </span>
-                </div>
-            </div>
-            <div class="user-details-body">
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <label>Company</label>
-                        <span>${user.company_name}</span>
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- User Profile Header -->
+                <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
+                        <img src="${generateAvatarUrl(fullName, 100)}" alt="${fullName}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
-                    <div class="detail-item">
-                        <label>Role</label>
-                        <span class="role-badge role-${user.user_role}">${this.formatRole(user.user_role)}</span>
+                    <div style="flex: 1;">
+                        <h2 style="margin: 0 0 8px 0; font-size: 24px; color: #fff; font-weight: 600;">${fullName}</h2>
+                        <p style="margin: 4px 0; color: #B0B0B0; font-size: 16px;">${email}</p>
+                        <p style="margin: 4px 0; color: #808080; font-size: 14px;">@${username}</p>
                     </div>
-                    <div class="detail-item">
-                        <label>Created</label>
-                        <span>${this.formatDate(user.created_at)}</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Last Login</label>
-                        <span>${user.last_login ? this.formatDate(user.last_login) : 'Never'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Email Verified</label>
-                        <span class="status-badge ${user.is_verified ? 'active' : 'pending'}">
-                            ${user.is_verified ? 'Verified' : 'Pending'}
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Account Status</label>
-                        <span class="status-badge ${this.getUserStatusClass(user)}">
+                    <div>
+                        <span class="status-badge ${this.getUserStatusClass(user)}" style="display: inline-block; padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 600; background: ${this.getUserStatusClass(user) === 'active' ? '#28A745' : (this.getUserStatusClass(user) === 'pending' ? '#FFC107' : '#DC3545')}; color: #fff;">
                             ${this.getUserStatusText(user)}
                         </span>
+                    </div>
+                </div>
+                
+                <!-- Personal Information Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Personal Information</h3>
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #B0B0B0;">Update your personal details</p>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Full Name</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${fullName}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Email Address</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${email}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Company Name</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${company}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Phone Number</label>
+                            <span id="modal-personal-phone" style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${phone}</span>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Address</label>
+                            <span id="modal-personal-address" style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${address}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Preferences Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Email Preferences</h3>
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #B0B0B0;">Control which emails you receive</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Marketing Emails</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Receive updates about new features and promotions</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${marketingEmails ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${marketingEmails ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Report Notifications</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Get notified when your reports are ready</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${reportNotifications ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${reportNotifications ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Security Alerts</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Important security and account updates</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${securityAlerts ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${securityAlerts ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Preferences Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Notification Preferences</h3>
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #B0B0B0;">Manage your notification settings</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Browser Notifications</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Receive notifications in your browser</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${browserNotifications ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${browserNotifications ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Market Updates</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Get notified about market changes</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${marketUpdates ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${marketUpdates ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 4px;">Price Alerts</label>
+                                <span style="display: block; font-size: 12px; color: #B0B0B0;">Alerts when prices change significantly</span>
+                            </div>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${priceAlerts ? '#28A745' : '#6C757D'}; color: #fff; font-weight: 500;">
+                                ${priceAlerts ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Billing History Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Billing History</h3>
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #B0B0B0;">View and download your receipts</p>
+                    ${billingHistory.length > 0 ? `
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid #333;">
+                                        <th style="padding: 12px; text-align: left; font-size: 12px; color: #808080; text-transform: uppercase;">Date</th>
+                                        <th style="padding: 12px; text-align: left; font-size: 12px; color: #808080; text-transform: uppercase;">Description</th>
+                                        <th style="padding: 12px; text-align: left; font-size: 12px; color: #808080; text-transform: uppercase;">Amount</th>
+                                        <th style="padding: 12px; text-align: left; font-size: 12px; color: #808080; text-transform: uppercase;">Status</th>
+                                        <th style="padding: 12px; text-align: left; font-size: 12px; color: #808080; text-transform: uppercase;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${billingHistory.map((bill, index) => `
+                                        <tr style="border-bottom: 1px solid #222;">
+                                            <td style="padding: 12px; color: #fff; font-size: 14px;">${this.formatDate(bill.date || bill.created_at)}</td>
+                                            <td style="padding: 12px; color: #fff; font-size: 14px;">${bill.description || bill.plan || 'N/A'}</td>
+                                            <td style="padding: 12px; color: #fff; font-size: 14px; font-weight: 500;">${bill.amount ? '$' + parseFloat(bill.amount).toFixed(2) : 'N/A'}</td>
+                                            <td style="padding: 12px;">
+                                                <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; background: ${bill.status === 'paid' || bill.status === 'completed' ? '#28A745' : '#FFC107'}; color: #fff;">
+                                                    ${bill.status || 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px;">
+                                                ${bill.receipt_url || bill.invoice_url ? `
+                                                    <a href="${bill.receipt_url || bill.invoice_url}" target="_blank" style="color: #007BFF; text-decoration: none; font-size: 14px;">Download</a>
+                                                ` : '<span style="color: #808080; font-size: 14px;">N/A</span>'}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : `
+                        <div style="padding: 40px; text-align: center; color: #808080;">
+                            <p style="margin: 0; font-size: 14px;">No billing history available</p>
+                        </div>
+                    `}
+                </div>
+                
+                <!-- Account Information Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Account Information</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">User ID</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">#${user.id}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Registration Date</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${this.formatDate(user.created_at)}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Last Login</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${user.last_login ? this.formatDate(user.last_login) : 'Never'}</span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Email Verified</label>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${user.is_verified ? '#28A745' : '#FFC107'}; color: #fff;">
+                                ${user.is_verified ? 'Verified' : 'Pending Verification'}
+                            </span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Account Status</label>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${user.is_active ? '#28A745' : '#DC3545'}; color: #fff;">
+                                ${user.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Is Verified</label>
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 14px; background: ${user.is_verified ? '#28A745' : '#FFC107'}; color: #fff;">
+                                ${user.is_verified ? 'Yes' : 'No'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Role & Permissions Section -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #fff; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 8px;">Role & Permissions</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Current Role</label>
+                            <span style="display: inline-block; padding: 6px 16px; border-radius: 4px; font-size: 14px; background: #007BFF; color: #fff; font-weight: 500;">
+                                ${this.formatRole(role)}
+                            </span>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Access Level</label>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${role === 'admin' ? 'Administrator' : 'Standard User'}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
         
+        // Show modal with proper display style
+        modal.style.display = 'block';
         modal.classList.add('show');
+        
+        // Force update displayed values from API response after modal is shown
+        // Use the actual user object values (which should have phone/address from API)
+        setTimeout(() => {
+            console.log('setTimeout - Updating DOM with user object:', {
+                full_name: user.full_name,
+                company_name: user.company_name,
+                phone: user.phone,
+                phone_number: user.phone_number,
+                address: user.address,
+                street_address: user.street_address,
+                full_address: user.full_address
+            });
+            
+            // Direct updates using IDs (most reliable)
+            const phoneEl = document.getElementById('modal-personal-phone');
+            const addressEl = document.getElementById('modal-personal-address');
+            
+            if (phoneEl) {
+                const phoneValue = user.phone || user.phone_number || user.phoneNumber;
+                if (phoneValue && phoneValue !== 'N/A' && phoneValue !== 'null' && phoneValue !== 'undefined' && phoneValue !== null && phoneValue !== undefined) {
+                    phoneEl.textContent = phoneValue;
+                    console.log('Updated Phone Number (by ID) to:', phoneValue);
+                } else {
+                    console.log('Phone value not valid:', phoneValue, 'from user object:', user.phone, user.phone_number);
+                }
+            } else {
+                console.error('Phone element not found!');
+            }
+            
+            if (addressEl) {
+                const addressValue = user.address || user.street_address || user.full_address;
+                if (addressValue && addressValue !== 'Not provided' && addressValue !== 'null' && addressValue !== 'undefined' && addressValue !== null && addressValue !== undefined) {
+                    addressEl.textContent = addressValue;
+                    console.log('Updated Address (by ID) to:', addressValue);
+                } else {
+                    console.log('Address value not valid:', addressValue, 'from user object:', user.address, user.street_address, user.full_address);
+                }
+            } else {
+                console.error('Address element not found!');
+            }
+            
+            // Also update by label traversal as fallback
+            const allLabels = content.querySelectorAll('label');
+            allLabels.forEach(label => {
+                const labelText = label.textContent.trim();
+                const valueSpan = label.nextElementSibling;
+                
+                if (valueSpan && valueSpan.tagName === 'SPAN' && !valueSpan.id) {
+                    if (labelText === 'Full Name') {
+                        const fullNameValue = user.full_name || user.name || user.fullName || 'N/A';
+                        if (fullNameValue && fullNameValue !== 'N/A') {
+                            valueSpan.textContent = fullNameValue;
+                        }
+                    } else if (labelText === 'Company Name') {
+                        const companyValue = user.company_name || user.company || user.companyName || 'N/A';
+                        if (companyValue && companyValue !== 'N/A' && companyValue !== 'null') {
+                            valueSpan.textContent = companyValue;
+                        }
+                    }
+                }
+            });
+        }, 300);
+        
+        // Add click outside to close
+        const closeHandler = (e) => {
+            if (e.target === modal) {
+                this.hideUserDetailsModal();
+                modal.removeEventListener('click', closeHandler);
+            }
+        };
+        modal.addEventListener('click', closeHandler);
     }
 
     hideUserDetailsModal() {
         const modal = document.getElementById('user-details-modal');
-        modal.classList.remove('show');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+        }
     }
 
     async editUser(userId) {
-        // Implementation for editing user
-        console.log('Edit user:', userId);
+        const user = this.users.find(u => u.id === userId);
+        if (!user) {
+            this.showError('User not found');
+            return;
+        }
+        
+        // For now, show a prompt-based edit. Can be enhanced with a proper edit modal later
+        const newEmail = prompt('Enter new email address:', user.email);
+        if (!newEmail || newEmail === user.email) {
+            return;
+        }
+        
+        const newName = prompt('Enter new full name:', user.full_name || user.name);
+        if (!newName) {
+            return;
+        }
+        
+        const newCompany = prompt('Enter new company name:', user.company_name || user.company || '');
+        
+        try {
+            const updateData = {
+                email: newEmail,
+                full_name: newName,
+                company_name: newCompany || user.company_name || user.company
+            };
+            
+            await this.api.updateUser(userId, updateData);
+            this.showSuccess('User updated successfully');
+            // Reload users and refresh modal if open
+            await this.loadUsers();
+            // If modal is open for this user, refresh it
+            const modal = document.getElementById('user-details-modal');
+            if (modal && modal.dataset.userId == userId) {
+                this.viewUser(userId);
+            }
+        } catch (error) {
+            console.error('Failed to update user:', error);
+            this.showError('Failed to update user');
+        }
     }
 
     async toggleUserStatus(userId) {
+        const user = this.users.find(u => u.id === userId);
+        const action = user?.is_active ? 'suspend' : 'activate';
+        const confirmMessage = user?.is_active 
+            ? `Are you sure you want to suspend user ${user.email || userId}?`
+            : `Are you sure you want to activate user ${user.email || userId}?`;
+            
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
         try {
-            const user = this.users.find(u => u.id === userId);
             if (user.is_active) {
                 await this.api.deactivateUser(userId);
-                this.showSuccess('User deactivated successfully');
+                this.showSuccess('User suspended successfully');
             } else {
                 await this.api.activateUser(userId);
                 this.showSuccess('User activated successfully');
             }
-            this.loadUsers();
+            // Reload users and refresh modal if open
+            await this.loadUsers();
+            // If modal is open for this user, refresh it
+            const modal = document.getElementById('user-details-modal');
+            if (modal && modal.dataset.userId == userId) {
+                this.viewUser(userId);
+            }
         } catch (error) {
+            console.error('Failed to update user status:', error);
             this.showError('Failed to update user status');
         }
     }
@@ -886,15 +1375,22 @@ class UserManagement {
     }
 
     async deleteUser(userId) {
-        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        const user = this.users.find(u => u.id === userId);
+        const userName = user?.email || user?.full_name || `User #${userId}`;
+        
+        if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
             return;
         }
 
         try {
             await this.api.deleteUser(userId);
             this.showSuccess('User deleted successfully');
-            this.loadUsers();
+            // Close modal if open
+            this.hideUserDetailsModal();
+            // Reload users list
+            await this.loadUsers();
         } catch (error) {
+            console.error('Failed to delete user:', error);
             this.showError('Failed to delete user');
         }
     }

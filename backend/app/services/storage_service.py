@@ -47,8 +47,12 @@ class DigitalOceanSpacesService:
             )
         self.region = os.getenv("DO_SPACES_REGION", "atl1")
         self.bucket = os.getenv("DO_SPACES_BUCKET", "crane-intelligence-storage")
+        # Direct endpoint: https://{region}.digitaloceanspaces.com
         self.endpoint = os.getenv("DO_SPACES_ENDPOINT", f"https://{self.region}.digitaloceanspaces.com")
-        self.cdn_endpoint = os.getenv("DO_SPACES_CDN_ENDPOINT", f"https://{self.bucket}.{self.region}.cdn.digitaloceanspaces.com")
+        # CDN endpoint: Use bucket subdomain format for public access
+        # Format: https://{bucket}.{region}.digitaloceanspaces.com
+        # This matches the expected format: https://crane-intelligence-storage.atl1.digitaloceanspaces.com
+        self.cdn_endpoint = os.getenv("DO_SPACES_CDN_ENDPOINT", f"https://{self.bucket}.{self.region}.digitaloceanspaces.com")
         
         # Get environment name (dev, uat, prod) to prefix folder paths
         self.environment = os.getenv("ENVIRONMENT", "prod").lower()
@@ -75,7 +79,13 @@ class DigitalOceanSpacesService:
                 region_name=self.region,
                 config=config
             )
-            logger.info(f"DigitalOcean Spaces client initialized for bucket: {self.bucket} (environment: {self.environment})")
+            logger.info(f"✅ DigitalOcean Spaces client initialized successfully:")
+            logger.info(f"   Bucket: {self.bucket}")
+            logger.info(f"   Region: {self.region}")
+            logger.info(f"   Environment: {self.environment}")
+            logger.info(f"   Endpoint: {self.endpoint}")
+            logger.info(f"   CDN Endpoint: {self.cdn_endpoint}")
+            logger.info(f"   Access Key: {self.access_key[:10]}... (masked)")
     
     def upload_file(
         self,
@@ -111,18 +121,50 @@ class DigitalOceanSpacesService:
                 content_type = self._get_content_type(filename)
             
             # Upload to Spaces
-            self.s3_client.put_object(
-                Bucket=self.bucket,
-                Key=file_key,
-                Body=file_content,
-                ContentType=content_type,
-                ACL='public-read'  # Make files publicly accessible via CDN
-            )
+            try:
+                # Try with ACL first, fallback without ACL if it fails (some buckets don't allow ACL)
+                try:
+                    self.s3_client.put_object(
+                        Bucket=self.bucket,
+                        Key=file_key,
+                        Body=file_content,
+                        ContentType=content_type,
+                        ACL='public-read'  # Make files publicly accessible via CDN
+                    )
+                    logger.info(f"✅ Successfully uploaded file to Spaces bucket '{self.bucket}' with key: {file_key} (with ACL)")
+                except ClientError as acl_error:
+                    # If ACL fails, try without ACL (bucket might have ACL disabled)
+                    if "InvalidArgument" in str(acl_error) or "AccessControlListNotSupported" in str(acl_error):
+                        logger.warning(f"⚠️ ACL not supported, uploading without ACL: {acl_error}")
+                        self.s3_client.put_object(
+                            Bucket=self.bucket,
+                            Key=file_key,
+                            Body=file_content,
+                            ContentType=content_type
+                        )
+                        logger.info(f"✅ Successfully uploaded file to Spaces bucket '{self.bucket}' with key: {file_key} (without ACL)")
+                    else:
+                        # Re-raise if it's a different error
+                        raise
+            except ClientError as upload_error:
+                error_code = upload_error.response.get('Error', {}).get('Code', 'Unknown')
+                error_message = upload_error.response.get('Error', {}).get('Message', str(upload_error))
+                logger.error(f"❌ Failed to upload file to Spaces: {error_code} - {error_message}", exc_info=True)
+                raise RuntimeError(f"Failed to upload file to DigitalOcean Spaces: {error_code} - {error_message}")
             
-            # Generate CDN URL
+            # Generate CDN URL using bucket subdomain format
+            # Format: https://{bucket}.{region}.digitaloceanspaces.com/{file_key}
             cdn_url = f"{self.cdn_endpoint}/{file_key}"
             
-            logger.info(f"File uploaded to Spaces [{self.environment}]: {file_key} -> {cdn_url}")
+            # Verify the URL format is correct
+            logger.info(f"📎 File uploaded to Spaces [{self.environment}]:")
+            logger.info(f"   Bucket: {self.bucket}")
+            logger.info(f"   Region: {self.region}")
+            logger.info(f"   File Key: {file_key}")
+            logger.info(f"   CDN URL: {cdn_url}")
+            logger.info(f"   Endpoint: {self.endpoint}")
+            logger.info(f"   CDN Endpoint: {self.cdn_endpoint}")
+            
             return cdn_url
             
         except ClientError as e:
@@ -263,6 +305,22 @@ def get_storage_service() -> DigitalOceanSpacesService:
     """Get or create storage service singleton"""
     global _storage_service
     if _storage_service is None:
-        _storage_service = DigitalOceanSpacesService()
+        try:
+            _storage_service = DigitalOceanSpacesService()
+            # Verify initialization was successful
+            if not _storage_service.s3_client:
+                logger.error("❌ Storage service created but s3_client is None. Check credentials.")
+                # Try to re-initialize (in case env vars were set after first attempt)
+                _storage_service = DigitalOceanSpacesService()
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize storage service: {e}", exc_info=True)
+            raise
+    # Double-check that s3_client is initialized
+    if not _storage_service.s3_client:
+        logger.warning("⚠️ Storage service s3_client is None. Attempting re-initialization...")
+        try:
+            _storage_service = DigitalOceanSpacesService()
+        except Exception as e:
+            logger.error(f"❌ Re-initialization failed: {e}", exc_info=True)
     return _storage_service
 

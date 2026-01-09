@@ -2228,8 +2228,25 @@
             window.bulkProcessingFileName = file.name; // Store original file name for display
             console.log('📎 Bulk processing file stored:', file.name, 'Size:', file.size, 'bytes');
             
-            // Show the file display immediately
-            displayUploadedBulkFile(file.name, null, 'Processing file...');
+            // Show the file display immediately (even before upload)
+            // This ensures the user sees that the file was selected
+            console.log('📎 Attempting to display file immediately after selection...');
+            if (typeof window.displayUploadedBulkFile === 'function') {
+                console.log('✅ Calling window.displayUploadedBulkFile...');
+                window.displayUploadedBulkFile(file.name, null, 'Processing file...');
+            } else if (typeof displayUploadedBulkFile === 'function') {
+                console.log('✅ Calling displayUploadedBulkFile (without window)...');
+                displayUploadedBulkFile(file.name, null, 'Processing file...');
+            } else {
+                console.error('❌ displayUploadedBulkFile function not available. Available functions:', Object.keys(window).filter(k => k.includes('display') || k.includes('bulk')));
+                // Try to call it after a short delay in case it's defined later
+                setTimeout(() => {
+                    if (typeof window.displayUploadedBulkFile === 'function') {
+                        console.log('✅ displayUploadedBulkFile now available, calling it...');
+                        window.displayUploadedBulkFile(file.name, null, 'Processing file...');
+                    }
+                }, 100);
+            }
             
             const uploadArea = document.getElementById('uploadArea');
             if (!uploadArea) {
@@ -2400,7 +2417,14 @@
                                 
                                 // Display uploaded file above "Select Report Type" section
                                 const originalFileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : null) || fileName;
-                                displayUploadedBulkFile(originalFileName, window.bulkFileUrl, 'Uploaded successfully to Digital Ocean Spaces + CDN');
+                                // CRITICAL: Ensure displayUploadedBulkFile is available and call it
+                                if (typeof window.displayUploadedBulkFile === 'function') {
+                                    window.displayUploadedBulkFile(originalFileName, window.bulkFileUrl, 'Uploaded successfully to Digital Ocean Spaces + CDN');
+                                } else if (typeof displayUploadedBulkFile === 'function') {
+                                    displayUploadedBulkFile(originalFileName, window.bulkFileUrl, 'Uploaded successfully to Digital Ocean Spaces + CDN');
+                                } else {
+                                    console.error('❌ displayUploadedBulkFile function not available');
+                                }
                                 
                                 if (uploadArea) {
                                     const displayFileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : null) || fileName;
@@ -2424,7 +2448,9 @@
                             
                             // Still show the file display even if upload failed
                             const originalFileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : null) || fileName;
-                            displayUploadedBulkFile(originalFileName, null, 'Upload failed - will retry on form submission');
+                            if (typeof window.displayUploadedBulkFile === 'function') {
+                                window.displayUploadedBulkFile(originalFileName, null, 'Upload failed - will retry on form submission');
+                            }
                             
                             if (uploadArea) {
                                 const currentHTML = uploadArea.innerHTML;
@@ -2436,7 +2462,9 @@
                         
                         // Still show the file display even if upload failed
                         const originalFileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : null) || fileName;
-                        displayUploadedBulkFile(originalFileName, null, 'Upload error - will retry on form submission');
+                        if (typeof window.displayUploadedBulkFile === 'function') {
+                            window.displayUploadedBulkFile(originalFileName, null, 'Upload error - will retry on form submission');
+                        }
                         
                         if (uploadArea) {
                             const currentHTML = uploadArea.innerHTML;
@@ -2509,39 +2537,91 @@
         
         // Function to display uploaded bulk file above "Select Report Type" section
         window.displayUploadedBulkFile = function(fileName, fileUrl, statusMessage) {
+            console.log('🔍 displayUploadedBulkFile called with:', { fileName, fileUrl, statusMessage });
+            
             const uploadedFileDisplay = document.getElementById('uploadedFileDisplay');
             const uploadedFileName = document.getElementById('uploadedFileName');
             const uploadedFileViewLink = document.getElementById('uploadedFileViewLink');
             
             if (!uploadedFileDisplay) {
-                console.error('❌ uploadedFileDisplay element not found');
+                console.error('❌ uploadedFileDisplay element not found. Searching for alternatives...');
+                // Try to find the element with different methods
+                const allElements = document.querySelectorAll('[id*="uploaded"], [id*="bulk"], [id*="file"]');
+                console.log('Available elements with "uploaded", "bulk", or "file" in ID:', Array.from(allElements).map(el => el.id));
                 return;
             }
+            
+            console.log('✅ uploadedFileDisplay element found:', {
+                id: uploadedFileDisplay.id,
+                currentDisplay: uploadedFileDisplay.style.display,
+                computedDisplay: window.getComputedStyle(uploadedFileDisplay).display,
+                parentElement: uploadedFileDisplay.parentElement ? uploadedFileDisplay.parentElement.id : 'none'
+            });
+            
+            console.log('📎 displayUploadedBulkFile called:', {
+                fileName: fileName,
+                fileUrl: fileUrl,
+                statusMessage: statusMessage,
+                elementFound: !!uploadedFileDisplay,
+                currentDisplay: uploadedFileDisplay.style.display,
+                parentVisible: uploadedFileDisplay.parentElement ? window.getComputedStyle(uploadedFileDisplay.parentElement).display !== 'none' : 'N/A'
+            });
             
             if (uploadedFileName) {
                 uploadedFileName.textContent = fileName || 'Uploaded file';
             }
             
             if (uploadedFileViewLink) {
-                if (fileUrl) {
+                if (fileUrl && fileUrl.trim() !== '') {
                     uploadedFileViewLink.href = fileUrl;
-                    uploadedFileViewLink.style.display = 'inline-block';
+                    uploadedFileViewLink.style.display = 'inline-flex';
+                    console.log('✅ View link set to:', fileUrl);
                 } else {
                     uploadedFileViewLink.href = '#';
                     uploadedFileViewLink.style.display = 'none'; // Hide view button if no URL
+                    console.log('⚠️ No file URL provided, hiding view link');
                 }
                 uploadedFileViewLink.target = '_blank';
             }
             
-            // Show the display section
+            // CRITICAL: Show the display section - ensure it's visible with multiple methods
             uploadedFileDisplay.style.display = 'block';
+            uploadedFileDisplay.style.visibility = 'visible';
+            uploadedFileDisplay.style.opacity = '1';
+            uploadedFileDisplay.removeAttribute('hidden');
+            
+            // Ensure parent containers are also visible
+            let parent = uploadedFileDisplay.parentElement;
+            while (parent && parent !== document.body) {
+                const parentStyle = window.getComputedStyle(parent);
+                if (parentStyle.display === 'none') {
+                    console.warn('⚠️ Parent container is hidden:', parent.id || parent.className);
+                    parent.style.display = 'block';
+                }
+                parent = parent.parentElement;
+            }
+            
+            // Force a reflow to ensure visibility
+            uploadedFileDisplay.offsetHeight;
             
             // Scroll to the uploaded file display to make it visible
             setTimeout(() => {
-                uploadedFileDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                try {
+                    uploadedFileDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (e) {
+                    console.warn('⚠️ Could not scroll to uploaded file display:', e);
+                }
             }, 100);
             
-            console.log('✅ Displayed uploaded file above Select Report Type section:', fileName, fileUrl || 'No URL (will upload on form submission)');
+            console.log('✅ Displayed uploaded file above Select Report Type section:', {
+                fileName: fileName,
+                fileUrl: fileUrl || 'No URL (will upload on form submission)',
+                displayVisible: uploadedFileDisplay.style.display,
+                visibility: uploadedFileDisplay.style.visibility,
+                opacity: uploadedFileDisplay.style.opacity,
+                viewLinkVisible: uploadedFileViewLink ? uploadedFileViewLink.style.display : 'N/A',
+                elementInDOM: document.body.contains(uploadedFileDisplay)
+            });
         }
         
         // Function to remove uploaded bulk file
@@ -2614,12 +2694,12 @@
                 <form id="reportForm" novalidate>
                                         <!-- Equipment Information Section -->
                     <div class="form-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                            <h2 class="section-title" style="margin: 0;">Equipment Information</h2>
-                            <!-- Tab Navigation (Single Valuation / Bulk Processing) - Only for Equipment Information -->
-                            <div class="tab-navigation" style="display: flex; gap: 0;">
-                                <button class="tab-btn active" id="singleValuationTab" onclick="switchValuationTab('single', this)" style="background: #2A2A2A; color: #FFFFFF; border: 1px solid #404040; padding: 12px 24px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; font-weight: 500; border-radius: 8px 0 0 8px; font-size: 14px;">Single Valuation</button>
-                                <button class="tab-btn" id="bulkProcessingTab" onclick="switchValuationTab('bulk', this)" style="background: #2A2A2A; color: #FFFFFF; border: 1px solid #404040; border-left: none; padding: 12px 24px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; font-weight: 500; border-radius: 0 8px 8px 0; position: relative; font-size: 14px; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;">
+                        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; gap: 24px;">
+                            <h2 class="section-title" style="margin: 0; text-align: center; width: 100%;">Equipment Information</h2>
+                            <!-- Tab Navigation (Single Valuation / Bulk Processing) - Centered and Prominent -->
+                            <div class="tab-navigation" style="display: flex; gap: 0; justify-content: center; width: 100%; max-width: 600px; margin: 0 auto;">
+                                <button class="tab-btn active" id="singleValuationTab" onclick="switchValuationTab('single', this)" style="background: #2A2A2A; color: #FFFFFF; border: 1px solid #404040; padding: 16px 32px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 8px 0 0 8px; font-size: 16px; white-space: nowrap; flex: 1; min-width: 200px; text-align: center;">Single Valuation</button>
+                                <button class="tab-btn" id="bulkProcessingTab" onclick="switchValuationTab('bulk', this)" style="background: #2A2A2A; color: #FFFFFF; border: 1px solid #404040; border-left: none; padding: 16px 32px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 0 8px 8px 0; font-size: 16px; white-space: nowrap; flex: 1; min-width: 200px; text-align: center;">
                                     📊 Bulk Processing
                                 </button>
                             </div>
@@ -5807,6 +5887,24 @@ window.saveManualEntry = async function() {
             safeStorage.setItem('manual_entry_service_record_urls', JSON.stringify(serviceRecordFileUrls));
         }
         
+        // CRITICAL: Remove required attributes from Equipment Information fields
+        // This ensures Equipment Information section doesn't block report creation when manual entry is used
+        const equipmentFields = ['craneType', 'manufacturer', 'model', 'year', 'capacity', 'operatingHours', 'region'];
+        equipmentFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Store original required state if not already stored
+                if (field.hasAttribute('required') && !field.hasAttribute('data-was-required')) {
+                    field.setAttribute('data-was-required', 'true');
+                }
+                // Remove required attribute to prevent browser validation
+                field.removeAttribute('required');
+                // Also set required property to false for extra safety
+                field.required = false;
+            }
+        });
+        console.log('✅ Removed required attributes from Equipment Information fields after saving manual entry');
+        
         console.log('✅ Manual entry data stored locally (draft will be created on Purchase):', {
             manualEntryData: manualEntryData,
             serviceRecordFileUrls: serviceRecordFileUrls
@@ -6196,7 +6294,70 @@ function getCraneSpecifications(manufacturer, model) {
 
 // Make loadSampleData globally available
 window.loadSampleData = function loadSampleData() {
-    // Sample data
+    console.log('📊 Loading sample data - clearing all past data first');
+    
+    const safeStorage = window.safeStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+    
+    // CRITICAL: Clear all manual entry data and draft data to ensure fresh start
+    // This prevents sample data from being treated as manual entry
+    try {
+        safeStorage.removeItem('manual_entry_data');
+        safeStorage.removeItem('manual_entry_service_record_urls');
+        safeStorage.removeItem('continue_draft');
+        safeStorage.removeItem('continue_draft_data');
+        // CRITICAL: Only clear current_draft_report_id if NOT continuing from dashboard
+        // If user is continuing from dashboard, we want to keep the draft ID
+        const continueDraftId = safeStorage.getItem('continue_draft');
+        if (!continueDraftId) {
+            safeStorage.removeItem('current_draft_report_id');
+            console.log('✅ Cleared current_draft_report_id (not continuing from dashboard)');
+        } else {
+            console.log('⚠️ Keeping current_draft_report_id (continuing from dashboard)');
+        }
+        console.log('✅ Cleared all manual entry and draft data from localStorage');
+    } catch (e) {
+        console.warn('⚠️ Could not clear localStorage items:', e);
+    }
+    
+    // CRITICAL: Clear window variables to ensure fresh start
+    window.manualEntryData = null;
+    window.manualEntryServiceRecordUrls = null;
+    window.bulkProcessingData = null;
+    window.bulkProcessingFile = null;
+    window.bulkFileUrl = null;
+    window.serviceRecordFiles = [];
+    
+    // CRITICAL: Clear any existing draft report ID unless continuing from dashboard
+    const continueDraftId = safeStorage.getItem('continue_draft');
+    if (!continueDraftId) {
+        window.currentDraftReportId = null;
+    }
+    
+    // Reset form first to clear any existing values
+    const reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.reset();
+    }
+    
+    // Clear manual entry form
+    const fallbackForm = document.getElementById('fallbackForm');
+    if (fallbackForm) {
+        fallbackForm.reset();
+    }
+    
+    // Clear service record files display
+    const selectedFilesDiv = document.getElementById('selectedFiles');
+    if (selectedFilesDiv) {
+        selectedFilesDiv.innerHTML = '';
+    }
+    
+    // Clear bulk file display
+    const uploadedFileDisplay = document.getElementById('uploadedFileDisplay');
+    if (uploadedFileDisplay) {
+        uploadedFileDisplay.style.display = 'none';
+    }
+    
+    // Sample data - fill form fields
     const manufacturerEl = document.getElementById('manufacturer');
     if (manufacturerEl) {
         manufacturerEl.value = 'Liebherr';
@@ -6223,8 +6384,16 @@ window.loadSampleData = function loadSampleData() {
         if (regionEl) regionEl.value = 'North America';
         // Removed fields: jibIncluded, jibLength, askingPrice
         
+        console.log('✅ Sample data loaded - form fields populated');
+        console.log('📋 State after loading sample data:', {
+            hasManualEntryData: !!window.manualEntryData,
+            hasManualEntryServiceRecordUrls: !!window.manualEntryServiceRecordUrls,
+            currentDraftReportId: window.currentDraftReportId,
+            continueDraftId: safeStorage.getItem('continue_draft')
+        });
+        
         if (window.notificationSystem) {
-            window.notificationSystem.showSuccess('Sample Data Loaded', 'Sample crane data has been populated in the form.');
+            window.notificationSystem.showSuccess('Sample Data Loaded', 'Sample crane data has been populated in the form. All past data has been cleared.');
         }
     }, 100);
 }
@@ -6354,6 +6523,56 @@ function getUserEmail() {
     }
     
     return null;
+}
+
+// Helper function to get user's full name from account settings
+function getUserFullName() {
+    // Try to get from unified auth
+    if (window.unifiedAuth && window.unifiedAuth.user && window.unifiedAuth.user.full_name) {
+        return window.unifiedAuth.user.full_name;
+    }
+    
+    // Try user_data (main auth system)
+    const user = getUserData();
+    if (user && user.full_name) {
+        return user.full_name;
+    }
+    
+    // Fallback to currentUser
+    const currentUser = safeStorage.getItem('currentUser');
+    if (currentUser) {
+        try {
+            const user = JSON.parse(currentUser);
+            if (user.full_name) return user.full_name;
+        } catch (e) {
+            console.error('Error parsing currentUser:', e);
+        }
+    }
+    
+    return null;
+}
+
+// Helper function to prefill payment modal fields from user account settings
+function prefillPaymentModalFields() {
+    // Pre-fill email from user account settings
+    const userEmail = getUserEmail() || safeStorage.getItem('user_email') || '';
+    if (userEmail) {
+        const receiptEmailInput = document.getElementById('receiptEmail');
+        if (receiptEmailInput && !receiptEmailInput.value) {
+            receiptEmailInput.value = userEmail;
+            console.log('✅ Pre-filled receipt email from account settings:', userEmail);
+        }
+    }
+    
+    // Pre-fill cardholder name from user account settings
+    const userFullName = getUserFullName();
+    if (userFullName) {
+        const cardholderNameInput = document.getElementById('cardholderName');
+        if (cardholderNameInput && !cardholderNameInput.value) {
+            cardholderNameInput.value = userFullName;
+            console.log('✅ Pre-filled cardholder name from account settings:', userFullName);
+        }
+    }
 }
 
 // Refresh user data from backend after subscription upgrade
@@ -6707,10 +6926,21 @@ async function loadDraftIfExists() {
     if (!continueDraftId) {
         console.log('📄 Normal page load - no continue_draft flag, skipping draft load');
         // Still load stored draft report ID silently (for payment flow) but don't prefill form
+        // CRITICAL: Only load numeric database IDs, not local draft keys (draft_*)
         const storedDraftReportId = safeStorage.getItem('current_draft_report_id');
-        if (storedDraftReportId) {
-            window.currentDraftReportId = storedDraftReportId;
-            console.log('💾 Loaded draft ID silently for payment flow:', storedDraftReportId);
+        if (storedDraftReportId && !String(storedDraftReportId).startsWith('draft_')) {
+            const parsedId = parseInt(storedDraftReportId, 10);
+            if (!isNaN(parsedId)) {
+                window.currentDraftReportId = parsedId;
+                console.log('💾 Loaded draft ID silently for payment flow:', parsedId);
+            } else {
+                // Invalid format - clear it
+                safeStorage.removeItem('current_draft_report_id');
+            }
+        } else if (storedDraftReportId && String(storedDraftReportId).startsWith('draft_')) {
+            // Local draft key found - clear it as it's not a database ID
+            safeStorage.removeItem('current_draft_report_id');
+            console.log('⚠️ Cleared local draft key from current_draft_report_id (not a database ID)');
         }
         return; // Exit early - don't load or prefill anything
     }
@@ -8419,9 +8649,16 @@ function saveDraft() {
         safeStorage.setItem('fmv_draft_reports', JSON.stringify(drafts));
         
         // Store the draft ID for future updates
-        if (draft.id) {
+        // CRITICAL: Only store database report IDs (numeric), not local draft keys (draft_*)
+        // Local draft keys are for localStorage only, not for database operations
+        if (draft.id && !String(draft.id).startsWith('draft_')) {
+            // This is a database report ID (numeric)
             window.currentDraftReportId = draft.id;
             safeStorage.setItem('current_draft_report_id', String(draft.id));
+        } else if (draft.id && String(draft.id).startsWith('draft_')) {
+            // This is a local draft key - don't store it in current_draft_report_id
+            // It's only for localStorage draft management
+            console.log('💾 Local draft saved (not a database ID):', draft.id);
         }
         
         console.log('💾 Draft saved successfully:', draft.id);
@@ -8732,9 +8969,84 @@ window.purchaseReport = async function() {
     }
     
     // Check if manual entry was used (data stored from saveManualEntry)
-    // Note: We check for manualEntryData directly, not draft ID, since Save button no longer creates draft
-    // CRITICAL: Use !! to ensure boolean conversion - check both window and localStorage
-    const isManualEntry = !!(window.manualEntryData || safeStorage.getItem('manual_entry_data'));
+    // CRITICAL: Only treat as manual entry if:
+    // 1. User explicitly saved manual entry (window.manualEntryData exists with is_manual_entry flag), AND
+    // 2. User is NOT loading sample data (sample data should never be treated as manual entry)
+    // 3. OR user is continuing from a draft (continue_draft flag exists)
+    const isManualEntry = (() => {
+        // CRITICAL: Check if user is continuing from dashboard - if so, check draft data
+        const continueDraftId = safeStorage.getItem('continue_draft');
+        if (continueDraftId) {
+            // User is continuing from dashboard - check if draft has manual entry flag
+            const continueDraftData = safeStorage.getItem('continue_draft_data');
+            if (continueDraftData) {
+                try {
+                    const draftData = JSON.parse(continueDraftData);
+                    const craneData = draftData.crane_data || draftData.crane_details || {};
+                    if (craneData.is_manual_entry === true) {
+                        console.log('✅ Continuing from draft with manual entry flag');
+                        // Restore manual entry data from draft
+                        if (!window.manualEntryData && craneData) {
+                            window.manualEntryData = craneData;
+                        }
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Error parsing continue_draft_data:', e);
+                }
+            }
+        }
+        
+        // Check window.manualEntryData (from saveManualEntry)
+        if (window.manualEntryData) {
+            // CRITICAL: Verify this is actually manual entry data, not just form data
+            // Manual entry data should have is_manual_entry flag or come from saveManualEntry
+            if (window.manualEntryData.is_manual_entry === true || window.manualEntryData.serial_number !== undefined) {
+                return true;
+            }
+        }
+        
+        // Check localStorage for manual entry data (only if not continuing from draft)
+        // CRITICAL: Don't use localStorage manual entry data if user just loaded sample data
+        // Sample data should never be treated as manual entry
+        if (!continueDraftId) {
+            const storedManualEntry = safeStorage.getItem('manual_entry_data');
+            if (storedManualEntry) {
+                try {
+                    const parsed = JSON.parse(storedManualEntry);
+                    // Only treat as manual entry if it has manual entry indicators
+                    if (parsed.is_manual_entry === true || parsed.serial_number !== undefined) {
+                        window.manualEntryData = parsed;
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Error parsing stored manual entry data:', e);
+                }
+            }
+        }
+        
+        return false;
+    })();
+    
+    // CRITICAL: If manual entry is active, remove required attributes from Equipment Information fields
+    // This prevents browser validation from blocking report creation
+    if (isManualEntry) {
+        const equipmentFields = ['craneType', 'manufacturer', 'model', 'year', 'capacity', 'operatingHours', 'region'];
+        equipmentFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Store original required state if not already stored
+                if (field.hasAttribute('required') && !field.hasAttribute('data-was-required')) {
+                    field.setAttribute('data-was-required', 'true');
+                }
+                // Remove required attribute to prevent browser validation
+                field.removeAttribute('required');
+                // Also set required property to false for extra safety
+                field.required = false;
+            }
+        });
+        console.log('✅ Removed required attributes from Equipment Information fields for manual entry');
+    }
     
     console.log('🔍 Manual entry check (early):', {
         windowManualEntryData: !!window.manualEntryData,
@@ -9099,6 +9411,7 @@ window.purchaseReport = async function() {
             if (storedManualEntry) {
                 try {
                     window.manualEntryData = JSON.parse(storedManualEntry);
+                    console.log('✅ Restored manual entry data from localStorage in purchaseReport');
                 } catch (e) {
                     console.error('Error parsing stored manual entry data:', e);
                 }
@@ -9111,11 +9424,23 @@ window.purchaseReport = async function() {
             if (storedUrls) {
                 try {
                     window.manualEntryServiceRecordUrls = JSON.parse(storedUrls);
+                    console.log('✅ Restored manual entry service record URLs from localStorage:', window.manualEntryServiceRecordUrls);
                 } catch (e) {
                     console.error('Error parsing stored service record URLs:', e);
                 }
             }
         }
+        
+        // CRITICAL: Log current state of all file URL sources
+        console.log('📎 [purchaseReport] File URL sources check:', {
+            window_manualEntryServiceRecordUrls: window.manualEntryServiceRecordUrls,
+            window_manualEntryServiceRecordUrls_count: window.manualEntryServiceRecordUrls ? window.manualEntryServiceRecordUrls.length : 0,
+            window_bulkFileUrl: window.bulkFileUrl,
+            window_serviceRecordFiles: window.serviceRecordFiles ? window.serviceRecordFiles.length : 0,
+            isManualEntry: isManualEntry,
+            isBulkMode: isBulkMode,
+            serviceRecordFileUrls_initial: serviceRecordFileUrls.length
+        });
         
         // CRITICAL: For bulk processing, upload the bulk file to Digital Ocean Spaces + CDN
         // First check if we already have the URL from a previous upload
@@ -9178,18 +9503,164 @@ window.purchaseReport = async function() {
         }
         
         // CRITICAL: Preserve bulk file URL when merging manual entry service record URLs
+        // Also check localStorage for manual entry service record URLs
+        if (!window.manualEntryServiceRecordUrls || window.manualEntryServiceRecordUrls.length === 0) {
+            const storedUrls = safeStorage.getItem('manual_entry_service_record_urls');
+            if (storedUrls) {
+                try {
+                    window.manualEntryServiceRecordUrls = JSON.parse(storedUrls);
+                    console.log('✅ Restored manual entry service record URLs from localStorage:', window.manualEntryServiceRecordUrls);
+                } catch (e) {
+                    console.error('Error parsing stored service record URLs:', e);
+                }
+            }
+        }
+        
+        // CRITICAL: Upload service record files for ALL report types (spot check, professional, fleet)
+        // First, check if we have manual entry URLs (already uploaded)
         if (window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0) {
             // Use restored service record URLs from manual entry (when continuing from draft)
             // Merge with existing serviceRecordFileUrls (which may include bulk file URL)
             const manualUrls = window.manualEntryServiceRecordUrls.filter(url => url && url.trim() !== '');
             serviceRecordFileUrls = [...serviceRecordFileUrls, ...manualUrls];
+            console.log('✅ Merged manual entry service record URLs:', {
+                manualUrls: manualUrls,
+                totalFiles: serviceRecordFileUrls.length,
+                allFiles: serviceRecordFileUrls
+            });
             // Ensure bulk file URL is still included if it was added earlier
             if (isBulkMode && bulkFileUrl && !serviceRecordFileUrls.includes(bulkFileUrl)) {
                 serviceRecordFileUrls.push(bulkFileUrl);
                 console.log('✅ Re-added bulk file URL after merging manual entry URLs:', bulkFileUrl);
             }
-        } else if (window.serviceRecordFiles && window.serviceRecordFiles.length > 0) {
-            // New files uploaded - upload them now if not already uploaded
+        }
+        
+        // CRITICAL: For ALL report types, upload service record files if they exist and haven't been uploaded yet
+        // This ensures files are uploaded for spot check, professional, and fleet valuation reports
+        if (window.serviceRecordFiles && window.serviceRecordFiles.length > 0) {
+            // Check if files are already uploaded (have URLs)
+            const filesToUpload = window.serviceRecordFiles.filter(file => {
+                // If we already have URLs for these files, skip upload
+                // This is a simple check - in production, you might want more sophisticated matching
+                return true; // Upload all files for now
+            });
+            
+            if (filesToUpload.length > 0) {
+                console.log(`📤 Uploading ${filesToUpload.length} service record file(s) to Digital Ocean Spaces...`);
+                try {
+                    const formData = new FormData();
+                    filesToUpload.forEach((file) => {
+                        formData.append('files', file);
+                    });
+                    
+                    const token = safeStorage.getItem('access_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('auth_token');
+                    const uploadResponse = await fetch('/api/v1/fmv-reports/upload-service-records', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: formData
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        const uploadedFiles = uploadResult.files || [];
+                        console.log('✅ Service record files uploaded successfully:', {
+                            count: uploadedFiles.length,
+                            urls: uploadedFiles
+                        });
+                        
+                        // CRITICAL: Verify we have URLs before proceeding
+                        if (uploadedFiles.length === 0) {
+                            console.error('❌ File upload succeeded but no URLs returned:', uploadResult);
+                        } else {
+                            // Merge with existing serviceRecordFileUrls (which may include bulk file URL or manual entry URLs)
+                            uploadedFiles.forEach(url => {
+                                if (url && url.trim() !== '' && !serviceRecordFileUrls.includes(url)) {
+                                    serviceRecordFileUrls.push(url);
+                                }
+                            });
+                            console.log('✅ Added uploaded service record file URLs:', {
+                                uploadedCount: uploadedFiles.length,
+                                totalFiles: serviceRecordFileUrls.length,
+                                allFiles: serviceRecordFileUrls
+                            });
+                        }
+                        
+                        // Ensure bulk file URL is still included if it was added earlier
+                        if (isBulkMode && bulkFileUrl && !serviceRecordFileUrls.includes(bulkFileUrl)) {
+                            serviceRecordFileUrls.push(bulkFileUrl);
+                            console.log('✅ Re-added bulk file URL after uploading service record files:', bulkFileUrl);
+                        }
+                        
+                        // Store for later use (for manual entry or future reference)
+                        if (!window.manualEntryServiceRecordUrls) {
+                            window.manualEntryServiceRecordUrls = [];
+                        }
+                        uploadedFiles.forEach(url => {
+                            if (url && url.trim() !== '' && !window.manualEntryServiceRecordUrls.includes(url)) {
+                                window.manualEntryServiceRecordUrls.push(url);
+                            }
+                        });
+                    } else {
+                        const errorText = await uploadResponse.text().catch(() => 'Unknown error');
+                        console.error('❌ File upload failed:', {
+                            status: uploadResponse.status,
+                            statusText: uploadResponse.statusText,
+                            error: errorText
+                        });
+                        if (window.notificationSystem) {
+                            window.notificationSystem.showError('Upload Failed', 'Failed to upload service record files. Please try again.');
+                        }
+                    }
+                } catch (uploadError) {
+                    console.error('❌ Error uploading service record files:', uploadError);
+                    if (window.notificationSystem) {
+                        window.notificationSystem.showError('Upload Error', 'An error occurred while uploading files. Please try again.');
+                    }
+                    // Continue without files - don't block report creation
+                }
+            }
+        }
+        
+        // CRITICAL: Final verification - ensure bulk file URL is in serviceRecordFileUrls for bulk processing
+        if (isBulkMode && bulkFileUrl && (!serviceRecordFileUrls || !serviceRecordFileUrls.includes(bulkFileUrl))) {
+            if (!serviceRecordFileUrls) {
+                serviceRecordFileUrls = [];
+            }
+            serviceRecordFileUrls.push(bulkFileUrl);
+            console.log('✅ Final verification: Added bulk file URL to service_record_files:', {
+                bulkFileUrl: bulkFileUrl,
+                serviceRecordFileUrls: serviceRecordFileUrls
+            });
+        }
+        
+        // CRITICAL: Final check - ensure manual entry service record URLs are included
+        if (isManualEntry && window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0) {
+            window.manualEntryServiceRecordUrls.forEach(url => {
+                if (url && url.trim() !== '' && !serviceRecordFileUrls.includes(url)) {
+                    serviceRecordFileUrls.push(url);
+                    console.log('✅ Final verification: Added manual entry service record URL:', url);
+                }
+            });
+        }
+        
+        // CRITICAL: Log final serviceRecordFileUrls before creating reportData
+        console.log('📎 [purchaseReport] Final serviceRecordFileUrls before creating reportData:', {
+            count: serviceRecordFileUrls.length,
+            files: serviceRecordFileUrls,
+            isBulkMode: isBulkMode,
+            isManualEntry: isManualEntry,
+            bulkFileUrl: bulkFileUrl || window.bulkFileUrl,
+            manualEntryServiceRecordUrls: window.manualEntryServiceRecordUrls,
+            window_serviceRecordFiles_count: window.serviceRecordFiles ? window.serviceRecordFiles.length : 0,
+            hasFilesToUpload: window.serviceRecordFiles && window.serviceRecordFiles.length > 0
+        });
+        
+        // CRITICAL: Final check - if we still have files to upload but no URLs, upload them now
+        // This ensures files are uploaded even if the previous upload logic didn't catch them
+        if (window.serviceRecordFiles && window.serviceRecordFiles.length > 0 && serviceRecordFileUrls.length === 0) {
+            console.warn('⚠️ Files exist but no URLs found - attempting upload now...');
             try {
                 const formData = new FormData();
                 window.serviceRecordFiles.forEach((file) => {
@@ -9208,34 +9679,14 @@ window.purchaseReport = async function() {
                 if (uploadResponse.ok) {
                     const uploadResult = await uploadResponse.json();
                     const uploadedFiles = uploadResult.files || [];
-                    // Merge with existing serviceRecordFileUrls (which may include bulk file URL)
-                    serviceRecordFileUrls = [...serviceRecordFileUrls, ...uploadedFiles];
-                    // Ensure bulk file URL is still included if it was added earlier
-                    if (isBulkMode && bulkFileUrl && !serviceRecordFileUrls.includes(bulkFileUrl)) {
-                        serviceRecordFileUrls.push(bulkFileUrl);
-                        console.log('✅ Re-added bulk file URL after uploading service record files:', bulkFileUrl);
+                    if (uploadedFiles.length > 0) {
+                        serviceRecordFileUrls = [...serviceRecordFileUrls, ...uploadedFiles];
+                        console.log('✅ Last-minute file upload successful:', uploadedFiles);
                     }
-                    // Store for later use
-                    window.manualEntryServiceRecordUrls = serviceRecordFileUrls;
-                } else {
-                    console.warn('⚠️ File upload failed, continuing without files');
                 }
-            } catch (uploadError) {
-                console.error('❌ Error uploading service record files:', uploadError);
-                // Continue without files
+            } catch (e) {
+                console.error('❌ Last-minute file upload failed:', e);
             }
-        }
-        
-        // CRITICAL: Final verification - ensure bulk file URL is in serviceRecordFileUrls for bulk processing
-        if (isBulkMode && bulkFileUrl && (!serviceRecordFileUrls || !serviceRecordFileUrls.includes(bulkFileUrl))) {
-            if (!serviceRecordFileUrls) {
-                serviceRecordFileUrls = [];
-            }
-            serviceRecordFileUrls.push(bulkFileUrl);
-            console.log('✅ Final verification: Added bulk file URL to service_record_files:', {
-                bulkFileUrl: bulkFileUrl,
-                serviceRecordFileUrls: serviceRecordFileUrls
-            });
         }
         
         // CRITICAL: Check if we have an existing draft report ID (from Continue Payment flow)
@@ -9244,8 +9695,16 @@ window.purchaseReport = async function() {
         if (!existingDraftId) {
             const storedDraftId = safeStorage.getItem('current_draft_report_id');
             if (storedDraftId) {
-                existingDraftId = parseInt(storedDraftId);
-                window.currentDraftReportId = existingDraftId;
+                // Handle both numeric IDs and draft_timestamp format
+                const parsedId = storedDraftId.startsWith('draft_') ? null : parseInt(storedDraftId, 10);
+                if (parsedId && !isNaN(parsedId)) {
+                    existingDraftId = parsedId;
+                    window.currentDraftReportId = existingDraftId;
+                } else {
+                    // Invalid format - clear it
+                    safeStorage.removeItem('current_draft_report_id');
+                    existingDraftId = null;
+                }
             }
         }
         
@@ -9343,7 +9802,29 @@ window.purchaseReport = async function() {
                     });
                 }
                 
-                return finalServiceRecordFiles.length > 0 ? finalServiceRecordFiles : null;
+                // CRITICAL: For manual entry, also check if we have service record URLs that weren't included
+                if (isManualEntry && window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0) {
+                    window.manualEntryServiceRecordUrls.forEach(url => {
+                        if (url && url.trim() !== '' && !finalServiceRecordFiles.includes(url)) {
+                            finalServiceRecordFiles.push(url);
+                            console.log('✅ Added manual entry service record URL to service_record_files:', url);
+                        }
+                    });
+                }
+                
+                // CRITICAL: Log final service_record_files before returning
+                console.log('📎 Final service_record_files to send to backend:', {
+                    count: finalServiceRecordFiles.length,
+                    files: finalServiceRecordFiles,
+                    isBulkMode: isBulkMode,
+                    isManualEntry: isManualEntry,
+                    serviceRecordFileUrls_source: serviceRecordFileUrls,
+                    manualEntryServiceRecordUrls: window.manualEntryServiceRecordUrls
+                });
+                
+                // CRITICAL: Return empty array instead of null to ensure field is set
+                // Backend will handle empty arrays correctly
+                return finalServiceRecordFiles.length > 0 ? finalServiceRecordFiles : [];
             })(),
             metadata: isBulkMode && window.bulkProcessingData ? {
                 user_email: userEmail || '',
@@ -9372,7 +9853,12 @@ window.purchaseReport = async function() {
                 crane_mileage: (craneDetails.mileage !== null && craneDetails.mileage !== undefined && craneDetails.mileage !== '') ? craneDetails.mileage.toString() : '',
                 crane_region: craneDetails.region || '',
                 crane_type: craneDetails.craneType || '',
-                report_type: selectedReportType
+                report_type: selectedReportType,
+                // CRITICAL: Include manual entry service record URLs in metadata for all report types
+                ...(isManualEntry && window.manualEntryServiceRecordUrls && window.manualEntryServiceRecordUrls.length > 0 ? {
+                    service_record_file_urls: window.manualEntryServiceRecordUrls.join(','),
+                    service_record_files: window.manualEntryServiceRecordUrls
+                } : {})
             }
         };
         
@@ -9401,11 +9887,25 @@ window.purchaseReport = async function() {
             const storedDraftId = safeStorage.getItem('current_draft_report_id');
             if (storedDraftId) {
                 try {
-                    draftReportId = parseInt(storedDraftId);
-                    window.currentDraftReportId = draftReportId;
-                    console.log('✅ Found existing draft report ID from localStorage (purchaseReport):', draftReportId);
+                    // Handle both numeric IDs and draft_timestamp format
+                    // If it starts with 'draft_', it's a local draft key, not a database ID
+                    if (storedDraftId.startsWith('draft_')) {
+                        console.log('⚠️ Found local draft key (draft_*), not a database ID. Clearing it.');
+                        safeStorage.removeItem('current_draft_report_id');
+                        draftReportId = null;
+                    } else {
+                        draftReportId = parseInt(storedDraftId, 10);
+                        if (isNaN(draftReportId)) {
+                            console.warn('⚠️ Invalid draft ID format in localStorage, clearing it:', storedDraftId);
+                            safeStorage.removeItem('current_draft_report_id');
+                            draftReportId = null;
+                        } else {
+                            window.currentDraftReportId = draftReportId;
+                            console.log('✅ Found existing draft report ID from localStorage (purchaseReport):', draftReportId);
+                        }
+                    }
                 } catch (e) {
-                    console.warn('⚠️ Invalid draft ID in localStorage, clearing it:', e);
+                    console.warn('⚠️ Error parsing draft ID from localStorage, clearing it:', e);
                     safeStorage.removeItem('current_draft_report_id');
                     draftReportId = null;
                 }
@@ -9580,15 +10080,24 @@ window.purchaseReport = async function() {
                         safeStorage.setItem('current_draft_report_id', String(draftReportId));
                         console.log('✅ Stored draft report ID:', draftReportId, 'in window and localStorage');
                         
-                        // Show success message ONLY after draft is created (on Purchase Report button click)
+                        // Show success toast message after draft is created
                         if (window.notificationSystem) {
                             window.notificationSystem.showSuccess(
                                 'Draft Report Created',
-                                'Your FMV report draft has been created successfully. Proceeding to payment...'
+                                `Your FMV report draft #${draftReportId} has been created successfully. Proceeding to payment...`
                             );
+                        } else {
+                            // Fallback if notification system not available
+                            console.log('✅ DRAFT report created successfully. ID:', draftReportId);
                         }
                     } else {
                         console.error('❌ DRAFT report response missing ID:', reportResult);
+                        if (window.notificationSystem) {
+                            window.notificationSystem.showError(
+                                'Draft Creation Error',
+                                'Draft report was created but no ID was returned. Please contact support.'
+                            );
+                        }
                     }
                 } else {
                     let errorData = { detail: 'Unknown error' };
@@ -9609,6 +10118,23 @@ window.purchaseReport = async function() {
                         error: errorData,
                         url: reportResponse.url
                     });
+                    
+                    // Show error toast message to user
+                    if (window.notificationSystem) {
+                        let errorMessage = 'Failed to create draft report. Please try again.';
+                        if (errorData && errorData.detail) {
+                            // Check if it's a SQL injection error (shouldn't happen, but handle gracefully)
+                            if (errorData.detail.includes('SQL injection')) {
+                                errorMessage = 'Server error occurred. Please refresh the page and try again.';
+                            } else {
+                                errorMessage = errorData.detail;
+                            }
+                        }
+                        window.notificationSystem.showError(
+                            'Draft Creation Failed',
+                            errorMessage
+                        );
+                    }
                     
                     // Surface a clear error to the user and STOP purchase flow
                     let message = 'The server was unable to create a draft report. No payment has been processed. Please try again or contact support.';
@@ -9645,16 +10171,9 @@ window.purchaseReport = async function() {
                         }
                     }
                     
-                    // Show warning but continue - payment intent creation will handle draft creation
+                    // Error toast already shown above (lines 9712-9727)
+                    // Continue with payment flow - payment intent creation will handle draft creation
                     console.warn('⚠️ Draft creation failed, but continuing with payment flow - payment intent creation will handle draft creation');
-                    
-                    if (window.notificationSystem) {
-                        window.notificationSystem.showWarning('Draft Creation Warning', message + ' Payment can still proceed.');
-                    } else if (window.notificationSystem && window.notificationSystem.showError) {
-                        window.notificationSystem.showWarning('Draft Creation Warning', message + ' Payment can still proceed.');
-                    }
-                    
-                    // Continue with payment flow - don't stop here
                 }
             } catch (reportError) {
                 console.error('❌ Error creating DRAFT report:', reportError);
@@ -9702,15 +10221,24 @@ window.purchaseReport = async function() {
                             safeStorage.setItem('current_draft_report_id', String(draftReportId));
                             console.log('✅ DRAFT report created successfully for bulk processing:', draftReportId);
                             
-                            // Show success message ONLY after draft is created (on Purchase Report button click)
+                            // Show success toast message after draft is created
                             if (window.notificationSystem) {
                                 window.notificationSystem.showSuccess(
                                     'Draft Report Created',
-                                    'Your FMV report draft has been created successfully. Proceeding to payment...'
+                                    `Your FMV report draft #${draftReportId} has been created successfully. Proceeding to payment...`
                                 );
+                            } else {
+                                // Fallback if notification system not available
+                                console.log('✅ DRAFT report created successfully for bulk processing. ID:', draftReportId);
                             }
                         } else {
                             console.error('❌ DRAFT report response missing ID for bulk processing:', reportResult);
+                            if (window.notificationSystem) {
+                                window.notificationSystem.showError(
+                                    'Draft Creation Error',
+                                    'Draft report was created but no ID was returned. Please contact support.'
+                                );
+                            }
                         }
                     } else {
                         const errorText = await reportResponse.text().catch(() => 'Unknown error');
@@ -10187,114 +10715,20 @@ window.purchaseReport = async function() {
         reportType: reportType
     });
     
-    // Pre-fill email from localStorage
-    const userEmail = safeStorage.getItem('user_email') || '';
-    if (userEmail) {
-        document.getElementById('receiptEmail').value = userEmail;
+    // Pre-fill payment modal fields from user account settings
+    prefillPaymentModalFields();
+    
+    // CRITICAL: Do NOT create DRAFT report here - it's already created in purchaseReport function above
+    // This prevents duplicate draft creation. The draft should already exist from the purchaseReport flow.
+    // Only check if draft exists and log a warning if it doesn't (shouldn't happen in normal flow)
+    if (!window.currentDraftReportId) {
+        console.warn('⚠️ No draft report ID found before opening payment modal. This should not happen if purchaseReport flow completed successfully.');
+        // Don't create draft here - it should have been created in purchaseReport function above
+        // Creating it here would cause duplicate drafts
     }
     
-    // CRITICAL: Create DRAFT report BEFORE opening payment modal (if not already created)
-    if (!window.currentDraftReportId) {
-        const token = safeStorage.getItem('access_token') || safeStorage.getItem('crane_auth_token') || safeStorage.getItem('auth_token');
-        const receiptEmailInput = document.getElementById('receiptEmail');
-        const receiptEmail = receiptEmailInput ? receiptEmailInput.value : (safeStorage.getItem('user_email') || '');
-        
-        // Check if we're in bulk processing mode (reuse isBulkMode from above if available, otherwise declare new)
-        const bulkFormForDraft = document.getElementById('bulkProcessingEquipmentForm');
-        const isBulkModeForDraft = bulkFormForDraft && bulkFormForDraft.style.display !== 'none' && document.getElementById('bulkUnlockedState') && document.getElementById('bulkUnlockedState').style.display !== 'none';
-        
-        // Create DRAFT report data
-        const reportData = {
-            report_type: selectedReport.type,
-            crane_details: {
-                manufacturer: selectedReport.crane.manufacturer,
-                model: selectedReport.crane.model,
-                year: selectedReport.crane.year,
-                capacity: selectedReport.crane.capacity,
-                operatingHours: selectedReport.crane.operatingHours || 0,
-                mileage: selectedReport.crane.mileage || null,
-                region: selectedReport.crane.region,
-                craneType: selectedReport.crane.craneType || '',
-                // Include bulk file URL and bulk processing flag if available
-                ...(isBulkModeForDraft && window.bulkFileUrl ? { 
-                    bulk_file_url: window.bulkFileUrl,
-                    is_bulk_processing: true
-                } : {}),
-                // Include bulk processing data in crane_details for backend
-                ...(isBulkModeForDraft && window.bulkProcessingData ? {
-                    total_cranes: window.bulkProcessingData.totalCranes || 0,
-                    success_count: window.bulkProcessingData.successCount || 0,
-                    error_count: window.bulkProcessingData.errorCount || 0,
-                    pricing_tier: window.bulkFleetPricingTier || fleetPricingTier || '1-5',
-                    total_price: window.bulkFleetPrice ? (window.bulkFleetPrice / 100) : (reportPrice / 100)
-                } : {})
-            },
-            service_record_files: (() => {
-                // CRITICAL: Always include bulk file URL in service_record_files for bulk processing
-                let files = [];
-                if (isBulkModeForDraft && window.bulkFileUrl) {
-                    files.push(window.bulkFileUrl);
-                }
-                return files.length > 0 ? files : null;
-            })(),
-            metadata: {
-                user_email: receiptEmail,
-                crane_manufacturer: selectedReport.crane.manufacturer,
-                crane_model: selectedReport.crane.model,
-                crane_year: selectedReport.crane.year.toString(),
-                crane_capacity: selectedReport.crane.capacity.toString(),
-                crane_hours: (selectedReport.crane.operatingHours || 0).toString(),
-                crane_mileage: (selectedReport.crane.mileage !== null && selectedReport.crane.mileage !== undefined && selectedReport.crane.mileage !== '') ? selectedReport.crane.mileage.toString() : '',
-                crane_region: selectedReport.crane.region,
-                crane_type: selectedReport.crane.craneType || '',
-                report_type: selectedReport.type,
-                // Include bulk processing data if available
-                ...(isBulkModeForDraft && window.bulkProcessingData ? {
-                    bulk_file_url: window.bulkFileUrl || null,
-                    is_bulk_processing: 'true',
-                    total_cranes: window.bulkProcessingData.totalCranes || 0,
-                    success_count: window.bulkProcessingData.successCount || 0,
-                    error_count: window.bulkProcessingData.errorCount || 0,
-                    pricing_tier: window.bulkFleetPricingTier || fleetPricingTier || '1-5',
-                    total_price: window.bulkFleetPrice ? window.bulkFleetPrice.toString() : reportPrice.toString()
-                } : {}),
-                // Include calculated fleet pricing if available
-                ...(window.bulkFleetPrice ? {
-                    fleet_unit_count: window.bulkFleetUnitCount || 0,
-                    fleet_pricing_tier: window.bulkFleetPricingTier || '1-5',
-                    fleet_price_cents: window.bulkFleetPrice.toString()
-                } : {})
-            }
-        };
-        
-        console.log('📤 Creating DRAFT report before opening payment modal:', {
-            url: '/api/v1/fmv-reports/submit',
-            method: 'POST',
-            body: reportData
-        });
-        
-        try {
-            const reportResponse = await fetch('/api/v1/fmv-reports/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
-                },
-                body: JSON.stringify(reportData)
-            });
-            
-            if (reportResponse.ok) {
-                const reportResult = await reportResponse.json();
-                window.currentDraftReportId = reportResult.id;
-                console.log('✅ DRAFT report created before payment modal:', window.currentDraftReportId);
-            } else {
-                const errorData = await reportResponse.json().catch(() => ({ detail: 'Unknown error' }));
-                console.warn('⚠️ Failed to create DRAFT report, continuing:', errorData);
-            }
-        } catch (reportError) {
-            console.warn('⚠️ Error creating DRAFT report, continuing:', reportError);
-        }
-    }
+    // Pre-fill payment modal fields from user account settings (before showing modal)
+    prefillPaymentModalFields();
     
     // Show payment modal - override !important styles
     const paymentModal = document.getElementById('stripePaymentModal');
@@ -10399,7 +10833,10 @@ window.purchaseReport = async function() {
                     type: 'tabs',
                     defaultCollapsed: false
                 },
-                paymentMethodOrder: ['card', 'us_bank_account'],
+                // CRITICAL: Explicitly enable payment methods for production
+                // Enable card, link, and us_bank_account for live payments
+                paymentMethodTypes: ['card', 'link', 'us_bank_account'],
+                paymentMethodOrder: ['card', 'link', 'us_bank_account'],
                 wallets: {
                     applePay: 'auto',
                     googlePay: 'auto'
@@ -12392,16 +12829,39 @@ window.processBulkData = async function(jsonData, uploadArea) {
                     
                     // Display uploaded file above "Select Report Type" section
                     const fileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : 'Uploaded file');
-                    displayUploadedBulkFile(fileName, window.bulkFileUrl, 'Uploaded successfully to Digital Ocean Spaces + CDN');
+                    if (typeof window.displayUploadedBulkFile === 'function') {
+                        window.displayUploadedBulkFile(fileName, window.bulkFileUrl, 'Uploaded successfully to Digital Ocean Spaces + CDN');
+                    } else {
+                        console.error('❌ displayUploadedBulkFile function not available');
+                    }
                 } else {
                     console.warn('⚠️ Bulk file upload succeeded but no file URLs returned:', uploadResult);
+                    // Still show the file even if URL is missing
+                    const fileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : 'Uploaded file');
+                    if (typeof window.displayUploadedBulkFile === 'function') {
+                        window.displayUploadedBulkFile(fileName, null, 'File processed but upload URL missing');
+                    }
                 }
             } else {
                 const errorText = await uploadResponse.text().catch(() => 'Unknown error');
                 console.warn('⚠️ Failed to upload bulk file:', errorText);
+                // CRITICAL: Still show the file even if upload failed
+                const fileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : 'Uploaded file');
+                if (typeof window.displayUploadedBulkFile === 'function') {
+                    window.displayUploadedBulkFile(fileName, null, 'Upload failed - file will be uploaded on form submission');
+                } else {
+                    console.error('❌ displayUploadedBulkFile function not available after upload failure');
+                }
             }
         } catch (uploadError) {
             console.error('❌ Error uploading bulk file:', uploadError);
+            // CRITICAL: Still show the file even if there's an error
+            const fileName = window.bulkProcessingFileName || (window.bulkProcessingFile ? window.bulkProcessingFile.name : 'Uploaded file');
+            if (typeof window.displayUploadedBulkFile === 'function') {
+                window.displayUploadedBulkFile(fileName, null, 'Upload error - file will be uploaded on form submission');
+            } else {
+                console.error('❌ displayUploadedBulkFile function not available after upload error');
+            }
         }
     }
     

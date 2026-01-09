@@ -4055,6 +4055,16 @@
 
             // Check if this is bulk processing (check multiple possible flags)
             const isBulkProcessing = craneData.is_bulk_processing || craneData.is_bulk_entry || reportType === 'fleet_valuation';
+            
+            // CRITICAL: Log bulk processing detection for debugging
+            console.log('🔍 [Dashboard] Bulk processing detection:', {
+                isBulkProcessing: isBulkProcessing,
+                craneData_is_bulk_processing: craneData.is_bulk_processing,
+                craneData_is_bulk_entry: craneData.is_bulk_entry,
+                reportType: reportType,
+                reportTypeIsFleet: reportType === 'fleet_valuation',
+                craneData_keys: Object.keys(craneData || {})
+            });
 
             // Determine if report has payment and can show receipt
             const hasPayment = report.payment_intent_id && report.amount_paid && report.amount_paid > 0;
@@ -4116,25 +4126,55 @@
             });
 
             // For bulk processing, ensure bulk_file_url is included in service_record_files if it exists
-            if (isBulkProcessing && craneData.bulk_file_url) {
-                const bulkFileUrlStr = typeof craneData.bulk_file_url === 'string' ? craneData.bulk_file_url : String(craneData.bulk_file_url);
+            // CRITICAL: Check multiple possible locations for bulk_file_url
+            let bulkFileUrl = null;
+            if (craneData.bulk_file_url) {
+                bulkFileUrl = craneData.bulk_file_url;
+                console.log('📎 [Dashboard] Found bulk_file_url in craneData.bulk_file_url:', bulkFileUrl);
+            } else if (craneData.bulkFileUrl) {
+                bulkFileUrl = craneData.bulkFileUrl;
+                console.log('📎 [Dashboard] Found bulk_file_url in craneData.bulkFileUrl:', bulkFileUrl);
+            } else if (report.metadata && report.metadata.bulk_file_url) {
+                bulkFileUrl = report.metadata.bulk_file_url;
+                console.log('📎 [Dashboard] Found bulk_file_url in metadata.bulk_file_url:', bulkFileUrl);
+            } else if (report.metadata && report.metadata.bulkFileUrl) {
+                bulkFileUrl = report.metadata.bulkFileUrl;
+                console.log('📎 [Dashboard] Found bulk_file_url in metadata.bulkFileUrl:', bulkFileUrl);
+            }
+            
+            if (isBulkProcessing && bulkFileUrl) {
+                const bulkFileUrlStr = typeof bulkFileUrl === 'string' ? bulkFileUrl : String(bulkFileUrl);
                 // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
                 if (bulkFileUrlStr && bulkFileUrlStr.trim() !== '' && (bulkFileUrlStr.startsWith('http://') || bulkFileUrlStr.startsWith('https://')) && !serviceRecordFiles.some(url => String(url) === bulkFileUrlStr)) {
                     serviceRecordFiles.push(bulkFileUrlStr);
-                    console.log('✅ Added bulk_file_url to serviceRecordFiles:', bulkFileUrlStr);
+                    console.log('✅ [Dashboard] Added bulk_file_url to serviceRecordFiles:', bulkFileUrlStr);
+                } else {
+                    console.warn('⚠️ [Dashboard] bulk_file_url found but not added:', {
+                        bulkFileUrlStr: bulkFileUrlStr,
+                        isValid: bulkFileUrlStr && bulkFileUrlStr.trim() !== '',
+                        isHttp: bulkFileUrlStr && (bulkFileUrlStr.startsWith('http://') || bulkFileUrlStr.startsWith('https://')),
+                        alreadyExists: serviceRecordFiles.some(url => String(url) === bulkFileUrlStr)
+                    });
                 }
+            } else if (isBulkProcessing && !bulkFileUrl) {
+                console.warn('⚠️ [Dashboard] Bulk processing detected but NO bulk_file_url found!', {
+                    craneData_keys: Object.keys(craneData || {}),
+                    metadata_keys: report.metadata ? Object.keys(report.metadata) : null,
+                    service_record_files: report.service_record_files
+                });
             }
             
-            // Also check metadata for bulk_file_url - check if it exists and is not empty/null
-            if (isBulkProcessing && report.metadata && typeof report.metadata === 'object') {
-                const metadataBulkUrl = report.metadata.bulk_file_url;
+            // Also check metadata for bulk_file_url - this is now handled above, but keep this as a fallback
+            // The bulkFileUrl variable above should have already captured it, but this ensures we don't miss it
+            if (isBulkProcessing && !bulkFileUrl && report.metadata && typeof report.metadata === 'object') {
+                const metadataBulkUrl = report.metadata.bulk_file_url || report.metadata.bulkFileUrl;
                 // CRITICAL: Check if it exists (not undefined/null) and is not empty string
                 if (metadataBulkUrl !== undefined && metadataBulkUrl !== null) {
                     const metadataBulkUrlStr = typeof metadataBulkUrl === 'string' ? metadataBulkUrl : String(metadataBulkUrl);
                     // CRITICAL: Check for valid URL (starts with http:// or https://) and not empty
                     if (metadataBulkUrlStr && metadataBulkUrlStr.trim() !== '' && (metadataBulkUrlStr.startsWith('http://') || metadataBulkUrlStr.startsWith('https://')) && !serviceRecordFiles.some(url => String(url) === metadataBulkUrlStr)) {
                         serviceRecordFiles.push(metadataBulkUrlStr);
-                        console.log('✅ Added bulk_file_url from metadata to serviceRecordFiles:', metadataBulkUrlStr);
+                        console.log('✅ [Dashboard] Added bulk_file_url from metadata (fallback) to serviceRecordFiles:', metadataBulkUrlStr);
                     } else if (metadataBulkUrlStr && metadataBulkUrlStr.trim() === '') {
                         console.warn('⚠️ [Dashboard] metadata.bulk_file_url exists but is empty string');
                     }
@@ -4371,9 +4411,26 @@
                         <div class="report-detail-section">
                             <h3>📎 ${isBulkProcessing ? 'Bulk Processing File & Service Records' : 'Service Records & Documents'}</h3>
                             ${(() => {
-                                // For bulk processing, ensure we show the file even if serviceRecordFiles is empty
-                                // The bulk file should be in service_record_files, but if not, check crane_details and metadata
-                                let filesToDisplay = serviceRecordFiles && serviceRecordFiles.length > 0 ? [...serviceRecordFiles] : [];
+                                // CRITICAL: For all report types, collect ALL files from serviceRecordFiles
+                                // This ensures manual entry, auto-generated, and regular service record files are displayed
+                                let filesToDisplay = [];
+                                if (serviceRecordFiles && serviceRecordFiles.length > 0) {
+                                    serviceRecordFiles.forEach(url => {
+                                        if (url && typeof url === 'string' && url.trim() !== '') {
+                                            const urlStr = url.trim();
+                                            // Check if it's a valid URL
+                                            if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
+                                                if (!filesToDisplay.some(f => String(f).trim() === urlStr)) {
+                                                    filesToDisplay.push(urlStr);
+                                                }
+                                            }
+                                        }
+                                    });
+                                    console.log('📎 [Dashboard] Initial filesToDisplay from serviceRecordFiles:', {
+                                        count: filesToDisplay.length,
+                                        files: filesToDisplay
+                                    });
+                                }
                                 
                                 if (isBulkProcessing) {
                                     // Add bulk_file_url from crane_details if not already in filesToDisplay
@@ -4394,15 +4451,16 @@
                                         }
                                     }
                                     
-                                    // Also check if bulk file is in service_record_files but not yet in filesToDisplay
+                                    // CRITICAL: Also add ALL files from service_record_files (not just bulk files)
+                                    // This ensures manual entry, auto-generated, and regular service record files are displayed
                                     serviceRecordFiles.forEach(url => {
                                         if (url && typeof url === 'string' && url.trim() !== '') {
                                             const urlStr = url.trim();
-                                            // Check if this looks like a bulk processing file (contains 'bulk-processing' in path or is CSV/Excel)
-                                            if (urlStr.includes('bulk-processing') || urlStr.includes('bulk') || urlStr.match(/\.(csv|xlsx|xls)$/i)) {
+                                            // Check if it's a valid URL
+                                            if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
                                                 if (!filesToDisplay.some(f => String(f).trim() === urlStr)) {
                                                     filesToDisplay.push(urlStr);
-                                                    console.log('✅ Added bulk file from service_record_files to display:', urlStr);
+                                                    console.log('✅ [Dashboard] Added file from service_record_files to display:', urlStr);
                                                 }
                                             }
                                         }
@@ -4434,9 +4492,23 @@
                                     // CRITICAL: Rebuild filesToDisplay here to ensure we have the latest data
                                     let filesToShow = [];
                                     
-                                    // First, add files from serviceRecordFiles
+                                    // CRITICAL: First, add ALL files from serviceRecordFiles (for all report types)
                                     if (serviceRecordFiles && serviceRecordFiles.length > 0) {
-                                        filesToShow = [...serviceRecordFiles];
+                                        serviceRecordFiles.forEach(url => {
+                                            if (url && typeof url === 'string' && url.trim() !== '') {
+                                                const urlStr = url.trim();
+                                                // Check if it's a valid URL
+                                                if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
+                                                    if (!filesToShow.some(f => String(f).trim() === urlStr)) {
+                                                        filesToShow.push(urlStr);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        console.log('📎 [Dashboard Modal] Initial filesToShow from serviceRecordFiles:', {
+                                            count: filesToShow.length,
+                                            files: filesToShow
+                                        });
                                     }
                                     
                                     // For bulk processing, ensure bulk_file_url is included
@@ -4463,16 +4535,17 @@
                                             }
                                         }
                                         
-                                        // Also check service_record_files for any URLs that look like bulk files
+                                        // CRITICAL: Also add ALL files from service_record_files (not just bulk files)
+                                        // This ensures manual entry, auto-generated, and regular service record files are displayed
                                         if (serviceRecordFiles && serviceRecordFiles.length > 0) {
                                             serviceRecordFiles.forEach(url => {
                                                 if (url && typeof url === 'string' && url.trim() !== '') {
                                                     const urlStr = url.trim();
-                                                    // Check if this looks like a bulk processing file
-                                                    if (urlStr.includes('bulk-processing') || urlStr.includes('bulk') || urlStr.match(/\.(csv|xlsx|xls)$/i)) {
+                                                    // Check if it's a valid URL
+                                                    if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
                                                         if (!filesToShow.some(f => String(f).trim() === urlStr)) {
                                                             filesToShow.push(urlStr);
-                                                            console.log('✅ [Dashboard Modal] Added bulk file from service_record_files to filesToShow:', urlStr);
+                                                            console.log('✅ [Dashboard Modal] Added file from service_record_files to filesToShow:', urlStr);
                                                         }
                                                     }
                                                 }

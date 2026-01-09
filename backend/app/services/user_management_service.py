@@ -149,8 +149,36 @@ class UserManagementService:
             if 'password' in update_data:
                 update_data['hashed_password'] = get_password_hash(update_data.pop('password'))
             
+            # Handle phone and address - store in notification_preferences JSON
+            import json
+            phone = update_data.pop('phone', None)
+            address = update_data.pop('address', None)
+            
+            if phone is not None or address is not None:
+                # Load existing preferences or create new dict
+                prefs = {}
+                if db_user.notification_preferences:
+                    try:
+                        prefs = json.loads(db_user.notification_preferences)
+                    except:
+                        prefs = {}
+                
+                # Update phone and address in preferences
+                if phone is not None:
+                    prefs['phone'] = phone
+                    prefs['phone_number'] = phone
+                if address is not None:
+                    prefs['address'] = address
+                    prefs['street_address'] = address
+                    prefs['full_address'] = address
+                
+                # Save back to notification_preferences
+                db_user.notification_preferences = json.dumps(prefs)
+            
+            # Update standard fields
             for field, value in update_data.items():
-                setattr(db_user, field, value)
+                if hasattr(db_user, field):
+                    setattr(db_user, field, value)
             
             db_user.updated_at = datetime.utcnow()
             

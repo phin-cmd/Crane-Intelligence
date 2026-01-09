@@ -8,6 +8,7 @@ tests/fixtures/auth-state-*.json
 
 # Environment files with secrets
 .env
+.env.prod
 .env.test
 .env.local
 config/dev.env

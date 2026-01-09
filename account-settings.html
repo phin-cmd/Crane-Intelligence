@@ -1001,9 +1001,54 @@
                 phone: document.getElementById('phone').value,
                 address: document.getElementById('address').value
             };
+            
+            // Save to localStorage
             const currentData = JSON.parse(localStorage.getItem('user_data') || '{}');
             localStorage.setItem('user_data', JSON.stringify({...currentData, ...userData}));
-            showAlert('Profile updated successfully', 'success');
+            
+            // Also save to backend API
+            try {
+                const token = getAuthToken();
+                if (token) {
+                    // Get current user ID from localStorage
+                    const storedUser = JSON.parse(localStorage.getItem('user_data') || '{}');
+                    const userId = storedUser.id;
+                    
+                    if (userId) {
+                        // Update user profile via API
+                        const response = await fetch(`${API_BASE_URL}/user-management/users/profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                full_name: userData.full_name,
+                                company_name: userData.company_name,
+                                phone: userData.phone,
+                                address: userData.address
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const updatedUser = await response.json();
+                            // Update localStorage with response
+                            localStorage.setItem('user_data', JSON.stringify({...currentData, ...updatedUser, ...userData}));
+                            showAlert('Profile updated successfully', 'success');
+                        } else {
+                            console.error('Failed to update profile on server');
+                            showAlert('Profile saved locally, but failed to sync with server', 'warning');
+                        }
+                    } else {
+                        showAlert('Profile updated locally', 'success');
+                    }
+                } else {
+                    showAlert('Profile updated locally', 'success');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('Profile saved locally, but failed to sync with server', 'warning');
+            }
         });
         
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {

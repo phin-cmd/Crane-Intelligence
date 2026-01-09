@@ -452,13 +452,18 @@ class FMVEmailService:
             return False
         try:
             first_name = self._extract_first_name(user_name)
+            # CRITICAL: Convert amount from cents to dollars for email template
+            amount_raw = report_data.get('amount', 0)
+            amount_dollars = self._convert_amount_to_dollars(amount_raw)
+            
             template_context = {
                 "username": user_name.split()[0] if user_name else "User",
                 "user_name": user_name,
                 "first_name": first_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
-                "amount": report_data.get('amount', 0),
+                "amount": amount_dollars,  # Amount in dollars for template
+                "amount_display": f"${amount_dollars:,.2f}",  # Formatted amount string
                 "payment_intent_id": report_data.get('payment_intent_id', 'N/A'),
                 "payment_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,
@@ -485,12 +490,17 @@ class FMVEmailService:
             return False
         try:
             first_name = self._extract_first_name(user_name)
+            # CRITICAL: Convert amount from cents to dollars for email template
+            amount_raw = report_data.get('amount', 0)
+            amount_dollars = self._convert_amount_to_dollars(amount_raw)
+            
             template_context = {
                 "first_name": first_name,
                 "user_name": user_name,
                 "user_email": user_email,
                 "report_id": report_data.get('report_id'),
-                "amount": report_data.get('amount', 0),
+                "amount": amount_dollars,  # Amount in dollars for template
+                "amount_display": f"${amount_dollars:,.2f}",  # Formatted amount string
                 "transaction_id": report_data.get('transaction_id') or report_data.get('payment_intent_id', 'N/A'),
                 "payment_date": self._format_datetime_with_timezone(datetime.now(ZoneInfo('UTC')), user_timezone),
                 "platform_name": settings.app_name,

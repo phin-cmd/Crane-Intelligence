@@ -9,6 +9,7 @@ from datetime import datetime
 from fastapi import HTTPException, status
 
 from ..services.fmv_report_service import FMVReportService
+from ..services.fmv_pricing_config import get_base_price_cents
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class PaymentAmountValidator:
     """Validates payment amounts server-side to prevent client manipulation"""
     
     def __init__(self):
-        self.pricing_service = FMVReportService()
+        # No need to instantiate FMVReportService - we only use static methods
         self.manipulation_attempts = {}  # Track manipulation attempts
     
     def calculate_server_price(
@@ -36,12 +37,12 @@ class PaymentAmountValidator:
                 if not isinstance(unit_count, int) or unit_count < 1 or unit_count > 50:
                     raise ValueError(f"Invalid unit_count: {unit_count}")
                 
-                price, tier = self.pricing_service.calculate_fleet_price_by_units(unit_count)
+                # Use static method from FMVReportService
+                price, tier = FMVReportService.calculate_fleet_price_by_units(unit_count)
                 amount_cents = int(price * 100)
             else:
-                # Get base price for other report types
-                price = self.pricing_service.get_base_price_dollars(report_type)
-                amount_cents = int(price * 100)
+                # Get base price for other report types using centralized pricing config
+                amount_cents = get_base_price_cents(report_type)
             
             return amount_cents
             

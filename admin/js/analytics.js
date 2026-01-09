@@ -251,8 +251,14 @@ class AnalyticsManager {
 
     resizeCharts() {
         Object.values(this.charts).forEach(chart => {
-            if (chart) {
-                chart.resize();
+            try {
+                // Check if chart exists, is not destroyed, and has a valid canvas
+                if (chart && !chart.destroyed && chart.canvas && chart.canvas.ownerDocument) {
+                    chart.resize();
+                }
+            } catch (error) {
+                // Silently handle resize errors (chart might be in transition)
+                console.debug('Chart resize skipped:', error.message);
             }
         });
     }

@@ -153,10 +153,22 @@ def convert_report_to_response(report: FMVReport) -> FMVReportResponse:
             if isinstance(service_record_files, str):
                 try:
                     service_record_files = json.loads(service_record_files)
+                    if not isinstance(service_record_files, list):
+                        service_record_files = [service_record_files] if service_record_files else []
                 except:
-                    service_record_files = []
+                    # If JSON parsing fails, treat as single URL string or comma-separated
+                    if ',' in service_record_files:
+                        service_record_files = [url.strip() for url in service_record_files.split(',') if url.strip()]
+                    else:
+                        service_record_files = [service_record_files] if service_record_files.strip() else []
             else:
-                service_record_files = []
+                # Convert single value to list
+                service_record_files = [service_record_files] if service_record_files else []
+        
+        # CRITICAL: Ensure service_record_files is always a list and filter out empty/null values
+        if not isinstance(service_record_files, list):
+            service_record_files = []
+        service_record_files = [url for url in service_record_files if url and str(url).strip()]
         
         # CRITICAL: Ensure bulk_file_url from crane_details is included in service_record_files
         # This ensures the bulk file is always displayed even if it wasn't added during creation
@@ -352,7 +364,9 @@ async def mark_payment_received_by_intent(
         # Get user for notification
         user = db.query(User).filter(User.id == report.user_id).first()
         
-        logger.info(f"✅ Payment marked as received for report {report.id} via payment intent: ${payment_data.amount}, status updated to {report.status.value}")
+        # CRITICAL: Convert amount from cents to dollars for logging
+        amount_dollars = payment_data.amount / 100.0 if payment_data.amount else 0.0
+        logger.info(f"✅ Payment marked as received for report {report.id} via payment intent: ${amount_dollars:,.2f}, status updated to {report.status.value}")
         
         # Send SUBMITTED notification (payment successful, report submitted)
         try:
@@ -379,10 +393,12 @@ async def mark_payment_received_by_intent(
                     # Create user notification (single notification for payment success)
                     try:
                         from ...models.notification import UserNotification
+                        # CRITICAL: Convert amount from cents to dollars for display
+                        amount_dollars = payment_data.amount / 100.0 if payment_data.amount else 0.0
                         user_notification = UserNotification(
                             user_id=user.id,
                             title=f"Payment Successful - Report #{report.id}",
-                            message=f"Your payment of ${payment_data.amount:,.2f} for FMV Report #{report.id} has been received. Your report has been submitted successfully.",
+                            message=f"Your payment of ${amount_dollars:,.2f} for FMV Report #{report.id} has been received. Your report has been submitted successfully.",
                             type="payment_success",
                             read=False
                         )
@@ -631,6 +647,24 @@ async def create_fmv_payment(
                         if urls_str:
                             service_record_files = [url.strip() for url in urls_str.split(',') if url.strip()]
                     
+                    # CRITICAL: Also check alternative metadata keys for manual entry and auto-generated reports
+                    if not service_record_files or (isinstance(service_record_files, list) and len(service_record_files) == 0):
+                        for key in ['manual_entry_service_record_urls', 'uploaded_files', 'service_record_file_urls', 'service_record_files']:
+                            metadata_files = frontend_metadata.get(key)
+                            if metadata_files:
+                                if isinstance(metadata_files, str):
+                                    # Comma-separated string
+                                    parsed_files = [url.strip() for url in metadata_files.split(',') if url.strip()]
+                                    if parsed_files:
+                                        service_record_files = parsed_files
+                                        logger.info(f"📎 Found service_record_files in metadata.{key} (comma-separated): {len(parsed_files)} files")
+                                        break
+                                elif isinstance(metadata_files, list):
+                                    if metadata_files:
+                                        service_record_files = metadata_files
+                                        logger.info(f"📎 Found service_record_files in metadata.{key} (array): {len(metadata_files)} files")
+                                        break
+                    
                     # CRITICAL: For bulk processing, ensure bulk_file_url is in service_record_files
                     bulk_file_url = None
                     if is_bulk_processing and crane_data.get("bulk_file_url"):
@@ -687,6 +721,24 @@ async def create_fmv_payment(
                     db.refresh(draft_report)
                     
                     logger.info(f"✅ Created DRAFT report {draft_report_id} before payment intent creation for user {user_id}. Status: {draft_report.status.value}")
+                    
+                    # Create user notification for DRAFT report (consistent with /submit endpoint)
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user_id,
+                            title=f"Complete Your FMV Report Payment - Report #{draft_report_id}",
+                            message=f"Your FMV Report #{draft_report_id} is waiting for payment. Complete your purchase to submit the report.",
+                            type="fmv_report_draft_reminder",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification {user_notification.id} for DRAFT report {draft_report_id} from /create-payment endpoint")
+                    except Exception as notif_error:
+                        logger.error(f"❌ Failed to create user notification for DRAFT report from /create-payment: {notif_error}", exc_info=True)
+                        db.rollback()
+                        # Don't fail payment intent creation if notification fails
                 elif user_email:
                     # CRITICAL: Even without user_id, try to create draft with email in metadata
                     # This ensures draft exists even if user lookup fails
@@ -722,10 +774,30 @@ async def create_fmv_payment(
                                 craneType=crane_data.get("craneType", crane_data.get("crane_type", ""))
                             )
                         
+                        # CRITICAL: Get service_record_files from crane_data if provided
+                        service_record_files = crane_data.get("service_record_files") or []
+                        if isinstance(service_record_files, str):
+                            try:
+                                import json
+                                service_record_files = json.loads(service_record_files)
+                            except:
+                                service_record_files = [service_record_files] if service_record_files.strip() else []
+                        elif not isinstance(service_record_files, list):
+                            service_record_files = [service_record_files] if service_record_files else []
+                        
+                        # CRITICAL: Also check for bulk_file_url in crane_data and add to service_record_files
+                        bulk_file_url = crane_data.get("bulk_file_url")
+                        if bulk_file_url and bulk_file_url.strip() and bulk_file_url not in service_record_files:
+                            service_record_files.append(bulk_file_url)
+                            logger.info(f"✅ Added bulk_file_url to service_record_files in /create-payment: {bulk_file_url}")
+                        
+                        logger.info(f"📎 [create-payment] service_record_files: {service_record_files}")
+                        
                         # Create report data with user_email in metadata
                         report_create = FMVReportCreate(
                             report_type=report_type,
                             crane_details=crane_details,
+                            service_record_files=service_record_files if service_record_files else None,
                             metadata={
                                 "user_email": user_email,
                                 "cardholder_name": cardholder_name,
@@ -1141,6 +1213,12 @@ async def submit_fmv_report(
         logger.info(f"🔄 Creating DRAFT report for user {user_id}...")
         logger.info(f"   Report type: {report_data.report_type}")
         logger.info(f"   Crane details keys: {list(report_data.crane_details.dict().keys()) if hasattr(report_data.crane_details, 'dict') else 'N/A'}")
+        # CRITICAL: Log service_record_files being received
+        logger.info(f"📎 [submit_fmv_report] service_record_files received: {report_data.service_record_files}")
+        logger.info(f"📎 [submit_fmv_report] service_record_files type: {type(report_data.service_record_files)}")
+        if report_data.service_record_files:
+            logger.info(f"📎 [submit_fmv_report] service_record_files count: {len(report_data.service_record_files) if isinstance(report_data.service_record_files, list) else 1}")
+            logger.info(f"📎 [submit_fmv_report] service_record_files content: {report_data.service_record_files[:5] if isinstance(report_data.service_record_files, list) else report_data.service_record_files}")
         try:
             report = service.create_report(user_id, report_data)
             logger.info(f"✅ Created DRAFT report {report.id} for user {user_id} via /submit endpoint. Status: {report.status.value}")
@@ -1394,7 +1472,35 @@ async def upload_service_records(
     ALLOWED_EXTENSIONS = {'.pdf', '.jpg', '.jpeg', '.png'}
     
     uploaded_files = []
-    storage_service = get_storage_service()
+    
+    # CRITICAL: Get storage service and verify initialization
+    try:
+        storage_service = get_storage_service()
+    except Exception as e:
+        logger.error(f"❌ Failed to get storage service: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"File upload service initialization failed: {str(e)}"
+        )
+    
+    # CRITICAL: Check if storage service is properly initialized
+    if not storage_service:
+        logger.error("❌ Storage service is None")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="File upload service is not available. Please contact support."
+        )
+    
+    if not storage_service.s3_client:
+        logger.error("❌ DigitalOcean Spaces s3_client is not initialized")
+        logger.error(f"   Access Key: {'SET' if storage_service.access_key else 'NOT SET'}")
+        logger.error(f"   Secret Key: {'SET' if storage_service.secret_key else 'NOT SET'}")
+        logger.error(f"   Bucket: {storage_service.bucket}")
+        logger.error(f"   Region: {storage_service.region}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="DigitalOcean Spaces is not configured. Check DO_SPACES_KEY and DO_SPACES_SECRET environment variables."
+        )
     
     try:
         for file in files:
@@ -1442,16 +1548,23 @@ async def upload_service_records(
     except HTTPException:
         raise
     except RuntimeError as e:
-        logger.error(f"Storage service error: {e}", exc_info=True)
+        error_msg = str(e)
+        logger.error(f"Storage service error: {error_msg}", exc_info=True)
+        # Check if it's a configuration issue
+        if "not configured" in error_msg.lower() or "credentials" in error_msg.lower():
+            logger.error("❌ DigitalOcean Spaces not configured properly. Check DO_SPACES_KEY and DO_SPACES_SECRET.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload service records: {str(e)}"
+            detail=f"Failed to upload service records: {error_msg}"
         )
     except Exception as e:
-        logger.error(f"Error uploading service records: {e}", exc_info=True)
+        error_msg = str(e)
+        logger.error(f"Error uploading service records: {error_msg}", exc_info=True)
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload service records: {str(e)}"
+            detail=f"Failed to upload service records: {error_msg}"
         )
 
 
@@ -1466,7 +1579,34 @@ async def upload_bulk_file(
     MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB for bulk files
     ALLOWED_EXTENSIONS = {'.csv', '.xlsx', '.xls'}
     
-    storage_service = get_storage_service()
+    # CRITICAL: Get storage service and verify initialization
+    try:
+        storage_service = get_storage_service()
+    except Exception as e:
+        logger.error(f"❌ Failed to get storage service for bulk upload: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"File upload service initialization failed: {str(e)}"
+        )
+    
+    # CRITICAL: Check if storage service is properly initialized
+    if not storage_service:
+        logger.error("❌ Storage service is None for bulk upload")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="File upload service is not available. Please contact support."
+        )
+    
+    if not storage_service.s3_client:
+        logger.error("❌ DigitalOcean Spaces s3_client is not initialized for bulk upload")
+        logger.error(f"   Access Key: {'SET' if storage_service.access_key else 'NOT SET'}")
+        logger.error(f"   Secret Key: {'SET' if storage_service.secret_key else 'NOT SET'}")
+        logger.error(f"   Bucket: {storage_service.bucket}")
+        logger.error(f"   Region: {storage_service.region}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="DigitalOcean Spaces is not configured. Check DO_SPACES_KEY and DO_SPACES_SECRET environment variables."
+        )
     
     try:
         # Validate file size
@@ -1511,16 +1651,23 @@ async def upload_bulk_file(
     except HTTPException:
         raise
     except RuntimeError as e:
-        logger.error(f"Storage service error: {e}", exc_info=True)
+        error_msg = str(e)
+        logger.error(f"Storage service error: {error_msg}", exc_info=True)
+        # Check if it's a configuration issue
+        if "not configured" in error_msg.lower() or "credentials" in error_msg.lower():
+            logger.error("❌ DigitalOcean Spaces not configured properly. Check DO_SPACES_KEY and DO_SPACES_SECRET.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload bulk file: {str(e)}"
+            detail=f"Failed to upload bulk file: {error_msg}"
         )
     except Exception as e:
-        logger.error(f"Error uploading bulk file: {e}", exc_info=True)
+        error_msg = str(e)
+        logger.error(f"Error uploading bulk file: {error_msg}", exc_info=True)
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload bulk file: {str(e)}"
+            detail=f"Failed to upload bulk file: {error_msg}"
         )
 
 
@@ -1763,7 +1910,7 @@ async def update_report_status(
         service = FMVReportService(db)
         report = service.update_status(report_id, status_transition)
         
-        # Send appropriate email notification
+        # Send appropriate email notification and create user notification
         try:
             user = db.query(User).filter(User.id == report.user_id).first()
             if user:
@@ -1781,27 +1928,85 @@ async def update_report_status(
                 }
                 
                 if status_transition.status == FMVReportStatus.IN_PROGRESS:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_in_progress_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data=report_data, user_timezone=getattr(user, 'timezone', None))
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} In Progress",
+                            message=f"Your FMV Report #{report.id} is now being processed by our team.",
+                            type="fmv_report_in_progress",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for IN_PROGRESS status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for IN_PROGRESS: {notif_error}")
+                        db.rollback()
+                        
                 elif status_transition.status == FMVReportStatus.COMPLETED:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_completed_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data=report_data, user_timezone=getattr(user, 'timezone', None))
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} Completed",
+                            message=f"Your FMV Report #{report.id} has been completed and is ready for delivery.",
+                            type="fmv_report_completed",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for COMPLETED status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for COMPLETED: {notif_error}")
+                        db.rollback()
+                        
                 elif status_transition.status == FMVReportStatus.DELIVERED:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_delivered_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data=report_data, user_timezone=getattr(user, 'timezone', None))
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} Delivered",
+                            message=f"Your FMV Report #{report.id} has been delivered! Check your email for the report PDF.",
+                            type="fmv_report_delivered",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for DELIVERED status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for DELIVERED: {notif_error}")
+                        db.rollback()
+                        
                 elif status_transition.status == FMVReportStatus.NEED_MORE_INFO:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
                         # Include all report details for the email
@@ -1817,13 +2022,50 @@ async def update_report_status(
                             user_email=user.email,
                             user_name=user.full_name,
                             report_data=need_more_info_data, user_timezone=getattr(user, 'timezone', None))
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        reason = report.need_more_info_reason or status_transition.rejection_reason or status_transition.analyst_notes or "Additional information is required."
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} - More Information Needed",
+                            message=f"Your FMV Report #{report.id} requires additional information: {reason[:100]}",
+                            type="fmv_report_need_more_info",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for NEED_MORE_INFO status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for NEED_MORE_INFO: {notif_error}")
+                        db.rollback()
+                        
                 elif status_transition.status == FMVReportStatus.REJECTED:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
                         email_service.send_rejected_notification(
                         user_email=user.email,
                         user_name=user.full_name,
                         report_data=report_data, user_timezone=getattr(user, 'timezone', None))
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} Rejected",
+                            message=f"Your FMV Report #{report.id} has been rejected. Please contact support for more information.",
+                            type="fmv_report_rejected",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for REJECTED status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for REJECTED: {notif_error}")
+                        db.rollback()
         except Exception as e:
             logger.error(f"Error sending status notification: {e}")
         
@@ -1937,10 +2179,12 @@ async def mark_payment_received(
                     # Create user notification
                     try:
                         from ...models.notification import UserNotification
+                        # CRITICAL: Convert amount from cents to dollars for display
+                        amount_dollars = payment_data.amount / 100.0 if payment_data.amount else 0.0
                         user_notification = UserNotification(
                             user_id=user.id,
                             title=f"FMV Report #{report.id} Submitted",
-                            message=f"Your FMV Report #{report.id} has been submitted successfully. Payment received: ${payment_data.amount:,.2f}",
+                            message=f"Your FMV Report #{report.id} has been submitted successfully. Payment received: ${amount_dollars:,.2f}",
                             type="fmv_report_submitted",
                             read=False
                         )
@@ -1978,20 +2222,47 @@ async def upload_pdf(
         service = FMVReportService(db)
         report = service.upload_pdf(report_id, pdf_url)
         
-        # Send delivered notification if status changed to delivered
+        # Send delivered notification and email if status changed to delivered
         if report.status == FMVReportStatus.DELIVERED:
             try:
                 user = db.query(User).filter(User.id == report.user_id).first()
                 if user:
+                    # Send email notification
                     email_service = get_fmv_email_service()
                     if email_service:
-                        email_service.send_delivered_notification(
-                        user_email=user.email,
-                        user_name=user.full_name,
-                        report_data={
+                        report_data = {
                             "report_id": report.id,
-                            "pdf_url": pdf_url
-                        }, user_timezone=getattr(user, 'timezone', None))
+                            "report_type": report.report_type.value if hasattr(report.report_type, 'value') else str(report.report_type),
+                            "report_type_display": report.report_type.value.replace('_', ' ').title() if hasattr(report.report_type, 'value') else str(report.report_type).replace('_', ' ').title(),
+                            "crane_details": report.crane_details,
+                            "pdf_url": pdf_url,
+                            "amount": report.amount_paid,
+                            "amount_paid": report.amount_paid
+                        }
+                        email_service.send_delivered_notification(
+                            user_email=user.email,
+                            user_name=user.full_name,
+                            report_data=report_data,
+                            user_timezone=getattr(user, 'timezone', None)
+                        )
+                        logger.info(f"✅ Sent DELIVERED email notification for report {report.id}")
+                    
+                    # Create user notification
+                    try:
+                        from ...models.notification import UserNotification
+                        user_notification = UserNotification(
+                            user_id=user.id,
+                            title=f"FMV Report #{report.id} Delivered",
+                            message=f"Your FMV Report #{report.id} has been delivered! Check your email for the report PDF.",
+                            type="fmv_report_delivered",
+                            read=False
+                        )
+                        db.add(user_notification)
+                        db.commit()
+                        logger.info(f"✅ Created user notification for DELIVERED status on report {report.id}")
+                    except Exception as notif_error:
+                        logger.warning(f"Failed to create user notification for DELIVERED: {notif_error}")
+                        db.rollback()
             except Exception as e:
                 logger.error(f"Error sending delivered notification: {e}")
         

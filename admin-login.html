@@ -150,23 +150,87 @@
 
         .password-container {
             position: relative;
+            display: block;
+        }
+        
+        /* CRITICAL FIX: Override ALL possible CSS rules for password input */
+        .password-container input,
+        .password-container input.form-input,
+        .password-container input[type="password"],
+        .password-container input[type="text"],
+        #password,
+        input#password,
+        input#password.form-input,
+        input#password[type="password"],
+        body .password-container input,
+        body .password-container input.form-input,
+        body .password-container input[type="password"],
+        body .login-container .password-container input,
+        body .login-container .login-form .password-container input,
+        body .login-container .login-form .form-group .password-container input,
+        html body .login-container .login-form .form-group .password-container input,
+        html body .login-container .login-form .form-group .password-container input.form-input,
+        html body .login-container .login-form .form-group .password-container input[type="password"],
+        html body .login-container .login-form .form-group .password-container input[type="text"],
+        html body .login-container .login-form .form-group .password-container #password,
+        html body .login-container .login-form #password,
+        html body #password {
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+            padding-left: 16px !important;
+            padding-right: 55px !important; /* Increased to 55px to ensure button doesn't overlap */
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            position: relative !important;
+            z-index: 1 !important;
+            text-overflow: ellipsis !important;
+            overflow: hidden !important;
         }
 
         .password-toggle {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #B0B0B0;
-            cursor: pointer;
-            padding: 4px;
-            transition: color 0.2s ease;
+            position: absolute !important;
+            right: 16px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            background: transparent !important;
+            border: none !important;
+            color: #B0B0B0 !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transition: color 0.2s ease !important;
+            z-index: 10 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 20px !important;
+            height: 20px !important;
+            pointer-events: auto !important;
+            outline: none !important;
+        }
+        
+        .password-toggle svg {
+            width: 18px !important;
+            height: 18px !important;
+            pointer-events: none !important;
+        }
+        
+        .password-toggle:hover {
+            color: #FFD600 !important;
         }
 
         .password-toggle:hover {
-            color: #FFFFFF;
+            color: #FFD600;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            color: #FFD600;
+        }
+
+        .password-toggle:active {
+            transform: translateY(-50%) scale(0.95);
         }
 
         .form-options {
@@ -339,7 +403,42 @@
 
         }
     </style>
-    <link rel="stylesheet" href="/css/responsive-global.css?v=1">
+    <link rel="stylesheet" href="/css/responsive-global.css?v=2">
+    <style>
+        /* CRITICAL: Override responsive-global.css for password field - must load after responsive-global.css */
+        /* Using maximum specificity to override the global padding rule */
+        /* Additional high-specificity overrides */
+        html body .login-container .login-form .form-group .password-container input[type="password"],
+        html body .login-container .login-form .form-group .password-container input[type="text"],
+        html body .login-container .login-form .form-group .password-container input.form-input,
+        html body .login-container .login-form .form-group .password-container #password,
+        html body .login-container .login-form #password,
+        html body #password,
+        input[type="password"]#password,
+        input[type="password"]#password.form-input {
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+            padding-left: 16px !important;
+            padding-right: 55px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    </style>
+    <script>
+        // Force apply padding on page load to override any CSS
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.style.setProperty('padding-right', '55px', 'important');
+                passwordInput.style.setProperty('padding-top', '14px', 'important');
+                passwordInput.style.setProperty('padding-bottom', '14px', 'important');
+                passwordInput.style.setProperty('padding-left', '16px', 'important');
+                passwordInput.style.setProperty('width', '100%', 'important');
+                passwordInput.style.setProperty('box-sizing', 'border-box', 'important');
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="login-container">
@@ -380,6 +479,7 @@
                         placeholder="Enter your password"
                         required
                         autocomplete="current-password"
+                        data-padding-fixed="true"
                     >
                     <button type="button" class="password-toggle" onclick="togglePassword()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -655,6 +755,30 @@
             if (adminToken) {
                 // User is already logged in, redirect to dashboard
                 window.location.href = '/admin/dashboard.html';
+            }
+            
+            // Force apply password field padding to override any CSS
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.style.setProperty('padding-right', '55px', 'important');
+                passwordInput.style.setProperty('padding-top', '14px', 'important');
+                passwordInput.style.setProperty('padding-bottom', '14px', 'important');
+                passwordInput.style.setProperty('padding-left', '16px', 'important');
+                passwordInput.style.setProperty('width', '100%', 'important');
+                passwordInput.style.setProperty('box-sizing', 'border-box', 'important');
+            }
+        });
+        
+        // Also apply on DOMContentLoaded as backup
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.style.setProperty('padding-right', '55px', 'important');
+                passwordInput.style.setProperty('padding-top', '14px', 'important');
+                passwordInput.style.setProperty('padding-bottom', '14px', 'important');
+                passwordInput.style.setProperty('padding-left', '16px', 'important');
+                passwordInput.style.setProperty('width', '100%', 'important');
+                passwordInput.style.setProperty('box-sizing', 'border-box', 'important');
             }
         });
     </script>

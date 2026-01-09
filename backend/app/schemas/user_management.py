@@ -17,13 +17,20 @@ class UserResponse(BaseModel):
     email: str
     username: str
     full_name: str
-    company_name: str
+    company_name: Optional[str] = "N/A"  # Changed to Optional to handle None values
     user_role: UserRole
     is_active: bool
     is_verified: bool
     total_payments: float
     created_at: datetime
     updated_at: datetime
+    timezone: Optional[str] = None
+    last_login: Optional[datetime] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
+    street_address: Optional[str] = None
+    full_address: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -59,6 +66,8 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     full_name: Optional[str] = None
     company_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
     
     @validator('username')
     def validate_username(cls, v):

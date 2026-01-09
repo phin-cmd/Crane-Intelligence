@@ -55,13 +55,14 @@ async def get_all_users(
         )
 
 
-@router.get("/admin/users/{user_id}", response_model=UserResponse)
+@router.get("/admin/users/{user_id}")  # Removed response_model to allow phone/address in response
 async def get_user(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin_user)
 ):
-    """Get a specific user by ID"""
+    """Get a specific user by ID - user_management.py endpoint"""
+    logger.info(f"user_management.py get_user called for user_id={user_id}")
     try:
         user = await user_management_service.get_user_by_id(db=db, user_id=user_id)
         if not user:
@@ -69,7 +70,60 @@ async def get_user(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-        return user
+        
+        # Try to get additional profile data if stored in notification_preferences JSON
+        import json
+        phone = None
+        address = None
+        company_name = user.company_name
+        
+        if user.notification_preferences:
+            try:
+                prefs = json.loads(user.notification_preferences)
+                phone = prefs.get('phone') or prefs.get('phone_number')
+                address = prefs.get('address') or prefs.get('street_address') or prefs.get('full_address')
+                # Also check for company_name in preferences if it's "N/A" in the main field
+                if (not company_name or company_name == "N/A") and prefs.get('company_name'):
+                    company_name = prefs.get('company_name')
+                logger.info(f"Extracted from preferences: phone={phone}, address={address}")
+            except Exception as e:
+                logger.error(f"Error parsing notification_preferences: {e}")
+                pass
+        
+        # Ensure company_name is not None (UserResponse requires it to be a string)
+        if not company_name or company_name == "N/A" or company_name is None:
+            company_name = "N/A"  # Use "N/A" string instead of None
+        
+        # Create response with all available data
+        # Return as dict to ensure phone/address are included (UserResponse schema might filter them)
+        from fastapi.responses import JSONResponse
+        
+        response_dict = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "full_name": user.full_name,
+            "company_name": company_name,  # Always a string, never None
+            "user_role": user.user_role.value if hasattr(user.user_role, 'value') else str(user.user_role),
+            "is_active": user.is_active,
+            "is_verified": user.is_verified,
+            "total_payments": float(user.total_payments) if user.total_payments else 0.0,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+            "timezone": user.timezone,
+            "last_login": user.last_login.isoformat() if user.last_login else None,
+            "phone": phone,  # Include phone from notification_preferences
+            "phone_number": phone,
+            "address": address,  # Include address from notification_preferences
+            "street_address": address,
+            "full_address": address
+        }
+        
+        logger.info(f"user_management.py: Returning user {user_id} with phone={phone}, address={address}, response_dict keys: {list(response_dict.keys())}")
+        print(f"=== user_management.py RETURNING with phone={phone}, address={address} ===", flush=True)
+        # Use JSONResponse to ensure our dict is returned
+        from fastapi.responses import JSONResponse
+        return JSONResponse(content=response_dict)
     except HTTPException:
         raise
     except Exception as e:
@@ -352,7 +406,44 @@ async def get_current_user_profile(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Get current user's profile"""
-    return current_user
+    # Extract phone and address from notification_preferences
+    import json
+    phone = None
+    address = None
+    company_name = current_user.company_name
+    
+    if current_user.notification_preferences:
+        try:
+            prefs = json.loads(current_user.notification_preferences)
+            phone = prefs.get('phone') or prefs.get('phone_number')
+            address = prefs.get('address') or prefs.get('street_address') or prefs.get('full_address')
+            if (not company_name or company_name == "N/A") and prefs.get('company_name'):
+                company_name = prefs.get('company_name')
+        except:
+            pass
+    
+    # Return user with phone and address
+    user_dict = {
+        "id": current_user.id,
+        "email": current_user.email,
+        "username": current_user.username,
+        "full_name": current_user.full_name,
+        "company_name": company_name if company_name and company_name != "N/A" else None,
+        "user_role": current_user.user_role,
+        "is_active": current_user.is_active,
+        "is_verified": current_user.is_verified,
+        "total_payments": current_user.total_payments,
+        "created_at": current_user.created_at,
+        "updated_at": current_user.updated_at,
+        "timezone": current_user.timezone,
+        "last_login": current_user.last_login,
+        "phone": phone,
+        "phone_number": phone,
+        "address": address,
+        "street_address": address,
+        "full_address": address
+    }
+    return user_dict
 
 
 @router.put("/users/profile", response_model=UserResponse)

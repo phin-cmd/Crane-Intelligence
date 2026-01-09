@@ -80,6 +80,20 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"error": "An internal error occurred. Please try again later."}
     )
 
+# Add request logging middleware to debug endpoint calls
+@app.middleware("http")
+async def request_logging_middleware(request: Request, call_next):
+    """Log all requests to debug endpoint routing"""
+    if "/admin/users/" in str(request.url.path) and request.method == "GET":
+        import sys
+        print(f"=== MIDDLEWARE: {request.method} {request.url.path} ===", file=sys.stderr, flush=True)
+        print(f"=== MIDDLEWARE: {request.method} {request.url.path} ===", file=sys.stdout, flush=True)
+    response = await call_next(request)
+    if "/admin/users/" in str(request.url.path) and request.method == "GET":
+        import sys
+        print(f"=== MIDDLEWARE: Response status {response.status_code} for {request.url.path} ===", file=sys.stderr, flush=True)
+    return response
+
 # Add bot detection middleware
 @app.middleware("http")
 async def bot_detection_middleware(request: Request, call_next):

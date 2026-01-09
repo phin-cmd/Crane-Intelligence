@@ -229,6 +229,24 @@ textarea {
     box-sizing: border-box !important;
 }
 
+/* EXCEPTION: Password inputs inside password-container should NOT have the global padding */
+/* This must come AFTER the general rule and use !important to override */
+.password-container input[type="password"],
+.password-container input[type="text"],
+.password-container input.form-input,
+.password-container input,
+#password {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    padding-left: 16px !important;
+    padding-right: 55px !important; /* Extra space for eye button (20px button + 16px right + 19px spacing) */
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
 /* ===== BUTTONS RESPONSIVE ===== */
 .btn,
 .button,

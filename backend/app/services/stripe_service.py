@@ -142,6 +142,20 @@ class StripeService:
             if metadata:
                 intent_params["metadata"] = metadata
             
+            # CRITICAL: Enable automatic payment methods for production
+            # This enables card, link, and us_bank_account payment methods
+            # In live mode, all enabled payment methods in Stripe dashboard will be available
+            intent_params["automatic_payment_methods"] = {
+                "enabled": True,
+                "allow_redirects": "always"  # Required for link and us_bank_account
+            }
+            
+            # Log payment method configuration
+            if self.secret_key.startswith("sk_live_"):
+                logger.info("✓ Creating payment intent with live payment methods enabled (card, link, us_bank_account)")
+            else:
+                logger.info("✓ Creating payment intent in test mode")
+            
             payment_intent = stripe.PaymentIntent.create(**intent_params)
             
             logger.info(f"Payment intent created: {payment_intent.id}")

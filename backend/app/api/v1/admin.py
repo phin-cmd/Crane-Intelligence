@@ -508,21 +508,107 @@ async def get_users(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching users: {str(e)}")
 
-@router.get("/users/{user_id}")
+@router.get("/users/{user_id}", response_model=None)  # Explicitly set to None to allow dict return
 async def get_user(
     user_id: str,
     current_user: AdminUser = Depends(require_admin_access),
     db: Session = Depends(get_db)
 ):
-    """Get specific user by ID"""
+    """Get specific user by ID with full details including phone and address - admin.py endpoint"""
+    # CRITICAL: This endpoint MUST be called for /api/v1/admin/users/{user_id}
+    # If this print doesn't appear, the endpoint isn't being called
+    import sys
+    import traceback
+    import os
+    print(f"=== admin.py get_user CALLED for user_id={user_id} ===", file=sys.stderr, flush=True)
+    print(f"=== admin.py get_user CALLED for user_id={user_id} ===", file=sys.stdout, flush=True)
+    os.system(f'echo "=== admin.py get_user CALLED for user_id={user_id} ===" >> /tmp/admin_endpoint.log')
+    logger.info(f"admin.py get_user called for user_id={user_id} (type: {type(user_id)})")
     try:
-        user = db.query(User).filter(User.id == user_id).first()
+        # Convert user_id to int if it's a string
+        try:
+            user_id_int = int(user_id)
+        except (ValueError, TypeError):
+            user_id_int = user_id
+        
+        print(f"=== admin.py: Querying user with id={user_id_int} ===", flush=True)
+        user = db.query(User).filter(User.id == user_id_int).first()
         if not user:
+            print(f"=== admin.py: User {user_id} NOT FOUND ===", flush=True)
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        
+        print(f"=== admin.py: Found user {user_id_int}: {user.email} ===", flush=True)
+        
+        # Extract phone and address from notification_preferences JSON
+        import json
+        phone = None
+        address = None
+        company_name = user.company_name
+        
+        if user.notification_preferences:
+            try:
+                prefs = json.loads(user.notification_preferences)
+                phone = prefs.get('phone') or prefs.get('phone_number')
+                address = prefs.get('address') or prefs.get('street_address') or prefs.get('full_address')
+                if (not company_name or company_name == "N/A") and prefs.get('company_name'):
+                    company_name = prefs.get('company_name')
+            except Exception as e:
+                logger.error(f"Error parsing notification_preferences: {e}")
+                pass
+        
+        # Ensure company_name is not None
+        if not company_name or company_name == "N/A" or company_name is None:
+            company_name = "N/A"
+        
+        # Return user as dict with all fields (including phone/address)
+        # This bypasses the admin.py UserResponse schema which doesn't have these fields
+        # Use JSONResponse to ensure phone/address are included in response
+        from fastapi.responses import JSONResponse
+        import json as json_lib
+        from datetime import datetime
+        
+        response_dict = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "full_name": user.full_name,
+            "name": user.full_name,  # For compatibility with admin schema
+            "company_name": company_name,
+            "user_role": user.user_role.value if hasattr(user.user_role, 'value') else str(user.user_role),
+            "role": user.user_role.value if hasattr(user.user_role, 'value') else str(user.user_role),
+            "is_active": user.is_active,
+            "is_verified": user.is_verified,
+            "total_payments": float(user.total_payments) if user.total_payments else 0.0,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+            "timezone": user.timezone,
+            "last_login": user.last_login.isoformat() if user.last_login else None,
+            "phone": phone,  # This should be "6464646464"
+            "phone_number": phone,
+            "address": address,  # This should be the full address
+            "street_address": address,
+            "full_address": address
+        }
+        
+        logger.info(f"admin.py: Returning user {user_id} with phone={phone}, address={address}, response_dict keys: {list(response_dict.keys())}")
+        logger.info(f"admin.py: response_dict contains phone={response_dict.get('phone')}, address={response_dict.get('address')}")
+        
+        # CRITICAL: Use JSONResponse to bypass any FastAPI serialization
+        # This ensures our dict is returned exactly as-is
+        from fastapi.responses import JSONResponse
+        
+        # Remove any User model fields that shouldn't be in response (safety check)
+        safe_dict = {k: v for k, v in response_dict.items() 
+                    if k not in ['hashed_password', 'company_id', 'notification_preferences']}
+        
+        logger.info(f"admin.py: Returning JSONResponse with {len(safe_dict)} keys, phone={safe_dict.get('phone')}, address={safe_dict.get('address')}")
+        print(f"=== admin.py RETURNING JSONResponse with phone={safe_dict.get('phone')}, address={safe_dict.get('address')} ===", flush=True)
+        return JSONResponse(content=safe_dict)
     except HTTPException:
         raise
     except Exception as e:
+        print(f"=== admin.py EXCEPTION: {e} ===", flush=True)
+        logger.error(f"Error fetching user {user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error fetching user: {str(e)}")
 
 @router.post("/users", response_model=UserResponse)

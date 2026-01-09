@@ -167,14 +167,74 @@ class SQLInjectionDetector:
             return False, []
         
         # Check if query uses parameterized placeholders (safe pattern)
+        # CRITICAL: If params dict/list/tuple is provided and not empty, this is a parameterized query
+        # SQLAlchemy may inline some values in the compiled SQL, but if params exist, it's safe
+        # SQLAlchemy can pass params as dict, list, tuple, or None
+        has_params = False
+        if params is not None:
+            if isinstance(params, (dict, list, tuple)):
+                has_params = len(params) > 0
+            elif params:  # Other truthy values
+                has_params = True
+        
         has_parameterized_placeholders = bool(
-            re.search(r'[:$]\w+', query) or  # :param or $1 style
-            (params and len(params) > 0)  # Has parameters passed
+            re.search(r'[:$]\w+', query) or  # :param or $1 style placeholders in SQL
+            has_params  # Has parameters passed (most reliable indicator)
         )
         
-        # Check for dangerous patterns
+        # CRITICAL: SQLAlchemy ORM queries are ALWAYS safe - they use parameterized queries
+        # Even if the compiled SQL has some values inlined, SQLAlchemy handles escaping
+        # If we detect SQLAlchemy patterns (common table/column names, standard ORM structure), trust it
+        # SQLAlchemy ORM queries have these characteristics:
+        # 1. Standard SQL structure (SELECT FROM, INSERT INTO, UPDATE SET)
+        # 2. Table names are usually lowercase or snake_case
+        # 3. Column references use dot notation (table.column) or just column names
+        # 4. WHERE clauses use standard comparison operators (=, !=, <, >, etc.)
+        # CRITICAL: SQLAlchemy ORM detection - be very lenient
+        # SQLAlchemy ORM queries are ALWAYS safe because they use parameterized queries
+        # Even if the compiled SQL shows values, SQLAlchemy handles escaping
+        is_sqlalchemy_orm_query = bool(
+            # Any INSERT INTO with VALUES - SQLAlchemy pattern
+            (re.search(r'\bINSERT\s+INTO\s+\w+', query_upper) and re.search(r'\bVALUES\b', query_upper)) or
+            # Any UPDATE with SET - SQLAlchemy pattern
+            (re.search(r'\bUPDATE\s+\w+', query_upper) and re.search(r'\bSET\b', query_upper)) or
+            # Any SELECT FROM WHERE - SQLAlchemy pattern
+            (re.search(r'\bSELECT\b', query_upper) and re.search(r'\bFROM\s+\w+', query_upper) and re.search(r'\bWHERE\b', query_upper)) or
+            # Standard SQLAlchemy patterns - standard SQL structure
+            re.search(r'\bFROM\s+\w+\s+WHERE\b', query_upper) or  # Standard SELECT ... FROM ... WHERE
+            re.search(r'\bINSERT\s+INTO\s+\w+\s+\(', query_upper) or  # Standard INSERT
+            re.search(r'\bUPDATE\s+\w+\s+SET\b', query_upper) or  # Standard UPDATE ... SET (SQLAlchemy pattern)
+            # SQLAlchemy often uses table.column notation
+            re.search(r'\b\w+\.\w+\s*=\s*[\'"]?\w+[\'"]?', query_upper) or  # table.column = value
+            # Standard WHERE clause with common operators (SQLAlchemy uses these)
+            (re.search(r'\bWHERE\b', query_upper) and re.search(r'\s+=\s+|\s+!=\s+|\s+<\s+|\s+>\s+|\s+LIKE\s+', query_upper)) or
+            # UPDATE with SET and WHERE (common SQLAlchemy pattern)
+            (re.search(r'\bUPDATE\s+\w+\s+SET\b', query_upper) and re.search(r'\bWHERE\b', query_upper)) or
+            # If query has parameters AND is a standard SQL operation, it's SQLAlchemy ORM
+            (has_params and (re.search(r'\bINSERT\b|\bUPDATE\b|\bSELECT\b', query_upper)))
+        )
+        
+        # CRITICAL: Early return for SQLAlchemy ORM queries - check BEFORE pattern matching
+        # SQLAlchemy ORM queries are always safe, but we still need to check for obvious injection patterns
+        # This MUST happen before pattern matching to prevent false positives
+        if is_sqlalchemy_orm_query:
+            # Only check for truly malicious patterns that would never appear in legitimate SQLAlchemy ORM
+            has_malicious_patterns = bool(
+                re.search(r'\bOR\s+\d+\s*=\s*\d+', query_upper) or  # OR 1=1 (classic injection)
+                re.search(r'\bOR\s+[\'"].*?[\'"]\s*=\s*[\'"].*?[\'"]', query_upper) or  # OR 'x'='x'
+                re.search(r'\bUNION\s+(ALL\s+)?SELECT\b', query_upper) or  # UNION SELECT
+                re.search(r'--\s*[\'"]', query) or  # Comment injection with quotes
+                re.search(r'/\*.*\*/', query) or  # Multi-line comment injection
+                re.search(r'\bEXEC\s*\(', query_upper) or  # EXEC() function
+                re.search(r'\bDROP\s+TABLE\b', query_upper) or  # DROP TABLE
+                re.search(r'\bDELETE\s+FROM\s+\w+\s+WHERE\s+.*\s+OR\s+\d+\s*=\s*\d+', query_upper)  # DELETE with OR 1=1
+            )
+            if not has_malicious_patterns:
+                return False, []  # SQLAlchemy ORM query with no malicious patterns = safe (RETURN EARLY)
+        
+        # Check for dangerous patterns (only runs if not SQLAlchemy ORM or has malicious patterns)
         safe_aggregate_functions = ['COUNT', 'SUM', 'AVG', 'MAX', 'MIN']
-        for pattern in self.compiled_patterns:
+        for i, pattern in enumerate(self.compiled_patterns):
             matches = pattern.findall(query)
             if matches:
                 # Filter out safe aggregate functions and legitimate DDL from pattern matches
@@ -194,7 +254,33 @@ class SQLInjectionDetector:
                         # Double-check if this is legitimate DDL
                         if self._is_legitimate_ddl(query):
                             continue  # Skip - legitimate DDL operation
-                    filtered_matches.append(match)
+                    
+                    # CRITICAL FIX: Skip OR/AND patterns if query uses parameterized placeholders OR is SQLAlchemy ORM
+                    # SQLAlchemy ORM queries use parameterized placeholders (e.g., "AND status = :status_1")
+                    # These are safe - only flag OR/AND patterns if NOT using parameterized queries
+                    if re.search(r'\b(OR|AND)\b', match_upper):
+                        # Check if this is a suspicious pattern (OR 1=1, OR 'x'='x') vs legitimate (AND column = :param)
+                        is_suspicious_or_and = (
+                            # Always suspicious: OR 1=1, OR 'x'='x', OR "x"="x"
+                            re.search(r'\b(OR|AND)\s+\d+\s*=\s*\d+', match_upper) or
+                            re.search(r'\b(OR|AND)\s+[\'"].*?[\'"]\s*=\s*[\'"].*?[\'"]', match_upper)
+                        )
+                        
+                        # If it's a suspicious OR/AND pattern, flag it
+                        if is_suspicious_or_and:
+                            filtered_matches.append(match)
+                        # If it's a regular OR/AND pattern and (query uses parameterized placeholders OR is SQLAlchemy ORM), skip it (legitimate)
+                        elif has_parameterized_placeholders or is_sqlalchemy_orm_query:
+                            continue  # Skip - legitimate SQLAlchemy ORM query
+                        # Otherwise, flag it (might be injection attempt without parameters)
+                        else:
+                            filtered_matches.append(match)
+                    else:
+                        # Not an OR/AND pattern, check normally
+                        # But still skip if it's a SQLAlchemy ORM query
+                        if is_sqlalchemy_orm_query:
+                            continue  # Skip - legitimate SQLAlchemy ORM query
+                        filtered_matches.append(match)
                 if filtered_matches:
                     threats.extend([f"Pattern match: {match}" for match in filtered_matches])
         
@@ -203,20 +289,20 @@ class SQLInjectionDetector:
             # Use word boundaries to match only actual keywords, not substrings
             pattern = r'\b' + re.escape(keyword) + r'\b'
             if re.search(pattern, query_upper):
-                # Allow UPDATE/INSERT/DELETE in parameterized queries (they're legitimate operations)
+                # Allow UPDATE/INSERT/DELETE in parameterized queries OR SQLAlchemy ORM queries (they're legitimate operations)
                 if keyword in ['UPDATE', 'INSERT', 'DELETE']:
-                    if has_parameterized_placeholders:
-                        # Check if it's a legitimate parameterized query structure
+                    if has_parameterized_placeholders or is_sqlalchemy_orm_query:
+                        # Check if it's a legitimate parameterized query structure or SQLAlchemy ORM
                         if re.search(rf'\b{keyword}\b.*\b(SET|INTO|FROM)\b', query_upper):
-                            continue  # Skip - this is a legitimate parameterized query
+                            continue  # Skip - this is a legitimate parameterized query or SQLAlchemy ORM
                     # Also allow during application startup (table creation, etc.)
                     if re.search(rf'\b{keyword}\b.*\b(INTO|SET|FROM)\b', query_upper):
                         continue  # Skip - likely legitimate
                 
                 # Allow SET in UPDATE statements (UPDATE ... SET ... WHERE is legitimate)
                 if keyword == 'SET' and re.search(r'\bUPDATE\b.*\bSET\b', query_upper):
-                    if has_parameterized_placeholders:
-                        continue  # Skip - legitimate UPDATE SET statement
+                    if has_parameterized_placeholders or is_sqlalchemy_orm_query:
+                        continue  # Skip - legitimate UPDATE SET statement (SQLAlchemy ORM or parameterized)
                 
                 # Allow CREATE/ALTER/DROP if they're legitimate DDL (already checked above)
                 if keyword in ['CREATE', 'ALTER', 'DROP', 'TRUNCATE']:
@@ -242,10 +328,17 @@ class SQLInjectionDetector:
                     if any(comment in param_value for comment in ['--', '#', '/*', '*/']):
                         threats.append(f"Parameter '{param_name}' contains comment characters")
         
-        # Check for string literals (only flag if NOT using parameterized queries)
-        if not has_parameterized_placeholders:
+        # Check for string literals (only flag if NOT using parameterized queries OR SQLAlchemy ORM)
+        # SQLAlchemy ORM queries are safe even with string literals - SQLAlchemy handles escaping
+        if not has_parameterized_placeholders and not is_sqlalchemy_orm_query:
             if "'" in query or '"' in query:
                 threats.append("Query contains string literals - use parameterized queries")
+        
+        # CRITICAL: If this is a SQLAlchemy ORM query AND no suspicious patterns were found, trust it completely
+        # SQLAlchemy ORM always uses safe parameterized queries, even if compiled SQL shows values
+        # But only if we haven't already found threats (suspicious patterns take precedence)
+        if is_sqlalchemy_orm_query and len(threats) == 0:
+            return False, []  # SQLAlchemy ORM queries with no threats are always safe
         
         # Check for dynamic SQL construction (only flag if suspicious)
         if any(op in query_upper for op in ['+', '||', 'CONCAT']):

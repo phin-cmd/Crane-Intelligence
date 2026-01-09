@@ -201,7 +201,7 @@ class FMVReportService:
         service_record_files = report_data.service_record_files if report_data.service_record_files else None
         
         # CRITICAL: If service_record_files is None/empty, check metadata for backup
-        # This handles cases where files were uploaded but not passed correctly
+        # This handles cases where files were uploaded but not passed correctly (manual entry, auto, etc.)
         if not service_record_files and report_data.metadata and isinstance(report_data.metadata, dict):
             # Check for service_record_file_urls in metadata (comma-separated or array)
             metadata_files = report_data.metadata.get('service_record_file_urls') or report_data.metadata.get('service_record_files')
@@ -212,6 +212,26 @@ class FMVReportService:
                 elif isinstance(metadata_files, list):
                     service_record_files = metadata_files
                 logger.info(f"📎 Found service_record_files in metadata: {len(service_record_files) if isinstance(service_record_files, list) else 1} files")
+        
+        # CRITICAL: Also check if service_record_files is empty but we have files in metadata
+        # This ensures manual entry and auto-generated reports include their files
+        if (not service_record_files or len(service_record_files) == 0) and report_data.metadata and isinstance(report_data.metadata, dict):
+            # Try alternative metadata keys
+            for key in ['service_record_file_urls', 'service_record_files', 'manual_entry_service_record_urls', 'uploaded_files']:
+                metadata_files = report_data.metadata.get(key)
+                if metadata_files:
+                    if isinstance(metadata_files, str):
+                        # Comma-separated string
+                        parsed_files = [url.strip() for url in metadata_files.split(',') if url.strip()]
+                        if parsed_files:
+                            service_record_files = parsed_files
+                            logger.info(f"📎 Found service_record_files in metadata.{key} (comma-separated): {len(parsed_files)} files")
+                            break
+                    elif isinstance(metadata_files, list):
+                        if metadata_files:
+                            service_record_files = metadata_files
+                            logger.info(f"📎 Found service_record_files in metadata.{key} (array): {len(metadata_files)} files")
+                            break
         
         # CRITICAL: For bulk processing, ensure bulk_file_url from crane_details is in service_record_files
         bulk_file_url = None
@@ -284,23 +304,28 @@ class FMVReportService:
         logger.info(f"📎 Setting service_record_files on report: {service_record_files}")
         logger.info(f"📎 Service_record_files type: {type(service_record_files)}, is list: {isinstance(service_record_files, list)}")
         
-        # CRITICAL: Ensure service_record_files is a list or None (not empty string or empty list)
-        if service_record_files:
+        # CRITICAL: Ensure service_record_files is a list (not empty string)
+        # IMPORTANT: Preserve empty arrays as empty arrays (not None) to ensure field is set in database
+        if service_record_files is not None:
             if isinstance(service_record_files, str):
                 # If it's a string, try to parse as JSON or treat as single URL
                 try:
                     import json
                     service_record_files = json.loads(service_record_files)
+                    # If parsed result is a list, filter it
+                    if isinstance(service_record_files, list):
+                        service_record_files = [f for f in service_record_files if f and str(f).strip()]
                 except:
-                    service_record_files = [service_record_files] if service_record_files.strip() else None
+                    # Treat as single URL string
+                    service_record_files = [service_record_files] if service_record_files.strip() else []
             elif isinstance(service_record_files, list):
-                # Filter out empty strings
+                # Filter out empty/null URLs but preserve the list structure
                 service_record_files = [f for f in service_record_files if f and str(f).strip()]
-                if len(service_record_files) == 0:
-                    service_record_files = None
+                # CRITICAL: Keep as empty array (not None) to ensure field is set in database
+                # This allows frontend to distinguish between "not provided" (None) and "no files" ([])
             else:
-                # Convert to list
-                service_record_files = [service_record_files] if service_record_files else None
+                # Convert single value to list
+                service_record_files = [service_record_files] if service_record_files else []
         
         logger.info(f"📎 Final service_record_files after processing: {service_record_files}")
         
@@ -353,44 +378,11 @@ class FMVReportService:
             self.db.rollback()
             raise
         
-        # Create notifications for DRAFT report creation (user and admin)
-        try:
-            from ..models.notification import UserNotification
-            from ..models.admin import AdminUser, Notification
-            
-            # Create user notification
-            user_notification = UserNotification(
-                user_id=user_id,
-                title=f"FMV Report Created - Payment Required",
-                message=f"Your FMV Report #{report.id} has been created. Please complete payment to submit the report.",
-                type="fmv_report_draft",
-                read=False
-            )
-            self.db.add(user_notification)
-            
-            # Create admin notifications for all active admins
-            admin_users = self.db.query(AdminUser).filter(
-                AdminUser.is_active == True,
-                AdminUser.is_verified == True
-            ).all()
-            
-            for admin in admin_users:
-                admin_notification = Notification(
-                    admin_user_id=admin.id,
-                    notification_type="fmv_report_draft",
-                    title=f"New DRAFT Report Created",
-                    message=f"User {user.email} created a new FMV Report #{report.id} (DRAFT - payment pending)",
-                    action_url=f"/admin/fmv-reports.html?report_id={report.id}",
-                    action_text="View Report"
-                )
-                self.db.add(admin_notification)
-            
-            self.db.commit()
-            logger.info(f"✅ Created notifications for DRAFT report {report.id}")
-        except Exception as notif_error:
-            logger.warning(f"Failed to create notifications for DRAFT report {report.id}: {notif_error}")
-            self.db.rollback()
-            # Don't fail report creation if notification fails
+        # NOTE: Notifications are now created in the API endpoint (submit_fmv_report) 
+        # to ensure consistent notification titles and messages across the application.
+        # This prevents duplicate notifications and ensures all notifications use
+        # the standardized format: "Complete Your FMV Report Payment - Report #{id}"
+        logger.info(f"📧 Notifications will be created by API endpoint for DRAFT report {report.id}")
         
         # Send email notification for DRAFT report creation
         # IMPORTANT: Only send the REMINDER email (so user receives a single email)

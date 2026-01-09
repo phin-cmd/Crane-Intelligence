@@ -80,6 +80,18 @@ class UserResponse(BaseModel):
     last_login: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # Add phone and address fields
+    phone: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+    street_address: Optional[str] = None
+    full_address: Optional[str] = None
+    company_name: Optional[str] = None
+    full_name: Optional[str] = None
+    username: Optional[str] = None
+    user_role: Optional[str] = None
+    timezone: Optional[str] = None
+    total_payments: Optional[float] = None
 
     class Config:
         from_attributes = True

@@ -24,7 +24,7 @@ class EmailTemplateService:
     
     # Contact Information
     COMPANY_NAME = "Crane Intelligence"
-    COMPANY_EMAIL = "pgenerelly@craneintelligence.com"
+    COMPANY_EMAIL = "phin@accranes.com"
     COMPANY_PHONE = "+1 (434) 531-7566"
     COMPANY_ADDRESS = "EAST COAST EQUIPMENT EXCHANGE LLC<br>4420 W Grace St<br>Richmond, VA 23230-3808"
     COMPANY_WEBSITE = "https://craneintelligence.tech"
