@@ -99,6 +99,12 @@ async def request_logging_middleware(request: Request, call_next):
 async def bot_detection_middleware(request: Request, call_next):
     """Detect and block bots, crawlers, and AI agents"""
     try:
+        # CRITICAL: Exempt Stripe webhook endpoints from bot detection
+        # Stripe webhooks always include the 'stripe-signature' header
+        if request.url.path.startswith("/api/v1/payment-webhooks/"):
+            # This is a Stripe webhook - allow it through
+            return await call_next(request)
+        
         # Use absolute import to avoid relative import issues
         try:
             from app.security.bot_detector import BotDetector

@@ -224,7 +224,8 @@
         function calculateAmount(p) {
             let amount = 0;
             if (p.amount_paid && p.amount_paid > 0) {
-                amount = parseFloat(p.amount_paid);
+                // amount_paid is stored in cents, convert to dollars
+                amount = parseFloat(p.amount_paid) / 100;
             } else if (p.amount && p.amount > 0) {
                 amount = parseFloat(p.amount) / 100; // Convert from cents to dollars
             } else if (p.payment_intent_id && p.payment_status === 'succeeded') {

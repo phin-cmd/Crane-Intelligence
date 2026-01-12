@@ -142,25 +142,29 @@ async def get_payment_stats(
     
     # Today's revenue
     today = datetime.utcnow().date()
-    today_revenue = db.query(FMVReport).with_entities(
+    today_revenue_cents = db.query(FMVReport).with_entities(
         db.func.sum(FMVReport.amount_paid)
     ).filter(
         FMVReport.paid_at >= datetime.combine(today, datetime.min.time())
     ).scalar() or 0.0
+    # Convert from cents to dollars (amount_paid is stored in cents)
+    today_revenue = float(today_revenue_cents) / 100.0 if today_revenue_cents else 0.0
     
     # This month's revenue
     from datetime import date
     first_day_month = date.today().replace(day=1)
-    month_revenue = db.query(FMVReport).with_entities(
+    month_revenue_cents = db.query(FMVReport).with_entities(
         db.func.sum(FMVReport.amount_paid)
     ).filter(
         FMVReport.paid_at >= datetime.combine(first_day_month, datetime.min.time())
     ).scalar() or 0.0
+    # Convert from cents to dollars (amount_paid is stored in cents)
+    month_revenue = float(month_revenue_cents) / 100.0 if month_revenue_cents else 0.0
     
     return {
         "total_revenue": float(total_revenue),
-        "today_revenue": float(today_revenue),
-        "month_revenue": float(month_revenue),
+        "today_revenue": today_revenue,
+        "month_revenue": month_revenue,
         "by_role": role_stats,
         "total_users": db.query(User).filter(User.total_payments > 0).count()
     }

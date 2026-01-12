@@ -890,7 +890,7 @@
             return {
                 metrics: {
                     totalUsers: Math.floor(Math.random() * 5000) + 2000,
-                    totalRevenue: Math.floor(Math.random() * 500000) + 100000,
+                    totalRevenue: Math.floor(Math.random() * 5000) + 1000, // Revenue in dollars
                     reportsGenerated: Math.floor(Math.random() * 100) + 50,
                     apiCalls: Math.floor(Math.random() * 10000) + 5000,
                     userGrowth: Math.floor(Math.random() * 20) + 5,
@@ -952,7 +952,13 @@
             // Update revenue metrics
             const totalRevenue = document.getElementById('totalRevenue');
             if (totalRevenue) {
-                totalRevenue.textContent = '$' + metrics.totalRevenue.toLocaleString();
+                // Backend returns revenue in dollars, but handle edge case if value is in cents
+                let revenueValue = metrics.totalRevenue || 0;
+                // Safety check: if value seems too large (likely in cents), convert to dollars
+                if (revenueValue > 1000 && revenueValue % 100 === 0) {
+                    revenueValue = revenueValue / 100;
+                }
+                totalRevenue.textContent = '$' + revenueValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
             
             const revenueChange = document.getElementById('revenueChange');

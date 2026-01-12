@@ -675,8 +675,21 @@ async def login_user(request: UserLoginRequest, db: Session = Depends(get_db)):
         )
         
         # Update last login
-        user.last_login = datetime.utcnow()
-        db.commit()
+        try:
+            user.last_login = datetime.utcnow()
+            db.flush()  # Ensure the change is in the session before commit
+            db.commit()
+            db.refresh(user)  # Refresh to ensure we have the latest data
+            logger.info(f"Updated last_login for user {user.email} (ID: {user.id}) to {user.last_login}")
+        except Exception as login_update_error:
+            logger.error(f"Error updating last_login for user {user.email}: {login_update_error}", exc_info=True)
+            # Don't fail the login if last_login update fails, but log it
+            db.rollback()
+            # Try to commit again without last_login update
+            try:
+                db.commit()
+            except:
+                pass
         
         return AuthResponse(
             success=True,

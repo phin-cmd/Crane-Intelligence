@@ -315,7 +315,7 @@ class UserManagement {
         if (this.users.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">
+                    <td colspan="9" class="text-center">
                         <div class="empty-state">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -340,7 +340,9 @@ class UserManagement {
                 const userEmail = user.email || 'N/A';
                 const userRole = user.user_role || user.role || 'N/A';
                 const lastLogin = user.lastLogin || user.last_login;
-                const lastLoginText = lastLogin ? this.formatDate(lastLogin) : 'Never';
+                const lastLoginText = this.formatDateTime(lastLogin);
+                const registeredDate = user.created_at || user.createdAt;
+                const registeredDateText = registeredDate ? this.formatDate(registeredDate) : 'N/A';
                 const statusClass = this.getUserStatusClass(user);
                 const statusText = this.getUserStatusText(user);
                 
@@ -376,6 +378,9 @@ class UserManagement {
                             <div class="last-login">${lastLoginText}</div>
                         </td>
                         <td>
+                            <div class="registered-date">${registeredDateText}</div>
+                        </td>
+                        <td>
                             <button class="btn btn-sm btn-secondary" onclick="userManagement.viewUser('${userId}')" title="Edit">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -392,7 +397,7 @@ class UserManagement {
             console.error('Error rendering table:', error);
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">
+                    <td colspan="9" class="text-center">
                         <div class="error-state">
                             <p>Error rendering users: ${error.message}</p>
                         </div>
@@ -1161,7 +1166,7 @@ class UserManagement {
                         </div>
                         <div>
                             <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Last Login</label>
-                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${user.last_login ? this.formatDate(user.last_login) : 'Never'}</span>
+                            <span style="display: block; font-size: 16px; color: #fff; font-weight: 500;">${this.formatDateTime(user.last_login || user.lastLogin)}</span>
                         </div>
                         <div>
                             <label style="display: block; font-size: 12px; color: #808080; margin-bottom: 4px; text-transform: uppercase;">Email Verified</label>
@@ -1535,11 +1540,41 @@ class UserManagement {
     }
 
     formatDate(dateString) {
+        if (!dateString) return 'Never';
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Never';
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
+        });
+    }
+
+    formatDateTime(dateString) {
+        if (!dateString) return 'Never';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Never';
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        // Show relative time for recent dates
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays === 1) return 'Yesterday, ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        if (diffDays < 7) return `${diffDays} days ago, ` + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        
+        // For older dates, show full date and time
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
         });
     }
 

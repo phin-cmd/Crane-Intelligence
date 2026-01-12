@@ -124,14 +124,16 @@ async def get_admin_analytics(
             FMVReport.amount_paid.isnot(None),
             FMVReport.amount_paid > 0
         ).scalar()
-        total_revenue = float(total_revenue_result) if total_revenue_result else 0.0
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        total_revenue = (float(total_revenue_result) / 100.0) if total_revenue_result else 0.0
         
         revenue_this_period_result = db.query(func.sum(FMVReport.amount_paid)).filter(
             FMVReport.amount_paid.isnot(None),
             FMVReport.amount_paid > 0,
             FMVReport.paid_at >= start_date
         ).scalar()
-        revenue_this_period = float(revenue_this_period_result) if revenue_this_period_result else 0.0
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        revenue_this_period = (float(revenue_this_period_result) / 100.0) if revenue_this_period_result else 0.0
         
         return {
             "success": True,
@@ -237,21 +239,24 @@ async def get_dashboard_stats(
             FMVReport.amount_paid.isnot(None),
             FMVReport.amount_paid > 0
         ).scalar()
-        total_revenue = float(total_revenue_result) if total_revenue_result else 0.0
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        total_revenue = (float(total_revenue_result) / 100.0) if total_revenue_result else 0.0
         
         revenue_today_result = db.query(func.sum(FMVReport.amount_paid)).filter(
             FMVReport.amount_paid.isnot(None),
             FMVReport.amount_paid > 0,
             FMVReport.paid_at >= datetime.now().date()
         ).scalar()
-        revenue_today = float(revenue_today_result) if revenue_today_result else 0.0
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        revenue_today = (float(revenue_today_result) / 100.0) if revenue_today_result else 0.0
         
         revenue_this_month_result = db.query(func.sum(FMVReport.amount_paid)).filter(
             FMVReport.amount_paid.isnot(None),
             FMVReport.amount_paid > 0,
             FMVReport.paid_at >= datetime.now().replace(day=1).date()
         ).scalar()
-        revenue_this_month = float(revenue_this_month_result) if revenue_this_month_result else 0.0
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        revenue_this_month = (float(revenue_this_month_result) / 100.0) if revenue_this_month_result else 0.0
         
         # Get system status
         system_uptime = 99.9
@@ -458,7 +463,7 @@ async def get_users(
         # Get total count
         total = query.count()
         
-        # Apply pagination
+        # Apply pagination - ensure we're getting fresh data from database
         users = query.offset(skip).limit(limit).all()
         
         # Log what we're returning for debugging
@@ -474,8 +479,13 @@ async def get_users(
                 logger.info("✓ Confirmed: Query returned User model (correct)")
         
         # Convert to response models
-        user_responses = [
-            UserResponse(
+        user_responses = []
+        for user in users:
+            # Log last_login for debugging
+            if user.email == "kankanamitra01@gmail.com":
+                logger.info(f"DEBUG: User {user.email} - last_login value: {user.last_login}, type: {type(user.last_login)}, hasattr: {hasattr(user, 'last_login')}")
+            
+            user_response = UserResponse(
                 id=str(user.id),
                 name=user.full_name or user.username or 'N/A',
                 email=user.email,
@@ -486,8 +496,7 @@ async def get_users(
                 created_at=user.created_at,
                 updated_at=user.updated_at
             )
-            for user in users
-        ]
+            user_responses.append(user_response)
         
         logger.info(f"Returning {len(user_responses)} users in response")
         if user_responses:

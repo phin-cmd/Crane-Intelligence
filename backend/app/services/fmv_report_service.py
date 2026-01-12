@@ -914,7 +914,9 @@ class FMVReportService:
         total_revenue = self.db.query(FMVReport.amount_paid).filter(
             FMVReport.amount_paid.isnot(None)
         ).all()
-        revenue_sum = sum([r[0] for r in total_revenue if r[0]])
+        revenue_sum_cents = sum([r[0] for r in total_revenue if r[0]])
+        # Convert from cents to dollars (amount_paid is stored in cents)
+        revenue_sum = revenue_sum_cents / 100.0 if revenue_sum_cents else 0.0
         
         return {
             "total": total,

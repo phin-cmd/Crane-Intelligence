@@ -91,7 +91,13 @@ class AnalyticsManager {
 
     updateOverviewStats(overview) {
         document.getElementById('totalUsers').textContent = overview.total_users || 0;
-        document.getElementById('totalRevenue').textContent = `$${(overview.total_revenue || 0).toLocaleString()}`;
+        // Backend returns revenue in dollars, but handle edge case if value is in cents
+        let revenueValue = overview.total_revenue || 0;
+        // Safety check: if value seems too large (likely in cents), convert to dollars
+        if (revenueValue > 1000 && revenueValue % 100 === 0) {
+            revenueValue = revenueValue / 100;
+        }
+        document.getElementById('totalRevenue').textContent = `$${revenueValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('reportsGenerated').textContent = overview.reports_generated || 0;
         document.getElementById('apiCalls').textContent = (overview.api_calls || 0).toLocaleString();
     }

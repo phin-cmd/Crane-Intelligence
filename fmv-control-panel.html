@@ -450,7 +450,13 @@
                 document.getElementById('stat-review').textContent = stats.in_review;
                 document.getElementById('stat-delivered').textContent = stats.delivered;
                 document.getElementById('stat-rejected').textContent = stats.rejected;
-                document.getElementById('stat-revenue').textContent = `$${stats.total_revenue.toLocaleString()}`;
+                // Backend returns revenue in dollars, but handle edge case if value is in cents
+                let revenueValue = stats.total_revenue || 0;
+                // Safety check: if value seems too large (likely in cents), convert to dollars
+                if (revenueValue > 1000 && revenueValue % 100 === 0) {
+                    revenueValue = revenueValue / 100;
+                }
+                document.getElementById('stat-revenue').textContent = `$${revenueValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
                 document.getElementById('stat-time').textContent = stats.avg_processing_time 
                     ? `${stats.avg_processing_time.toFixed(1)}h` 
                     : '--';

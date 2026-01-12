@@ -15,10 +15,25 @@ from ...core.database import get_db, SessionLocal
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/webhooks", tags=["Payment Webhooks"])
+router = APIRouter(prefix="/payment-webhooks", tags=["Payment Webhooks"])
 
 stripe_service = StripeService()
 payment_email_service = PaymentEmailService()
+
+
+@router.get("/stripe")
+async def stripe_webhook_health():
+    """
+    Health check endpoint for Stripe webhook
+    Allows Stripe to verify the endpoint is accessible
+    """
+    webhook_secret_configured = bool(stripe_service.webhook_secret)
+    return {
+        "status": "ok",
+        "endpoint": "/api/v1/payment-webhooks/stripe",
+        "webhook_secret_configured": webhook_secret_configured,
+        "message": "Stripe webhook endpoint is active"
+    }
 
 
 @router.post("/stripe")
@@ -26,31 +41,37 @@ async def stripe_webhook(request: Request):
     """
     Handle Stripe webhook events
     Sends email notifications for payment events
+    
+    CRITICAL: Always returns 200-299 status codes to Stripe, even on errors.
+    Stripe requires successful HTTP status codes (200-299) to consider webhooks delivered.
     """
     try:
         payload = await request.body()
         signature = request.headers.get("stripe-signature")
         
         if not signature:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Missing stripe-signature header"
-            )
+            logger.error("❌ Stripe webhook: Missing stripe-signature header")
+            # Return 200 to Stripe but log the error
+            return {"status": "error", "message": "Missing stripe-signature header"}
         
         # Verify webhook signature
         verification_result = stripe_service.verify_webhook_signature(payload, signature)
         
         if not verification_result.get("success"):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=verification_result.get("error", "Invalid webhook signature")
-            )
+            error_msg = verification_result.get("error", "Invalid webhook signature")
+            logger.error(f"❌ Stripe webhook signature verification failed: {error_msg}")
+            # Return 200 to Stripe but log the error
+            return {"status": "error", "message": error_msg}
         
         event = verification_result.get("event")
+        if not event:
+            logger.error("❌ Stripe webhook: No event data after verification")
+            return {"status": "error", "message": "No event data"}
+        
         event_type = event.get("type")
         event_data = event.get("data", {}).get("object", {})
         
-        logger.info(f"Received Stripe webhook: {event_type}")
+        logger.info(f"✅ Received Stripe webhook: {event_type} (ID: {event.get('id', 'unknown')})")
         
         # Handle different event types
         db = SessionLocal()
@@ -69,19 +90,23 @@ async def stripe_webhook(request: Request):
                 await _handle_invoice_payment_succeeded(event_data, db)
             elif event_type == "invoice.payment_failed":
                 await _handle_invoice_payment_failed(event_data, db)
+            else:
+                logger.info(f"ℹ️ Unhandled webhook event type: {event_type}")
             
-            return {"status": "success"}
+            logger.info(f"✅ Successfully processed Stripe webhook: {event_type}")
+            return {"status": "success", "event_type": event_type}
+        except Exception as handler_error:
+            # Log the error but still return 200 to Stripe
+            logger.error(f"❌ Error handling webhook event {event_type}: {handler_error}", exc_info=True)
+            return {"status": "error", "message": f"Error processing {event_type}: {str(handler_error)}"}
         finally:
             db.close()
             
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"Error processing Stripe webhook: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error processing webhook"
-        )
+        # CRITICAL: Always return 200 status to Stripe, even on unexpected errors
+        # This prevents Stripe from disabling the webhook endpoint
+        logger.error(f"❌ Unexpected error processing Stripe webhook: {e}", exc_info=True)
+        return {"status": "error", "message": f"Unexpected error: {str(e)}"}
 
 
 async def _handle_payment_intent_created(event_data: Dict[str, Any], db):
